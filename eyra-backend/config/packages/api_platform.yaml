@@ -1,0 +1,33 @@
+api_platform:
+    title: 'EYRA API'
+    description: 'API para la aplicación EYRA de seguimiento menstrual'
+    version: '1.0.0'
+    mapping:
+        paths: ['%kernel.project_dir%/src/Entity']
+    patch_formats:
+        json: ['application/merge-patch+json']
+    swagger:
+        versions: [3]
+        api_keys:
+            bearerAuth:
+                name: Authorization
+                type: header
+    openapi:
+        contact:
+            name: 'EYRA Team'
+            email: 'info@eyra-app.com'
+            url: 'https://eyra-app.com'
+        termsOfService: 'https://eyra-app.com/terms'
+        license:
+            name: 'Proprietary'
+            url: 'https://eyra-app.com/terms'
+    
+    # Estas propiedades deben configurarse como sigue
+    # en versiones recientes de API Platform
+    defaults:
+        swagger_ui_extra_configuration:
+            docExpansion: 'list'
+            persistAuthorization: true
+            displayOperationId: true
+            tagsSorter: 'alpha'
+            operationsSorter: 'alpha'

@@ -1,0 +1,38 @@
+# Este archivo complementa la configuración de API Platform
+# con elementos adicionales de documentación
+parameters:
+    api_description: |
+        # Documentación de la API de EYRA
+        
+        Esta API proporciona funcionalidades para la aplicación EYRA de seguimiento menstrual.
+        
+        ## Autenticación
+        
+        Todas las rutas (excepto login y registro) requieren autenticación mediante Bearer Token.
+        
+        ## Ciclos y seguimiento
+        
+        La API permite registrar ciclos menstruales, síntomas, estados de ánimo y otros datos 
+        relacionados con la salud menstrual.
+        
+        ## Configuración de perfil
+        
+        Personalización completa del perfil, incluyendo datos demográficos, preferencias y ajustes.
+
+    # Configuración de servidores para Swagger UI
+    api_servers:
+        - url: 'http://localhost:8000'
+          description: 'Desarrollo local'
+        - url: 'https://staging.eyra-app.com'
+          description: 'Staging'
+        - url: 'https://api.eyra-app.com'
+          description: 'Producción'
+
+services:
+    # Añade información personalizada a la documentación OpenAPI
+    App\OpenApi\OpenApiFactory:
+        decorates: 'api_platform.openapi.factory'
+        arguments: 
+            - '@App\OpenApi\OpenApiFactory.inner'
+            - '%api_description%'
+            - '%api_servers%'

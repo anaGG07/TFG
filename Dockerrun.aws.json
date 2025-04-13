@@ -1,0 +1,27 @@
+{
+  "AWSEBDockerrunVersion": 2,
+  "containerDefinitions": [
+    {
+      "name": "frontend",
+      "image": "turegistro/frontend:latest",
+      "essential": true,
+      "portMappings": [
+        {
+          "hostPort": 80,
+          "containerPort": 80
+        }
+      ]
+    },
+    {
+      "name": "backend",
+      "image": "turegistro/backend:latest",
+      "essential": true,
+      "portMappings": [
+        {
+          "hostPort": 8000,
+          "containerPort": 80
+        }
+      ]
+    }
+  ]
+}
