@@ -38,15 +38,16 @@ services:
     container_name: eyra-api
     expose:
       - "9000"
-    networks:
-      - eyra-network
+    volumes:
+      - ./eyra-backend:/var/www/html
     environment:
       - DATABASE_URL=${DATABASE_URL}
       - APP_ENV=${APP_ENV}
       - APP_SECRET=${APP_SECRET}
       - JWT_PASSPHRASE=${JWT_PASSPHRASE}
-    volumes:
-      - ./eyra-backend:/var/www/html
+    networks:
+      - eyra-network
+
 
 
 
