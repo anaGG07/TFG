@@ -16,6 +16,7 @@ use ApiPlatform\Metadata\Delete;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Symfony\Component\Serializer\Annotation\Groups;
+use App\Entity\Notification;
 
 #[ORM\Entity(repositoryClass: GuestAccessRepository::class)]
 #[ORM\HasLifecycleCallbacks]
