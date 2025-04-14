@@ -111,8 +111,8 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private Collection $aiQueries;
 
 
-    #[ORM\OneToMany(mappedBy: 'guest', targetEntity: GuestAccess::class)]
-    private Collection $guestInvitations;
+    #[ORM\OneToMany(mappedBy: 'owner', targetEntity: GuestAccess::class)]
+    private Collection $ownedGuestAccesses;
 
     /**
      * @var Collection<int, UserCondition>
@@ -166,7 +166,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         $this->hormoneLevels = new ArrayCollection();
         $this->symptomLogs = new ArrayCollection();
         $this->guestAccesses = new ArrayCollection();
-        $this->guestInvitations = new ArrayCollection();
+        $this->ownedGuestAccesses = new ArrayCollection();
         $this->aiQueries = new ArrayCollection();
     }
 
@@ -187,15 +187,15 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    public function getGuestInvitations(): Collection
+    public function getOwnedGuestAccesses(): Collection
     {
-        return $this->guestInvitations;
+        return $this->ownedGuestAccesses;
     }
 
     public function addGuestInvitation(GuestAccess $guestAccess): static
     {
-        if (!$this->guestInvitations->contains($guestAccess)) {
-            $this->guestInvitations->add($guestAccess);
+        if (!$this->ownedGuestAccesses->contains($guestAccess)) {
+            $this->ownedGuestAccesses->add($guestAccess);
             $guestAccess->setGuest($this);
         }
 
@@ -204,7 +204,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     public function removeGuestInvitation(GuestAccess $guestAccess): static
     {
-        if ($this->guestInvitations->removeElement($guestAccess)) {
+        if ($this->ownedGuestAccesses->removeElement($guestAccess)) {
             if ($guestAccess->getGuest() === $this) {
                 $guestAccess->setGuest(null);
             }
