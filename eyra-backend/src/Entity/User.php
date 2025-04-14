@@ -17,6 +17,8 @@ use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Put;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
+use App\Entity\GuestAccess;
+use App\Entity\AIQuery;
 
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
@@ -105,6 +107,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[Groups(['user:read', 'user:write'])]
     private ?bool $state = true;
 
+    #[ORM\OneToMany(mappedBy: 'user', targetEntity: AIQuery::class)]
+    private Collection $aiQueries;
+
 
     #[ORM\OneToMany(mappedBy: 'guest', targetEntity: GuestAccess::class)]
     private Collection $guestInvitations;
@@ -149,7 +154,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     /**
      * @var Collection<int, GuestAccess>
      */
-    #[ORM\OneToMany(targetEntity: GuestAccess::class, mappedBy: 'owner')]
+    #[ORM\OneToMany(mappedBy: 'guest', targetEntity: GuestAccess::class)]
     private Collection $guestAccesses;
 
     public function __construct()
@@ -162,6 +167,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         $this->symptomLogs = new ArrayCollection();
         $this->guestAccesses = new ArrayCollection();
         $this->guestInvitations = new ArrayCollection();
+        $this->aiQueries = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -592,6 +598,32 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
             // set the owning side to null (unless already changed)
             if ($guestAccess->getOwner() === $this) {
                 $guestAccess->setOwner(null);
+            }
+        }
+
+        return $this;
+    }
+
+    public function getAiQueries(): Collection
+    {
+        return $this->aiQueries;
+    }
+
+    public function addAiQuery(AIQuery $aiQuery): static
+    {
+        if (!$this->aiQueries->contains($aiQuery)) {
+            $this->aiQueries->add($aiQuery);
+            $aiQuery->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeAiQuery(AIQuery $aiQuery): static
+    {
+        if ($this->aiQueries->removeElement($aiQuery)) {
+            if ($aiQuery->getUser() === $this) {
+                $aiQuery->setUser(null);
             }
         }
 
