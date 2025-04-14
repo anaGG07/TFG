@@ -103,6 +103,9 @@ class Notification
     #[Groups(['notification:read', 'notification:write'])]
     private array $metadata = [];
 
+    #[ORM\ManyToOne(inversedBy: 'notifications')]
+    private ?GuestAccess $guestAccess = null;
+
     #[ORM\Column]
     #[Groups(['notification:read'])]
     private ?bool $dismissed = false;
@@ -141,6 +144,18 @@ class Notification
         return $this;
     }
 
+    public function getGuestAccess(): ?GuestAccess
+    {
+        return $this->guestAccess;
+    }
+
+    public function setGuestAccess(?GuestAccess $guestAccess): static
+    {
+        $this->guestAccess = $guestAccess;
+        return $this;
+    }
+
+
     public function getMessage(): ?string
     {
         return $this->message;
@@ -153,7 +168,7 @@ class Notification
         return $this;
     }
 
-    
+
     public function getType(): ?string
     {
         return $this->type;
@@ -198,7 +213,7 @@ class Notification
     public function setRead(bool $read): static
     {
         $this->read = $read;
-        
+
         if ($read && $this->readAt === null) {
             $this->readAt = new \DateTime();
         }
