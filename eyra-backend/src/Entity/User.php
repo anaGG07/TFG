@@ -39,20 +39,20 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\GeneratedValue]
     #[ORM\Column]
     #[Groups(['user:read'])]
-private ?int $id = null;
+    private ?int $id = null;
 
     #[ORM\Column(length: 180)]
     #[Groups(['user:read', 'user:write'])]
     #[Assert\NotBlank(message: "El email es obligatorio")]
     #[Assert\Email(message: "El email {{ value }} no es válido")]
-private ?string $email = null;
+    private ?string $email = null;
 
     /**
      * @var list<string> The user roles
      */
     #[ORM\Column]
     #[Groups(['user:read', 'user:write'])]
-private array $roles = ['ROLE_USER'];
+    private array $roles = ['ROLE_USER'];
 
 
     /**
@@ -62,7 +62,7 @@ private array $roles = ['ROLE_USER'];
     #[Groups(['user:write'])]
     #[Assert\NotBlank(message: "La contraseña es obligatoria", groups: ['create'])]
     #[Assert\Length(min: 8, minMessage: "La contraseña debe tener al menos {{ limit }} caracteres")]
-private ?string $password = null;
+    private ?string $password = null;
 
     #[ORM\Column(length: 255)]
     #[Groups(['user:read', 'user:write'])]
@@ -81,29 +81,33 @@ private ?string $password = null;
 
     #[ORM\Column(enumType: ProfileType::class)]
     #[Groups(['user:read', 'user:write'])]
-private ?ProfileType $profileType = ProfileType::GUEST;
+    private ?ProfileType $profileType = ProfileType::GUEST;
 
     #[ORM\Column(length: 255)]
     #[Groups(['user:read', 'user:write'])]
-private ?string $genderIdentity = null;
+    private ?string $genderIdentity = null;
 
     #[ORM\Column(type: Types::DATE_MUTABLE)]
     #[Groups(['user:read', 'user:write'])]
     #[Assert\NotBlank(message: "La fecha de nacimiento es obligatoria")]
     #[Assert\LessThanOrEqual("today", message: "La fecha de nacimiento no puede ser futura")]
-private ?\DateTimeInterface $birthDate = null;
+    private ?\DateTimeInterface $birthDate = null;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
     #[Groups(['user:read'])]
-private ?\DateTimeInterface $createdAt = null;
+    private ?\DateTimeInterface $createdAt = null;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
     #[Groups(['user:read'])]
-private ?\DateTimeInterface $updatedAt = null;
+    private ?\DateTimeInterface $updatedAt = null;
 
     #[ORM\Column]
     #[Groups(['user:read', 'user:write'])]
-private ?bool $state = true;
+    private ?bool $state = true;
+
+
+    #[ORM\OneToMany(mappedBy: 'guest', targetEntity: GuestAccess::class)]
+    private Collection $guestInvitations;
 
     /**
      * @var Collection<int, UserCondition>
@@ -157,6 +161,7 @@ private ?bool $state = true;
         $this->hormoneLevels = new ArrayCollection();
         $this->symptomLogs = new ArrayCollection();
         $this->guestAccesses = new ArrayCollection();
+        $this->guestInvitations = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -175,6 +180,33 @@ private ?bool $state = true;
 
         return $this;
     }
+
+    public function getGuestInvitations(): Collection
+    {
+        return $this->guestInvitations;
+    }
+
+    public function addGuestInvitation(GuestAccess $guestAccess): static
+    {
+        if (!$this->guestInvitations->contains($guestAccess)) {
+            $this->guestInvitations->add($guestAccess);
+            $guestAccess->setGuest($this);
+        }
+
+        return $this;
+    }
+
+    public function removeGuestInvitation(GuestAccess $guestAccess): static
+    {
+        if ($this->guestInvitations->removeElement($guestAccess)) {
+            if ($guestAccess->getGuest() === $this) {
+                $guestAccess->setGuest(null);
+            }
+        }
+
+        return $this;
+    }
+
 
     /**
      * A visual identifier that represents this user.

@@ -79,7 +79,7 @@ class Notification
     #[Groups(['notification:read', 'notification:write'])]
     private ?string $targetUserType = 'primary';
 
-    #[ORM\ManyToOne]
+    #[ORM\ManyToOne(inversedBy: 'notifications')]
     #[Groups(['notification:read', 'notification:write'])]
     private ?Condition $relatedCondition = null;
 
@@ -153,6 +153,7 @@ class Notification
         return $this;
     }
 
+    
     public function getType(): ?string
     {
         return $this->type;
