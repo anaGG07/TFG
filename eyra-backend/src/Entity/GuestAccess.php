@@ -43,10 +43,11 @@ private ?int $id = null;
     #[Groups(['guest_access:read'])]
 private ?User $owner = null;
 
-    #[ORM\ManyToOne(inversedBy: 'guestAccesses')]
+    #[ORM\ManyToOne(inversedBy: 'guestInvitations')]
     #[ORM\JoinColumn(nullable: false)]
     #[Groups(['guest_access:read', 'guest_access:write'])]
-private ?User $guest = null;
+    private ?User $guest = null;
+
 
     #[ORM\Column(enumType: GuestType::class)]
     #[Groups(['guest_access:read', 'guest_access:write'])]
