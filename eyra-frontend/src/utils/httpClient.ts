@@ -13,7 +13,16 @@ interface RequestOptions extends RequestInit {
 
 export async function apiFetch<T>(path: string, options: RequestOptions = {}): Promise<T> {
   console.log(`Making API request to: ${path}`);
-  console.log('Request options:', { ...options, body: options.body ? '(data)' : undefined });
+  
+  // Log de la configuración (sin exponer datos sensibles)
+  const debugOptions = { 
+    method: options.method, 
+    headers: options.headers,
+    credentials: 'include',
+    bodyIncluded: options.body ? true : false
+  };
+  console.log('Request options:', debugOptions);
+
   const headers: HeadersInit = {
     'Content-Type': 'application/json',
     ...options.headers,
@@ -27,8 +36,15 @@ export async function apiFetch<T>(path: string, options: RequestOptions = {}): P
   };
 
   try {
+    console.log(`Fetching from: ${path}`);
     const response = await fetch(`${path}`, fetchOptions);
-    console.log(`Response status from ${path}:`, response.status);
+    console.log(`Response received from ${path}:`, {
+      status: response.status,
+      statusText: response.statusText,
+      headers: Object.fromEntries([...response.headers]),
+      type: response.type,
+      url: response.url,
+    });
 
 
   if (!response.ok) {
