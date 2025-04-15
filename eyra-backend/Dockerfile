@@ -1,29 +1,28 @@
 FROM php:8.2-fpm
 
-# Instala dependencias necesarias del sistema
+# Instala dependencias del sistema
 RUN apt-get update && apt-get install -y \
-    git unzip zip libpq-dev libicu-dev nginx \
+    git unzip zip libpq-dev libicu-dev \
     && docker-php-ext-install pdo pdo_pgsql intl
 
-# Instala Composer
+# Composer
 COPY --from=composer:2.6 /usr/bin/composer /usr/bin/composer
 
-# Copia archivos del proyecto
+# Ajuste PHP-FPM para escuchar en puerto 9000
+RUN sed -i 's|^listen = .*|listen = 9000|' /usr/local/etc/php-fpm.d/www.conf
+
+# Establece directorio de trabajo
 WORKDIR /var/www/html
+
+# Copia proyecto
 COPY . .
 
-# Copia configuración de Nginx personalizada
-COPY nginx.conf /etc/nginx/nginx.conf
-
-# Copia entrypoint
+# Copia entrypoint y da permisos
 COPY entrypoint.sh /usr/local/bin/entrypoint.sh
 RUN chmod +x /usr/local/bin/entrypoint.sh
 
-# Exponer el puerto en el que Nginx escucha
+# Expone puerto para PHP-FPM
 EXPOSE 9000
 
-# Establece entrypoint
 ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
-
-# Lanza nginx (php-fpm se lanza desde entrypoint)
-CMD ["nginx", "-g", "daemon off;"]
+CMD ["php-fpm"]
