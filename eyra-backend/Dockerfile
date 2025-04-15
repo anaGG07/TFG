@@ -1,6 +1,6 @@
 FROM php:8.2-fpm
 
-# Dependencias necesarias
+# Instala dependencias necesarias del sistema
 RUN apt-get update && apt-get install -y \
     git unzip zip libpq-dev libicu-dev \
     && docker-php-ext-install pdo pdo_pgsql intl
@@ -8,15 +8,21 @@ RUN apt-get update && apt-get install -y \
 # Instala Composer
 COPY --from=composer:2.6 /usr/bin/composer /usr/bin/composer
 
-# Copia entrypoint
+# Establece el directorio de trabajo
+WORKDIR /var/www/html
+
+# Copia archivos del proyecto
+COPY . .
+
+# Asegura permisos y entrada
 COPY entrypoint.sh /usr/local/bin/entrypoint.sh
 RUN chmod +x /usr/local/bin/entrypoint.sh
 
-# Establece directorio de trabajo
-WORKDIR /var/www/html
-COPY . .
-
-# Establece el punto de entrada
+# Usa entrypoint que lanza php-fpm
 ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
 
+# Expone el puerto interno para PHP-FPM (solo para Nginx interno)
 EXPOSE 9000
+
+# Comando por defecto: lanza el servidor PHP-FPM
+CMD ["php-fpm"]
