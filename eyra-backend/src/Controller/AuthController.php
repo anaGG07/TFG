@@ -3,15 +3,20 @@
 namespace App\Controller;
 
 use App\Entity\User;
+use App\Enum\ProfileType;
 use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Cookie;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use App\Service\TokenService;
+use DateTime;
+use Exception;
+use ValueError;
 
 #[Route('/api')]
 class AuthController extends AbstractController
@@ -46,26 +51,45 @@ class AuthController extends AbstractController
 
         // Crear nuevo usuario
         $user = new User();
-        $user->setEmail($data['email']);
-        $user->setUsername($data['username']);
-        $user->setName($data['name']);
-        $user->setLastName($data['lastName']);
+        
+        // Establecer campos obligatorios
+        $user->setEmail((string)$data['email']);
+        $user->setUsername((string)$data['username']);
+        $user->setName((string)$data['name']);
+        $user->setLastName((string)$data['lastName']);
         
         // Hashear la contraseña
-        $hashedPassword = $this->passwordHasher->hashPassword($user, $data['password']);
+        $hashedPassword = $this->passwordHasher->hashPassword($user, (string)$data['password']);
         $user->setPassword($hashedPassword);
         
         // Configurar campos adicionales
-        if (isset($data['genderIdentity'])) {
+        if (isset($data['genderIdentity']) && is_string($data['genderIdentity'])) {
             $user->setGenderIdentity($data['genderIdentity']);
         }
         
-        if (isset($data['birthDate'])) {
-            $user->setBirthDate(new \DateTime($data['birthDate']));
+        if (isset($data['birthDate']) && is_string($data['birthDate'])) {
+            try {
+                $birthDate = new DateTime($data['birthDate']);
+                $user->setBirthDate($birthDate);
+            } catch (Exception $e) {
+                return $this->json([
+                    'message' => 'Formato de fecha inválido',
+                    'error' => $e->getMessage()
+                ], 400);
+            }
         }
         
-        if (isset($data['profileType'])) {
-            $user->setProfileType(\App\Enum\ProfileType::from($data['profileType']));
+        if (isset($data['profileType']) && is_string($data['profileType'])) {
+            try {
+                $profileType = ProfileType::from($data['profileType']);
+                $user->setProfileType($profileType);
+            } catch (ValueError $e) {
+                return $this->json([
+                    'message' => 'Tipo de perfil inválido',
+                    'error' => $e->getMessage(),
+                    'allowed' => array_map(fn($case) => $case->value, ProfileType::cases())
+                ], 400);
+            }
         }
 
         // Validar el usuario
@@ -103,9 +127,10 @@ class AuthController extends AbstractController
             return $this->json(['message' => 'Credenciales incompletas'], 400);
         }
 
-        $user = $this->userRepository->findOneBy(['email' => $data['email']]);
+        /** @var User|null $user */
+        $user = $this->userRepository->findOneBy(['email' => (string)$data['email']]);
         
-        if (!$user || !$this->passwordHasher->isPasswordValid($user, $data['password'])) {
+        if (!$user instanceof User || !$this->passwordHasher->isPasswordValid($user, (string)$data['password'])) {
             return $this->json(['message' => 'Credenciales inválidas'], 401);
         }
 
@@ -121,7 +146,7 @@ class AuthController extends AbstractController
         
         // Establecer cookie JWT HTTP-only
         $response->headers->setCookie(
-            new \Symfony\Component\HttpFoundation\Cookie(
+            new Cookie(
                 'jwt_token',       // Nombre de la cookie
                 $jwtToken,         // Valor (el token JWT)
                 time() + 3600,     // Expiración (1 hora)
@@ -130,13 +155,13 @@ class AuthController extends AbstractController
                 true,              // Secure (HTTPS only)
                 true,              // HTTPOnly (no accessible via JavaScript)
                 false,             // Raw
-                'None'              // SameSite policy (None para permitir CORS)
+                'Lax'              // SameSite policy (cambiado de 'None' a 'Lax' para mejor compatibilidad)
             )
         );
         
         // Establecer cookie de refresh token HTTP-only
         $response->headers->setCookie(
-            new \Symfony\Component\HttpFoundation\Cookie(
+            new Cookie(
                 'refresh_token',               // Nombre de la cookie
                 $refreshToken->getToken(),     // Valor (el refresh token)
                 $refreshToken->getExpiresAt()->getTimestamp(), // Expiración
@@ -145,7 +170,7 @@ class AuthController extends AbstractController
                 true,                          // Secure (HTTPS only)
                 true,                          // HTTPOnly (no accessible via JavaScript)
                 false,                         // Raw
-                'None'                          // SameSite policy
+                'Lax'                          // SameSite policy (cambiado para compatibilidad)
             )
         );
         
@@ -157,14 +182,15 @@ class AuthController extends AbstractController
     {
         $data = json_decode($request->getContent(), true);
 
-        if (!isset($data['refreshToken'])) {
+        if (!isset($data['refreshToken']) || !is_string($data['refreshToken'])) {
             return $this->json(['message' => 'Refresh token requerido'], 400);
         }
 
         // Validar el refresh token
+        /** @var User|null $user */
         $user = $this->tokenService->validateRefreshToken($data['refreshToken']);
         
-        if (!$user) {
+        if (!$user instanceof User) {
             return $this->json(['message' => 'Refresh token inválido o expirado'], 401);
         }
 
@@ -194,7 +220,7 @@ class AuthController extends AbstractController
         
         // Intentar revocar el refresh token si está disponible
         $refreshToken = $request->cookies->get('refresh_token');
-        if ($refreshToken) {
+        if ($refreshToken && is_string($refreshToken)) {
             $this->tokenService->revokeRefreshToken($refreshToken);
         }
         
@@ -204,8 +230,9 @@ class AuthController extends AbstractController
     #[Route('/logout-all', name: 'api_logout_all', methods: ['POST'])]
     public function logoutAll(): JsonResponse
     {
+        /** @var User|null $user */
         $user = $this->getUser();
-        if (!$user) {
+        if (!$user instanceof User) {
             return $this->json(['message' => 'Usuario no autenticado'], 401);
         }
 
@@ -221,8 +248,9 @@ class AuthController extends AbstractController
     #[Route('/profile', name: 'api_profile', methods: ['GET'])]
     public function getProfile(): JsonResponse
     {
+        /** @var User|null $user */
         $user = $this->getUser();
-        if (!$user) {
+        if (!$user instanceof User) {
             return $this->json(['message' => 'Usuario no autenticado'], 401);
         }
 
@@ -232,32 +260,41 @@ class AuthController extends AbstractController
     #[Route('/profile', name: 'api_profile_update', methods: ['PUT'])]
     public function updateProfile(Request $request): JsonResponse
     {
+        /** @var User|null $user */
         $user = $this->getUser();
-        if (!$user) {
+        if (!$user instanceof User) {
             return $this->json(['message' => 'Usuario no autenticado'], 401);
         }
 
         $data = json_decode($request->getContent(), true);
 
         // Actualizar campos permitidos
-        if (isset($data['username'])) {
+        if (isset($data['username']) && is_string($data['username'])) {
             $user->setUsername($data['username']);
         }
         
-        if (isset($data['name'])) {
+        if (isset($data['name']) && is_string($data['name'])) {
             $user->setName($data['name']);
         }
         
-        if (isset($data['lastName'])) {
+        if (isset($data['lastName']) && is_string($data['lastName'])) {
             $user->setLastName($data['lastName']);
         }
         
-        if (isset($data['genderIdentity'])) {
+        if (isset($data['genderIdentity']) && is_string($data['genderIdentity'])) {
             $user->setGenderIdentity($data['genderIdentity']);
         }
         
-        if (isset($data['birthDate'])) {
-            $user->setBirthDate(new \DateTime($data['birthDate']));
+        if (isset($data['birthDate']) && is_string($data['birthDate'])) {
+            try {
+                $birthDate = new DateTime($data['birthDate']);
+                $user->setBirthDate($birthDate);
+            } catch (Exception $e) {
+                return $this->json([
+                    'message' => 'Formato de fecha inválido',
+                    'error' => $e->getMessage()
+                ], 400);
+            }
         }
 
         // Validar cambios
@@ -278,8 +315,9 @@ class AuthController extends AbstractController
     #[Route('/password-change', name: 'api_password_change', methods: ['POST'])]
     public function changePassword(Request $request): JsonResponse
     {
+        /** @var User|null $user */
         $user = $this->getUser();
-        if (!$user) {
+        if (!$user instanceof User) {
             return $this->json(['message' => 'Usuario no autenticado'], 401);
         }
 
@@ -294,12 +332,12 @@ class AuthController extends AbstractController
         }
 
         // Verificar contraseña actual
-        if (!$this->passwordHasher->isPasswordValid($user, $data['currentPassword'])) {
+        if (!$this->passwordHasher->isPasswordValid($user, (string)$data['currentPassword'])) {
             return $this->json(['message' => 'Contraseña actual incorrecta'], 400);
         }
 
         // Actualizar contraseña
-        $newHashedPassword = $this->passwordHasher->hashPassword($user, $data['newPassword']);
+        $newHashedPassword = $this->passwordHasher->hashPassword($user, (string)$data['newPassword']);
         $user->setPassword($newHashedPassword);
 
         $this->entityManager->flush();
@@ -336,8 +374,9 @@ class AuthController extends AbstractController
     #[Route('/active-sessions', name: 'api_active_sessions', methods: ['GET'])]
     public function getActiveSessions(): JsonResponse
     {
+        /** @var User|null $user */
         $user = $this->getUser();
-        if (!$user) {
+        if (!$user instanceof User) {
             return $this->json(['message' => 'Usuario no autenticado'], 401);
         }
 

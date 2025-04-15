@@ -1,7 +1,5 @@
 // Obtenemos la URL base sin /api para evitar duplicaciones
-const API_BASE_URL = import.meta.env.VITE_API_URL.endsWith('/api') 
-  ? import.meta.env.VITE_API_URL 
-  : `${import.meta.env.VITE_API_URL || 'http://localhost/api'}`;
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://eyraclub.es/api';
 
 export const API_ROUTES = {
   AUTH: {

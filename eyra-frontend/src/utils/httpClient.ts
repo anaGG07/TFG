@@ -12,6 +12,8 @@ interface RequestOptions extends RequestInit {
 }
 
 export async function apiFetch<T>(path: string, options: RequestOptions = {}): Promise<T> {
+  console.log(`Making API request to: ${path}`);
+  console.log('Request options:', { ...options, body: options.body ? '(data)' : undefined });
   const headers: HeadersInit = {
     'Content-Type': 'application/json',
     ...options.headers,
@@ -24,7 +26,9 @@ export async function apiFetch<T>(path: string, options: RequestOptions = {}): P
     body: options.body ? JSON.stringify(options.body) : undefined,
   };
 
-  const response = await fetch(`${path}`, fetchOptions);
+  try {
+    const response = await fetch(`${path}`, fetchOptions);
+    console.log(`Response status from ${path}:`, response.status);
 
 
   if (!response.ok) {
@@ -56,4 +60,8 @@ export async function apiFetch<T>(path: string, options: RequestOptions = {}): P
   }
 
   return response.json() as Promise<T>;
+  } catch (networkError) {
+    console.error('Network error:', networkError);
+    throw new Error(`Error de conexión: ${networkError.message}. Por favor, verifica tu conexión a Internet y que el servidor esté disponible.`);
+  }
 }
