@@ -8,4 +8,4 @@ echo "Ejecutando migraciones de base de datos..."
 php bin/console doctrine:schema:update --force
 
 echo "Arrancando PHP-FPM..."
-exec php-fpm
+php-fpm
