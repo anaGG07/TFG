@@ -1,4 +1,5 @@
 import { authService } from '../services/authService';
+import { API_URL } from '../config/setupApiUrl';
 
 // En caso de que no uses react-router directamente aquí
 const redirectToLogin = () => {
@@ -10,16 +11,13 @@ interface RequestOptions extends RequestInit {
   headers?: HeadersInit;
 }
 
-// Base de la API, configurable desde .env
-const BASE_API_URL = import.meta.env.VITE_API_URL || 'https://eyraclub.es/api';
-console.log('httpClient usando BASE_API_URL:', BASE_API_URL);
+// No necesitamos una URL base local aquí pues las rutas de API_ROUTES ya vienen con la URL completa
+console.log('httpClient inicializado, API_URL base:', API_URL);
 
 export async function apiFetch<T>(path: string, options: RequestOptions = {}): Promise<T> {
-  // Determinar si el path es una URL completa o una ruta relativa
-  const isFullUrl = path.startsWith('http://') || path.startsWith('https://');
-  
-  // Si ya es una URL completa, usarla directamente; si no, combinarla con BASE_API_URL
-  const url = isFullUrl ? path : `${BASE_API_URL}${path.startsWith('/') ? '' : '/'}${path}`;
+  // La ruta puede ser una URL completa (si viene de API_ROUTES)
+  // o una ruta relativa (si se llama directamente)
+  const url = path.startsWith('http') ? path : `${API_URL}${path.startsWith('/') ? '' : '/'}${path}`;
 
   console.log(`📡 Fetching: ${url}`);
 

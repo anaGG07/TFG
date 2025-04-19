@@ -1,42 +1,44 @@
-// No necesitamos una URL base, solo definimos rutas relativas
-console.log('Configurando rutas de API relativas');
+import { API_URL } from './setupApiUrl';
 
-// Función auxiliar para normalizar las rutas
-const normalizePath = (path: string): string => {
-  // Si la ruta ya empieza con /, la dejamos tal cual; si no, le añadimos /
-  return path.startsWith('/') ? path : `/${path}`;
+// Log para debugging
+console.log('API_ROUTES utilizando URL base:', API_URL);
+
+// Función auxiliar para crear URLs completas
+const createApiUrl = (path: string): string => {
+  const basePath = path.startsWith('/') ? path : `/${path}`;
+  return `${API_URL}${basePath}`;
 };
 
 export const API_ROUTES = {
   AUTH: {
-    REGISTER: normalizePath('register'),
-    LOGIN: normalizePath('login'),
-    LOGOUT: normalizePath('logout'),
+    REGISTER: createApiUrl('register'),
+    LOGIN: createApiUrl('login'),
+    LOGOUT: createApiUrl('logout'),
   },
 
   USER: {
-    PROFILE: normalizePath('profile'),
-    UPDATE_PROFILE: normalizePath('profile'),
+    PROFILE: createApiUrl('profile'),
+    UPDATE_PROFILE: createApiUrl('profile'),
   },
 
   CYCLES: {
-    ALL: normalizePath('cycles'),
-    CURRENT: normalizePath('cycles/current'),
-    CREATE: normalizePath('cycles'),
-    UPDATE: (id: string) => normalizePath(`cycles/${id}`),
-    DELETE: (id: string) => normalizePath(`cycles/${id}`),
+    ALL: createApiUrl('cycles'),
+    CURRENT: createApiUrl('cycles/current'),
+    CREATE: createApiUrl('cycles'),
+    UPDATE: (id: string) => createApiUrl(`cycles/${id}`),
+    DELETE: (id: string) => createApiUrl(`cycles/${id}`),
   },
 
   SYMPTOMS: {
-    ALL: normalizePath('symptoms'),
-    CREATE: normalizePath('symptoms'),
-    UPDATE: (id: string) => normalizePath(`symptoms/${id}`),
-    DELETE: (id: string) => normalizePath(`symptoms/${id}`),
+    ALL: createApiUrl('symptoms'),
+    CREATE: createApiUrl('symptoms'),
+    UPDATE: (id: string) => createApiUrl(`symptoms/${id}`),
+    DELETE: (id: string) => createApiUrl(`symptoms/${id}`),
   },
 
   INSIGHTS: {
-    SUMMARY: normalizePath('insights/summary'),
-    PREDICTIONS: normalizePath('insights/predictions'),
-    PATTERNS: normalizePath('insights/patterns'),
+    SUMMARY: createApiUrl('insights/summary'),
+    PREDICTIONS: createApiUrl('insights/predictions'),
+    PATTERNS: createApiUrl('insights/patterns'),
   },
 };
