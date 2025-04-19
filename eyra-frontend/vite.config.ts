@@ -14,12 +14,11 @@ export default defineConfig(({ mode }) => {
   return {
     plugins: [react(), tailwindcss()],
     define: {
-      // Esto reemplazará todas las referencias de import.meta.env.VITE_API_URL
-      'import.meta.env.VITE_API_URL': JSON.stringify(apiUrl),
-      // También definimos directamente una variable global para mayor seguridad
-      'window.API_URL': JSON.stringify(apiUrl),
-      // Forzar reemplazo de localhost:8000 (esto es efectivo para solucionar el problema)
-      'http://localhost:8000/api': JSON.stringify(apiUrl)
+      // Esto reemplazará todas las referencias en tiempo de compilación
+      "import.meta.env.VITE_API_URL": JSON.stringify(apiUrl),
+      "process.env.VITE_API_URL": JSON.stringify(apiUrl),
+      // Reemplazar directamente las URLs de localhost
+      "http://localhost:8000/api": JSON.stringify(apiUrl)
     },
     build: {
       outDir: 'dist',
