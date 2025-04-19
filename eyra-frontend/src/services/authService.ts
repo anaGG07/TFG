@@ -22,6 +22,7 @@ class AuthService {
 
   async register(userData: RegisterRequest): Promise<void> {
     try {
+      console.log('Iniciando registro con ruta:', API_ROUTES.AUTH.REGISTER);
       await apiFetch(API_ROUTES.AUTH.REGISTER, {
         method: 'POST',
         body: userData,

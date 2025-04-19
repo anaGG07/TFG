@@ -10,13 +10,16 @@ interface RequestOptions extends RequestInit {
   headers?: HeadersInit;
 }
 
-// Base de la API, configurable desde .env o fallback a /api
-const BASE_API_URL = import.meta.env.VITE_API_URL || '/api';
+// Base de la API, configurable desde .env
+const BASE_API_URL = import.meta.env.VITE_API_URL || 'https://eyraclub.es/api';
+console.log('httpClient usando BASE_API_URL:', BASE_API_URL);
 
 export async function apiFetch<T>(path: string, options: RequestOptions = {}): Promise<T> {
-  // Limpiar el path para evitar errores como /api/api/register
-  const cleanPath = path.startsWith('/') ? path : `/${path}`;
-  const url = `${BASE_API_URL}${cleanPath}`;
+  // Determinar si el path es una URL completa o una ruta relativa
+  const isFullUrl = path.startsWith('http://') || path.startsWith('https://');
+  
+  // Si ya es una URL completa, usarla directamente; si no, combinarla con BASE_API_URL
+  const url = isFullUrl ? path : `${BASE_API_URL}${path.startsWith('/') ? '' : '/'}${path}`;
 
   console.log(`📡 Fetching: ${url}`);
 
