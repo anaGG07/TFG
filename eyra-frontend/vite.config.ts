@@ -12,16 +12,31 @@ export default defineConfig(({ mode }) => {
   console.log(`Building in ${mode} mode with API URL: ${apiUrl}`)
   
   return {
-    plugins: [react(), tailwindcss()],
+    // Utilizar un plugin personalizado para reemplazar texto directamente
+    plugins: [
+      react(), 
+      tailwindcss(),
+      {
+        name: 'replace-localhost',
+        transform(code) {
+          // Reemplazar todas las cadenas que incluyan localhost:8000
+          return code.replace(/http:\/\/localhost:8000\/api/g, apiUrl);
+        }
+      }
+    ],
+    // Define solo para las variables de entorno
     define: {
-      // Esto reemplazará todas las referencias en tiempo de compilación
-      "import.meta.env.VITE_API_URL": JSON.stringify(apiUrl),
-      "process.env.VITE_API_URL": JSON.stringify(apiUrl),
-      // Reemplazar directamente las URLs de localhost
-      "http://localhost:8000/api": JSON.stringify(apiUrl)
+      'import.meta.env.VITE_API_URL': JSON.stringify(apiUrl),
+      'process.env.VITE_API_URL': JSON.stringify(apiUrl)
     },
+    // Configuración de build
     build: {
       outDir: 'dist',
+      rollupOptions: {
+        output: {
+          manualChunks: undefined
+        }
+      }
     }
   }
 })
