@@ -119,62 +119,68 @@ class AuthController extends AbstractController
     #[Route('/login', name: 'api_login', methods: ['POST'])]
     public function login(Request $request): JsonResponse
     {
-        // Este método sería manejado por Lexik JWT Bundle
-        // Pero lo implementamos aquí para incluir refresh tokens
-        $data = json_decode($request->getContent(), true);
+        try {
+            // Este método sería manejado por Lexik JWT Bundle
+            // Pero lo implementamos aquí para incluir refresh tokens
+            $data = json_decode($request->getContent(), true);
 
-        if (!isset($data['email']) || !isset($data['password'])) {
-            return $this->json(['message' => 'Credenciales incompletas'], 400);
+            if (!isset($data['email']) || !isset($data['password'])) {
+                return $this->json(['message' => 'Credenciales incompletas'], 400);
+            }
+
+            /** @var User|null $user */
+            $user = $this->userRepository->findOneBy(['email' => (string)$data['email']]);
+            
+            if (!$user instanceof User || !$this->passwordHasher->isPasswordValid($user, (string)$data['password'])) {
+                return $this->json(['message' => 'Credenciales inválidas'], 401);
+            }
+
+            // Generar tokens
+            $jwtToken = $this->tokenService->createJwtToken($user);
+            $refreshToken = $this->tokenService->createRefreshToken($user, $request);
+
+            // Crear una respuesta con cookies HTTP-only
+            $response = new JsonResponse([
+                'message' => 'Login exitoso',
+                'expiresAt' => $refreshToken->getExpiresAt()->format('c')
+            ]);
+            
+            // Establecer cookie JWT HTTP-only
+            $response->headers->setCookie(
+                new Cookie(
+                    'jwt_token',       // Nombre de la cookie
+                    $jwtToken,         // Valor (el token JWT)
+                    time() + 3600,     // Expiración (1 hora)
+                    '/',              // Path
+                    null,              // Domain (null = current domain)
+                    true,              // Secure (HTTPS only)
+                    true,              // HTTPOnly (no accessible via JavaScript)
+                    false,             // Raw
+                    'Lax'              // SameSite policy (cambiado de 'None' a 'Lax' para mejor compatibilidad)
+                )
+            );
+            
+            // Establecer cookie de refresh token HTTP-only
+            $response->headers->setCookie(
+                new Cookie(
+                    'refresh_token',               // Nombre de la cookie
+                    $refreshToken->getToken(),     // Valor (el refresh token)
+                    $refreshToken->getExpiresAt()->getTimestamp(), // Expiración
+                    '/',                          // Path
+                    null,                          // Domain (null = current domain)
+                    true,                          // Secure (HTTPS only)
+                    true,                          // HTTPOnly (no accessible via JavaScript)
+                    false,                         // Raw
+                    'Lax'                          // SameSite policy (cambiado para compatibilidad)
+                )
+            );
+            
+            return $response;
+        } catch (\Exception $e) {
+            // Log del error para depuración
+            error_log('Error en login: ' . $e->getMessage());
+            return $this->json(['message' => 'Error interno del servidor: ' . $e->getMessage()], 500);
         }
-
-        /** @var User|null $user */
-        $user = $this->userRepository->findOneBy(['email' => (string)$data['email']]);
-        
-        if (!$user instanceof User || !$this->passwordHasher->isPasswordValid($user, (string)$data['password'])) {
-            return $this->json(['message' => 'Credenciales inválidas'], 401);
-        }
-
-        // Generar tokens
-        $jwtToken = $this->tokenService->createJwtToken($user);
-        $refreshToken = $this->tokenService->createRefreshToken($user, $request);
-
-        // Crear una respuesta con cookies HTTP-only
-        $response = new JsonResponse([
-            'message' => 'Login exitoso',
-            'expiresAt' => $refreshToken->getExpiresAt()->format('c')
-        ]);
-        
-        // Establecer cookie JWT HTTP-only
-        $response->headers->setCookie(
-            new Cookie(
-                'jwt_token',       // Nombre de la cookie
-                $jwtToken,         // Valor (el token JWT)
-                time() + 3600,     // Expiración (1 hora)
-                '/',              // Path
-                null,              // Domain (null = current domain)
-                true,              // Secure (HTTPS only)
-                true,              // HTTPOnly (no accessible via JavaScript)
-                false,             // Raw
-                'Lax'              // SameSite policy (cambiado de 'None' a 'Lax' para mejor compatibilidad)
-            )
-        );
-        
-        // Establecer cookie de refresh token HTTP-only
-        $response->headers->setCookie(
-            new Cookie(
-                'refresh_token',               // Nombre de la cookie
-                $refreshToken->getToken(),     // Valor (el refresh token)
-                $refreshToken->getExpiresAt()->getTimestamp(), // Expiración
-                '/',                          // Path
-                null,                          // Domain (null = current domain)
-                true,                          // Secure (HTTPS only)
-                true,                          // HTTPOnly (no accessible via JavaScript)
-                false,                         // Raw
-                'Lax'                          // SameSite policy (cambiado para compatibilidad)
-            )
-        );
-        
-        return $response;
     }
 
     #[Route('/refresh-token', name: 'api_refresh_token', methods: ['POST'])]

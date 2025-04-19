@@ -57,13 +57,20 @@ export async function apiFetch<T>(path: string, options: RequestOptions = {}): P
         }
       }
 
+      // Clonar la respuesta para poder leerla múltiples veces si es necesario
+      const responseClone = response.clone();
+      
       // Extraer mensaje de error
       let errorMessage;
       try {
-        const errorData = await response.json();
+        const errorData = await responseClone.json();
         errorMessage = errorData.message || errorData.error || `Error ${response.status}`;
       } catch {
-        errorMessage = await response.text() || `Error ${response.status}`;
+        try {
+          errorMessage = await response.text() || `Error ${response.status}`;
+        } catch {
+          errorMessage = `Error ${response.status} ${response.statusText}`;
+        }
       }
 
       console.error(`API Error (${response.status}):`, errorMessage);

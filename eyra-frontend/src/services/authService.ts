@@ -36,13 +36,14 @@ class AuthService {
 
   async login(credentials: LoginRequest): Promise<boolean> {
     try {
-      const data = await apiFetch<AuthResponse>(API_ROUTES.AUTH.LOGIN, {
+      console.log('Iniciando login con credenciales:', { email: credentials.email });
+      
+      await apiFetch<AuthResponse>(API_ROUTES.AUTH.LOGIN, {
         method: 'POST',
         body: credentials,
       });
-
-      console.log('Respuesta login:', data);
-
+      
+      console.log('Login completado correctamente, cookies establecidas');
       this.setSession(true);
       return true;
     } catch (error) {
