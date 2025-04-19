@@ -17,7 +17,7 @@ if [ ! -f eyra-backend/nginx/backend.conf ]; then
     cat > eyra-backend/nginx/backend.conf << 'EOF'
 server {
     listen 80;
-    server_name localhost;
+    server_name ${DOMAIN};
     root /var/www/html/public;
     
     location / {
@@ -51,7 +51,7 @@ if [ ! -f nginx/default.conf ]; then
     cat > nginx/default.conf << 'EOF'
 server {
     listen 80;
-    server_name localhost;
+    server_name ${DOMAIN};
     
     # Rutas del frontend (SPA)
     location / {
@@ -89,7 +89,8 @@ if [ ! -f .env ]; then
 COMPOSE_PROJECT_NAME=eyra
 
 # Frontend
-VITE_API_URL=http://localhost/api
+VITE_API_URL=https://eyraclub.es/api
+
 
 # Backend
 APP_ENV=prod
@@ -126,4 +127,4 @@ docker-compose ps
 echo -e "${BLUE}Ejecutando migraciones en el backend...${NC}"
 docker-compose exec backend php bin/console doctrine:migrations:migrate --no-interaction || echo -e "${RED}No se pudieron ejecutar las migraciones. Continúa manualmente.${NC}"
 
-echo -e "${GREEN}¡Despliegue completado! La aplicación está disponible en http://localhost${NC}"
+echo -e "${GREEN}¡Despliegue completado! La aplicación está disponible en http://eyraclub${NC}"
