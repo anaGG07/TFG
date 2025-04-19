@@ -1,130 +1,84 @@
 #!/bin/bash
 
-# Colores para la salida
-GREEN='\033[0;32m'
-RED='\033[0;31m'
-BLUE='\033[0;34m'
-NC='\033[0m' # No Color
+# Script de despliegue seguro para EYRA
+# Este script reconstruye la aplicación y verifica que no haya referencias a localhost
 
-echo -e "${BLUE}Iniciando despliegue de EYRA...${NC}"
+echo "===== EYRA - Script de Despliegue Seguro ====="
+echo "Iniciando proceso de despliegue..."
 
-# Verificar y crear archivos de configuración de Nginx
-echo -e "${BLUE}Verificando archivos de configuración...${NC}"
-
-# Verificar archivo de configuración Nginx para backend
-if [ ! -f eyra-backend/nginx/backend.conf ]; then
-    mkdir -p eyra-backend/nginx
-    cat > eyra-backend/nginx/backend.conf << 'EOF'
-server {
-    listen 80;
-    server_name ${DOMAIN};
-    root /var/www/html/public;
-    
-    location / {
-        try_files $uri /index.php$is_args$args;
-    }
-
-    location ~ ^/index\.php(/|$) {
-        fastcgi_pass backend:9000;
-        fastcgi_split_path_info ^(.+\.php)(/.*)$;
-        include fastcgi_params;
-        fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
-        fastcgi_param DOCUMENT_ROOT $document_root;
-        internal;
-    }
-
-    # Denegar acceso a otros archivos .php
-    location ~ \.php$ {
-        return 404;
-    }
-
-    error_log /var/log/nginx/backend_error.log;
-    access_log /var/log/nginx/backend_access.log;
-}
-EOF
-    echo -e "${GREEN}Archivo de configuración de Nginx para backend creado.${NC}"
+# 1. Verificar las variables de entorno
+echo "Verificando variables de entorno..."
+if grep -q "VITE_API_URL=https://eyraclub.es/api" .env; then
+  echo "✅ Variable VITE_API_URL configurada correctamente."
+else
+  echo "⚠️ La variable VITE_API_URL no parece estar configurada correctamente."
+  echo "Valor actual:"
+  grep "VITE_API_URL" .env || echo "No encontrada"
+  echo ""
+  echo "¿Deseas continuar de todos modos? [s/N]"
+  read -r continue
+  
+  if [[ ! "$continue" =~ ^[sS]$ ]]; then
+    echo "Operación cancelada. Corrige el archivo .env primero."
+    exit 1
+  fi
 fi
 
-# Verificar archivo de configuración Nginx para proxy principal
-if [ ! -f nginx/default.conf ]; then
-    mkdir -p nginx
-    cat > nginx/default.conf << 'EOF'
-server {
-    listen 80;
-    server_name ${DOMAIN};
-    
-    # Rutas del frontend (SPA)
-    location / {
-        proxy_pass http://frontend:80;
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-    }
-    
-    # Rutas del backend API
-    location /api/ {
-        proxy_pass http://backend-nginx;
-        proxy_http_version 1.1;
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-    }
-}
-EOF
-    echo -e "${GREEN}Archivo de configuración de Nginx para proxy principal creado.${NC}"
+# 2. Detener y reconstruir contenedores
+echo ""
+echo "Deteniendo contenedores..."
+docker-compose down
+
+echo ""
+echo "Reconstruyendo contenedores sin caché..."
+docker-compose build --no-cache
+
+echo ""
+echo "Iniciando contenedores..."
+docker-compose up -d
+
+# 3. Verificar archivos compilados
+echo ""
+echo "Esperando a que los archivos compilados estén disponibles..."
+sleep 10
+
+echo ""
+echo "Verificando archivos compilados en busca de referencias a localhost:8000..."
+if grep -r "localhost:8000" ./eyra-frontend/dist/ > /dev/null; then
+  echo "⚠️ ¡Se encontraron referencias a localhost:8000 en los archivos compilados!"
+  echo "Aplicando corrección automática..."
+  
+  find ./eyra-frontend/dist -type f -name "*.js" -exec sed -i 's|http://localhost:8000|https://eyraclub.es|g' {} \;
+  
+  if grep -r "localhost:8000" ./eyra-frontend/dist/ > /dev/null; then
+    echo "❌ La corrección automática falló. Todavía hay referencias a localhost:8000."
+    grep -r "localhost:8000" ./eyra-frontend/dist/ | head -5
+  else
+    echo "✅ Corrección aplicada exitosamente. No quedan referencias a localhost:8000."
+  fi
+else
+  echo "✅ No se encontraron referencias a localhost:8000. ¡Todo correcto!"
 fi
 
-# Verificar directorio JWT en backend
-if [ ! -d eyra-backend/config/jwt ]; then
-    mkdir -p eyra-backend/config/jwt
-    echo -e "${GREEN}Directorio para claves JWT creado.${NC}"
+# 4. Verificar configuración de nginx
+echo ""
+echo "Verificando configuración de nginx..."
+if [ -f ./nginx/default.conf ]; then
+  if grep -q "eyraclub.es" ./nginx/default.conf; then
+    echo "✅ Configuración de nginx parece correcta."
+  else
+    echo "⚠️ La configuración de nginx podría no estar configurada correctamente para eyraclub.es."
+  fi
+else
+  echo "❌ No se encontró el archivo de configuración de nginx."
 fi
 
-# Verificar .env principal
-if [ ! -f .env ]; then
-    cat > .env << 'EOF'
-# Proyecto
-COMPOSE_PROJECT_NAME=eyra
-
-# Frontend
-VITE_API_URL=https://eyraclub.es/api
-
-
-# Backend
-APP_ENV=prod
-APP_SECRET=8c498e311b0bf78a65bf2111101cf920
-JWT_PASSPHRASE=7796
-
-# Base de datos
-POSTGRES_DB=eyra
-POSTGRES_USER=postgres
-POSTGRES_PASSWORD=admin
-POSTGRES_PORT=5432
-EOF
-    echo -e "${GREEN}Archivo .env principal creado.${NC}"
-fi
-
-# Comprobar que todos los archivos necesarios existen
-echo -e "${BLUE}Verificando archivos Docker necesarios...${NC}"
-
-if [ ! -f docker-compose.yml ]; then
-    echo -e "${RED}Archivo docker-compose.yml no encontrado. Creando uno por defecto...${NC}"
-    # Aquí puedes añadir la lógica para crear el docker-compose.yml si no existe
-fi
-
-# Construir y levantar contenedores
-echo -e "${BLUE}Construyendo y levantando contenedores...${NC}"
-docker-compose up -d --build
-
-# Verificar el estado de los contenedores
-echo -e "${BLUE}Verificando estado de los contenedores...${NC}"
-sleep 5
+# 5. Mostrar contenedores en ejecución
+echo ""
+echo "Contenedores en ejecución:"
 docker-compose ps
 
-# Ejecutar migraciones y cargar datos iniciales
-echo -e "${BLUE}Ejecutando migraciones en el backend...${NC}"
-docker-compose exec backend php bin/console doctrine:migrations:migrate --no-interaction || echo -e "${RED}No se pudieron ejecutar las migraciones. Continúa manualmente.${NC}"
-
-echo -e "${GREEN}¡Despliegue completado! La aplicación está disponible en http://eyraclub${NC}"
+echo ""
+echo "===== Despliegue completado ====="
+echo "Recuerda verificar la aplicación en el navegador accediendo a https://eyraclub.es"
+echo ""

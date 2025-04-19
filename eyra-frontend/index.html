@@ -1,13 +1,32 @@
 <!doctype html>
-<html lang="en">
+<html lang="es">
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>EYRA - Tu Asistente Personal</title>
     <script>
-      // Esta es una solución para forzar la URL correcta de la API
+      // Configuración global de la API
       window.API_URL = "https://eyraclub.es/api";
+      
+      // Monitorear y corregir posibles referencias a localhost:8000
+      (function() {
+        // Estas variables serán reemplazadas por Vite en tiempo de compilación
+        const API_URL = window.API_URL;
+        
+        // Sobrescribir fetch para detectar y corregir localhost:8000
+        const originalFetch = window.fetch;
+        window.fetch = function(url, options) {
+          if (typeof url === 'string' && url.includes('localhost:8000')) {
+            console.warn('[EYRA] Interceptada URL localhost:8000:', url);
+            url = url.replace('http://localhost:8000/api', API_URL);
+            console.log('[EYRA] URL corregida a:', url);
+          }
+          return originalFetch(url, options);
+        };
+        
+        console.log('[EYRA] Inicializada con API_URL:', API_URL);
+      })();
     </script>
   </head>
   <body>

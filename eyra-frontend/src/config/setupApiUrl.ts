@@ -6,6 +6,51 @@
 // URL de API por defecto para producción
 const DEFAULT_PROD_API_URL = 'https://eyraclub.es/api';
 
+// Detector de URLs con localhost:8000 que mostrará advertencias en consola
+const detectAndFixLocalhostUrls = () => {
+  if (typeof window === 'undefined') return;
+  
+  // Monitorear peticiones fetch para detectar y corregir localhost:8000
+  const originalFetch = window.fetch;
+  window.fetch = function(input, init) {
+    if (typeof input === 'string' && input.includes('localhost:8000')) {
+      console.warn('⚠️ Se detectó una petición a localhost:8000:', input);
+      console.trace('Origen de la petición:');
+      input = input.replace('localhost:8000', 'eyraclub.es');
+      console.log('✅ URL corregida a:', input);
+    }
+    return originalFetch(input, init);
+  };
+
+  // Buscar y reemplazar recursivamente en el objeto global window
+  const checkObject = (obj, path = 'window') => {
+    if (!obj || typeof obj !== 'object') return;
+    Object.keys(obj).forEach(key => {
+      try {
+        const value = obj[key];
+        if (typeof value === 'string' && value.includes('localhost:8000')) {
+          console.warn(`⚠️ Se detectó URL con localhost:8000 en ${path}.${key}:`, value);
+          obj[key] = value.replace('localhost:8000', 'eyraclub.es');
+          console.log(`✅ Valor corregido en ${path}.${key}:`, obj[key]);
+        } else if (value && typeof value === 'object' && !Array.isArray(value)) {
+          checkObject(value, `${path}.${key}`);
+        }
+      } catch (e) {
+        // Ignorar errores de acceso a propiedades
+      }
+    });
+  };
+
+  // Ejecutar verificación
+  setTimeout(() => {
+    try {
+      checkObject(window);
+    } catch (e) {
+      console.error('Error al verificar referencias a localhost:', e);
+    }
+  }, 1000);
+};
+
 // Determinar la URL de la API basándose en múltiples fuentes en orden de prioridad
 export const getApiUrl = (): string => {
   // 1. Variable global definida en index.html (máxima prioridad)
@@ -35,6 +80,11 @@ export const forceApiUrl = (url: string): void => {
     console.log('📡 API URL forced to:', url);
   }
 };
+
+// Activar detector de localhost:8000
+if (typeof window !== 'undefined') {
+  detectAndFixLocalhostUrls();
+}
 
 // Debug info
 console.log('🔧 API URL configurada:', API_URL);
