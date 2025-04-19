@@ -21,7 +21,7 @@ parameters:
 
     # Configuración de servidores para Swagger UI
     api_servers:
-        - url: 'http://localhost:8000'
+        - url: 'http://eyraclub.es/api'
           description: 'Desarrollo local'
         - url: 'https://staging.eyra-app.com'
           description: 'Staging'
