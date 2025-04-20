@@ -60,8 +60,13 @@ class TokenService
 
     /**
      * Validates a refresh token and returns the associated user if valid
+     * Incluye verificación de browser fingerprint si está disponible
+     * 
+     * @param string $token El token a validar
+     * @param Request|null $request Request actual para validación adicional (opcional)
+     * @return User|null Usuario asociado si el token es válido, null en caso contrario
      */
-    public function validateRefreshToken(string $token): ?User
+    public function validateRefreshToken(string $token, Request $request = null): ?User
     {
         $refreshToken = $this->refreshTokenRepository->findValidToken($token);
         
@@ -69,7 +74,54 @@ class TokenService
             return null;
         }
         
+        // Verificación adicional de seguridad: browser fingerprint
+        // Solo verificamos si hay información almacenada y tenemos el request actual
+        if ($request && $refreshToken->getUserAgent() && $refreshToken->getIpAddress()) {
+            $currentUserAgent = $request->headers->get('User-Agent');
+            $currentIp = $request->getClientIp();
+            
+            // Verificación de User-Agent
+            // Esto previene el uso de tokens robados en otros navegadores
+            if ($currentUserAgent !== $refreshToken->getUserAgent()) {
+                // Log para depurar sin exponer datos sensibles
+                error_log('Intento de uso de refresh token con User-Agent diferente');
+                return null;
+            }
+            
+            // Verificación de IP opcional, menos estricta ya que las IPs pueden cambiar legítimamente
+            // Si la IP es completamente diferente (no solo en un segmento), es sospechosa
+            // Esta verificación es más laxa por defecto
+            if ($this->isIpSignificantlyDifferent($currentIp, $refreshToken->getIpAddress())) {
+                error_log('Advertencia: Refresh token usado desde IP muy diferente');
+                // Comentado porque puede ser legítimo (ej. cambio de red)
+                // return null;
+            }
+        }
+        
         return $refreshToken->getUser();
+    }
+    
+    /**
+     * Determina si dos direcciones IP son significativamente diferentes
+     * (esto es una verificación básica, se podría mejorar con análisis de subredes)
+     */
+    private function isIpSignificantlyDifferent(string $ip1, string $ip2): bool 
+    {
+        // Para IPv4: comparamos los primeros dos octetos
+        // Esto permite cambios de subred dentro del mismo proveedor
+        if (filter_var($ip1, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4) && 
+            filter_var($ip2, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4)) {
+            $parts1 = explode('.', $ip1);
+            $parts2 = explode('.', $ip2);
+            
+            // Si los primeros dos octetos son iguales, consideramos IPs similares
+            if (count($parts1) >= 2 && count($parts2) >= 2) {
+                return $parts1[0] !== $parts2[0] || $parts1[1] !== $parts2[1];
+            }
+        }
+        
+        // Para IPv6 o caso por defecto, comparación exacta
+        return $ip1 !== $ip2;
     }
 
     /**

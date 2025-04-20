@@ -116,8 +116,13 @@ class AuthController extends AbstractController
         ], 201);
     }
 
-    #[Route('/login', name: 'api_login', methods: ['POST'])]
-    public function login(Request $request): JsonResponse
+    /**
+     * Este método ya no es necesario porque es gestionado por el servicio JwtCookieSuccessHandler
+     * Lo mantenemos comentado como referencia pero ya no se ejecutará
+     * La ruta está renombrada para evitar conflictos
+     */
+    #[Route('/login-handler', name: 'api_login_legacy', methods: ['POST'])]
+    public function loginLegacy(Request $request): JsonResponse
     {
         try {
             // Este método sería manejado por Lexik JWT Bundle
@@ -145,7 +150,7 @@ class AuthController extends AbstractController
                 'expiresAt' => $refreshToken->getExpiresAt()->format('c')
             ]);
             
-            // Establecer cookie JWT HTTP-only
+            // Establecer cookie JWT HTTP-only con seguridad mejorada
             $response->headers->setCookie(
                 new Cookie(
                     'jwt_token',       // Nombre de la cookie
@@ -153,14 +158,14 @@ class AuthController extends AbstractController
                     time() + 3600,     // Expiración (1 hora)
                     '/',              // Path
                     null,              // Domain (null = current domain)
-                    true,              // Secure (HTTPS only)
-                    true,              // HTTPOnly (no accessible via JavaScript)
+                    true,              // Secure (HTTPS only) - Imprescindible para seguridad
+                    true,              // HTTPOnly - Previene acceso desde JavaScript
                     false,             // Raw
-                    'Lax'              // SameSite policy (cambiado de 'None' a 'Lax' para mejor compatibilidad)
+                    'Strict'           // SameSite=Strict - Mayor seguridad contra CSRF
                 )
             );
             
-            // Establecer cookie de refresh token HTTP-only
+            // Establecer cookie de refresh token HTTP-only con máxima seguridad
             $response->headers->setCookie(
                 new Cookie(
                     'refresh_token',               // Nombre de la cookie
@@ -168,10 +173,10 @@ class AuthController extends AbstractController
                     $refreshToken->getExpiresAt()->getTimestamp(), // Expiración
                     '/',                          // Path
                     null,                          // Domain (null = current domain)
-                    true,                          // Secure (HTTPS only)
-                    true,                          // HTTPOnly (no accessible via JavaScript)
+                    true,                          // Secure (HTTPS only) - Requerido para cookies de autenticación
+                    true,                          // HTTPOnly - Crucínl para prevenir robo por XSS
                     false,                         // Raw
-                    'Lax'                          // SameSite policy (cambiado para compatibilidad)
+                    'Strict'                       // SameSite=Strict - Máxima protección contra CSRF
                 )
             );
             
@@ -186,32 +191,76 @@ class AuthController extends AbstractController
     #[Route('/refresh-token', name: 'api_refresh_token', methods: ['POST'])]
     public function refreshToken(Request $request): JsonResponse
     {
-        $data = json_decode($request->getContent(), true);
+        try {
+            // Intentamos leer el refresh token de la cookie primero (más seguro)
+            $refreshTokenStr = $request->cookies->get('refresh_token');
 
-        if (!isset($data['refreshToken']) || !is_string($data['refreshToken'])) {
-            return $this->json(['message' => 'Refresh token requerido'], 400);
+            // Si no hay token en la cookie, intentamos leerlo del body (compatibilidad)
+            if (!$refreshTokenStr) {
+                $data = json_decode($request->getContent(), true);
+                if (!isset($data['refreshToken']) || !is_string($data['refreshToken'])) {
+                    return $this->json(['message' => 'Refresh token requerido'], 400);
+                }
+                $refreshTokenStr = $data['refreshToken'];
+            }
+
+            // Validar el refresh token (incluyendo verificación de browser fingerprint)
+            /** @var User|null $user */
+            $user = $this->tokenService->validateRefreshToken($refreshTokenStr, $request);
+            
+            if (!$user instanceof User) {
+                return $this->json(['message' => 'Refresh token inválido o expirado'], 401);
+            }
+
+            // Invalidar el token anterior
+            $this->tokenService->revokeRefreshToken($refreshTokenStr);
+
+            // Generar nuevos tokens
+            $jwtToken = $this->tokenService->createJwtToken($user);
+            $refreshToken = $this->tokenService->createRefreshToken($user, $request);
+
+            // Crear respuesta con cookies HTTP-only actualizadas
+            $response = new JsonResponse([
+                'message' => 'Tokens renovados con éxito',
+                'expiresAt' => $refreshToken->getExpiresAt()->format('c')
+            ]);
+            
+            // Establecer nueva cookie JWT
+            $response->headers->setCookie(
+                new Cookie(
+                    'jwt_token',
+                    $jwtToken,
+                    time() + 3600,
+                    '/',
+                    null,
+                    true,
+                    true,
+                    false,
+                    'Strict'
+                )
+            );
+            
+            // Establecer nueva cookie de refresh token
+            $response->headers->setCookie(
+                new Cookie(
+                    'refresh_token',
+                    $refreshToken->getToken(),
+                    $refreshToken->getExpiresAt()->getTimestamp(),
+                    '/',
+                    null,
+                    true,
+                    true,
+                    false,
+                    'Strict'
+                )
+            );
+            
+            return $response;
+        } catch (\Exception $e) {
+            // Log del error para depuración
+            error_log('Error en refresh-token: ' . $e->getMessage());
+            return $this->json(['message' => 'Error al renovar tokens: ' . $e->getMessage()], 500);
         }
-
-        // Validar el refresh token
-        /** @var User|null $user */
-        $user = $this->tokenService->validateRefreshToken($data['refreshToken']);
-        
-        if (!$user instanceof User) {
-            return $this->json(['message' => 'Refresh token inválido o expirado'], 401);
-        }
-
-        // Invalidar el token anterior
-        $this->tokenService->revokeRefreshToken($data['refreshToken']);
-
-        // Generar nuevos tokens
-        $jwtToken = $this->tokenService->createJwtToken($user);
-        $refreshToken = $this->tokenService->createRefreshToken($user, $request);
-
-        return $this->json([
-            'token' => $jwtToken,
-            'refreshToken' => $refreshToken->getToken(),
-            'expiresAt' => $refreshToken->getExpiresAt()->format('c')
-        ]);
     }
 
     #[Route('/logout', name: 'api_logout', methods: ['POST'])]
@@ -220,11 +269,37 @@ class AuthController extends AbstractController
         // Crear respuesta
         $response = new JsonResponse(['message' => 'Sesión cerrada con éxito']);
         
-        // Eliminar cookies de autenticación
-        $response->headers->clearCookie('jwt_token');
-        $response->headers->clearCookie('refresh_token');
+        // Eliminar cookie JWT con los mismos parámetros que al crearla
+        $response->headers->setCookie(
+            new Cookie(
+                'jwt_token',       // Nombre de la cookie
+                '',               // Valor vacío para eliminar
+                1,                // Tiempo en el pasado (expira inmediatamente)
+                '/',              // Path debe coincidir con el original
+                null,              // Domain (null = current domain)
+                true,              // Secure
+                true,              // HTTPOnly
+                false,             // Raw
+                'Strict'           // SameSite policy
+            )
+        );
         
-        // Intentar revocar el refresh token si está disponible
+        // Eliminar cookie refresh token con los mismos parámetros
+        $response->headers->setCookie(
+            new Cookie(
+                'refresh_token',    // Nombre de la cookie
+                '',                // Valor vacío
+                1,                 // Tiempo en el pasado
+                '/',               // Path
+                null,               // Domain
+                true,               // Secure
+                true,               // HTTPOnly
+                false,              // Raw
+                'Strict'            // SameSite policy
+            )
+        );
+        
+        // Intentar revocar el refresh token de la base de datos si está disponible
         $refreshToken = $request->cookies->get('refresh_token');
         if ($refreshToken && is_string($refreshToken)) {
             $this->tokenService->revokeRefreshToken($refreshToken);

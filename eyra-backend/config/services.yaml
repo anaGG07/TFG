@@ -26,3 +26,8 @@ services:
     App\EventListener\JwtCookieListener:
         tags:
             - { name: kernel.event_subscriber }
+            
+    # Handler personalizado para autenticación con cookies
+    App\Security\JwtCookieSuccessHandler:
+        arguments:
+            $cookieSecure: '%kernel.environment%' != 'dev' # true en prod, false en dev

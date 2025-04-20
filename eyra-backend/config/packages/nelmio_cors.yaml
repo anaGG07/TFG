@@ -1,17 +1,24 @@
 nelmio_cors:
     defaults:
-        origin_regex: true
-        allow_origin: ['%env(CORS_ALLOW_ORIGIN)%']
+        # Deshabilitamos regex por seguridad en entorno de producción
+        origin_regex: false
+        # Permitimos solo el dominio de la SPA
+        allow_origin: ['https://eyraclub.es']
         allow_methods: ['GET', 'OPTIONS', 'POST', 'PUT', 'PATCH', 'DELETE']
+        # Incluimos los encabezados esenciales
         allow_headers: ['Content-Type', 'Authorization']
         expose_headers: ['Link']
         max_age: 3600
     paths:
         '^/api/':
-            allow_origin: ['%env(CORS_ALLOW_ORIGIN)%']
+            # Configuración específica para API
+            allow_origin: ['https://eyraclub.es']
+            # Permitimos credenciales para cookies
             allow_credentials: true
+            # Encabezados permitidos para la API
             allow_headers: ['Content-Type', 'Authorization', 'X-Requested-With']
             allow_methods: ['POST', 'PUT', 'GET', 'DELETE', 'PATCH', 'OPTIONS']
+            # Exponemos encabezados adicionales
             expose_headers: ['Link', 'Content-Disposition']
             max_age: 3600
 
