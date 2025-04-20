@@ -16,11 +16,10 @@ class SecurityController extends AbstractController
      * Esta ruta es manejada por el firewall json_login en security.yaml
      * Este método nunca se ejecuta, solo registra la ruta en el router de Symfony
      */
-    #[Route('/api/login', name: 'api_login_check', methods: ['POST'])]
-    public function apiLoginCheck(): Response
+    #[Route('/api/login', name: 'api_login', methods: ['POST'])]
+    public function apiLogin(): Response
     {
-        // Este código nunca se ejecutará porque el firewall json_login
-        // interceptará la solicitud antes de llegar aquí
+        // Este código nunca se ejecutará porque json_login lo intercepta
         throw new \LogicException('Este código nunca debería ejecutarse.');
     }
 }
