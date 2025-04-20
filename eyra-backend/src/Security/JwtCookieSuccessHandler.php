@@ -54,18 +54,15 @@ class JwtCookieSuccessHandler implements AuthenticationSuccessHandlerInterface
         // Generar refresh token
         $refreshToken = $this->tokenService->createRefreshToken($user, $request);
         
-        // Crear evento de autenticación exitosa
-        $event = new AuthenticationSuccessEvent(
-            ['message' => 'Login exitoso', 'expiresAt' => $refreshToken->getExpiresAt()->format('c')], 
-            $user, 
-            new JWTAuthenticationSuccessResponse($jwtToken)
-        );
+        // Crear una respuesta JSON directamente (evitamos usar evento que puede causar problemas)
+        $responseData = [
+            'message' => 'Login exitoso',
+            'expiresAt' => $refreshToken->getExpiresAt()->format('c')
+        ];
         
-        // Despachar evento
-        $this->eventDispatcher->dispatch($event);
-        
-        // Obtener la respuesta y configurar cookies
-        $response = $event->getResponse();
+        $response = new Response(json_encode($responseData), Response::HTTP_OK, [
+            'Content-Type' => 'application/json'
+        ]);
         
         // Establecer cookie JWT
         $response->headers->setCookie(
