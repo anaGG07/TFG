@@ -23,8 +23,11 @@ const LoginPage = () => {
     try {
       setIsLoading(true);
       setError("");
-
-      await login({ email, password });
+      const success = await login({ email, password });
+      if (!success) {
+        setError("Credenciales incorrectas");
+        return;
+      }
       console.log("Login completado, redirigiendo a dashboard");
       navigate(ROUTES.DASHBOARD);
     } catch (error: any) {

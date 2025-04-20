@@ -37,21 +37,16 @@ class AuthService {
   async login(credentials: LoginRequest): Promise<boolean> {
     try {
       console.log('Iniciando login con credenciales:', { email: credentials.email });
-      
-      // Usamos la función modificada de apiFetch que maneja especialmente el login
       await apiFetch(API_ROUTES.AUTH.LOGIN, {
         method: 'POST',
         body: credentials,
       });
-      
-      // La sesión ya ha sido establecida en apiFetch si el login fue exitoso
-      console.log('Login completado correctamente, continuando flujo de aplicación');
+      console.log('Login completado correctamente, sesión válida');
       return true;
     } catch (error) {
-      console.error('Error en el login pero continuamos flujo:', error);
-      // Incluso si hay error, establecemos la sesión como válida para continuar
-      this.setSession(true);
-      return true;
+      console.error('❌ Error en el login:', error);
+      this.setSession(false);
+      return false;
     }
   }
 

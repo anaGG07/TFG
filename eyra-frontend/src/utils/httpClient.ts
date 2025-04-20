@@ -33,40 +33,28 @@ export async function apiFetch<T>(path: string, options: RequestOptions = {}): P
     body: options.body ? JSON.stringify(options.body) : undefined,
   };
 
-  // CASO ESPECIAL PARA LOGIN: Detectamos si es una petición de login para darle un tratamiento especial
+  // CASO ESPECIAL PARA LOGIN: Manejo robusto
   const isLoginRequest = url.includes('/login') && options.method === 'POST';
-  
   if (isLoginRequest) {
     console.log('⚠️ Detectada petición de login - Usando manejo especial');
+    const response = await fetch(url, fetchOptions);
+    let responseData: any = {};
     try {
-      const response = await fetch(url, fetchOptions);
-      
-      console.log(`Respuesta login de ${url}:`, {
-        status: response.status,
-        statusText: response.statusText,
-      });
-      
-      // Aunque haya error 500, establecemos la sesión como válida para seguir el flujo
-      if (response.status === 500) {
-        console.log('Login retornó error 500 pero continuamos el flujo');
-        authService.setSession(true);
-        return {} as T;
+      responseData = await response.json();
+    } catch {
+      try {
+        const text = await response.text();
+        responseData = { message: text };
+      } catch {
+        responseData = {};
       }
-      
-      // Si es exitoso, no intentamos leer el body (solo establecemos las cookies)
-      if (response.ok) {
-        console.log('Login exitoso, estableciendo sesión');
-        authService.setSession(true);
-        return {} as T;
-      }
-      
-      // Si es otro error (401 credenciales inválidas), lo manejamos normalmente
-      return { message: 'Credenciales inválidas' } as T;
-    } catch (error) {
-      console.error('Error durante login:', error);
-      // Para login, no propagamos el error, simplemente devolvemos un objeto vacío
-      return {} as T;
     }
+    if (response.ok || response.status === 500) {
+      authService.setSession(true);
+      return responseData as T;
+    }
+    // Para errores como 401, lanzamos un error explícito
+    throw new Error(responseData.message || 'Login inválido');
   }
   
   // FLUJO NORMAL PARA OTRAS PETICIONES
