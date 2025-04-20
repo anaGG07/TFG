@@ -4,6 +4,7 @@
 # Put parameters here that don't need to change on each machine where the app is deployed
 # https://symfony.com/doc/current/best_practices.html#use-parameters-for-application-configuration
 parameters:
+    cookie_secure: '%env(APP_ENV)%' != 'dev'
 
 services:
     Symfony\Component\Security\Core\Security:
@@ -30,4 +31,4 @@ services:
     # Handler personalizado para autenticación con cookies
     App\Security\JwtCookieSuccessHandler:
         arguments:
-            $cookieSecure: '%kernel.environment%' != 'dev' # true en prod, false en dev
+            $cookieSecure: '%cookie_secure%'
