@@ -39,16 +39,23 @@ export async function apiFetch<T>(path: string, options: RequestOptions = {}): P
     console.log('⚠️ Detectada petición de login - Usando manejo especial');
     const response = await fetch(url, fetchOptions);
     let responseData: any = {};
+    
+    // Clonamos la respuesta antes de leerla para evitar el error de stream ya leído
+    const responseClone = response.clone();
+    
     try {
       responseData = await response.json();
-    } catch {
+    } catch (jsonError) {
+      console.warn('Error al parsear respuesta JSON:', jsonError);
       try {
-        const text = await response.text();
+        const text = await responseClone.text();
         responseData = { message: text };
-      } catch {
+      } catch (textError) {
+        console.warn('Error al leer respuesta como texto:', textError);
         responseData = {};
       }
     }
+    
     if (response.ok || response.status === 500) {
       authService.setSession(true);
       return responseData as T;
