@@ -9,7 +9,7 @@ RUN apt-get update && apt-get install -y \
 COPY --from=composer:2.6 /usr/bin/composer /usr/bin/composer
 
 # Ajuste PHP-FPM para escuchar en puerto 9000
-RUN sed -i 's|^listen = .*|listen = 9000|' /usr/local/etc/php-fpm.d/www.conf
+COPY php-fpm.conf /usr/local/etc/php-fpm.conf
 
 # Establece directorio de trabajo
 WORKDIR /var/www/html
