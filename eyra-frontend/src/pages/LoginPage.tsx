@@ -23,14 +23,19 @@ const LoginPage = () => {
     try {
       setIsLoading(true);
       setError("");
+      
+      console.log("LoginPage: Intentando iniciar sesión...");
       const success = await login({ email, password });
+      
       if (!success) {
         setError("Credenciales incorrectas");
         return;
       }
+      
       console.log("Login completado, redirigiendo a dashboard");
       navigate(ROUTES.DASHBOARD);
     } catch (error: any) {
+      console.error("Error en login:", error);
       setError(error.message || "Error al iniciar sesión");
     } finally {
       setIsLoading(false);
@@ -39,25 +44,36 @@ const LoginPage = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#1A0B2E] to-[#2D0A31] p-4">
-      <div className="bg-[#ffffff08] backdrop-blur-md rounded-xl border border-white/10 p-8 w-full max-w-md">
+      <main className="bg-[#ffffff08] backdrop-blur-md rounded-xl border border-white/10 p-8 w-full max-w-md">
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-white">Iniciar Sesión</h1>
+          <h1 className="text-3xl font-bold text-white" id="login-title">Iniciar Sesión</h1>
           <p className="text-white/60 mt-2">
             Accede a tu cuenta para continuar
           </p>
         </div>
 
         {error && (
-          <div className="bg-red-500/20 border border-red-500/50 text-white rounded-lg p-3 mb-6">
+          <div 
+            className="bg-red-500/20 border border-red-500/50 text-white rounded-lg p-3 mb-6"
+            role="alert"
+            aria-live="assertive"
+          >
             {error}
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="space-y-6" autoComplete="on">
+        <form 
+          onSubmit={handleSubmit} 
+          className="space-y-6" 
+          autoComplete="on"
+          aria-labelledby="login-title"
+          noValidate
+        >
           <div>
             <label
               htmlFor="email"
               className="block text-white/90 mb-2 font-medium"
+              id="email-label"
             >
               Email
             </label>
@@ -66,11 +82,15 @@ const LoginPage = () => {
               type="email"
               name="email"
               value={email}
-              autoComplete="email" // ✅ Mejora accesibilidad
+              autoComplete="email"
               onChange={(e) => setEmail(e.target.value)}
               className="w-full bg-[#ffffff15] border border-white/10 rounded-lg py-3 px-4 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-[#FF2DAF]/50"
               placeholder="tu@email.com"
               required
+              aria-required="true"
+              aria-labelledby="email-label"
+              aria-invalid={!!error && !email}
+              data-testid="email-input"
             />
           </div>
 
@@ -78,6 +98,7 @@ const LoginPage = () => {
             <label
               htmlFor="password"
               className="block text-white/90 mb-2 font-medium"
+              id="password-label"
             >
               Contraseña
             </label>
@@ -85,12 +106,16 @@ const LoginPage = () => {
               id="password"
               type="password"
               name="password"
-              autoComplete="current-password" // ✅ Corrige el warning
+              autoComplete="current-password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               className="w-full bg-[#ffffff15] border border-white/10 rounded-lg py-3 px-4 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-[#FF2DAF]/50"
               placeholder="••••••••"
               required
+              aria-required="true"
+              aria-labelledby="password-label"
+              aria-invalid={!!error && !password}
+              data-testid="password-input"
             />
           </div>
 
@@ -101,6 +126,7 @@ const LoginPage = () => {
                 type="checkbox"
                 name="remember"
                 className="h-4 w-4 bg-[#ffffff15] border border-white/20 rounded focus:ring-[#FF2DAF]/50 focus:ring-offset-0"
+                aria-label="Recordar mi sesión"
               />
               <label
                 htmlFor="remember-me"
@@ -113,6 +139,7 @@ const LoginPage = () => {
             <a
               href="#"
               className="text-sm text-[#FF2DAF] hover:text-[#FF2DAF]/80"
+              aria-label="Recuperar contraseña olvidada"
             >
               ¿Olvidaste tu contraseña?
             </a>
@@ -124,6 +151,9 @@ const LoginPage = () => {
             className="w-full py-3 px-4 bg-gradient-to-r from-[#FF2DAF] to-[#9B4DFF] rounded-lg text-white font-medium 
                      transition-all duration-300 shadow-lg hover:shadow-[0_0_15px_rgba(255,45,175,0.5)] 
                      disabled:opacity-70 disabled:cursor-not-allowed"
+            id="login-submit"
+            data-testid="login-submit"
+            aria-label={isLoading ? "Iniciando sesión, por favor espera" : "Iniciar sesión"}
           >
             {isLoading ? "Iniciando sesión..." : "Iniciar Sesión"}
           </button>
@@ -140,7 +170,7 @@ const LoginPage = () => {
             </Link>
           </p>
         </div>
-      </div>
+      </main>
     </div>
   );
 };

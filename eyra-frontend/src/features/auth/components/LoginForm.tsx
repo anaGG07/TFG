@@ -36,9 +36,9 @@ export const LoginForm = () => {
   };
 
   return (
-    <div className="bg-white p-8 rounded-lg shadow-md w-full max-w-md">
+    <div className="bg-white p-8 rounded-lg shadow-md w-full max-w-md" role="region" aria-label="Formulario de inicio de sesión">
       <div className="text-center mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">Iniciar Sesión</h1>
+        <h1 className="text-2xl font-bold text-gray-900" id="login-heading">Iniciar Sesión</h1>
         <p className="text-gray-600 mt-2">Accede a tu cuenta de EYRA</p>
       </div>
 
@@ -47,12 +47,19 @@ export const LoginForm = () => {
           variant="error" 
           className="mb-4"
           onClose={() => setError('')}
+          role="alert"
+          aria-live="assertive"
         >
           {error}
         </Alert>
       )}
 
-      <form onSubmit={handleSubmit} className="space-y-4">
+      <form 
+        onSubmit={handleSubmit} 
+        className="space-y-4" 
+        aria-labelledby="login-heading"
+        noValidate
+      >
         <TextField
           id="email"
           type="email"
@@ -63,6 +70,9 @@ export const LoginForm = () => {
           fullWidth
           required
           disabled={isLoading}
+          aria-required="true"
+          autoComplete="email"
+          aria-invalid={!!error && !email}
         />
 
         <TextField
@@ -75,6 +85,9 @@ export const LoginForm = () => {
           fullWidth
           required
           disabled={isLoading}
+          aria-required="true"
+          autoComplete="current-password"
+          aria-invalid={!!error && !password}
         />
 
         <div className="text-right">
@@ -88,6 +101,9 @@ export const LoginForm = () => {
           variant="primary"
           fullWidth
           isLoading={isLoading}
+          aria-label={isLoading ? "Iniciando sesión, por favor espera" : "Iniciar sesión"}
+          data-testid="login-button"
+          id="login-button"
         >
           Iniciar Sesión
         </Button>

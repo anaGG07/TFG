@@ -2,8 +2,8 @@ nelmio_cors:
     defaults:
         # Deshabilitamos regex por seguridad en entorno de producción
         origin_regex: false
-        # Permitimos el dominio de producción y localhost para desarrollo
-        allow_origin: ['https://eyraclub.es', 'http://localhost:3000', 'http://127.0.0.1:3000']
+        # Permitimos el dominio de producción, la IP y localhost para desarrollo
+        allow_origin: ['https://eyraclub.es', 'http://54.227.159.169', 'http://localhost:3000', 'http://127.0.0.1:3000']
         allow_methods: ['GET', 'OPTIONS', 'POST', 'PUT', 'PATCH', 'DELETE']
         # Incluimos los encabezados esenciales
         allow_headers: ['Content-Type', 'Authorization']
@@ -11,8 +11,8 @@ nelmio_cors:
         max_age: 3600
     paths:
         '^/api/':
-            # Configuración específica para API - permitimos producción y desarrollo
-            allow_origin: ['https://eyraclub.es', 'http://localhost:3000', 'http://127.0.0.1:3000']
+            # Configuración específica para API - permitimos producción, IP y desarrollo
+            allow_origin: ['https://eyraclub.es', 'http://54.227.159.169', 'http://localhost:3000', 'http://127.0.0.1:3000']
             # Permitimos credenciales para cookies
             allow_credentials: true
             # Encabezados permitidos para la API
@@ -21,4 +21,3 @@ nelmio_cors:
             # Exponemos encabezados adicionales
             expose_headers: ['Link', 'Content-Disposition']
             max_age: 3600
-

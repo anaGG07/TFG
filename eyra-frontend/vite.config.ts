@@ -1,6 +1,7 @@
 import { defineConfig, loadEnv } from 'vite'
 import react from '@vitejs/plugin-react-swc'
 import tailwindcss from "@tailwindcss/vite"
+import path from 'path'
 
 // https://vite.dev/config/
 export default defineConfig(({ mode }) => {
@@ -9,9 +10,30 @@ export default defineConfig(({ mode }) => {
   
   // URL de la API (con valor por defecto para producción)
   const apiUrl = env.VITE_API_URL || 'https://eyraclub.es/api'
+  // Utilizar console.log de manera compatible
   console.log(`Building in ${mode} mode with API URL: ${apiUrl}`)
   
+  // Determinar si se debe permitir acceso por IP
+  const host = env.VITE_ALLOW_IP_ACCESS === 'true' ? '0.0.0.0' : 'localhost'
+  
   return {
+    // Permitir acceso desde otras máquinas en la red (útil para testing)
+    server: {
+      host,
+      port: 3000,
+      strictPort: true,
+      // Configurar CORS para el servidor de desarrollo
+      cors: {
+        origin: [
+          'https://eyraclub.es',
+          'http://54.227.159.169',
+          'http://localhost:3000',
+          'http://127.0.0.1:3000'
+        ],
+        methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+        credentials: true
+      }
+    },
     // Utilizar un plugin personalizado para reemplazar texto directamente
     plugins: [
       react(), 
@@ -24,10 +46,10 @@ export default defineConfig(({ mode }) => {
         }
       }
     ],
-    // Define solo para las variables de entorno
+    // Define variables de entorno sin depender directamente de process
     define: {
       'import.meta.env.VITE_API_URL': JSON.stringify(apiUrl),
-      'process.env.VITE_API_URL': JSON.stringify(apiUrl)
+      '__APP_ENV__': JSON.stringify(mode)
     },
     // Configuración de build
     build: {

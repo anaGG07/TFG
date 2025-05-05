@@ -5,6 +5,7 @@
 
 // URL de API por defecto para producción
 const DEFAULT_PROD_API_URL = 'https://eyraclub.es/api';
+const DEFAULT_IP_API_URL = 'http://54.227.159.169/api';
 
 // Detector de URLs con localhost:8000 que mostrará advertencias en consola
 const detectAndFixLocalhostUrls = () => {
@@ -16,7 +17,14 @@ const detectAndFixLocalhostUrls = () => {
     if (typeof input === 'string' && input.includes('localhost:8000')) {
       console.warn('⚠️ Se detectó una petición a localhost:8000:', input);
       console.trace('Origen de la petición:');
-      input = input.replace('localhost:8000', 'eyraclub.es');
+      
+      // Si estamos accediendo desde la IP, reemplazar por la IP en lugar del dominio
+      if (window.location.hostname === '54.227.159.169') {
+        input = input.replace('localhost:8000', '54.227.159.169');
+      } else {
+        input = input.replace('localhost:8000', 'eyraclub.es');
+      }
+      
       console.log('✅ URL corregida a:', input);
     }
     return originalFetch(input, init);
@@ -30,7 +38,14 @@ const detectAndFixLocalhostUrls = () => {
         const value = obj[key];
         if (typeof value === 'string' && value.includes('localhost:8000')) {
           console.warn(`⚠️ Se detectó URL con localhost:8000 en ${path}.${key}:`, value);
-          obj[key] = value.replace('localhost:8000', 'eyraclub.es');
+          
+          // Si estamos accediendo desde la IP, reemplazar por la IP en lugar del dominio
+          if (window.location.hostname === '54.227.159.169') {
+            obj[key] = value.replace('localhost:8000', '54.227.159.169');
+          } else {
+            obj[key] = value.replace('localhost:8000', 'eyraclub.es');
+          }
+          
           console.log(`✅ Valor corregido en ${path}.${key}:`, obj[key]);
         } else if (value && typeof value === 'object' && !Array.isArray(value)) {
           checkObject(value, `${path}.${key}`);
@@ -64,9 +79,18 @@ export const getApiUrl = (): string => {
     console.log('📡 API URL from import.meta.env.VITE_API_URL:', import.meta.env.VITE_API_URL);
     return import.meta.env.VITE_API_URL;
   }
+  
+  // 3. Determinar basado en la URL actual
+  if (typeof window !== 'undefined') {
+    // Si estamos accediendo a través de la IP, usar la URL de la API con IP
+    if (window.location.hostname === '54.227.159.169') {
+      console.log('📡 API URL using IP address:', DEFAULT_IP_API_URL);
+      return DEFAULT_IP_API_URL;
+    }
+  }
 
-  // 3. URL por defecto como último recurso
-  console.log('📡 API URL using default:', DEFAULT_PROD_API_URL);
+  // 4. URL por defecto como último recurso
+  console.log('📡 API URL using default domain:', DEFAULT_PROD_API_URL);
   return DEFAULT_PROD_API_URL;
 };
 
