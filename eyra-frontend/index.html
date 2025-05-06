@@ -6,31 +6,147 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>EYRA - Tu Asistente Personal</title>
     <script>
-      // Configuración global de la API
-      window.API_URL = "https://eyraclub.es/api";
-      
-      // Monitorear y corregir posibles referencias a localhost:8000
+      // Detector de errores y bloqueos optimizado
       (function() {
-        // Estas variables serán reemplazadas por Vite en tiempo de compilación
-        const API_URL = window.API_URL;
+        // Configuración global de la API
+        window.API_URL = "https://eyraclub.es/api";
         
-        // Sobrescribir fetch para detectar y corregir localhost:8000
-        const originalFetch = window.fetch;
-        window.fetch = function(url, options) {
-          if (typeof url === 'string' && url.includes('localhost:8000')) {
-            console.warn('[EYRA] Interceptada URL localhost:8000:', url);
-            url = url.replace('http://localhost:8000/api', API_URL);
-            console.log('[EYRA] URL corregida a:', url);
+        // Monitoreo de rendimiento
+        let lastActivityTimestamp = Date.now();
+        let frameCount = 0;
+        
+        // Registrar actividad del usuario
+        function updateUserActivity() {
+          lastActivityTimestamp = Date.now();
+        }
+        
+        // Monitoreamos movimientos de ratón, teclado y toques para detectar actividad
+        document.addEventListener('mousemove', updateUserActivity, { passive: true });
+        document.addEventListener('keydown', updateUserActivity, { passive: true });
+        document.addEventListener('touchstart', updateUserActivity, { passive: true });
+        
+        // Monitor de FPS para detectar congelamiento
+        function checkPerformance() {
+          frameCount++;
+          
+          // Solo verificamos después de que la aplicación debería estar cargada (5 segundos)
+          if (frameCount > 300) { // ~5 segundos a 60 FPS
+            // Si el usuario ha sido activo en los últimos 10 segundos pero no hay actividad de frames
+            const now = Date.now();
+            const timeSinceLastActivity = now - lastActivityTimestamp;
+            
+            // Si ha pasado mucho tiempo sin frames pero el usuario está activo, puede haber un bloqueo
+            if (timeSinceLastActivity < 10000 && frameCount < 2) {
+              console.warn("Posible congelamiento de UI detectado");
+              // No hacemos nada drástico, solo registramos para diagnóstico
+            }
+            
+            // Reiniciamos el contador
+            frameCount = 0;
           }
-          return originalFetch(url, options);
-        };
+          
+          // Programamos el siguiente check
+          requestAnimationFrame(checkPerformance);
+        }
         
-        console.log('[EYRA] Inicializada con API_URL:', API_URL);
+        // Iniciamos monitorización de rendimiento
+        requestAnimationFrame(checkPerformance);
+        
+        // Evento de aplicación cargada
+        window.appReadyEvent = new Event('app-loaded');
+        
+        // Monitoreo de errores no controlados
+        window.addEventListener('error', function(event) {
+          console.error('Error detectado:', event.message);
+          
+          // No tomamos acciones drásticas para evitar interrumpir la experiencia
+          // Solo registramos para diagnóstico
+        });
+        
+        // Monitor de promesas no controladas
+        window.addEventListener('unhandledrejection', function(event) {
+          console.error('Promesa rechazada no controlada:', event.reason);
+          
+          // Solo registramos para diagnóstico
+        });
       })();
     </script>
+    <style>
+      /* Estilo para un indicador de carga sutil */
+      body {
+        margin: 0;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+      }
+      
+      #loading {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 2px;
+        z-index: 10000;
+        background: linear-gradient(to right, #ff50e5, #9c27b0);
+        transition: opacity 0.3s ease-out;
+      }
+      
+      #loading::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 15%;
+        height: 100%;
+        background-color: rgba(255, 255, 255, 0.5);
+        animation: loading 2s infinite;
+      }
+      
+      @keyframes loading {
+        0% { left: -15%; }
+        100% { left: 100%; }
+      }
+      
+      #loading.ready {
+        opacity: 0;
+      }
+    </style>
   </head>
   <body>
+    <!-- Indicador de carga sutil -->
+    <div id="loading"></div>
+    
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
+    
+    <script>
+      // Manejo del indicador de carga
+      document.addEventListener('DOMContentLoaded', function() {
+        const loadingBar = document.getElementById('loading');
+        
+        // Ocultar el indicador cuando la app esté lista
+        window.addEventListener('app-loaded', function() {
+          if (loadingBar) {
+            loadingBar.classList.add('ready');
+            setTimeout(() => {
+              loadingBar.style.display = 'none';
+            }, 300);
+          }
+        });
+        
+        // Fallback: ocultar el indicador después de 10 segundos máximo
+        setTimeout(function() {
+          if (loadingBar) {
+            loadingBar.classList.add('ready');
+            setTimeout(() => {
+              loadingBar.style.display = 'none';
+            }, 300);
+          }
+          
+          // Despachar el evento de app cargada si aún no se ha hecho
+          if (window.appReadyEvent) {
+            window.dispatchEvent(window.appReadyEvent);
+          }
+        }, 10000);
+      });
+    </script>
   </body>
 </html>
