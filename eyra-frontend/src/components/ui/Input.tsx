@@ -29,8 +29,8 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(({
   
   const inputClasses = `
     block rounded-md border-gray-300 shadow-sm
-    focus:border-purple-500 focus:ring-purple-500 sm:text-sm
-    ${hasError ? 'border-red-500 text-red-900 placeholder-red-300 focus:border-red-500 focus:ring-red-500' : ''}
+    focus:border-primary-500 focus:ring-primary-400 sm:text-sm
+    ${hasError ? 'border-accent-500 text-accent-700 placeholder-accent-300 focus:border-accent-500 focus:ring-accent-500' : ''}
     ${disabled ? 'bg-gray-100 cursor-not-allowed' : ''}
     ${leftIcon ? 'pl-10' : ''}
     ${rightIcon ? 'pr-10' : ''}
@@ -41,7 +41,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(({
   return (
     <div className={fullWidth ? 'w-full' : ''}>
       {label && (
-        <label className="block text-sm font-medium text-gray-700 mb-1">
+        <label className="block text-sm font-medium text-gray-700 mb-1 dark:text-white/80">
           {label}
         </label>
       )}
@@ -71,7 +71,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(({
       
       {(error || helperText) && (
         <p 
-          className={`mt-1 text-sm ${hasError ? 'text-red-600' : 'text-gray-500'}`}
+          className={`mt-1 text-sm ${hasError ? 'text-accent-600' : 'text-gray-500 dark:text-gray-400'}`}
           id={hasError ? `${props.id}-error` : undefined}
         >
           {error || helperText}

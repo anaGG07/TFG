@@ -25,25 +25,25 @@ const RootLayout = () => {
                 to={ROUTES.HOME}
                 className="flex items-center gap-2 group"
               >
-                {/* Icono del logo */}
+                {/* Icono del logo - Flor menstrual */}
                 <div className="relative">
                   <div
-                    className="w-8 h-8 rounded-lg bg-gradient-to-r from-[#FF2DAF] to-[#9B4DFF] 
+                    className="w-8 h-8 rounded-lg bg-gradient-to-r from-primary-500 to-secondary-500 
                                   flex items-center justify-center transform group-hover:scale-105 
-                                  transition-all duration-300 shadow-[0_0_15px_rgba(255,45,175,0.5)]"
+                                  transition-all duration-300 shadow-[0_0_15px_rgba(225,29,72,0.5)]"
                   >
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
+                    <svg 
+                      xmlns="http://www.w3.org/2000/svg" 
                       viewBox="0 0 24 24"
                       fill="currentColor"
                       className="w-5 h-5 text-white"
                     >
-                      <path d="M4 2.69127C4 1.93067 4.81547 1.44851 5.48192 1.81506L22.4069 11.1238C23.0977 11.5037 23.0977 12.4963 22.4069 12.8762L5.48192 22.1849C4.81546 22.5515 4 22.0693 4 21.3087V2.69127Z" />
+                      <path d="M12 2c2.5 0 4 1.5 4 4 0 1.5-1 2.5-2 3 1 .5 2 1.5 2 3 0 2.5-1.5 4-4 4-2.5 0-4-1.5-4-4 0-1.5 1-2.5 2-3-1-.5-2-1.5-2-3 0-2.5 1.5-4 4-4zm0 2c-1.25 0-2 .75-2 2s.75 2 2 2 2-.75 2-2-.75-2-2-2zm0 6c-1.25 0-2 .75-2 2s.75 2 2 2 2-.75 2-2-.75-2-2-2z" />
                     </svg>
                   </div>
                   {/* Efecto de brillo detrás del logo */}
                   <div
-                    className="absolute -inset-1 bg-gradient-to-r from-[#FF2DAF] to-[#9B4DFF] 
+                    className="absolute -inset-1 bg-gradient-to-r from-primary-500 to-secondary-500 
                                   rounded-lg blur opacity-30 group-hover:opacity-40 
                                   transition-opacity duration-300"
                   ></div>
@@ -58,7 +58,7 @@ const RootLayout = () => {
                     E
                   </span>
                   <span
-                    className="text-xl font-bold bg-gradient-to-r from-[#FF2DAF] to-[#9B4DFF] 
+                    className="text-xl font-bold bg-gradient-to-r from-primary-500 to-secondary-500 
                                    bg-clip-text text-transparent"
                   >
                     YRA
@@ -74,7 +74,7 @@ const RootLayout = () => {
                         isTransparentNav
                           ? "text-white/80 hover:text-white"
                           : "text-white"
-                      } ${isActive ? "text-[#FF2DAF]" : ""}`
+                      } ${isActive ? "text-primary-500 font-medium" : ""}`
                     }
                   >
                     Dashboard
@@ -126,8 +126,8 @@ const RootLayout = () => {
                   onClick={logout}
                   className={`${
                     isTransparentNav
-                      ? "bg-[#ff2dae51] shadow-2xl text-white hover:bg-[#FF2DAF]"
-                      : "bg-[#ff2dae51] shadow-2xl text-white hover:bg-[#FF2DAF]"
+                      ? "bg-primary-500/20 shadow-md text-white hover:bg-primary-500"
+                      : "bg-primary-500/20 shadow-md text-white hover:bg-primary-500"
                   } font-bold py-2 px-4 rounded-lg transition-colors duration-300`}
                 >
                   Cerrar Sesión
@@ -185,27 +185,27 @@ const RootLayout = () => {
         <div className="max-w-7xl mx-auto px-8 py-5">
           <div className="flex items-center justify-center gap-6">
             <p className="text-white/90 font-medium">
-              <span className="bg-gradient-to-r from-[#FF2DAF] to-[#9B4DFF] bg-clip-text text-transparent">
+              <span className="bg-gradient-to-r from-primary-500 to-secondary-500 bg-clip-text text-transparent">
                 EYRA
               </span>
               <span className="mx-2 text-white/60">©</span>
               <span className="text-white/80">2025 by</span>
-              <span className="ml-2 text-white font-semibold hover:text-[#FF2DAF] transition-colors">
+              <span className="ml-2 text-white font-semibold hover:text-primary-500 transition-colors">
                 Ana María García
               </span>
             </p>
-            <div className="h-4 w-[1px] bg-gradient-to-b from-[#FF2DAF] to-[#9B4DFF] opacity-50"></div>
+            <div className="h-4 w-[1px] bg-gradient-to-b from-primary-500 to-secondary-500 opacity-50"></div>
             <a
               href="https://github.com/anaGG07"
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center gap-3 px-4 py-2 rounded-xl
                        bg-white/5 hover:bg-white/10 border border-white/10
-                       hover:border-[#FF2DAF]/30 transition-all duration-300
+                       hover:border-primary-500/40 transition-all duration-300
                        group"
             >
               <svg
-                className="w-5 h-5 text-white/70 group-hover:text-[#FF2DAF] transition-colors"
+                className="w-5 h-5 text-white/70 group-hover:text-primary-500 transition-colors"
                 viewBox="0 0 24 24"
                 fill="currentColor"
               >

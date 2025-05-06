@@ -28,16 +28,16 @@ export const Button = ({
   // Base classes
   const baseClasses = 'inline-flex items-center justify-center rounded-md font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2';
   
-  // Variant classes
+  // Variant classes - Nuevos colores para tema menstrual
   const variantClasses = {
-    primary: 'bg-purple-600 text-white hover:bg-purple-700 focus:ring-purple-500',
-    secondary: 'bg-gray-200 text-gray-800 hover:bg-gray-300 focus:ring-gray-500',
+    primary: 'bg-primary-600 text-white hover:bg-primary-700 focus:ring-primary-500',
+    secondary: 'bg-secondary-500 text-white hover:bg-secondary-600 focus:ring-secondary-400',
     success: 'bg-green-600 text-white hover:bg-green-700 focus:ring-green-500',
-    danger: 'bg-red-600 text-white hover:bg-red-700 focus:ring-red-500',
+    danger: 'bg-accent-600 text-white hover:bg-accent-700 focus:ring-accent-500',
     warning: 'bg-yellow-500 text-white hover:bg-yellow-600 focus:ring-yellow-500',
-    info: 'bg-blue-500 text-white hover:bg-blue-600 focus:ring-blue-500',
-    light: 'bg-gray-100 text-gray-800 hover:bg-gray-200 focus:ring-gray-500',
-    dark: 'bg-gray-800 text-white hover:bg-gray-900 focus:ring-gray-700',
+    info: 'bg-secondary-400 text-white hover:bg-secondary-500 focus:ring-secondary-300',
+    light: 'bg-primary-50 text-primary-800 hover:bg-primary-100 focus:ring-primary-200',
+    dark: 'bg-primary-900 text-white hover:bg-primary-950 focus:ring-primary-800',
   };
   
   // Size classes
