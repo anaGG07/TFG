@@ -11,6 +11,6 @@
   }
   
   body {
-    @apply bg-secondary-100 text-primary-800;
+    @apply bg-[#FFD0C9] text-primary-800;
   }
 }

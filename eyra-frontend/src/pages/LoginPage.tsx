@@ -43,7 +43,7 @@ const LoginPage = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-secondary-100 p-4">
+    <div className="min-h-screen flex items-center justify-center bg-[#FFD0C9] p-4">
       {/* Logo grande para la página de login */}
       <div className="fixed top-6 left-0 right-0 flex justify-center">
         <div className="flex items-center gap-3">

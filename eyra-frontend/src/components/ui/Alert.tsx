@@ -19,12 +19,12 @@ export const Alert = ({
   onClose,
   className = '',
 }: AlertProps) => {
-  // Variant-specific styles - EYRA CLUB colors
+  // Variant-specific styles - EYRA CLUB colors en formato plano
   const variantStyles = {
     info: {
-      container: 'bg-secondary-100 border-secondary-400 text-secondary-800',
-      icon: 'text-secondary-500',
-      closeButton: 'text-secondary-500 hover:text-secondary-700',
+      container: 'bg-[#FFD0C9] border-[#FF6C5C] text-[#C62328]',
+      icon: 'text-[#FF6C5C]',
+      closeButton: 'text-[#FF6C5C] hover:text-[#B5413A]',
     },
     success: {
       container: 'bg-green-50 border-green-400 text-green-800',
@@ -37,9 +37,9 @@ export const Alert = ({
       closeButton: 'text-yellow-500 hover:text-yellow-700',
     },
     error: {
-      container: 'bg-accent-100 border-primary-DEFAULT text-primary-600',
-      icon: 'text-primary-DEFAULT',
-      closeButton: 'text-primary-DEFAULT hover:text-primary-600',
+      container: 'bg-[#feebeb] border-[#C62328] text-[#9f1239]',
+      icon: 'text-[#C62328]',
+      closeButton: 'text-[#C62328] hover:text-[#9f1239]',
     },
   };
 

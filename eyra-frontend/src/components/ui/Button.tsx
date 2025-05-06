@@ -28,16 +28,16 @@ export const Button = ({
   // Base classes
   const baseClasses = 'inline-flex items-center justify-center rounded-md font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2';
   
-  // Variant classes - Colores de EYRA CLUB
+  // Variant classes - EYRA CLUB colors con formato plano
   const variantClasses = {
-    primary: 'bg-primary-DEFAULT text-white hover:bg-primary-600 focus:ring-primary-400',
-    secondary: 'bg-white border-2 border-primary-DEFAULT text-primary-DEFAULT hover:bg-gray-50 focus:ring-primary-300',
+    primary: 'bg-[#C62328] text-white hover:bg-[#9f1239] focus:ring-[#C62328]/50',
+    secondary: 'bg-white border-2 border-[#C62328] text-[#C62328] hover:bg-gray-50 focus:ring-[#C62328]/40',
     success: 'bg-green-600 text-white hover:bg-green-700 focus:ring-green-500',
-    danger: 'bg-accent-600 text-white hover:bg-accent-700 focus:ring-accent-500',
+    danger: 'bg-[#dc2a2a] text-white hover:bg-[#b91c1c] focus:ring-[#dc2a2a]/50',
     warning: 'bg-yellow-500 text-white hover:bg-yellow-600 focus:ring-yellow-500',
-    info: 'bg-secondary-400 text-white hover:bg-secondary-500 focus:ring-secondary-300',
-    light: 'bg-primary-50 text-primary-800 hover:bg-primary-100 focus:ring-primary-200',
-    dark: 'bg-primary-900 text-white hover:bg-primary-950 focus:ring-primary-800',
+    info: 'bg-[#FF6C5C] text-white hover:bg-[#ec4899] focus:ring-[#FF6C5C]/50',
+    light: 'bg-[#FFEDEA] text-[#C62328] hover:bg-[#FFD0C9] focus:ring-[#FFD0C9]',
+    dark: 'bg-[#581c23] text-white hover:bg-[#450a0a] focus:ring-[#581c23]/70',
   };
   
   // Size classes
