@@ -6,6 +6,7 @@
 // URL de API por defecto para producción
 const DEFAULT_PROD_API_URL = 'https://eyraclub.es/api';
 const DEFAULT_IP_API_URL = 'http://54.227.159.169/api';
+const DEFAULT_LOCAL_API_URL = 'http://localhost:8000/api';
 
 // Función optimizada para detectar y corregir URLs de localhost
 const setupFetchInterceptor = () => {
@@ -22,14 +23,20 @@ const setupFetchInterceptor = () => {
     if (typeof input === 'string' && input.includes('localhost:8000')) {
       console.warn('⚠️ Se detectó una petición a localhost:8000:', input);
       
-      // Si estamos accediendo desde la IP, reemplazar por la IP en lugar del dominio
-      if (window.location.hostname === '54.227.159.169') {
-        input = input.replace('localhost:8000', '54.227.159.169');
-      } else {
-        input = input.replace('localhost:8000', 'eyraclub.es');
+      // Mantener localhost:8000 si estamos en entorno local
+      if (window.location.hostname === 'localhost') {
+        console.log('✅ Manteniendo URL local para desarrollo:', input);
       }
-      
-      console.log('✅ URL corregida a:', input);
+      // Si estamos accediendo desde la IP, reemplazar por la IP
+      else if (window.location.hostname === '54.227.159.169') {
+        input = input.replace('localhost:8000', '54.227.159.169');
+        console.log('✅ URL corregida a:', input);
+      } 
+      // En cualquier otro caso (producción), usar el dominio
+      else {
+        input = input.replace('localhost:8000', 'eyraclub.es');
+        console.log('✅ URL corregida a:', input);
+      }
     }
     return originalFetch(input, init);
   };
@@ -59,6 +66,12 @@ export const getApiUrl = (): string => {
   if (window.location.hostname === '54.227.159.169') {
     console.log('📡 API URL using IP address:', DEFAULT_IP_API_URL);
     return DEFAULT_IP_API_URL;
+  }
+  
+  // Si estamos en desarrollo local, usar la URL local
+  if (window.location.hostname === 'localhost') {
+    console.log('📡 API URL using localhost:', DEFAULT_LOCAL_API_URL);
+    return DEFAULT_LOCAL_API_URL;
   }
 
   // 4. URL por defecto como último recurso

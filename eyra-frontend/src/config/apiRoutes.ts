@@ -2,6 +2,9 @@ import { API_URL } from './setupApiUrl';
 
 // Log para debugging
 console.log('API_ROUTES utilizando URL base:', API_URL);
+// Log para verificar ruta de registro
+const registerRoute = `${API_URL}/register`;
+console.log('Ruta de registro configurada como:', registerRoute);
 
 // Función auxiliar para crear URLs completas
 const createApiUrl = (path: string): string => {

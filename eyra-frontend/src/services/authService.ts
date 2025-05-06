@@ -68,11 +68,32 @@ class AuthService {
     this.ensureInitialized();
     
     try {
-      console.log('Iniciando registro');
-      await apiFetch(API_ROUTES.AUTH.REGISTER, {
+      console.log('Iniciando registro con datos:', { email: userData.email });
+      console.log('URL de registro:', API_ROUTES.AUTH.REGISTER);
+      
+      // Uso directo de fetch para evitar posibles problemas con apiFetch
+      const response = await fetch(API_ROUTES.AUTH.REGISTER, {
         method: 'POST',
-        body: userData,
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+        },
+        body: JSON.stringify(userData),
       });
+      
+      if (!response.ok) {
+        // Intentar obtener el mensaje de error del servidor
+        const errorData = await response.json().catch(() => ({ 
+          message: `Error ${response.status}: ${response.statusText}` 
+        }));
+        console.error('Error en respuesta del servidor durante registro:', {
+          status: response.status,
+          statusText: response.statusText,
+          error: errorData
+        });
+        throw new Error(errorData.message || `Error ${response.status}: ${response.statusText}`);
+      }
+      
       console.log('Registro completado correctamente');
     } catch (error) {
       console.error('Error en el registro:', error);
