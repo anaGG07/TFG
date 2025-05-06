@@ -19,12 +19,12 @@ export const Alert = ({
   onClose,
   className = '',
 }: AlertProps) => {
-  // Variant-specific styles
+  // Variant-specific styles - Nuevos colores para tema menstrual
   const variantStyles = {
     info: {
-      container: 'bg-blue-50 border-blue-400 text-blue-800',
-      icon: 'text-blue-500',
-      closeButton: 'text-blue-500 hover:text-blue-700',
+      container: 'bg-secondary-50 border-secondary-400 text-secondary-800',
+      icon: 'text-secondary-500',
+      closeButton: 'text-secondary-500 hover:text-secondary-700',
     },
     success: {
       container: 'bg-green-50 border-green-400 text-green-800',
@@ -37,9 +37,9 @@ export const Alert = ({
       closeButton: 'text-yellow-500 hover:text-yellow-700',
     },
     error: {
-      container: 'bg-red-50 border-red-400 text-red-800',
-      icon: 'text-red-500',
-      closeButton: 'text-red-500 hover:text-red-700',
+      container: 'bg-accent-50 border-accent-400 text-accent-800',
+      icon: 'text-accent-500',
+      closeButton: 'text-accent-500 hover:text-accent-700',
     },
   };
 

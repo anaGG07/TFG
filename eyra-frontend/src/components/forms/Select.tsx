@@ -35,9 +35,9 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>(({
   
   const selectClasses = `
     block rounded-md border-gray-300 shadow-sm
-    focus:border-purple-500 focus:ring-purple-500
+    focus:border-primary-500 focus:ring-primary-400
     ${sizeClasses[size]}
-    ${hasError ? 'border-red-500 text-red-900 focus:border-red-500 focus:ring-red-500' : ''}
+    ${hasError ? 'border-accent-500 text-accent-700 focus:border-accent-500 focus:ring-accent-500' : ''}
     ${disabled ? 'bg-gray-100 cursor-not-allowed' : ''}
     ${fullWidth ? 'w-full' : ''}
     ${className}
@@ -46,7 +46,7 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>(({
   return (
     <div className={fullWidth ? 'w-full' : ''}>
       {label && (
-        <label className="block text-sm font-medium text-gray-700 mb-1">
+        <label className="block text-sm font-medium text-gray-700 mb-1 dark:text-white/80">
           {label}
         </label>
       )}
@@ -68,7 +68,7 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>(({
       
       {(error || helperText) && (
         <p 
-          className={`mt-1 text-sm ${hasError ? 'text-red-600' : 'text-gray-500'}`}
+          className={`mt-1 text-sm ${hasError ? 'text-accent-600' : 'text-gray-500 dark:text-gray-400'}`}
           id={hasError ? `${props.id}-error` : undefined}
         >
           {error || helperText}
