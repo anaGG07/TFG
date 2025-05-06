@@ -28,10 +28,10 @@ export const Button = ({
   // Base classes
   const baseClasses = 'inline-flex items-center justify-center rounded-md font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2';
   
-  // Variant classes - Nuevos colores para tema menstrual
+  // Variant classes - Colores de EYRA CLUB
   const variantClasses = {
-    primary: 'bg-primary-600 text-white hover:bg-primary-700 focus:ring-primary-500',
-    secondary: 'bg-secondary-500 text-white hover:bg-secondary-600 focus:ring-secondary-400',
+    primary: 'bg-primary-DEFAULT text-white hover:bg-primary-600 focus:ring-primary-400',
+    secondary: 'bg-white border-2 border-primary-DEFAULT text-primary-DEFAULT hover:bg-gray-50 focus:ring-primary-300',
     success: 'bg-green-600 text-white hover:bg-green-700 focus:ring-green-500',
     danger: 'bg-accent-600 text-white hover:bg-accent-700 focus:ring-accent-500',
     warning: 'bg-yellow-500 text-white hover:bg-yellow-600 focus:ring-yellow-500',

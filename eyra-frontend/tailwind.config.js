@@ -9,7 +9,7 @@ export default {
           DEFAULT: '#C62328',
           light: '#FF6C5C',
           dark: '#FFEDEA',
-          50: '#fef2f2',
+          50: '#fff1f2',
           100: '#fee2e2',
           200: '#fecaca',
           300: '#fca5a5',
@@ -50,6 +50,10 @@ export default {
           900: '#7f1d1d',
           950: '#450a0a',
         }
+      },
+      fontFamily: {
+        'serif': ['Playfair Display', 'serif'],
+        'sans': ['Inter', 'sans-serif'],
       },
       backgroundImage: {
         'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',

@@ -19,10 +19,10 @@ export const Alert = ({
   onClose,
   className = '',
 }: AlertProps) => {
-  // Variant-specific styles - Nuevos colores para tema menstrual
+  // Variant-specific styles - EYRA CLUB colors
   const variantStyles = {
     info: {
-      container: 'bg-secondary-50 border-secondary-400 text-secondary-800',
+      container: 'bg-secondary-100 border-secondary-400 text-secondary-800',
       icon: 'text-secondary-500',
       closeButton: 'text-secondary-500 hover:text-secondary-700',
     },
@@ -37,9 +37,9 @@ export const Alert = ({
       closeButton: 'text-yellow-500 hover:text-yellow-700',
     },
     error: {
-      container: 'bg-accent-50 border-accent-400 text-accent-800',
-      icon: 'text-accent-500',
-      closeButton: 'text-accent-500 hover:text-accent-700',
+      container: 'bg-accent-100 border-primary-DEFAULT text-primary-600',
+      icon: 'text-primary-DEFAULT',
+      closeButton: 'text-primary-DEFAULT hover:text-primary-600',
     },
   };
 

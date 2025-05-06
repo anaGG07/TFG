@@ -147,8 +147,8 @@ export const RegisterForm = () => {
   return (
     <div className="bg-white p-8 rounded-lg shadow-md w-full max-w-md">
       <div className="text-center mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">Crear una cuenta</h1>
-        <p className="text-gray-600 mt-2">Únete a EYRA y comienza tu viaje</p>
+        <h1 className="text-2xl font-serif text-primary-DEFAULT">Crear una cuenta</h1>
+        <p className="text-gray-600 mt-2">Comienza a conocer tu ciclo menstrual</p>
       </div>
 
       {apiError && (
@@ -317,7 +317,7 @@ export const RegisterForm = () => {
       <div className="mt-6 text-center">
         <p className="text-gray-600">
           ¿Ya tienes una cuenta?{' '}
-          <Link to="/login" className="text-purple-600 hover:text-purple-500">
+          <Link to="/login" className="text-primary-DEFAULT hover:text-primary-600 font-medium">
             Inicia sesión
           </Link>
         </p>
@@ -326,11 +326,11 @@ export const RegisterForm = () => {
       <div className="mt-8 pt-6 border-t border-gray-200">
         <p className="text-center text-gray-500 text-sm">
           Al registrarte, aceptas nuestros{' '}
-          <Link to="/terms" className="text-purple-600 hover:text-purple-500">
+          <Link to="/terms" className="text-primary-DEFAULT hover:text-primary-600">
             Términos de servicio
           </Link>{' '}
           y{' '}
-          <Link to="/privacy" className="text-purple-600 hover:text-purple-500">
+          <Link to="/privacy" className="text-primary-DEFAULT hover:text-primary-600">
             Política de privacidad
           </Link>
         </p>

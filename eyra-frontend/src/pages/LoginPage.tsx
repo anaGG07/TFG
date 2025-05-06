@@ -43,18 +43,34 @@ const LoginPage = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#1A0B2E] to-[#2D0A31] p-4">
-      <main className="bg-[#ffffff08] backdrop-blur-md rounded-xl border border-white/10 p-8 w-full max-w-md">
+    <div className="min-h-screen flex items-center justify-center bg-secondary-100 p-4">
+      {/* Logo grande para la página de login */}
+      <div className="fixed top-6 left-0 right-0 flex justify-center">
+        <div className="flex items-center gap-3">
+          <div className="relative w-12 h-12">
+            <div className="w-full h-full rounded-full overflow-hidden bg-primary-DEFAULT flex items-center justify-center">
+              <svg viewBox="0 0 100 100" className="w-4/5 h-4/5 text-secondary-100" fill="currentColor">
+                <path d="M50,20 C65,20 70,35 70,50 C70,65 65,80 50,80 C35,80 30,65 30,50 C30,35 35,20 50,20 Z" />
+              </svg>
+            </div>
+          </div>
+          <h2 className="text-3xl font-serif tracking-tight text-primary-DEFAULT">
+            EYRA<span>CLUB</span>
+          </h2>
+        </div>
+      </div>
+
+      <main className="bg-white rounded-xl border border-gray-200 shadow-md p-8 w-full max-w-md">
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-white" id="login-title">Iniciar Sesión</h1>
-          <p className="text-white/60 mt-2">
+          <h1 className="text-3xl font-serif text-primary-DEFAULT mb-2" id="login-title">Iniciar Sesión</h1>
+          <p className="text-gray-600">
             Accede a tu cuenta para continuar
           </p>
         </div>
 
         {error && (
           <div 
-            className="bg-red-500/20 border border-red-500/50 text-white rounded-lg p-3 mb-6"
+            className="bg-accent-100 border border-accent-500 text-accent-700 rounded-lg p-3 mb-6"
             role="alert"
             aria-live="assertive"
           >
@@ -72,7 +88,7 @@ const LoginPage = () => {
           <div>
             <label
               htmlFor="email"
-              className="block text-white/90 mb-2 font-medium"
+              className="block text-gray-700 mb-2 font-medium"
               id="email-label"
             >
               Email
@@ -84,7 +100,7 @@ const LoginPage = () => {
               value={email}
               autoComplete="email"
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full bg-[#ffffff15] border border-white/10 rounded-lg py-3 px-4 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-[#FF2DAF]/50"
+              className="w-full bg-white border border-gray-300 rounded-lg py-3 px-4 text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
               placeholder="tu@email.com"
               required
               aria-required="true"
@@ -97,7 +113,7 @@ const LoginPage = () => {
           <div>
             <label
               htmlFor="password"
-              className="block text-white/90 mb-2 font-medium"
+              className="block text-gray-700 mb-2 font-medium"
               id="password-label"
             >
               Contraseña
@@ -109,7 +125,7 @@ const LoginPage = () => {
               autoComplete="current-password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full bg-[#ffffff15] border border-white/10 rounded-lg py-3 px-4 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-[#FF2DAF]/50"
+              className="w-full bg-white border border-gray-300 rounded-lg py-3 px-4 text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
               placeholder="••••••••"
               required
               aria-required="true"
@@ -125,12 +141,12 @@ const LoginPage = () => {
                 id="remember-me"
                 type="checkbox"
                 name="remember"
-                className="h-4 w-4 bg-[#ffffff15] border border-white/20 rounded focus:ring-[#FF2DAF]/50 focus:ring-offset-0"
+                className="h-4 w-4 border border-gray-300 rounded text-primary-DEFAULT focus:ring-primary-500 focus:ring-offset-0"
                 aria-label="Recordar mi sesión"
               />
               <label
                 htmlFor="remember-me"
-                className="ml-2 block text-sm text-white/70"
+                className="ml-2 block text-sm text-gray-600"
               >
                 Recordarme
               </label>
@@ -138,7 +154,7 @@ const LoginPage = () => {
 
             <a
               href="#"
-              className="text-sm text-[#FF2DAF] hover:text-[#FF2DAF]/80"
+              className="text-sm text-primary-DEFAULT hover:text-primary-600 font-medium"
               aria-label="Recuperar contraseña olvidada"
             >
               ¿Olvidaste tu contraseña?
@@ -148,8 +164,8 @@ const LoginPage = () => {
           <button
             type="submit"
             disabled={isLoading}
-            className="w-full py-3 px-4 bg-gradient-to-r from-[#FF2DAF] to-[#9B4DFF] rounded-lg text-white font-medium 
-                     transition-all duration-300 shadow-lg hover:shadow-[0_0_15px_rgba(255,45,175,0.5)] 
+            className="w-full py-3 px-4 bg-primary-DEFAULT rounded-lg text-white font-medium 
+                     transition-all duration-300 shadow-sm hover:shadow-md hover:bg-primary-600
                      disabled:opacity-70 disabled:cursor-not-allowed"
             id="login-submit"
             data-testid="login-submit"
@@ -160,11 +176,11 @@ const LoginPage = () => {
         </form>
 
         <div className="mt-8 text-center">
-          <p className="text-white/70">
+          <p className="text-gray-600">
             ¿No tienes una cuenta?{" "}
             <Link
               to={ROUTES.REGISTER}
-              className="text-[#FF2DAF] hover:text-[#FF2DAF]/80 font-medium"
+              className="text-primary-DEFAULT hover:text-primary-600 font-medium"
             >
               Regístrate
             </Link>
