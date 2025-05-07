@@ -9,13 +9,6 @@ const HomePage = () => {
         <div className="flex items-center justify-center gap-4 mb-8">
           <div className="relative w-20 h-20 md:w-24 md:h-24">
             <div className="w-full h-full rounded-full overflow-hidden bg-[#5b0108] flex items-center justify-center">
-              <svg
-                viewBox="0 0 100 100"
-                className="w-4/5 h-4/5 text-[#e7e0d5]"
-                fill="currentColor"
-              >
-                <path d="M50,20 C65,20 70,35 70,50 C70,65 65,80 50,80 C35,80 30,65 30,50 C30,35 35,20 50,20 Z" />
-              </svg>
             </div>
           </div>
           <h1 className="text-5xl md:text-6xl font-serif tracking-tight text-[#5b0108]">
