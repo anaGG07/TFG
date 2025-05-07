@@ -103,6 +103,11 @@ class AuthService {
     return configuredUrl;
   }
 
+  // Determina si estamos en modo de desarrollo
+  private isDevMode(): boolean {
+    return process.env.NODE_ENV === 'development' || window.location.hostname === 'localhost';
+  }
+
   /**
    * Registra un nuevo usuario con manejo mejorado de errores
    */
@@ -118,84 +123,51 @@ class AuthService {
         throw new Error('Email en uso');
       }
       
+      // Si estamos en modo desarrollo, simulamos un registro exitoso
+      if (this.isDevMode()) {
+        console.log('Modo desarrollo: Simulando registro exitoso');
+        return;
+      }
+      
       // Obtener la URL de registro con fallbacks
       const registerUrl = this.getRegisterUrl();
       console.log('URL de registro final:', registerUrl);
       
-      // Intentar varias URLs para mayor robustez
-      const urls = [
-        registerUrl,
-        // Probar con versiones alternativas si la primera falla
-        registerUrl.replace('/api/v1/', '/api/'),
-        registerUrl.replace('/api/v1/', '/api/auth/'),
-        registerUrl.replace('/api/v1/register', '/api/users'),
-        // Las URLss de localhost para desarrollo
-        'http://localhost:9000/api/register',
-        'http://localhost:9000/api/v1/register',
-        'http://localhost:9000/api/auth/register',
-        'http://localhost:9000/api/users'
-      ];
-      
-      let lastError = null;
-      
-      // Intentar con cada URL hasta que una funcione
-      for (const url of urls) {
-        try {
-          console.log('Intentando registro con URL:', url);
-          
-          const response = await fetch(url, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'Accept': 'application/json',
-            },
-            body: JSON.stringify(userData),
-          });
-          
-          console.log('Respuesta del servidor:', {
-            url,
-            status: response.status,
-            statusText: response.statusText
-          });
-          
-          if (response.ok) {
-            console.log('Registro completado correctamente con URL:', url);
-            return; // Éxito, salimos de la función
-          }
-          
-          // Si llegamos aquí, la respuesta no fue ok
-          const errorData = await response.json().catch(() => ({ 
-            message: `Error ${response.status}: ${response.statusText}` 
-          }));
-          
-          lastError = new Error(errorData.message || `Error ${response.status}: ${response.statusText}`);
-          
-          // Si el error no es 404, probablemente sea un error de validación o similar
-          // En ese caso, no intentamos con más URLs
-          if (response.status !== 404) {
-            throw lastError;
-          }
-        } catch (err) {
-          if (err.message && !err.message.includes('404')) {
-            throw err; // Si no es un error 404, lo propagamos
-          }
-          lastError = err;
-          console.warn('Error al intentar registro con URL:', url, err);
-          // Continuamos con la siguiente URL
+      try {
+        console.log('Intentando registro con URL:', registerUrl);
+        
+        const response = await fetch(registerUrl, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+          },
+          body: JSON.stringify(userData),
+        });
+        
+        console.log('Respuesta del servidor:', {
+          url: registerUrl,
+          status: response.status,
+          statusText: response.statusText
+        });
+        
+        if (response.ok) {
+          console.log('Registro completado correctamente');
+          return; // Éxito, salimos de la función
         }
+        
+        // Si llegamos aquí, la respuesta no fue ok
+        const errorData = await response.json().catch(() => ({ 
+          message: `Error ${response.status}: ${response.statusText}` 
+        }));
+        
+        throw new Error(errorData.message || `Error ${response.status}: ${response.statusText}`);
+      } catch (err) {
+        console.error('Error durante el registro:', err);
+        throw err;
       }
-      
-      // Si llegamos aquí, todas las URLs fallaron
-      throw lastError || new Error('No se pudo conectar con el servidor de registro');
     } catch (error) {
       console.error('Error en el registro:', error);
-      
-      // Simular registro exitoso en desarrollo
-      if (process.env.NODE_ENV === 'development' || window.location.hostname === 'localhost') {
-        console.warn('⚠️ MODO DESARROLLO: Simulando registro exitoso a pesar del error:', error.message);
-        return; // Éxito simulado en desarrollo
-      }
-      
       throw error;
     }
   }

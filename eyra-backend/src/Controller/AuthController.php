@@ -20,7 +20,7 @@ use Exception;
 use ValueError;
 use Psr\Log\LoggerInterface;
 
-#[Route('/api')]
+#[Route('')]
 class AuthController extends AbstractController
 {
     private LoggerInterface $logger;
