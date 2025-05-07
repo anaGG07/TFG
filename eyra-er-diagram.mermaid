@@ -1,0 +1,175 @@
+erDiagram
+    User ||--o{ MenstrualCycle : "registra"
+    User ||--o{ UserCondition : "tiene"
+    User ||--o{ HormoneLevel : "registra"
+    User ||--o{ SymptomLog : "registra"
+    User ||--o{ GuestAccess : "invita a"
+    User }o--o{ GuestAccess : "es invitado por"
+    User ||--o{ Notification : "recibe"
+    User ||--o{ PregnancyLog : "registra"
+    User ||--o{ MenopauseLog : "registra"
+    
+    MenstrualCycle ||--o{ CycleDay : "contiene"
+    Condition ||--o{ UserCondition : "asociada a"
+    Content ||--o{ Notification : "referencia"
+    
+    User {
+        int id PK
+        string email "único"
+        string username
+        string password "hasheado"
+        string name
+        string lastName
+        enum profileType "GUEST, etc."
+        string genderIdentity
+        date birthDate
+        datetime createdAt
+        datetime updatedAt
+        bool state "activo/inactivo"
+        array roles "ROLE_USER, etc."
+    }
+    
+    MenstrualCycle {
+        int id PK
+        int userId FK
+        date startDate
+        date endDate
+        date estimatedNextStart
+        int averageCycleLength
+        int averageDuration
+        string flowAmount "opcional"
+        string flowColor "opcional"
+        string flowOdor "opcional"
+        int painLevel "opcional"
+        string notes "opcional"
+        datetime createdAt
+        datetime updatedAt
+    }
+    
+    CycleDay {
+        int id PK
+        int cycleId FK
+        date date
+        int dayOfCycle
+        bool hasPeriod
+        bool hasBleeding
+        string bleedingIntensity "opcional"
+        bool hasPain
+        int painLevel "opcional"
+        string notes "opcional"
+        datetime createdAt
+        datetime updatedAt
+    }
+    
+    Condition {
+        int id PK
+        string name
+        string description
+        string category
+        bool affectsHormones
+        datetime createdAt
+        datetime updatedAt
+    }
+    
+    UserCondition {
+        int id PK
+        int userId FK
+        int conditionId FK
+        date diagnosisDate "opcional"
+        string severity "opcional"
+        bool isActive
+        string notes "opcional"
+        datetime createdAt
+        datetime updatedAt
+    }
+    
+    HormoneLevel {
+        int id PK
+        int userId FK
+        date testDate
+        string hormoneType "estrógeno, progesterona, etc."
+        float level
+        string unit "pg/ml, etc."
+        string notes "opcional"
+        datetime createdAt
+        datetime updatedAt
+    }
+    
+    SymptomLog {
+        int id PK
+        int userId FK
+        date date
+        string symptomType "dolor cabeza, etc."
+        int intensity
+        string notes "opcional"
+        datetime createdAt
+        datetime updatedAt
+    }
+    
+    GuestAccess {
+        int id PK
+        int ownerId FK "usuario que invita"
+        int guestId FK "usuario invitado"
+        datetime validUntil "opcional"
+        string accessLevel "lectura, etc."
+        bool isActive
+        datetime createdAt
+        datetime updatedAt
+    }
+    
+    Notification {
+        int id PK
+        int userId FK
+        string title
+        string message
+        string type "system, ciclo, etc."
+        int contentId FK "opcional"
+        bool isRead
+        datetime createdAt
+    }
+    
+    Content {
+        int id PK
+        string title
+        string contentType "artículo, video, etc."
+        string body
+        string authorName "opcional"
+        string category "salud, nutrición, etc."
+        string tags "opcional"
+        bool published
+        datetime publishedAt "opcional"
+        datetime createdAt
+        datetime updatedAt
+    }
+    
+    PregnancyLog {
+        int id PK
+        int userId FK
+        date startDate
+        date endDate "opcional"
+        int weekNumber "semana actual"
+        string notes "opcional"
+        datetime createdAt
+        datetime updatedAt
+    }
+    
+    MenopauseLog {
+        int id PK
+        int userId FK
+        date startDate "inicio de síntomas"
+        string stage "perimenopause, etc."
+        string symptoms "json"
+        string notes "opcional"
+        datetime createdAt
+        datetime updatedAt
+    }
+    
+    RefreshToken {
+        int id PK
+        int userId FK
+        string token
+        datetime expiresAt
+        string ipAddress "opcional"
+        string userAgent "opcional"
+        datetime createdAt
+    }

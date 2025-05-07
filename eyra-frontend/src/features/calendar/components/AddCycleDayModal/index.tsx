@@ -1,266 +1,295 @@
-import { useState, useEffect } from 'react';
-import { Modal } from '../../../../components/ui/Modal';
+import React, { useState } from 'react';
 import { Button } from '../../../../components/ui/Button';
-import { useCycle } from '../../../../context/CycleContext';
-import { CyclePhase } from '../../../../types/domain';
+
+interface CycleDayFormData {
+  date: string;
+  hasPeriod: boolean;
+  flowIntensity?: number;
+  hasPain: boolean;
+  painLevel?: number;
+  symptoms: string[];
+  mood: string[];
+  notes: string;
+}
 
 interface AddCycleDayModalProps {
   isOpen: boolean;
   onClose: () => void;
-  selectedDate: Date | null;
+  onSave: (data: CycleDayFormData) => void;
+  date: Date;
+  initialData?: Partial<CycleDayFormData>;
 }
 
-export const AddCycleDayModal = ({ isOpen, onClose, selectedDate }: AddCycleDayModalProps) => {
-  const { addCycleDay, startNewCycle } = useCycle();
-  const [isNewCycle, setIsNewCycle] = useState(false);
-  const [flowIntensity, setFlowIntensity] = useState<number>(0);
-  const [phase, setPhase] = useState<CyclePhase>(CyclePhase.MENSTRUAL);
-  const [mood, setMood] = useState<string[]>([]);
-  const [symptoms, setSymptoms] = useState<string[]>([]);
-  const [notes, setNotes] = useState<string>('');
-  const [isLoading, setIsLoading] = useState(false);
+const symptomOptions = [
+  'Dolor de cabeza',
+  'Náuseas',
+  'Fatiga',
+  'Hinchazón',
+  'Sensibilidad en los senos',
+  'Cambios de apetito',
+  'Insomnio',
+  'Acné',
+  'Mareos',
+  'Diarrea',
+  'Estreñimiento'
+];
 
-  // Resetear formulario cuando cambia la fecha seleccionada
-  useEffect(() => {
-    if (selectedDate) {
-      // Si es el primer día de un nuevo ciclo menstrual por defecto
-      const isFirstDayOfCycle = flowIntensity > 0 && phase === CyclePhase.MENSTRUAL;
-      setIsNewCycle(isFirstDayOfCycle);
+const moodOptions = [
+  'Feliz',
+  'Tranquila',
+  'Ansiosa',
+  'Irritable',
+  'Triste',
+  'Energética',
+  'Sensible',
+  'Emocionalmente estable',
+  'Estresada',
+  'Concentrada',
+  'Distraída'
+];
+
+export const AddCycleDayModal: React.FC<AddCycleDayModalProps> = ({
+  isOpen,
+  onClose,
+  onSave,
+  date,
+  initialData = {}
+}) => {
+  const [formData, setFormData] = useState<CycleDayFormData>({
+    date: date.toISOString().split('T')[0],
+    hasPeriod: initialData.hasPeriod || false,
+    flowIntensity: initialData.flowIntensity || 0,
+    hasPain: initialData.hasPain || false,
+    painLevel: initialData.painLevel || 0,
+    symptoms: initialData.symptoms || [],
+    mood: initialData.mood || [],
+    notes: initialData.notes || ''
+  });
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value, type } = e.target;
+    
+    if (type === 'checkbox') {
+      const { checked } = e.target as HTMLInputElement;
+      setFormData(prev => ({ ...prev, [name]: checked }));
+    } else {
+      setFormData(prev => ({ ...prev, [name]: value }));
     }
-  }, [selectedDate, flowIntensity, phase]);
+  };
 
-  // Opciones de síntomas comunes
-  const symptomOptions = [
-    'Dolor abdominal', 'Dolor de cabeza', 'Fatiga', 'Náuseas', 
-    'Sensibilidad en los senos', 'Hinchazón', 'Acné', 'Antojos',
-    'Diarrea', 'Estreñimiento', 'Cambios en el apetito'
-  ];
+  const handleRangeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: parseInt(value, 10) }));
+  };
 
-  // Opciones de estados de ánimo
-  const moodOptions = [
-    'Irritable', 'Ansiosa', 'Deprimida', 'Feliz', 
-    'Tranquila', 'Enérgica', 'Sensible', 'Cansada',
-    'Motivada', 'Distraída', 'Creativa'
-  ];
-
-  // Manejar cambios en síntomas
   const handleSymptomChange = (symptom: string) => {
-    if (symptoms.includes(symptom)) {
-      setSymptoms(symptoms.filter(s => s !== symptom));
-    } else {
-      setSymptoms([...symptoms, symptom]);
-    }
-  };
-
-  // Manejar cambios en estado de ánimo
-  const handleMoodChange = (moodItem: string) => {
-    if (mood.includes(moodItem)) {
-      setMood(mood.filter(m => m !== moodItem));
-    } else {
-      setMood([...mood, moodItem]);
-    }
-  };
-
-  // Guardar la información
-  const handleSave = async () => {
-    if (!selectedDate) return;
-
-    setIsLoading(true);
-    try {
-      if (isNewCycle) {
-        // Iniciar un nuevo ciclo
-        await startNewCycle({
-          startDate: selectedDate.toISOString().split('T')[0],
-          flowIntensity,
-          phase,
-          mood,
-          symptoms,
-          notes
-        });
+    setFormData(prev => {
+      if (prev.symptoms.includes(symptom)) {
+        return { ...prev, symptoms: prev.symptoms.filter(s => s !== symptom) };
       } else {
-        // Añadir información a un día del ciclo existente
-        await addCycleDay({
-          date: selectedDate.toISOString().split('T')[0],
-          flowIntensity,
-          phase,
-          mood,
-          symptoms,
-          notes
-        });
+        return { ...prev, symptoms: [...prev.symptoms, symptom] };
       }
-      onClose();
-    } catch (error) {
-      console.error('Error al guardar información:', error);
-    } finally {
-      setIsLoading(false);
-    }
+    });
   };
+
+  const handleMoodChange = (mood: string) => {
+    setFormData(prev => {
+      if (prev.mood.includes(mood)) {
+        return { ...prev, mood: prev.mood.filter(m => m !== mood) };
+      } else {
+        return { ...prev, mood: [...prev.mood, mood] };
+      }
+    });
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    onSave(formData);
+    onClose();
+  };
+
+  if (!isOpen) return null;
 
   return (
-    <Modal 
-      isOpen={isOpen} 
-      onClose={onClose}
-      title={selectedDate 
-        ? `Información para ${selectedDate.toLocaleDateString('es', { weekday: 'long', day: 'numeric', month: 'long' })}`
-        : 'Añadir información'
-      }
-    >
-      <div className="space-y-6">
-        {/* Selector de fase */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Fase del ciclo
-          </label>
-          <div className="grid grid-cols-2 gap-3">
-            <button
-              type="button"
-              className={`px-4 py-2 border rounded-md ${phase === CyclePhase.MENSTRUAL ? 'bg-red-100 border-red-500' : 'bg-white border-gray-300'}`}
-              onClick={() => setPhase(CyclePhase.MENSTRUAL)}
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+      <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+        <div className="p-6">
+          <div className="flex justify-between items-center mb-6">
+            <h2 className="text-2xl font-serif text-eyraRed">
+              {initialData.date ? 'Editar día' : 'Añadir día'} - {date.toLocaleDateString('es', { day: 'numeric', month: 'long' })}
+            </h2>
+            <button 
+              onClick={onClose}
+              className="text-gray-500 hover:text-gray-700"
             >
-              Menstrual
-            </button>
-            <button
-              type="button"
-              className={`px-4 py-2 border rounded-md ${phase === CyclePhase.FOLICULAR ? 'bg-yellow-100 border-yellow-500' : 'bg-white border-gray-300'}`}
-              onClick={() => setPhase(CyclePhase.FOLICULAR)}
-            >
-              Folicular
-            </button>
-            <button
-              type="button"
-              className={`px-4 py-2 border rounded-md ${phase === CyclePhase.OVULACION ? 'bg-blue-100 border-blue-500' : 'bg-white border-gray-300'}`}
-              onClick={() => setPhase(CyclePhase.OVULACION)}
-            >
-              Ovulación
-            </button>
-            <button
-              type="button"
-              className={`px-4 py-2 border rounded-md ${phase === CyclePhase.LUTEA ? 'bg-green-100 border-green-500' : 'bg-white border-gray-300'}`}
-              onClick={() => setPhase(CyclePhase.LUTEA)}
-            >
-              Lútea
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
             </button>
           </div>
-        </div>
 
-        {/* Intensidad del flujo (solo visible para fase menstrual) */}
-        {phase === CyclePhase.MENSTRUAL && (
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Intensidad del flujo
-            </label>
-            <div className="flex space-x-3">
-              {[1, 2, 3, 4, 5].map((level) => (
-                <button
-                  key={level}
-                  type="button"
-                  className={`w-10 h-10 rounded-full flex items-center justify-center ${
-                    flowIntensity >= level ? 'bg-red-500 text-white' : 'bg-gray-200'
-                  }`}
-                  onClick={() => setFlowIntensity(level)}
-                >
-                  {level}
-                </button>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* Inicio de nuevo ciclo (checkbox) */}
-        {phase === CyclePhase.MENSTRUAL && flowIntensity > 0 && (
-          <div className="flex items-center">
-            <input
-              id="new-cycle"
-              type="checkbox"
-              className="h-4 w-4 text-purple-600 rounded border-gray-300"
-              checked={isNewCycle}
-              onChange={(e) => setIsNewCycle(e.target.checked)}
-            />
-            <label htmlFor="new-cycle" className="ml-2 block text-sm text-gray-700">
-              Este es el primer día de mi periodo (inicia un nuevo ciclo)
-            </label>
-          </div>
-        )}
-
-        {/* Selector de síntomas */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Síntomas
-          </label>
-          <div className="grid grid-cols-2 gap-2">
-            {symptomOptions.map((symptom) => (
-              <div key={symptom} className="flex items-center">
+          <form onSubmit={handleSubmit} className="space-y-6">
+            {/* Periodo menstrual */}
+            <div>
+              <div className="flex items-center mb-2">
                 <input
-                  id={`symptom-${symptom}`}
                   type="checkbox"
-                  className="h-4 w-4 text-purple-600 rounded border-gray-300"
-                  checked={symptoms.includes(symptom)}
-                  onChange={() => handleSymptomChange(symptom)}
+                  id="hasPeriod"
+                  name="hasPeriod"
+                  checked={formData.hasPeriod}
+                  onChange={handleInputChange}
+                  className="h-5 w-5 text-eyraRed rounded border-gray-300 focus:ring-eyraRed"
                 />
-                <label htmlFor={`symptom-${symptom}`} className="ml-2 block text-sm text-gray-700">
-                  {symptom}
+                <label htmlFor="hasPeriod" className="ml-2 font-medium">
+                  Período menstrual
                 </label>
               </div>
-            ))}
-          </div>
-        </div>
 
-        {/* Selector de estado de ánimo */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Estado de ánimo
-          </label>
-          <div className="flex flex-wrap gap-2">
-            {moodOptions.map((moodItem) => (
+              {formData.hasPeriod && (
+                <div className="ml-7 mt-3">
+                  <label htmlFor="flowIntensity" className="block mb-1 label-text">
+                    Intensidad del flujo: {formData.flowIntensity}
+                  </label>
+                  <input
+                    type="range"
+                    id="flowIntensity"
+                    name="flowIntensity"
+                    min="1"
+                    max="5"
+                    value={formData.flowIntensity}
+                    onChange={handleRangeChange}
+                    className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+                  />
+                  <div className="flex justify-between text-xs text-gray-500 mt-1">
+                    <span>Leve</span>
+                    <span>Moderado</span>
+                    <span>Intenso</span>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Dolor */}
+            <div>
+              <div className="flex items-center mb-2">
+                <input
+                  type="checkbox"
+                  id="hasPain"
+                  name="hasPain"
+                  checked={formData.hasPain}
+                  onChange={handleInputChange}
+                  className="h-5 w-5 text-eyraRed rounded border-gray-300 focus:ring-eyraRed"
+                />
+                <label htmlFor="hasPain" className="ml-2 font-medium">
+                  Dolor o molestias
+                </label>
+              </div>
+
+              {formData.hasPain && (
+                <div className="ml-7 mt-3">
+                  <label htmlFor="painLevel" className="block mb-1 label-text">
+                    Nivel de dolor: {formData.painLevel}
+                  </label>
+                  <input
+                    type="range"
+                    id="painLevel"
+                    name="painLevel"
+                    min="1"
+                    max="10"
+                    value={formData.painLevel}
+                    onChange={handleRangeChange}
+                    className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+                  />
+                  <div className="flex justify-between text-xs text-gray-500 mt-1">
+                    <span>Leve</span>
+                    <span>Moderado</span>
+                    <span>Severo</span>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Síntomas */}
+            <div>
+              <label className="block mb-2 font-medium">
+                Síntomas
+              </label>
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                {symptomOptions.map(symptom => (
+                  <div key={symptom} className="flex items-center">
+                    <input
+                      type="checkbox"
+                      id={`symptom-${symptom}`}
+                      checked={formData.symptoms.includes(symptom)}
+                      onChange={() => handleSymptomChange(symptom)}
+                      className="h-4 w-4 text-eyraRed rounded border-gray-300 focus:ring-eyraRed"
+                    />
+                    <label htmlFor={`symptom-${symptom}`} className="ml-2 text-sm">
+                      {symptom}
+                    </label>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Estado de ánimo */}
+            <div>
+              <label className="block mb-2 font-medium">
+                Estado de ánimo
+              </label>
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                {moodOptions.map(mood => (
+                  <div key={mood} className="flex items-center">
+                    <input
+                      type="checkbox"
+                      id={`mood-${mood}`}
+                      checked={formData.mood.includes(mood)}
+                      onChange={() => handleMoodChange(mood)}
+                      className="h-4 w-4 text-eyraRed rounded border-gray-300 focus:ring-eyraRed"
+                    />
+                    <label htmlFor={`mood-${mood}`} className="ml-2 text-sm">
+                      {mood}
+                    </label>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Notas */}
+            <div>
+              <label htmlFor="notes" className="block mb-2 font-medium">
+                Notas
+              </label>
+              <textarea
+                id="notes"
+                name="notes"
+                value={formData.notes}
+                onChange={handleInputChange}
+                rows={4}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-eyraRed focus:border-eyraRed"
+                placeholder="Añade cualquier observación o nota personal..."
+              />
+            </div>
+
+            {/* Botones */}
+            <div className="flex justify-end space-x-3">
               <button
-                key={moodItem}
                 type="button"
-                className={`px-3 py-1 rounded-full text-sm ${
-                  mood.includes(moodItem)
-                    ? 'bg-purple-100 text-purple-800 border border-purple-300'
-                    : 'bg-gray-100 text-gray-800 border border-gray-200'
-                }`}
-                onClick={() => handleMoodChange(moodItem)}
+                onClick={onClose}
+                className="button-secondary"
               >
-                {moodItem}
+                Cancelar
               </button>
-            ))}
-          </div>
-        </div>
-
-        {/* Notas */}
-        <div>
-          <label htmlFor="notes" className="block text-sm font-medium text-gray-700 mb-2">
-            Notas adicionales
-          </label>
-          <textarea
-            id="notes"
-            rows={3}
-            className="w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500"
-            placeholder="Escribe aquí cualquier observación..."
-            value={notes}
-            onChange={(e) => setNotes(e.target.value)}
-          />
-        </div>
-
-        {/* Botones de acción */}
-        <div className="flex justify-end space-x-3">
-          <Button
-            variant="light"
-            onClick={onClose}
-            disabled={isLoading}
-          >
-            Cancelar
-          </Button>
-          <Button
-            variant="primary"
-            onClick={handleSave}
-            loading={isLoading}
-          >
-            Guardar
-          </Button>
+              <button
+                type="submit"
+                className="button-primary"
+              >
+                Guardar
+              </button>
+            </div>
+          </form>
         </div>
       </div>
-    </Modal>
+    </div>
   );
 };

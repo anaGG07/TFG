@@ -1,4 +1,5 @@
 import React from 'react';
+import { EnhancedCalendar } from '../features/calendar/components/EnhancedCalendar';
 
 const CalendarPage = () => {
   return (
@@ -6,11 +7,14 @@ const CalendarPage = () => {
       <div className="container">
         <h1>Calendario</h1>
         
-        <div className="card">
-          <p className="text-center p-10">
-            Componente de Calendario en desarrollo
+        <div className="mb-6">
+          <p>
+            Registra y visualiza tu ciclo menstrual, tus síntomas y recibe recomendaciones personalizadas.
+            Este calendario te ayudará a entender mejor los patrones de tu ciclo y a tomar el control de tu bienestar.
           </p>
         </div>
+        
+        <EnhancedCalendar />
       </div>
     </div>
   );
