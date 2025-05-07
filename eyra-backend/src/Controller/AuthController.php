@@ -36,7 +36,7 @@ class AuthController extends AbstractController
         $this->logger = $logger;
     }
 
-    #[Route('/register', name: 'api_register', methods: ['POST'])]
+    #[Route('/api/register', name: 'api_register', methods: ['POST'])]
     public function register(Request $request): JsonResponse
     {
         try {
@@ -150,136 +150,6 @@ class AuthController extends AbstractController
         }
     }
 
-    /**
-     * Endpoint mejorado para inicio de sesión
-     * Soluciona el problema de "body stream already read"
-     */
-    #[Route('/login', name: 'api_login', methods: ['POST'])]
-    public function login(Request $request): JsonResponse
-    {
-        try {
-            $this->logger->info('Intento de inicio de sesión iniciado');
-            
-            // Leer el cuerpo de la solicitud una sola vez y guardarlo en una variable
-            $requestContent = $request->getContent();
-            $data = json_decode($requestContent, true);
-
-            // Verificar que el cuerpo de la solicitud sea válido
-            if (!$data || !isset($data['email']) || !isset($data['password'])) {
-                $this->logger->warning('Intento de login con datos incompletos');
-                return $this->json([
-                    'message' => 'Datos de solicitud inválidos. Se requiere email y password.'
-                ], Response::HTTP_BAD_REQUEST);
-            }
-            
-            // Sanitizar y validar datos de entrada
-            $email = trim((string)$data['email']);
-            $password = (string)$data['password'];
-            
-            // Buscar el usuario por email
-            $user = $this->userRepository->findOneBy(['email' => $email]);
-            
-            // Verificar si el usuario existe
-            if (!$user) {
-                $this->logger->info('Intento de login fallido: usuario no encontrado', [
-                    'email' => $email
-                ]);
-                
-                return $this->json([
-                    'message' => 'Credenciales inválidas'
-                ], Response::HTTP_UNAUTHORIZED);
-            }
-            
-            // Verificar la contraseña
-            if (!$this->passwordHasher->isPasswordValid($user, $password)) {
-                $this->logger->info('Intento de login fallido: contraseña incorrecta', [
-                    'email' => $email
-                ]);
-                
-                return $this->json([
-                    'message' => 'Credenciales inválidas'
-                ], Response::HTTP_UNAUTHORIZED);
-            }
-            
-            // Crear token JWT
-            $token = $this->tokenService->createJwtToken($user);
-            $refreshToken = $this->tokenService->createRefreshToken($user, $request);
-            
-            // Registrar inicio de sesión exitoso
-            $this->logger->info('Inicio de sesión exitoso', [
-                'email' => $email,
-                'userId' => $user->getId()
-            ]);
-            
-            // Responder con token y datos del usuario
-            $response = new JsonResponse([
-                'token' => $token,
-                'user' => [
-                    'id' => $user->getId(),
-                    'email' => $user->getEmail(),
-                    'username' => $user->getUsername(),
-                    'name' => $user->getName(),
-                    'lastName' => $user->getLastName(),
-                    'roles' => $user->getRoles(),
-                ],
-                'redirect' => '/dashboard'
-            ]);
-            
-            // Establecer cookies adaptadas según el origen de la solicitud
-            $isSecureConnection = $request->isSecure();
-            $hostname = $request->getHost();
-            
-            // Log para depuración
-            $this->logger->info('Configurando cookies', [
-                'host' => $hostname,
-                'isSecure' => $isSecureConnection
-            ]);
-            
-            // Configurar la cookie JWT
-            $response->headers->setCookie(
-                new Cookie(
-                    'jwt_token',
-                    $token,
-                    time() + 3600,
-                    '/',
-                    null,
-                    $isSecureConnection, // Secure solo si es HTTPS
-                    true, // HTTPOnly siempre activado
-                    false,
-                    $isSecureConnection ? 'Strict' : 'Lax' // SameSite adaptado
-                )
-            );
-            
-            // Configurar la cookie refresh token
-            $response->headers->setCookie(
-                new Cookie(
-                    'refresh_token',
-                    $refreshToken->getToken(),
-                    $refreshToken->getExpiresAt()->getTimestamp(),
-                    '/',
-                    null,
-                    $isSecureConnection, // Secure solo si es HTTPS
-                    true, // HTTPOnly siempre activado
-                    false,
-                    $isSecureConnection ? 'Strict' : 'Lax' // SameSite adaptado
-                )
-            );
-            
-            return $response;
-        } catch (Exception $e) {
-            // Registrar el error
-            $this->logger->error('Error durante el inicio de sesión: ' . $e->getMessage(), [
-                'exception' => $e,
-                'trace' => $e->getTraceAsString()
-            ]);
-            
-            // Responder con error
-            return $this->json([
-                'message' => 'Error en el servidor durante el inicio de sesión',
-                'error' => $e->getMessage()
-            ], Response::HTTP_INTERNAL_SERVER_ERROR);
-        }
-    }
 
     #[Route('/refresh-token', name: 'api_refresh_token', methods: ['POST'])]
     public function refreshToken(Request $request): JsonResponse
