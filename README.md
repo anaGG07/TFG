@@ -116,3 +116,5 @@ El frontend estará disponible en `http://localhost:5173`
    - Añadir información diaria sobre síntomas
    - Recibir recomendaciones personalizadas
    - Invitar a otras personas a seguir tu ciclo (parejas, etc.)
+
+Hasta aquí funciona el registro de usuarios
