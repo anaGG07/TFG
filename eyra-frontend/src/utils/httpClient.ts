@@ -174,17 +174,17 @@ export async function apiFetch<T>(path: string, options: RequestOptions = {}): P
       // Si no se puede parsear, devolver objeto vacío
       return {} as T;
     }
-  } catch (networkError) {
-    if (networkError.name === 'AbortError') {
+  } catch (error: unknown) {
+    if (error instanceof Error && error.name === 'AbortError') {
       console.error('🕒 Timeout: La petición ha excedido el tiempo máximo de espera');
       throw new Error('La petición ha excedido el tiempo máximo de espera');
     }
     
-    console.error('🌐 Error de red:', networkError);
+    console.error('🌐 Error de red:', error);
 
     let errorMessage = 'Error de conexión desconocido.';
-    if (networkError instanceof Error) {
-      errorMessage = `Error de conexión: ${networkError.message}`;
+    if (error instanceof Error) {
+      errorMessage = `Error de conexión: ${error.message}`;
     }
 
     throw new Error(errorMessage);

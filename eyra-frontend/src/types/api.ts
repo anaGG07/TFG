@@ -1,3 +1,5 @@
+import { User } from './domain';
+
 // Respuestas genéricas de la API
 export interface ApiResponse<T> {
   success: boolean;
@@ -10,6 +12,12 @@ export interface ApiResponse<T> {
 export interface LoginRequest {
   email: string;
   password: string;
+}
+
+export interface LoginResponse {
+  message: string;
+  user: User;
+  expiresAt?: string;
 }
 
 export interface RegisterRequest {

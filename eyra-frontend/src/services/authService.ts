@@ -1,6 +1,7 @@
 import { apiFetch, configureAuthHandlers } from '../utils/httpClient';
 import { API_ROUTES } from '../config/apiRoutes';
-import { LoginRequest, RegisterRequest } from '../types/api';
+import { LoginRequest, LoginResponse } from '../types/api';
+import { RegisterRequest } from '../types/api';
 import { User } from '../types/domain';
 import { API_URL } from '../config/setupApiUrl';
 
@@ -180,88 +181,71 @@ class AuthService {
     this.ensureInitialized();
     
     try {
-      console.log('Iniciando login con credenciales:', { email: credentials.email });
-      
-      // Validar que todos los campos estén completos
-      if (!credentials.email || !credentials.password) {
-        throw new Error('Por favor completa todos los campos');
-      }
-      
-      // En modo desarrollo, usar inicio de sesión simulado
-      if (process.env.NODE_ENV === 'development' || window.location.hostname === 'localhost') {
-        console.warn('⚠️ MODO DESARROLLO: Simulando inicio de sesión exitoso');
-        this.setSession(true);
+        console.log('Iniciando login con credenciales:', { email: credentials.email });
         
-        // Guardar datos de usuario simulados
-        const mockUser: User = {
-          id: 1,
-          email: credentials.email,
-          username: 'usuario',
-          name: 'Usuario',
-          lastName: 'Demo',
-          roles: ['ROLE_USER'],
-          profileType: 'profile_women' as any,
-          genderIdentity: 'woman',
-          birthDate: '1990-01-01',
-          createdAt: new Date().toISOString(),
-          updatedAt: null,
-          state: true,
-          onboardingCompleted: false // Requiere completar onboarding
-        };
-        localStorage.setItem(this.userKey, JSON.stringify(mockUser));
-        
-        return mockUser;
-      }
-      
-      // En producción, intentar login en el servidor
-      try {
-        const response = await fetch(API_ROUTES.AUTH.LOGIN, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Accept': 'application/json',
-          },
-          credentials: 'include',
-          body: JSON.stringify(credentials),
-        });
-
-        if (response.ok) {
-          console.log('Login completado, estableciendo sesión');
-          this.setSession(true);
-          
-          // Intentar obtener datos del usuario de la respuesta
-          const userData = await response.json().catch(() => null);
-          
-          // Si la respuesta tiene datos de usuario, usarlos
-          const user = userData?.user ? userData.user : {
-            id: 1,
-            email: credentials.email,
-            username: 'usuario',
-            name: 'Usuario',
-            lastName: 'Demo',
-            roles: ['ROLE_USER'],
-            profileType: 'profile_women' as any,
-            genderIdentity: 'woman',
-            birthDate: '1990-01-01',
-            createdAt: new Date().toISOString(),
-            updatedAt: null,
-            state: true,
-            onboardingCompleted: false
-          };
-          
-          localStorage.setItem(this.userKey, JSON.stringify(user));
-          return user;
-        } else {
-          throw new Error('Credenciales incorrectas');
+        // Validar que todos los campos estén completos
+        if (!credentials.email || !credentials.password) {
+            throw new Error('Por favor completa todos los campos');
         }
-      } catch (error) {
-        console.error('Error en login:', error);
-        throw new Error('Credenciales incorrectas');
-      }
-    } catch (error) {
-      console.error('❌ Error en el login:', error);
-      this.setSession(false);
-      throw error;
+        
+        // En modo desarrollo, usar inicio de sesión simulado
+        if (process.env.NODE_ENV === 'development' || window.location.hostname === 'localhost') {
+            console.warn('⚠️ MODO DESARROLLO: Simulando inicio de sesión exitoso');
+            this.setSession(true);
+            
+            const mockUser: User = {
+                id: 1,
+                email: credentials.email,
+                username: 'usuario',
+                name: 'Usuario',
+                lastName: 'Demo',
+                roles: ['ROLE_USER'],
+                profileType: 'profile_women' as any,
+                genderIdentity: 'woman',
+                birthDate: '1990-01-01',
+                createdAt: new Date().toISOString(),
+                updatedAt: null,
+                state: true,
+                onboardingCompleted: false
+            };
+            localStorage.setItem(this.userKey, JSON.stringify(mockUser));
+            return mockUser;
+        }
+        
+        try {
+            const response = await apiFetch<LoginResponse>(API_ROUTES.AUTH.LOGIN, {
+                method: 'POST',
+                body: credentials
+            });
+
+            console.log('Respuesta del servidor:', response);
+
+            if (!response || !response.user) {
+                throw new Error('Respuesta del servidor inválida');
+            }
+
+            this.setSession(true);
+            localStorage.setItem(this.userKey, JSON.stringify(response.user));
+            return response.user;
+
+        } catch (error: unknown) {
+            console.error('Error en la petición de login:', error);
+            
+            if (error instanceof Error) {
+                throw new Error(error.message);
+            }
+            
+            throw new Error('Credenciales incorrectas');
+        }
+    } catch (error: unknown) {
+        console.error('❌ Error en el proceso de login:', error);
+        this.setSession(false);
+        
+        if (error instanceof Error) {
+            throw new Error(error.message);
+        }
+        
+        throw new Error('Error durante el inicio de sesión');
     }
   }
 

@@ -34,16 +34,13 @@ class JwtCookieListener implements EventSubscriberInterface
     public function onKernelRequest(RequestEvent $event): void
     {
         $request = $event->getRequest();
-
-        // Aplicar solo a rutas API excepto login y register
-        // No es necesario para rutas de autenticación inicial
         $path = $request->getPathInfo();
-        if (!str_starts_with($path, '/api') || in_array($path, ['/api/login_check', '/api/register'])) {
+
+        // Solo excluir register, ya que login_check necesita el token
+        if (!str_starts_with($path, '/api') || $path === '/api/register') {
             return;
         }
 
-        // Si existe la cookie 'jwt_token', la usamos para autorizar
-        // Este es el punto clave que permite usar cookies HttpOnly en lugar de localStorage
         $token = $request->cookies->get('jwt_token');
         if ($token) {
             $request->headers->set('Authorization', 'Bearer ' . $token);
