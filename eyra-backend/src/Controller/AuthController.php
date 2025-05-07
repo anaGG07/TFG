@@ -580,7 +580,7 @@ class AuthController extends AbstractController
         }
     }
 
-    #[Route('/api/login_check', name: 'api_login_check', methods: ['POST'])]
+    #[Route('/api/login', name: 'api_login', methods: ['POST'])]
     public function login(Request $request): JsonResponse
     {
         try {

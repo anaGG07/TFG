@@ -1,4 +1,4 @@
-api_login_check:
-    path: /api/login_check
+api_login:
+    path: /api/login
     methods: ['POST']
     # No necesitamos controller porque lo maneja json_login
