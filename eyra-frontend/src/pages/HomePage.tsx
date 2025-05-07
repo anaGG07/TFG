@@ -7,10 +7,6 @@ const HomePage = () => {
       {/* Header con logo y nombre */}
       <div className="max-w-5xl w-full text-center space-y-8 mb-12">
         <div className="flex items-center justify-center gap-4 mb-8">
-          <div className="relative w-20 h-20 md:w-24 md:h-24">
-            <div className="w-full h-full rounded-full overflow-hidden bg-[#5b0108] flex items-center justify-center">
-            </div>
-          </div>
           <h1 className="text-5xl md:text-6xl font-serif tracking-tight text-[#5b0108]">
             EYRA
           </h1>
