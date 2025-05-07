@@ -38,7 +38,7 @@ class JwtCookieListener implements EventSubscriberInterface
         // Aplicar solo a rutas API excepto login y register
         // No es necesario para rutas de autenticación inicial
         $path = $request->getPathInfo();
-        if (!str_starts_with($path, '/api') || in_array($path, ['/api/login', '/api/register'])) {
+        if (!str_starts_with($path, '/api') || in_array($path, ['/api/login_check', '/api/register'])) {
             return;
         }
 
