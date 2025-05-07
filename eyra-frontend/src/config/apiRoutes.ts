@@ -15,7 +15,7 @@ const createApiUrl = (path: string): string => {
 export const API_ROUTES = {
   AUTH: {
     REGISTER: createApiUrl('register'),
-    LOGIN: createApiUrl('login'),
+    LOGIN: createApiUrl('login_check'),
     LOGOUT: createApiUrl('logout'),
   },
 
