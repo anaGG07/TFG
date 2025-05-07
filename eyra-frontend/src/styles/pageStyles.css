@@ -3,7 +3,8 @@
 /* Reemplazar el fondo oscuro con el estilo beige de la web */
 .calendar-page,
 .insights-page,
-.profile-page {
+.profile-page,
+.dashboard-page {
   background: #E7E0D5 !important;
   color: #5b0108 !important;
   min-height: calc(100vh - 80px);
@@ -14,7 +15,8 @@
 /* Titulos con la misma tipografía y color que la página de inicio */
 .calendar-page h1,
 .insights-page h1,
-.profile-page h1 {
+.profile-page h1,
+.dashboard-page h1 {
   font-family: 'Playfair Display', serif;
   color: #9d0d0b !important;
   font-size: 2.25rem;
@@ -24,7 +26,8 @@
 
 .calendar-page h2,
 .insights-page h2,
-.profile-page h2 {
+.profile-page h2,
+.dashboard-page h2 {
   font-family: 'Playfair Display', serif;
   color: #9d0d0b !important;
   font-size: 1.5rem;
@@ -34,7 +37,8 @@
 /* Tarjetas con estilo consistente */
 .calendar-page .card,
 .insights-page .card,
-.profile-page .card {
+.profile-page .card,
+.dashboard-page .card {
   background-color: white !important;
   border: 1px solid rgba(91, 1, 8, 0.1) !important;
   border-radius: 0.75rem;
@@ -45,7 +49,8 @@
 
 .calendar-page .card:hover,
 .insights-page .card:hover,
-.profile-page .card:hover {
+.profile-page .card:hover,
+.dashboard-page .card:hover {
   border-color: rgba(91, 1, 8, 0.3) !important;
   box-shadow: 0 6px 12px rgba(91, 1, 8, 0.08) !important;
 }
@@ -53,7 +58,8 @@
 /* Textos con el mismo estilo que la página de inicio */
 .calendar-page p,
 .insights-page p,
-.profile-page p {
+.profile-page p,
+.dashboard-page p {
   font-family: 'Inter', sans-serif;
   color: #300808 !important;
   line-height: 1.6;

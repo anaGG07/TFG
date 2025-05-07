@@ -19,13 +19,13 @@ export const Navbar = () => {
   return (
     <nav className="navbar p-4 shadow-md">
       <div className="container mx-auto flex justify-between items-center">
-        <Link to="/" className="text-white text-2xl font-bold">EYRA</Link>
+        <Link to="/dashboard" className="text-white text-2xl font-bold">EYRA</Link>
         
         <div className="hidden md:flex space-x-6">
           {isAuthenticated ? (
             <>
               <Link to="/dashboard" className="text-white hover:text-purple-200 transition">
-                Dashboard
+                Inicio
               </Link>
               <Link to="/calendar" className="text-white hover:text-purple-200 transition">
                 Calendario
@@ -110,7 +110,7 @@ export const Navbar = () => {
                 className="block text-white hover:bg-purple-400 px-4 py-2"
                 onClick={() => setIsMenuOpen(false)}
               >
-                Dashboard
+                Inicio
               </Link>
               <Link 
                 to="/calendar" 
