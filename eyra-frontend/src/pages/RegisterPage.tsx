@@ -15,25 +15,15 @@ const RegisterPage = () => {
 
   const { register } = useAuth();
   const navigate = useNavigate();
-
-  // Función para verificar si el email ya está en uso
-  const checkEmailExists = async (email: string) => {
-    // Simulación de verificación - en producción debería consultar el API
-    // Los correos test@example.com y admin@eyra.com se consideran ya registrados
-    const existingEmails = ["test@example.com", "admin@eyra.com"];
-    return existingEmails.includes(email.toLowerCase());
-  };
-
+  
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Validar que todos los campos estén completos
     if (!username || !email || !password || !confirmPassword || !birthDate) {
       setError("Por favor completa todos los campos");
       return;
     }
 
-    // Validar que las contraseñas coincidan
     if (password !== confirmPassword) {
       setError("Las contraseñas no coinciden");
       return;
@@ -43,15 +33,6 @@ const RegisterPage = () => {
       setIsLoading(true);
       setError("");
 
-      // Verificar si el email ya existe antes de intentar registrar
-      const emailExists = await checkEmailExists(email);
-      if (emailExists) {
-        setError("Email en uso. Por favor utiliza otro correo electrónico.");
-        setIsLoading(false);
-        return;
-      }
-
-      // Proceder con el registro si el email está disponible
       const formattedRequest = {
         username,
         email,

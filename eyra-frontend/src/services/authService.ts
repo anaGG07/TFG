@@ -85,17 +85,27 @@ class AuthService {
         throw new Error('Email en uso');
       }
       
-      console.log('URL de registro:', API_ROUTES.AUTH.REGISTER);
+      // Obtenemos la URL de la API desde la configuración
+      const registerUrl = API_ROUTES.AUTH.REGISTER;
+      console.log('URL de registro:', registerUrl);
       
-      // Uso directo de fetch para evitar posibles problemas con apiFetch
-      const response = await fetch(API_ROUTES.AUTH.REGISTER, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-        },
-        body: JSON.stringify(userData),
-      });
+      // Verificar que la URL existe antes de intentar la petición
+      try {
+        // Uso directo de fetch para evitar posibles problemas con apiFetch
+        const response = await fetch(registerUrl, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+          },
+          body: JSON.stringify(userData),
+        });
+        
+        // Log para depuración
+        console.log('Respuesta del servidor:', {
+          status: response.status,
+          statusText: response.statusText
+        });
       
       if (!response.ok) {
         // Intentar obtener el mensaje de error del servidor
@@ -111,6 +121,11 @@ class AuthService {
       }
       
       console.log('Registro completado correctamente');
+      } catch (networkError) {
+        // Capturar errores de red o conexión al servidor
+        console.error('Error de red durante el registro:', networkError);
+        throw new Error(`No se pudo conectar con el servidor de registro: ${networkError.message}`);
+      }
     } catch (error) {
       console.error('Error en el registro:', error);
       throw error;
