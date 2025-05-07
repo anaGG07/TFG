@@ -12,9 +12,9 @@ declare global {
 }
 
 // URL de API para diferentes entornos
-const DEFAULT_PROD_API_URL = 'https://eyraclub.es/api';
-const DEFAULT_IP_API_URL = 'http://54.227.159.169:9000/api';
-const DEFAULT_LOCAL_API_URL = 'http://localhost:9000/api';
+const DEFAULT_PROD_API_URL = 'https://eyraclub.es/api/v1';
+const DEFAULT_IP_API_URL = 'http://54.227.159.169:9000/api/v1';
+const DEFAULT_LOCAL_API_URL = 'http://localhost:9000/api/v1';
 
 // Función optimizada para detectar y corregir URLs
 const setupFetchInterceptor = () => {
