@@ -1,0 +1,191 @@
+/* ===== ESTILOS UNIFICADOS PARA CALENDAR, INSIGHTS Y PROFILE ===== */
+
+/* Reemplazar el fondo oscuro con el estilo beige de la web */
+.calendar-page,
+.insights-page,
+.profile-page {
+  background: #E7E0D5 !important;
+  color: #5b0108 !important;
+  min-height: calc(100vh - 80px);
+  padding-top: 2rem;
+  padding-bottom: 3rem;
+}
+
+/* Titulos con la misma tipografía y color que la página de inicio */
+.calendar-page h1,
+.insights-page h1,
+.profile-page h1 {
+  font-family: 'Playfair Display', serif;
+  color: #9d0d0b !important;
+  font-size: 2.25rem;
+  line-height: 1.2;
+  margin-bottom: 1.5rem;
+}
+
+.calendar-page h2,
+.insights-page h2,
+.profile-page h2 {
+  font-family: 'Playfair Display', serif;
+  color: #9d0d0b !important;
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
+}
+
+/* Tarjetas con estilo consistente */
+.calendar-page .card,
+.insights-page .card,
+.profile-page .card {
+  background-color: white !important;
+  border: 1px solid rgba(91, 1, 8, 0.1) !important;
+  border-radius: 0.75rem;
+  padding: 1.5rem;
+  box-shadow: 0 4px 6px rgba(91, 1, 8, 0.05) !important;
+  transition: all 0.3s ease;
+}
+
+.calendar-page .card:hover,
+.insights-page .card:hover,
+.profile-page .card:hover {
+  border-color: rgba(91, 1, 8, 0.3) !important;
+  box-shadow: 0 6px 12px rgba(91, 1, 8, 0.08) !important;
+}
+
+/* Textos con el mismo estilo que la página de inicio */
+.calendar-page p,
+.insights-page p,
+.profile-page p {
+  font-family: 'Inter', sans-serif;
+  color: #300808 !important;
+  line-height: 1.6;
+}
+
+/* Etiquetas y textos secundarios */
+.label-text,
+.secondary-text {
+  font-family: 'Inter', sans-serif;
+  color: rgba(48, 8, 8, 0.7) !important;
+  font-size: 0.875rem;
+}
+
+/* Botones con estilo unificado */
+.button-primary {
+  background-color: #5b0108 !important;
+  color: #E7E0D5 !important;
+  font-family: 'Inter', sans-serif;
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.5rem;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 4px rgba(91, 1, 8, 0.2);
+}
+
+.button-primary:hover {
+  background-color: #9d0d0b !important;
+  transform: scale(1.05);
+  box-shadow: 0 4px 8px rgba(91, 1, 8, 0.3);
+}
+
+.button-secondary {
+  background-color: transparent !important;
+  color: #5b0108 !important;
+  font-family: 'Inter', sans-serif;
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.5rem;
+  font-weight: 500;
+  border: 2px solid #5b0108 !important;
+  transition: all 0.3s ease;
+}
+
+.button-secondary:hover {
+  background-color: rgba(91, 1, 8, 0.1) !important;
+}
+
+/* Avatar en página de perfil */
+.profile-avatar {
+  background: linear-gradient(45deg, #C62328, #9d0d0b) !important;
+  color: #E7E0D5 !important;
+}
+
+/* Contenedores */
+.container {
+  max-width: 1200px;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
+
+/* Elementos de calendario */
+.calendar-cell {
+  border: 1px solid rgba(91, 1, 8, 0.1) !important;
+  background-color: white !important;
+  color: #300808 !important;
+}
+
+.calendar-cell.current {
+  background-color: rgba(91, 1, 8, 0.1) !important;
+  font-weight: bold;
+}
+
+.calendar-cell.period {
+  background-color: rgba(198, 35, 40, 0.15) !important;
+}
+
+.calendar-cell.fertile {
+  background-color: rgba(255, 108, 92, 0.15) !important;
+}
+
+/* Separadores */
+.separator {
+  border-top: 1px solid rgba(91, 1, 8, 0.1) !important;
+  margin: 1.5rem 0;
+}
+
+/* Elementos para gráficos */
+.chart-container {
+  background-color: white !important;
+  border-radius: 0.75rem;
+  padding: 1rem;
+  border: 1px solid rgba(91, 1, 8, 0.1) !important;
+}
+
+/* Colores para la barra de navegación */
+.navbar {
+  background: linear-gradient(to right, #5b0108, #9d0d0b) !important;
+  color: #E7E0D5 !important;
+}
+
+/* Indicadores */
+.indicator {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  margin-right: 8px;
+}
+
+.indicator-period {
+  background-color: #C62328 !important;
+}
+
+.indicator-fertile {
+  background-color: #FF6C5C !important;
+}
+
+.indicator-ovulation {
+  background-color: #B5413A !important;
+  border: 2px solid white;
+}
+
+/* Media queries para responsive */
+@media (max-width: 768px) {
+  .calendar-page h1,
+  .insights-page h1,
+  .profile-page h1 {
+    font-size: 1.75rem;
+  }
+  
+  .card {
+    padding: 1rem;
+  }
+}

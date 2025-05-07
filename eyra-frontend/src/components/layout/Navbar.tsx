@@ -17,7 +17,7 @@ export const Navbar = () => {
   };
 
   return (
-    <nav className="bg-gradient-to-r from-purple-500 to-pink-500 p-4 shadow-md">
+    <nav className="navbar p-4 shadow-md">
       <div className="container mx-auto flex justify-between items-center">
         <Link to="/" className="text-white text-2xl font-bold">EYRA</Link>
         
