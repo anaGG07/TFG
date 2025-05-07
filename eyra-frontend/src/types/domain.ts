@@ -33,6 +33,7 @@ export interface User {
   createdAt: string;
   updatedAt: string | null;
   state: boolean;
+  onboardingCompleted?: boolean;
 }
 
 export interface MenstrualCycle {

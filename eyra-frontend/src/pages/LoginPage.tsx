@@ -23,12 +23,18 @@ const LoginPage = () => {
     try {
       setIsLoading(true);
       setError("");
-      const success = await login({ email, password });
-      if (!success) {
+      const user = await login({ email, password });
+      if (!user) {
         setError("Credenciales incorrectas");
         return;
       }
-      navigate(ROUTES.DASHBOARD);
+      
+      // Redirigir al onboarding o al dashboard según el estado
+      if (user.onboardingCompleted) {
+        navigate(ROUTES.DASHBOARD);
+      } else {
+        navigate(ROUTES.ONBOARDING);
+      }
     } catch (error: any) {
       setError(error.message || "Error al iniciar sesión");
     } finally {

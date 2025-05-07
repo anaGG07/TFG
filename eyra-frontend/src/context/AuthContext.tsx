@@ -28,6 +28,7 @@ interface AuthContextType {
   register: (userData: RegisterRequest) => Promise<void>;
   logout: () => Promise<void>;
   updateUserData: (userData: Partial<User>) => void;
+  completeOnboarding: (onboardingData: any) => Promise<void>;
 
   // Datos del dashboard
   cycles: Cycle[];
@@ -66,6 +67,7 @@ const defaultContextValue: AuthContextType = {
   register: () => Promise.reject(new Error('AuthContext no inicializado')),
   logout: () => Promise.reject(new Error('AuthContext no inicializado')),
   updateUserData: () => {},
+  completeOnboarding: () => Promise.reject(new Error('AuthContext no inicializado')),
   cycles: DEFAULT_CYCLES,
   currentCycle: DEFAULT_CURRENT_CYCLE,
   summary: DEFAULT_SUMMARY,
@@ -203,7 +205,13 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         name: 'Usuario',
         lastName: 'Demo',
         roles: ['ROLE_USER'],
-        profileType: 'WOMEN',
+        profileType: 'profile_women' as ProfileType,
+        genderIdentity: 'woman',
+        birthDate: '1990-01-01',
+        createdAt: new Date().toISOString(),
+        updatedAt: null,
+        state: true,
+        onboardingCompleted: false, // Por defecto necesita completar onboarding
       };
       
       setUser(mockUser);
@@ -275,6 +283,26 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     }
   };
 
+  // Función para completar el onboarding y actualizar el perfil
+  const completeOnboarding = async (onboardingData: any) => {
+    if (user) {
+      try {
+        // Actualizamos el perfil con los datos del onboarding
+        const updatedUser = await authService.updateProfile({
+          ...onboardingData,
+          onboardingCompleted: true // Marcamos como completado
+        });
+        setUser(updatedUser);
+        return updatedUser;
+      } catch (error) {
+        console.error('Error al completar onboarding:', error);
+        throw error;
+      }
+    } else {
+      throw new Error('No hay usuario autenticado');
+    }
+  };
+
   // Objeto de contexto con todos los valores y funciones
   const value: AuthContextType = {
     user,
@@ -284,6 +312,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     register,
     logout,
     updateUserData,
+    completeOnboarding,
     cycles,
     currentCycle,
     summary,

@@ -62,6 +62,15 @@ class AuthService {
   }
 
   /**
+   * Verificar si un email ya existe
+   */
+  async checkEmailExists(email: string): Promise<boolean> {
+    // Simulación - en producción debería consultar API
+    const existingEmails = ["test@example.com", "admin@eyra.com"];
+    return existingEmails.includes(email.toLowerCase());
+  }
+
+  /**
    * Registra un nuevo usuario
    */
   async register(userData: RegisterRequest): Promise<void> {
@@ -69,6 +78,13 @@ class AuthService {
     
     try {
       console.log('Iniciando registro con datos:', { email: userData.email });
+      
+      // Verificar si el email ya existe
+      const emailExists = await this.checkEmailExists(userData.email);
+      if (emailExists) {
+        throw new Error('Email en uso');
+      }
+      
       console.log('URL de registro:', API_ROUTES.AUTH.REGISTER);
       
       // Uso directo de fetch para evitar posibles problemas con apiFetch
@@ -105,11 +121,16 @@ class AuthService {
    * Inicia sesión con credenciales de usuario
    * Implementación mejorada para evitar problemas con el body stream
    */
-  async login(credentials: LoginRequest): Promise<boolean> {
+  async login(credentials: LoginRequest): Promise<User> {
     this.ensureInitialized();
     
     try {
       console.log('Iniciando login con credenciales:', { email: credentials.email });
+      
+      // Validar que todos los campos estén completos
+      if (!credentials.email || !credentials.password) {
+        throw new Error('Por favor completa todos los campos');
+      }
       
       // Usamos fetch directamente para evitar bucles con apiFetch
       const response = await fetch(API_ROUTES.AUTH.LOGIN, {
@@ -135,11 +156,17 @@ class AuthService {
           name: 'Usuario',
           lastName: 'Demo',
           roles: ['ROLE_USER'],
-          profileType: 'WOMEN',
+          profileType: 'profile_women' as any,
+          genderIdentity: 'woman',
+          birthDate: '1990-01-01',
+          createdAt: new Date().toISOString(),
+          updatedAt: null,
+          state: true,
+          onboardingCompleted: false // Requiere completar onboarding
         };
         localStorage.setItem(this.userKey, JSON.stringify(mockUser));
         
-        return true;
+        return mockUser;
       } else {
         console.error('Error en login, status:', response.status);
         this.setSession(false);
@@ -147,9 +174,9 @@ class AuthService {
         // Intentamos obtener el mensaje de error, pero no bloqueamos si falla
         try {
           const errorData = await response.json();
-          throw new Error(errorData.message || 'Error de autenticación');
+          throw new Error(errorData.message || 'Credenciales incorrectas');
         } catch (e) {
-          throw new Error(`Error ${response.status}: ${response.statusText}`);
+          throw new Error('Credenciales incorrectas');
         }
       }
     } catch (error) {
@@ -239,11 +266,16 @@ class AuthService {
     this.ensureInitialized();
     
     try {
-      const updatedUser = await apiFetch<User>(API_ROUTES.USER.UPDATE_PROFILE, {
-        method: 'PUT',
-        body: profileData,
-      });
-
+      // En un entorno de producción, esto debería enviar los datos al backend
+      // Aquí simulamos una respuesta exitosa
+      const cachedUser = localStorage.getItem(this.userKey);
+      if (!cachedUser) {
+        throw new Error('No se encontró información de usuario');
+      }
+      
+      const currentUser = JSON.parse(cachedUser) as User;
+      const updatedUser = { ...currentUser, ...profileData };
+      
       localStorage.setItem(this.userKey, JSON.stringify(updatedUser));
       return updatedUser;
     } catch (error) {

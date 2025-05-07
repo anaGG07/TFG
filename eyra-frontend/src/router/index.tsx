@@ -8,6 +8,7 @@ import RootLayout from "../layouts/RootLayout";
 import HomePage from "../pages/HomePage";
 import LoginPage from "../pages/LoginPage";
 import RegisterPage from "../pages/RegisterPage";
+import OnboardingPage from "../pages/OnboardingPage";
 import DashboardPage from "../pages/DashboardPage";
 import CalendarPage from "../pages/CalendarPage";
 import InsightsPage from "../pages/InsightsPage";
@@ -45,6 +46,14 @@ export const router = createBrowserRouter([
           <PublicOnlyRoute>
             <RegisterPage />
           </PublicOnlyRoute>
+        ),
+      },
+      {
+        path: ROUTES.ONBOARDING,
+        element: (
+          <ProtectedRoute>
+            <OnboardingPage />
+          </ProtectedRoute>
         ),
       },
       {
