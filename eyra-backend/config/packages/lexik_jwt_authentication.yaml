@@ -5,7 +5,7 @@ lexik_jwt_authentication:
     token_ttl: 3600
     token_extractors:
         authorization_header:
-            enabled: true
+            enabled: false
             prefix: Bearer
             name: Authorization
         cookie:
@@ -16,5 +16,5 @@ lexik_jwt_authentication:
             lifetime: 3600
             samesite: lax
             path: /
-            secure: auto
+            secure: true
             httpOnly: true

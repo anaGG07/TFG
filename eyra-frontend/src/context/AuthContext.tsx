@@ -4,6 +4,7 @@ import {
   useState,
   useEffect,
   ReactNode,
+  useRef,
 } from "react";
 import { User } from "../types/domain";
 import { authService } from "../services/authService";
@@ -144,44 +145,39 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     }
   };
 
+  const initializedRef = useRef(false);
+
   useEffect(() => {
     const initApp = async () => {
-      try {
-        // Verificar autenticación probando obtener el perfil del backend
-        await loadDashboardSafely();
+      if (initializedRef.current || isAuthenticated) return;
+      initializedRef.current = true;
 
-        if (typeof window !== "undefined" && window.appReadyEvent) {
-          window.dispatchEvent(window.appReadyEvent);
-        }
-      } catch (error) {
-        console.error("Error en inicialización:", error);
-        setIsLoading(false);
-        if (typeof window !== "undefined" && window.appReadyEvent) {
-          window.dispatchEvent(window.appReadyEvent);
-        }
+      await new Promise((resolve) => setTimeout(resolve, 150));
+      await loadDashboardSafely();
+
+      if (typeof window !== "undefined" && window.appReadyEvent) {
+        window.dispatchEvent(window.appReadyEvent);
       }
     };
 
     setTimeout(initApp, 0);
-  }, []);
+  }, [isAuthenticated]);
+
+
 
   const login = async (credentials: LoginRequest) => {
     setIsLoading(true);
     try {
-      // Realizar login, que ahora establecerá las cookies HTTP-only
       const loggedInUser = await authService.login(credentials);
-      if (!loggedInUser) {
-        throw new Error("Login fallido");
-      }
+      if (!loggedInUser) throw new Error("Login fallido");
 
-      // Actualizar el estado con el usuario devuelto por la API
       setUser(loggedInUser);
       setIsAuthenticated(true);
 
-      // Cargar datos adicionales del dashboard
-      loadDashboardSafely().catch((e) => {
-        console.warn("Error al cargar datos adicionales:", e);
-      });
+      // 🔧 Delay antes de llamar a /api/profile para permitir al navegador activar las cookies
+      await new Promise((resolve) => setTimeout(resolve, 150));
+
+      await loadDashboardSafely();
 
       return loggedInUser;
     } catch (error) {
@@ -193,6 +189,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       setIsLoading(false);
     }
   };
+
 
   const register = async (userData: RegisterRequest) => {
     setIsLoading(true);
