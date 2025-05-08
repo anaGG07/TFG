@@ -239,21 +239,17 @@ export async function apiFetch<T>(path: string, options: RequestOptions = {}): P
  * Realiza múltiples peticiones en paralelo, con manejo de error mejorado
  * para evitar que un fallo en una petición afecte a las demás
  */
-export async function apiFetchParallel<T>(
-  requests: Array<{
-    path: string;
-    options?: RequestOptions;
-    defaultValue: T;
-  }>
-): Promise<T[]> {
+export async function apiFetchParallel<T extends any[]>(
+  requests: { path: string; options?: RequestOptions; defaultValue: T[number] }[]
+): Promise<T> {
   const results = await Promise.allSettled(
-    requests.map(req => 
-      apiFetch<T>(req.path, {...req.options, skipErrorHandling: true})
-        .catch(() => req.defaultValue)
+    requests.map((req) =>
+      apiFetch(req.path, { ...req.options, skipErrorHandling: true }).catch(() => req.defaultValue)
     )
   );
-  
-  return results.map(result => 
-    result.status === 'fulfilled' ? result.value : null
-  ) as T[];
+
+  return results.map((result, i) =>
+    result.status === 'fulfilled' ? result.value : requests[i].defaultValue
+  ) as T;
 }
+
