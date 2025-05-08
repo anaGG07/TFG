@@ -20,12 +20,12 @@ final class Version20250508000001 extends AbstractMigration
         $this->addSql('ALTER TABLE "user" ADD onboarding_completed BOOLEAN NOT NULL DEFAULT false');
 
         // Actualizar cualquier usuario existente como no completado
-        $this->addSql('UPDATE user SET onboarding_completed = 0');
+        $this->addSql('UPDATE "user" SET onboarding_completed = false');
     }
 
     public function down(Schema $schema): void
     {
         // Eliminar el campo en caso de rollback
-        $this->addSql('ALTER TABLE user DROP COLUMN onboarding_completed');
+        $this->addSql('ALTER TABLE "user" DROP COLUMN onboarding_completed');
     }
 }
