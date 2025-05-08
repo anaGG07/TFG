@@ -73,22 +73,40 @@ const OnboardingPage = () => {
     try {
       console.log('Completando onboarding con datos:', formData);
       
-      // Completar onboarding con los datos del formulario y marcar como completado
-      await completeOnboarding({
+      // Preparar datos para la actualización del perfil
+      const onboardingData = {
         genderIdentity: formData.genderIdentity,
         lastPeriodDate: formData.lastPeriodDate,
         commonSymptoms: formData.commonSymptoms,
         receiveRecommendations: formData.receiveRecommendations,
         receiveAlerts: formData.receiveAlerts,
-        onboardingCompleted: true, // Marcar explícitamente como completado
-      });
+        onboardingCompleted: true
+      };
       
-      console.log('Onboarding completado con éxito. Redirigiendo al dashboard.');
+      // Mostrar feedback visual mientras procesamos
+      setAllFieldsCompleted(false);
       
-      // Redirigir al dashboard
-      navigate(ROUTES.DASHBOARD);
+      try {
+        // Intentar actualizar el perfil a través del contexto de autenticación
+        await completeOnboarding(onboardingData);
+        
+        // Onboarding completado con éxito
+        console.log('Onboarding completado con éxito. Redirigiendo al dashboard.');
+        
+        // Redirigir al dashboard
+        navigate(ROUTES.DASHBOARD);
+      } catch (e) {
+        console.error('Error al completar onboarding desde la API:', e);
+        
+        // Intentar una actualización local en caso de error
+        alert('Hubo un problema al guardar tus datos en el servidor. Se guardarán localmente por ahora.');
+        
+        // Redirigir al dashboard de todas formas
+        navigate(ROUTES.DASHBOARD);
+      }
     } catch (error) {
       console.error('Error al completar onboarding:', error);
+      setAllFieldsCompleted(true); // Reactivar el botón para reintentar
       alert('Hubo un error al guardar los datos. Por favor, inténtalo de nuevo.');
     }
   };

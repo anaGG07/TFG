@@ -27,7 +27,7 @@ const RootLayout = () => {
             EYRA
           </h1>
           <nav className="space-x-4">
-            <NavLink to={ROUTES.HOME} className={getLinkClass}>
+            <NavLink to={ROUTES.DASHBOARD} className={getLinkClass}>
               Inicio
             </NavLink>
             <NavLink to={ROUTES.CALENDAR} className={getLinkClass}>

@@ -277,20 +277,17 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const completeOnboarding = async (onboardingData: any) => {
     if (user) {
       try {
-        console.log('AuthContext: Completando onboarding con datos', onboardingData);
-
-        // Asegurar que onboardingCompleted esté establecido en true
-        const onboardingPayload = {
+        console.log('AuthContext: Iniciando completado de onboarding');
+        
+        // Usar el método especializado de onboarding en authService
+        const updatedUser = await authService.completeOnboarding({
           ...onboardingData,
           onboardingCompleted: true
-        };
-
-        // Actualizar el perfil en el backend y localmente
-        const updatedUser = await authService.updateProfile(onboardingPayload);
+        });
         
-        // Actualizar el estado local
+        // Actualizar el estado local con el usuario actualizado
         setUser(updatedUser);
-        console.log('AuthContext: Onboarding completado, usuario actualizado', updatedUser);
+        console.log('AuthContext: Onboarding completado exitosamente');
         
         return updatedUser;
       } catch (error) {

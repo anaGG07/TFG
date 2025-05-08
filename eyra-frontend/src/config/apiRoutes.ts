@@ -16,7 +16,8 @@ export const API_ROUTES = {
     REGISTER: createApiUrl('api/register'),
     LOGIN: createApiUrl('api/login_check'),
     LOGOUT: createApiUrl('api/logout'),
-    PROFILE: createApiUrl('api/profile'), // Para obtener y actualizar perfil
+    PROFILE: createApiUrl('api/profile'), // Endpoint para gestionar perfil
+    ONBOARDING: createApiUrl('api/onboarding') // Endpoint específico para onboarding
   },
 
   USER: {

@@ -1,4 +1,28 @@
-<?php
+    public function getAiQueries(): Collection
+    {
+        return $this->aiQueries;
+    }
+
+    public function addAiQuery(AIQuery $aiQuery): static
+    {
+        if (!$this->aiQueries->contains($aiQuery)) {
+            $this->aiQueries->add($aiQuery);
+            $aiQuery->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeAiQuery(AIQuery $aiQuery): static
+    {
+        if ($this->aiQueries->removeElement($aiQuery)) {
+            if ($aiQuery->getUser() === $this) {
+                $aiQuery->setUser(null);
+            }
+        }
+
+        return $this;
+    }<?php
 
 namespace App\Entity;
 
@@ -106,6 +130,10 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column]
     #[Groups(['user:read', 'user:write'])]
     private ?bool $state = true;
+
+    #[ORM\Column(options: ["default" => false])]
+    #[Groups(['user:read', 'user:write'])]
+    private ?bool $onboardingCompleted = false;
 
     #[ORM\OneToMany(mappedBy: 'user', targetEntity: AIQuery::class)]
     private Collection $aiQueries;
@@ -604,28 +632,14 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    public function getAiQueries(): Collection
+    public function isOnboardingCompleted(): ?bool
     {
-        return $this->aiQueries;
+        return $this->onboardingCompleted;
     }
 
-    public function addAiQuery(AIQuery $aiQuery): static
+    public function setOnboardingCompleted(bool $onboardingCompleted): static
     {
-        if (!$this->aiQueries->contains($aiQuery)) {
-            $this->aiQueries->add($aiQuery);
-            $aiQuery->setUser($this);
-        }
-
-        return $this;
-    }
-
-    public function removeAiQuery(AIQuery $aiQuery): static
-    {
-        if ($this->aiQueries->removeElement($aiQuery)) {
-            if ($aiQuery->getUser() === $this) {
-                $aiQuery->setUser(null);
-            }
-        }
+        $this->onboardingCompleted = $onboardingCompleted;
 
         return $this;
     }

@@ -335,33 +335,100 @@ class AuthService {
       
       const currentUser = JSON.parse(cachedUser) as User;
       
-      // En entorno de desarrollo o producción
-      if (this.isDevMode()) {
-        // En desarrollo: Simular actualización local
-        console.log('Desarrollo: Actualizando perfil localmente', profileData);
+      console.log('Actualizando perfil con datos:', profileData);
+
+      try {
+        // Realizar la petición al backend
+        const response = await apiFetch(API_ROUTES.AUTH.PROFILE, {
+          method: 'PUT',
+          body: profileData
+        });
+        
+        console.log('Respuesta de la API:', response);
+        
+        // Combinar usuario actual con los datos de respuesta si existen, o con los enviados
+        const userData = response?.user || response;
+        const updatedUser = { ...currentUser, ...profileData };
+        
+        // Actualizar en localStorage
+        localStorage.setItem(this.userKey, JSON.stringify(updatedUser));
+        
+        return updatedUser;
+      } catch (error) {
+        console.error('Error al actualizar perfil en servidor:', error);
+        
+        // En caso de error de API, intentamos actualizar localmente de todas formas
+        // y mostramos un mensaje al usuario
         const updatedUser = { ...currentUser, ...profileData };
         localStorage.setItem(this.userKey, JSON.stringify(updatedUser));
-        return updatedUser;
-      } else {
-        // En producción: Enviar al backend y actualizar localmente
-        console.log('Producción: Enviando actualización al servidor', profileData);
-        try {
-          const response = await apiFetch<User>(API_ROUTES.AUTH.PROFILE, {
-            method: 'PUT',
-            body: profileData
-          });
-          
-          // Si la respuesta es exitosa, actualizar localmente
-          const updatedUser = { ...currentUser, ...response };
-          localStorage.setItem(this.userKey, JSON.stringify(updatedUser));
-          return updatedUser;
-        } catch (error) {
-          console.error('Error al actualizar perfil en servidor:', error);
-          throw error;
-        }
+        
+        throw error;
       }
     } catch (error) {
       console.error('Error al actualizar perfil:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Completa el proceso de onboarding
+   */
+  async completeOnboarding(onboardingData: any): Promise<User> {
+    this.ensureInitialized();
+    
+    try {
+      console.log('Completando onboarding con datos:', onboardingData);
+      
+      // Obtener usuario actual
+      const cachedUser = localStorage.getItem(this.userKey);
+      if (!cachedUser) {
+        throw new Error('No se encontró información de usuario');
+      }
+      
+      const currentUser = JSON.parse(cachedUser) as User;
+      
+      try {
+        // Intentar usar el endpoint específico de onboarding
+        console.log('Enviando datos de onboarding a:', API_ROUTES.AUTH.ONBOARDING);
+        
+        const response = await apiFetch(API_ROUTES.AUTH.ONBOARDING, {
+          method: 'POST',
+          body: onboardingData
+        });
+        
+        console.log('Respuesta del servidor:', response);
+        
+        // Extraer los datos del usuario de la respuesta
+        const userData = response?.user || response;
+        
+        // Asegurar que onboardingCompleted esté establecido
+        const updatedUser = { 
+          ...currentUser, 
+          ...userData,
+          onboardingCompleted: true 
+        };
+        
+        // Guardar en localStorage
+        localStorage.setItem(this.userKey, JSON.stringify(updatedUser));
+        
+        return updatedUser;
+      } catch (apiError) {
+        console.error('Error al enviar datos de onboarding a la API:', apiError);
+        
+        // En caso de error de API, actualizar localmente
+        const updatedUser = { 
+          ...currentUser, 
+          ...onboardingData,
+          onboardingCompleted: true 
+        };
+        
+        localStorage.setItem(this.userKey, JSON.stringify(updatedUser));
+        console.warn('Guardados datos de onboarding localmente debido a error de API');
+        
+        return updatedUser;
+      }
+    } catch (error) {
+      console.error('Error grave al completar onboarding:', error);
       throw error;
     }
   }

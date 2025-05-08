@@ -39,7 +39,9 @@ const ProtectedRoute = ({ children, requireOnboarding = true }: ProtectedRoutePr
   // Comprobar si necesita completar onboarding y NO está en la página de onboarding
   if (requireOnboarding && user && !user.onboardingCompleted && 
       location.pathname !== ROUTES.ONBOARDING) {
-    console.log('ProtectedRoute: Onboarding pendiente, redirigiendo a onboarding');
+    console.log('ProtectedRoute: Onboarding pendiente, redirigiendo a onboarding', {
+      onboardingCompleted: user.onboardingCompleted
+    });
     return <Navigate to={ROUTES.ONBOARDING} replace state={{ from: location }} />;
   }
 

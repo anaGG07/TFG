@@ -20,7 +20,7 @@ use Exception;
 use ValueError;
 use Psr\Log\LoggerInterface;
 
-#[Route('')]
+#[Route('/api')]
 class AuthController extends AbstractController
 {
     private LoggerInterface $logger;
@@ -36,7 +36,7 @@ class AuthController extends AbstractController
         $this->logger = $logger;
     }
 
-    #[Route('/api/register', name: 'api_register', methods: ['POST'])]
+    #[Route('/register', name: 'api_register', methods: ['POST'])]
     public function register(Request $request): JsonResponse
     {
         try {
@@ -110,6 +110,9 @@ class AuthController extends AbstractController
                     ], 400);
                 }
             }
+
+            // Inicializar onboardingCompleted como falso
+            $user->setOnboardingCompleted(false);
 
             // Validar el usuario
             $errors = $this->validator->validate($user);
@@ -383,6 +386,9 @@ class AuthController extends AbstractController
             }
 
             $data = json_decode($request->getContent(), true);
+            if (!$data) {
+                return $this->json(['message' => 'Datos de solicitud inválidos'], 400);
+            }
 
             // Actualizar campos permitidos
             if (isset($data['username']) && is_string($data['username'])) {
@@ -417,6 +423,11 @@ class AuthController extends AbstractController
                 }
             }
 
+            // Campo específico para onboarding
+            if (isset($data['onboardingCompleted'])) {
+                $user->setOnboardingCompleted((bool) $data['onboardingCompleted']);
+            }
+
             // Validar cambios
             $errors = $this->validator->validate($user);
             if (count($errors) > 0) {
@@ -436,7 +447,10 @@ class AuthController extends AbstractController
                 'userId' => $user->getId()
             ]);
 
-            return $this->json(['message' => 'Perfil actualizado con éxito'], 200);
+            return $this->json([
+                'message' => 'Perfil actualizado con éxito',
+                'user' => $user
+            ], 200, [], ['groups' => 'user:read']);
         } catch (Exception $e) {
             $this->logger->error('Error al actualizar perfil: ' . $e->getMessage(), [
                 'exception' => $e,
@@ -444,6 +458,55 @@ class AuthController extends AbstractController
             ]);
             
             return $this->json(['message' => 'Error al actualizar perfil'], 500);
+        }
+    }
+
+    #[Route('/onboarding', name: 'api_complete_onboarding', methods: ['POST'])]
+    public function completeOnboarding(Request $request): JsonResponse
+    {
+        try {
+            /** @var User|null $user */
+            $user = $this->getUser();
+            if (!$user instanceof User) {
+                $this->logger->warning('Intento de completar onboarding sin autenticación');
+                return $this->json(['message' => 'Usuario no autenticado'], 401);
+            }
+
+            $data = json_decode($request->getContent(), true);
+            if (!$data) {
+                return $this->json(['message' => 'Datos de solicitud inválidos'], 400);
+            }
+
+            // Actualizar campos relevantes para onboarding
+            if (isset($data['genderIdentity']) && is_string($data['genderIdentity'])) {
+                $user->setGenderIdentity($data['genderIdentity']);
+            }
+
+            // Aquí se podrían guardar más datos específicos del onboarding
+            // como preferencias, fecha de último periodo, etc.
+
+            // Marcar onboarding como completado
+            $user->setOnboardingCompleted(true);
+            
+            // Guardar cambios
+            $this->entityManager->flush();
+
+            $this->logger->info('Onboarding completado con éxito', [
+                'userId' => $user->getId()
+            ]);
+
+            // Devolver el usuario actualizado
+            return $this->json([
+                'message' => 'Onboarding completado con éxito',
+                'user' => $user
+            ], 200, [], ['groups' => 'user:read']);
+        } catch (Exception $e) {
+            $this->logger->error('Error al completar onboarding: ' . $e->getMessage(), [
+                'exception' => $e,
+                'trace' => $e->getTraceAsString()
+            ]);
+            
+            return $this->json(['message' => 'Error al completar onboarding'], 500);
         }
     }
 
@@ -579,5 +642,4 @@ class AuthController extends AbstractController
             return $this->json(['message' => 'Error al obtener sesiones activas'], 500);
         }
     }
-
 }
