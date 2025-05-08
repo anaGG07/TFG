@@ -349,11 +349,29 @@ class AuthController extends AbstractController
     }
 
     #[Route('/profile', name: 'api_profile', methods: ['GET'])]
-    public function getProfile(): JsonResponse
+    public function getProfile(Request $request): JsonResponse
     {
         try {
+            // Depuración: Verificar cookies y cabeceras de autenticación
+            $this->logger->info('Petición a /profile recibida', [
+                'cookies' => array_keys($request->cookies->all()),
+                'has_jwt_token' => $request->cookies->has('jwt_token'),
+                'jwt_token_value_first_chars' => $request->cookies->has('jwt_token') ? substr($request->cookies->get('jwt_token'), 0, 20) . '...' : 'no presente',
+                'has_auth_header' => $request->headers->has('Authorization'),
+                'authorization_header' => $request->headers->get('Authorization'),
+                'origin' => $request->headers->get('Origin'),
+                'credentials' => $request->headers->get('Credentials')
+            ]);
+            
             /** @var User|null $user */
             $user = $this->getUser();
+            
+            // Depuración: Verificar si se obtuvo un usuario autenticado
+            $this->logger->info('Estado de autenticación', [
+                'usuario_autenticado' => $user instanceof User,
+                'usuario_id' => $user instanceof User ? $user->getId() : 'no autenticado'
+            ]);
+            
             if (!$user instanceof User) {
                 $this->logger->warning('Intento de acceso al perfil sin autenticación');
                 return $this->json(['message' => 'Usuario no autenticado'], 401);

@@ -23,12 +23,25 @@ services:
             - '../src/Entity/'
             - '../src/Kernel.php'
 
-    # Registrar el listener para manejar cookies JWT
-    App\EventListener\JwtCookieListener:
-        tags:
-            - { name: kernel.event_subscriber }
+    # Registrar el extractor de token desde cookie
+    App\Security\CookieTokenExtractor:
+        arguments:
+            $cookieName: 'jwt_token'
+            $logger: '@logger'
+        
+    # Registrar nuestro extractor de cookie como servicio usado por lexik_jwt_authentication
+    lexik_jwt_authentication.extractor.cookie_extractor:
+        class: App\Security\CookieTokenExtractor
+        arguments:
+            $cookieName: 'jwt_token'
+            $logger: '@logger'
             
     # Handler personalizado para autenticación con cookies
     App\Security\JwtCookieSuccessHandler:
         arguments:
             $cookieSecure: '%cookie_secure%'
+            
+    # Listener para depurar autenticación
+    App\EventListener\AuthenticationDebugListener:
+        tags:
+            - { name: kernel.event_subscriber }
