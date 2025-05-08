@@ -27,6 +27,7 @@ interface RequestOptions extends RequestInit {
   body?: any;
   headers?: HeadersInit;
   skipErrorHandling?: boolean;
+  skipRedirectCheck?: boolean; // Nuevo parámetro para evitar ciclos de redirección
 }
 
 // Log inicial
@@ -167,8 +168,16 @@ export async function apiFetch<T>(path: string, options: RequestOptions = {}): P
       // 401: sesión expirada o inválida
       if (response.status === 401 && !options.skipErrorHandling) {
         console.warn('🔒 Sesión no autorizada. Cerrando y redirigiendo...');
-        await authEvents.onLogout();
-        authEvents.onUnauthorized();
+        
+        // Evitar ciclos infinitos de redirección
+        if (!options.skipRedirectCheck) {
+          // Primero hacemos logout para eliminar cualquier estado de autenticación
+          await authEvents.onLogout();
+          authEvents.onUnauthorized();
+        } else {
+          console.warn('Evitando ciclo de redirección en 401');
+        }
+        
         throw new Error('Sesión expirada o inválida.');
       }
 

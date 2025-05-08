@@ -33,12 +33,25 @@ const ProtectedRoute = ({ children, requireOnboarding = true }: ProtectedRoutePr
   // Si no está autenticado, redirigir al login
   if (!isAuthenticated) {
     console.log('ProtectedRoute: No autenticado, redirigiendo a login');
+    // Evitar ciclo de redirecciones si estamos intentando acceder a una ruta
+    // que requiere autenticación inmediatamente después de un cierre de sesión
+    if (location.state && location.state.justLoggedOut) {
+      return <Navigate to={ROUTES.LOGIN} replace />;
+    }
     return <Navigate to={ROUTES.LOGIN} replace state={{ from: location }} />;
   }
 
   // Comprobar si necesita completar onboarding y NO está en la página de onboarding
   if (requireOnboarding && user && !user.onboardingCompleted && 
       location.pathname !== ROUTES.ONBOARDING) {
+    
+    // Si venimos de completar el onboarding (pero hubo un error al guardarlo en backend),
+    // permitimos el acceso para evitar bucles
+    if (location.state && (location.state.onboardingCompleted || location.state.onboardingError)) {
+      console.log('ProtectedRoute: Permitiendo acceso a pesar de onboarding incompleto debido a estado especial', location.state);
+      return <>{children}</>;
+    }
+    
     console.log('ProtectedRoute: Onboarding pendiente, redirigiendo a onboarding', {
       onboardingCompleted: user.onboardingCompleted
     });

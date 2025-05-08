@@ -96,40 +96,46 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
   const loadDashboardSafely = async () => {
     try {
-      const userData = await authService.getProfile().catch(() => null);
+      // Obtener el perfil de usuario desde el backend directamente
+      const userData = await authService.getProfile({ skipRedirectCheck: true }).catch((err) => {
+        console.warn("Error al obtener perfil:", err);
+        return null;
+      });
+      
       if (userData) {
         setUser(userData);
         setIsAuthenticated(true);
+        
+        // Cargar el resto de datos del dashboard
+        const [
+          cyclesData,
+          currentCycleData,
+          summaryData,
+          predictionsData,
+          patternsData,
+        ]: [Cycle[], Cycle | null, CycleSummary, Prediction, SymptomPattern[]] =
+          await apiFetchParallel([
+            { path: "cycles", defaultValue: DEFAULT_CYCLES },
+            { path: "cycles/current", defaultValue: DEFAULT_CURRENT_CYCLE },
+            { path: "insights/summary", defaultValue: DEFAULT_SUMMARY },
+            { path: "insights/predictions", defaultValue: DEFAULT_PREDICTIONS },
+            { path: "insights/patterns", defaultValue: DEFAULT_PATTERNS },
+          ]);
+
+        if (cyclesData) setCycles(cyclesData);
+        if (currentCycleData) setCurrentCycle(currentCycleData);
+        if (summaryData) setSummary(summaryData);
+        if (predictionsData) setPredictions(predictionsData);
+        if (patternsData) setPatterns(patternsData);
       } else {
+        // Usuario no autenticado o error al obtener el perfil
         setIsAuthenticated(false);
         setUser(null);
-        setIsLoading(false);
-        return;
       }
-
-      const [
-        cyclesData,
-        currentCycleData,
-        summaryData,
-        predictionsData,
-        patternsData,
-      ]: [Cycle[], Cycle | null, CycleSummary, Prediction, SymptomPattern[]] =
-        await apiFetchParallel([
-          { path: "cycles", defaultValue: DEFAULT_CYCLES },
-          { path: "cycles/current", defaultValue: DEFAULT_CURRENT_CYCLE },
-          { path: "insights/summary", defaultValue: DEFAULT_SUMMARY },
-          { path: "insights/predictions", defaultValue: DEFAULT_PREDICTIONS },
-          { path: "insights/patterns", defaultValue: DEFAULT_PATTERNS },
-        ]);
-
-
-      if (cyclesData) setCycles(cyclesData);
-      if (currentCycleData) setCurrentCycle(currentCycleData);
-      if (summaryData) setSummary(summaryData);
-      if (predictionsData) setPredictions(predictionsData);
-      if (patternsData) setPatterns(patternsData);
     } catch (error) {
       console.error("Error al cargar dashboard:", error);
+      setIsAuthenticated(false);
+      setUser(null);
     } finally {
       setIsLoading(false);
       if (typeof window !== "undefined" && window.appReadyEvent) {
@@ -141,11 +147,8 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   useEffect(() => {
     const initApp = async () => {
       try {
-        if (authService.isAuthenticated()) {
-          await loadDashboardSafely();
-        } else {
-          setIsLoading(false);
-        }
+        // Verificar autenticación probando obtener el perfil del backend
+        await loadDashboardSafely();
 
         if (typeof window !== "undefined" && window.appReadyEvent) {
           window.dispatchEvent(window.appReadyEvent);
@@ -165,14 +168,17 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const login = async (credentials: LoginRequest) => {
     setIsLoading(true);
     try {
+      // Realizar login, que ahora establecerá las cookies HTTP-only
       const loggedInUser = await authService.login(credentials);
       if (!loggedInUser) {
         throw new Error("Login fallido");
       }
 
+      // Actualizar el estado con el usuario devuelto por la API
       setUser(loggedInUser);
       setIsAuthenticated(true);
 
+      // Cargar datos adicionales del dashboard
       loadDashboardSafely().catch((e) => {
         console.warn("Error al cargar datos adicionales:", e);
       });
@@ -180,6 +186,8 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       return loggedInUser;
     } catch (error) {
       console.error("Error durante login:", error);
+      setIsAuthenticated(false);
+      setUser(null);
       throw error;
     } finally {
       setIsLoading(false);
@@ -201,8 +209,10 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const logout = async () => {
     setIsLoading(true);
     try {
+      // La llamada al backend eliminará las cookies HTTP-only
       await authService.logout();
-      localStorage.removeItem("eyra_user");
+      
+      // Actualizar el estado localmente después del logout exitoso
       setUser(null);
       setIsAuthenticated(false);
       setCycles([]);
@@ -212,7 +222,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       setPatterns([]);
     } catch (error) {
       console.error("Error durante logout:", error);
-      localStorage.removeItem("eyra_user");
+      // Aún limpiamos el estado local en caso de error
       setUser(null);
       setIsAuthenticated(false);
     } finally {
@@ -224,11 +234,6 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     if (user) {
       const updatedUser = { ...user, ...userData };
       setUser(updatedUser);
-      try {
-        localStorage.setItem("eyra_user", JSON.stringify(updatedUser));
-      } catch (e) {
-        console.warn("No se pudo guardar el usuario en localStorage:", e);
-      }
     }
   };
 
@@ -241,15 +246,6 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         });
 
         setUser(updatedUser);
-        try {
-          localStorage.setItem("eyra_user", JSON.stringify(updatedUser));
-        } catch (e) {
-          console.warn(
-            "No se pudo guardar el usuario actualizado en localStorage:",
-            e
-          );
-        }
-
         return updatedUser;
       } catch (error) {
         console.error("Error al completar onboarding:", error);

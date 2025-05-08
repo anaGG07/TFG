@@ -93,16 +93,20 @@ const OnboardingPage = () => {
         // Onboarding completado con éxito
         console.log('Onboarding completado con éxito. Redirigiendo al dashboard.');
         
-        // Redirigir al dashboard
-        navigate(ROUTES.DASHBOARD);
+        // Añadir un retraso antes de la redirección para evitar bucles
+        setTimeout(() => {
+          navigate(ROUTES.DASHBOARD, { replace: true, state: { onboardingCompleted: true } });
+        }, 300);
       } catch (e) {
         console.error('Error al completar onboarding desde la API:', e);
         
-        // Intentar una actualización local en caso de error
-        alert('Hubo un problema al guardar tus datos en el servidor. Se guardarán localmente por ahora.');
+        // Mostrar mensaje de error
+        alert('Hubo un problema al guardar tus datos en el servidor.');
         
-        // Redirigir al dashboard de todas formas
-        navigate(ROUTES.DASHBOARD);
+        // Añadir un retraso para evitar bucles
+        setTimeout(() => {
+          navigate(ROUTES.DASHBOARD, { replace: true, state: { onboardingError: true } });
+        }, 300);
       }
     } catch (error) {
       console.error('Error al completar onboarding:', error);

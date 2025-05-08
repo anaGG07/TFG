@@ -8,8 +8,18 @@ export const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const handleLogout = async () => {
-    await logout();
-    navigate('/login');
+    try {
+      // Primero realizar el logout y luego la navegación
+      await logout();
+      // Añadir un breve retraso antes de la navegación
+      setTimeout(() => {
+        navigate('/login', { state: { justLoggedOut: true } });
+      }, 300);
+    } catch (error) {
+      console.error('Error al cerrar sesión:', error);
+      // En caso de error también intentar navegar
+      navigate('/login');
+    }
   };
 
   const toggleMenu = () => {

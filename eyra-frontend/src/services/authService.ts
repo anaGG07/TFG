@@ -10,8 +10,6 @@ import { API_URL } from "../config/setupApiUrl";
  * soluciones para problemas de conectividad
  */
 class AuthService {
-  private userKey = "eyra_user";
-  private sessionKey = "eyra_session";
   private initialized = false;
 
   constructor() {
@@ -38,27 +36,23 @@ class AuthService {
    * Manejador para redirecciones cuando el usuario no está autorizado
    */
   private handleUnauthorized(): void {
-    this.setSession(false);
     window.location.href = "/login";
   }
 
   /**
-   * Verifica si el usuario está autenticado basado en información de sesión local
+   * Verifica si el usuario está autenticado basado en la presencia de cookies
+   * Cookie comprobada implícitamente por la API al solicitar el perfil
    */
   isAuthenticated(): boolean {
-    const session = localStorage.getItem(this.sessionKey);
-    return session === "true";
-  }
-
-  /**
-   * Establece o elimina la sesión del usuario
-   */
-  setSession(active: boolean): void {
-    if (active) {
-      localStorage.setItem(this.sessionKey, "true");
-    } else {
-      localStorage.removeItem(this.sessionKey);
-      localStorage.removeItem(this.userKey);
+    // Ahora solo comprueba si hay cookies mediante una petición al backend
+    // La presencia de cookies es verificada por el backend automáticamente
+    try {
+      // Verificamos haciendo una consulta al endpoint de perfil
+      // Esta función no devuelve un resultado directo, solo señala si debemos
+      // considerar que el usuario está autenticado basado en si las cookies están presentes
+      return document.cookie.includes('jwt_token') || document.cookie.includes('refresh_token');
+    } catch (e) {
+      return false;
     }
   }
 
@@ -204,7 +198,10 @@ class AuthService {
       if (isDevelopment) {
         // En modo desarrollo, usar inicio de sesión simulado
         console.log("Entorno de desarrollo: usando flujo simulado");
-        this.setSession(true);
+        
+        // Crear cookies simuladas para desarrollo
+        document.cookie = "jwt_token=mock_jwt_token; path=/; max-age=3600";
+        document.cookie = "refresh_token=mock_refresh_token; path=/; max-age=86400";
 
         const mockUser: User = {
           id: 1,
@@ -221,8 +218,7 @@ class AuthService {
           state: true,
           onboardingCompleted: false,
         };
-        localStorage.setItem(this.userKey, JSON.stringify(mockUser));
-
+        
         // Simular breve retraso para UI
         await new Promise((resolve) => setTimeout(resolve, 300));
 
@@ -249,13 +245,10 @@ class AuthService {
           );
         }
 
-        this.setSession(true);
-        localStorage.setItem(this.userKey, JSON.stringify(response.user));
         return response.user;
       }
     } catch (error: unknown) {
       console.error("Error en el proceso de login:", error);
-      this.setSession(false);
 
       if (error instanceof Error) {
         throw new Error(error.message);
@@ -283,56 +276,54 @@ class AuthService {
           );
         }
       }
-    } finally {
-      this.setSession(false);
-
-      // Limpieza adicional recomendada:
-      localStorage.removeItem("eyra_user");
+    } catch (error) {
+      console.error("Error durante el cierre de sesión:", error);
     }
   }
 
   /**
-   * Obtiene el perfil del usuario actual, con fallback a datos locales
+   * Obtiene el perfil del usuario actual desde el backend
+   * @param options Opciones adicionales como skipRedirectCheck para evitar ciclos
    */
-  async getProfile(): Promise<User> {
+  async getProfile(options: { skipRedirectCheck?: boolean } = {}): Promise<User> {
     this.ensureInitialized();
 
     try {
-      // Primero intentamos obtener del almacenamiento local
-      const cachedUser = localStorage.getItem(this.userKey);
-      if (cachedUser) {
-        const userData = JSON.parse(cachedUser) as User;
+      // Intentamos obtener el perfil del usuario desde el backend
+      try {
+        const userData = await apiFetch<User>(API_ROUTES.AUTH.PROFILE, {
+          method: "GET",
+          skipRedirectCheck: options.skipRedirectCheck,
+        });
         return userData;
+      } catch (apiError) {
+        console.error("Error al obtener perfil desde API:", apiError);
+        
+        // En modo desarrollo, podemos usar un usuario simulado si la API falla
+        if (
+          process.env.NODE_ENV === "development" ||
+          window.location.hostname === "localhost"
+        ) {
+          console.warn("⚠️ MODO DESARROLLO: Creando usuario simulado");
+          return {
+            id: 1,
+            email: "usuario@example.com",
+            username: "usuario",
+            name: "Usuario",
+            lastName: "Demo",
+            roles: ["ROLE_USER"],
+            profileType: "profile_women" as any,
+            genderIdentity: "woman",
+            birthDate: "1990-01-01",
+            createdAt: new Date().toISOString(),
+            updatedAt: null,
+            state: true,
+            onboardingCompleted: false,
+          };
+        }
+        
+        throw apiError;
       }
-
-      // Si no hay datos locales, simulamos un usuario en desarrollo
-      if (
-        process.env.NODE_ENV === "development" ||
-        window.location.hostname === "localhost"
-      ) {
-        console.warn("⚠️ MODO DESARROLLO: Creando usuario simulado");
-        const mockUser: User = {
-          id: 1,
-          email: "usuario@example.com",
-          username: "usuario",
-          name: "Usuario",
-          lastName: "Demo",
-          roles: ["ROLE_USER"],
-          profileType: "profile_women" as any,
-          genderIdentity: "woman",
-          birthDate: "1990-01-01",
-          createdAt: new Date().toISOString(),
-          updatedAt: null,
-          state: true,
-          onboardingCompleted: false,
-        };
-
-        localStorage.setItem(this.userKey, JSON.stringify(mockUser));
-        return mockUser;
-      }
-
-      // Si estamos en producción y no hay usuario en caché, error
-      throw new Error("No se encontró información de usuario");
     } catch (error) {
       console.error("Error al obtener perfil:", error);
       throw error;
@@ -340,54 +331,29 @@ class AuthService {
   }
 
   /**
-   * Actualiza el perfil del usuario tanto en el backend como localmente
+   * Actualiza el perfil del usuario en el backend
    */
   async updateProfile(profileData: Partial<User>): Promise<User> {
     this.ensureInitialized();
 
     try {
-      // Obtener el usuario actual de localStorage
-      const cachedUser = localStorage.getItem(this.userKey);
-      if (!cachedUser) {
-        throw new Error("No se encontró información de usuario");
-      }
-
-      const currentUser = JSON.parse(cachedUser) as User;
-
       console.log("Actualizando perfil con datos:", profileData);
 
-      try {
-        // Realizar la petición al backend
-        const response: { user: User } = await apiFetch<{ user: User }>(
-          API_ROUTES.AUTH.PROFILE,
-          {
-            method: "PUT",
-            body: profileData,
-          }
-        );
+      // Realizar la petición al backend
+      const response: { user: User } = await apiFetch<{ user: User }>(
+        API_ROUTES.AUTH.PROFILE,
+        {
+          method: "PUT",
+          body: profileData,
+        }
+      );
 
-        const updatedUser = { ...currentUser, ...response.user };
+      console.log("Respuesta de la API:", response);
 
-
-        console.log("Respuesta de la API:", response);
-
-
-        // Actualizar en localStorage
-        localStorage.setItem(this.userKey, JSON.stringify(updatedUser));
-
-        return updatedUser;
-      } catch (error) {
-        console.error("Error al actualizar perfil en servidor:", error);
-
-        // En caso de error de API, intentamos actualizar localmente de todas formas
-        // y mostramos un mensaje al usuario
-        const updatedUser = { ...currentUser, ...profileData };
-        localStorage.setItem(this.userKey, JSON.stringify(updatedUser));
-
-        throw error;
-      }
+      // Devolver el usuario actualizado desde la respuesta
+      return response.user;
     } catch (error) {
-      console.error("Error al actualizar perfil:", error);
+      console.error("Error al actualizar perfil en servidor:", error);
       throw error;
     }
   }
@@ -401,66 +367,30 @@ class AuthService {
     try {
       console.log("Completando onboarding con datos:", onboardingData);
 
-      // Obtener usuario actual
-      const cachedUser = localStorage.getItem(this.userKey);
-      if (!cachedUser) {
-        throw new Error("No se encontró información de usuario");
-      }
+      // Asegurar que onboardingCompleted esté establecido
+      const completeData = {
+        ...onboardingData,
+        onboardingCompleted: true,
+      };
 
-      const currentUser = JSON.parse(cachedUser) as User;
+      // Intentar usar el endpoint específico de onboarding
+      console.log(
+        "Enviando datos de onboarding a:",
+        API_ROUTES.AUTH.ONBOARDING
+      );
 
-      try {
-        // Intentar usar el endpoint específico de onboarding
-        console.log(
-          "Enviando datos de onboarding a:",
-          API_ROUTES.AUTH.ONBOARDING
-        );
+      const response: { user: User } = await apiFetch<{ user: User }>(
+        API_ROUTES.AUTH.ONBOARDING,
+        {
+          method: "POST",
+          body: completeData,
+        }
+      );
 
-        const response: { user: User } = await apiFetch<{ user: User }>(
-          API_ROUTES.AUTH.ONBOARDING,
-          {
-            method: "POST",
-            body: onboardingData,
-          }
-        );
+      console.log("Respuesta del servidor:", response);
 
-
-        console.log("Respuesta del servidor:", response);
-
-        // Extraer los datos del usuario de la respuesta
-        const userData = response.user;
-
-        // Asegurar que onboardingCompleted esté establecido
-        const updatedUser = {
-          ...currentUser,
-          ...userData,
-          onboardingCompleted: true,
-        };
-
-        // Guardar en localStorage
-        localStorage.setItem(this.userKey, JSON.stringify(updatedUser));
-
-        return updatedUser;
-      } catch (apiError) {
-        console.error(
-          "Error al enviar datos de onboarding a la API:",
-          apiError
-        );
-
-        // En caso de error de API, actualizar localmente
-        const updatedUser = {
-          ...currentUser,
-          ...onboardingData,
-          onboardingCompleted: true,
-        };
-
-        localStorage.setItem(this.userKey, JSON.stringify(updatedUser));
-        console.warn(
-          "Guardados datos de onboarding localmente debido a error de API"
-        );
-
-        return updatedUser;
-      }
+      // Devolver el usuario actualizado desde la respuesta
+      return response.user;
     } catch (error) {
       console.error("Error grave al completar onboarding:", error);
       throw error;
