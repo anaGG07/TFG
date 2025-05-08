@@ -9,7 +9,7 @@ import {
 import { User } from "../types/domain";
 import { authService } from "../services/authService";
 import { LoginRequest, RegisterRequest } from "../types/api";
-
+import { useLocation } from "react-router-dom";
 import { Cycle } from "../services/cycleService";
 
 import {
@@ -147,10 +147,16 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
   const initializedRef = useRef(false);
 
+  const location = useLocation();
+
   useEffect(() => {
+    const publicPaths = ["/", "/login", "/register", "/onboarding"];
+
     const initApp = async () => {
       if (initializedRef.current || isAuthenticated) return;
       initializedRef.current = true;
+
+      if (publicPaths.includes(location.pathname)) return;
 
       await new Promise((resolve) => setTimeout(resolve, 150));
       await loadDashboardSafely();
@@ -161,7 +167,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     };
 
     setTimeout(initApp, 0);
-  }, [isAuthenticated]);
+  }, [location.pathname, isAuthenticated]);
 
   const login = async (credentials: LoginRequest) => {
     setIsLoading(true);
