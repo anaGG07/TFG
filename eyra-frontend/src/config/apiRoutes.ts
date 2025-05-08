@@ -13,36 +13,36 @@ const createApiUrl = (path: string): string => {
 // Rutas de API con prefijo /api donde sea necesario
 export const API_ROUTES = {
   AUTH: {
-    REGISTER: createApiUrl('api/register'),
-    LOGIN: createApiUrl('api/login_check'),
-    LOGOUT: createApiUrl('api/logout'),
-    PROFILE: createApiUrl('api/profile'), // Endpoint para gestionar perfil
-    ONBOARDING: createApiUrl('api/onboarding') // Endpoint específico para onboarding
+    REGISTER: createApiUrl('/register'),
+    LOGIN: createApiUrl('/login_check'),
+    LOGOUT: createApiUrl('/logout'),
+    PROFILE: createApiUrl('/profile'), // Endpoint para gestionar perfil
+    ONBOARDING: createApiUrl('/onboarding') // Endpoint específico para onboarding
   },
 
   USER: {
-    PROFILE: createApiUrl('api/profile'),
-    UPDATE_PROFILE: createApiUrl('api/profile'),
+    PROFILE: createApiUrl('/profile'),
+    UPDATE_PROFILE: createApiUrl('/profile'),
   },
 
   CYCLES: {
-    ALL: createApiUrl('api/cycles'),
-    CURRENT: createApiUrl('api/cycles/current'),
-    CREATE: createApiUrl('api/cycles'),
-    UPDATE: (id: string) => createApiUrl(`api/cycles/${id}`),
-    DELETE: (id: string) => createApiUrl(`api/cycles/${id}`),
+    ALL: createApiUrl('/cycles'),
+    CURRENT: createApiUrl('/cycles/current'),
+    CREATE: createApiUrl('/cycles'),
+    UPDATE: (id: string) => createApiUrl(`/cycles/${id}`),
+    DELETE: (id: string) => createApiUrl(`/cycles/${id}`),
   },
 
   SYMPTOMS: {
-    ALL: createApiUrl('api/symptoms'),
-    CREATE: createApiUrl('api/symptoms'),
-    UPDATE: (id: string) => createApiUrl(`api/symptoms/${id}`),
-    DELETE: (id: string) => createApiUrl(`api/symptoms/${id}`),
+    ALL: createApiUrl('/symptoms'),
+    CREATE: createApiUrl('/symptoms'),
+    UPDATE: (id: string) => createApiUrl(`/symptoms/${id}`),
+    DELETE: (id: string) => createApiUrl(`/symptoms/${id}`),
   },
 
   INSIGHTS: {
-    SUMMARY: createApiUrl('api/insights/summary'),
-    PREDICTIONS: createApiUrl('api/insights/predictions'),
-    PATTERNS: createApiUrl('api/insights/patterns'),
+    SUMMARY: createApiUrl('/insights/summary'),
+    PREDICTIONS: createApiUrl('/insights/predictions'),
+    PATTERNS: createApiUrl('/insights/patterns'),
   },
 };

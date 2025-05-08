@@ -36,8 +36,7 @@ class AuthController extends AbstractController
         $this->logger = $logger;
     }
 
-    #[Route('
-    /register', name: 'api_register', methods: ['POST'])]
+    #[Route('/register', name: 'api_register', methods: ['POST'])]
     public function register(Request $request): JsonResponse
     {
         try {
