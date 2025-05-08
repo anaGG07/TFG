@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ROUTES } from '../../router/paths';
-import { useAuth } from '../../context/AuthContext';
+import { ROUTES } from '../router/paths';
+import { useAuth } from '../context/AuthContext';
 
 const OnboardingPage = () => {
   const navigate = useNavigate();
@@ -71,20 +71,25 @@ const OnboardingPage = () => {
   // Finalizar onboarding
   const handleFinish = async () => {
     try {
-      // Completar onboarding con los datos del formulario
+      console.log('Completando onboarding con datos:', formData);
+      
+      // Completar onboarding con los datos del formulario y marcar como completado
       await completeOnboarding({
         genderIdentity: formData.genderIdentity,
         lastPeriodDate: formData.lastPeriodDate,
         commonSymptoms: formData.commonSymptoms,
         receiveRecommendations: formData.receiveRecommendations,
         receiveAlerts: formData.receiveAlerts,
+        onboardingCompleted: true, // Marcar explícitamente como completado
       });
+      
+      console.log('Onboarding completado con éxito. Redirigiendo al dashboard.');
       
       // Redirigir al dashboard
       navigate(ROUTES.DASHBOARD);
     } catch (error) {
       console.error('Error al completar onboarding:', error);
-      // Se podría mostrar un mensaje de error aquí
+      alert('Hubo un error al guardar los datos. Por favor, inténtalo de nuevo.');
     }
   };
 

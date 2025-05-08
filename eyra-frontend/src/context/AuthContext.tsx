@@ -189,32 +189,22 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     setIsLoading(true);
     try {
       console.log('Context: Iniciando proceso de login');
-      const loginSuccessful = await authService.login(credentials);
       
-      if (!loginSuccessful) {
+      const loggedInUser = await authService.login(credentials);
+      
+      if (!loggedInUser) {
         throw new Error('Login fallido');
       }
       
-      // Usamos datos mock para evitar dependencias del backend
-      console.log('Context: Login exitoso, estableciendo usuario');
-      
-      const mockUser: User = {
-        id: 1,
-        email: credentials.email,
-        username: 'usuario',
-        name: 'Usuario',
-        lastName: 'Demo',
-        roles: ['ROLE_USER'],
-        profileType: 'profile_women' as ProfileType,
-        genderIdentity: 'woman',
-        birthDate: '1990-01-01',
-        createdAt: new Date().toISOString(),
-        updatedAt: null,
-        state: true,
-        onboardingCompleted: false, // Por defecto necesita completar onboarding
+      // Aseguramos que onboardingCompleted sea false para que el usuario complete el proceso
+      const userWithPendingOnboarding = {
+        ...loggedInUser,
+        onboardingCompleted: false // Forzar onboarding según diagrama de flujo
       };
       
-      setUser(mockUser);
+      console.log('Usuario configurado con onboarding pendiente:', userWithPendingOnboarding);
+      
+      setUser(userWithPendingOnboarding);
       setIsAuthenticated(true);
       
       // Iniciamos carga de datos adicionales en segundo plano
@@ -222,7 +212,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         console.warn('Error al cargar datos adicionales:', e);
       });
       
-      return mockUser;
+      return userWithPendingOnboarding;
     } catch (error) {
       console.error('Error durante login:', error);
       throw error;
@@ -287,18 +277,28 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const completeOnboarding = async (onboardingData: any) => {
     if (user) {
       try {
-        // Actualizamos el perfil con los datos del onboarding
-        const updatedUser = await authService.updateProfile({
+        console.log('AuthContext: Completando onboarding con datos', onboardingData);
+
+        // Asegurar que onboardingCompleted esté establecido en true
+        const onboardingPayload = {
           ...onboardingData,
-          onboardingCompleted: true // Marcamos como completado
-        });
+          onboardingCompleted: true
+        };
+
+        // Actualizar el perfil en el backend y localmente
+        const updatedUser = await authService.updateProfile(onboardingPayload);
+        
+        // Actualizar el estado local
         setUser(updatedUser);
+        console.log('AuthContext: Onboarding completado, usuario actualizado', updatedUser);
+        
         return updatedUser;
       } catch (error) {
         console.error('Error al completar onboarding:', error);
         throw error;
       }
     } else {
+      console.error('No hay usuario autenticado para completar onboarding');
       throw new Error('No hay usuario autenticado');
     }
   };

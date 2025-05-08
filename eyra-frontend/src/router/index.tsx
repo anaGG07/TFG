@@ -56,10 +56,11 @@ export const router = createBrowserRouter([
           </ProtectedRoute>
         ),
       },
+      // Rutas protegidas - requieren onboarding
       {
         path: ROUTES.DASHBOARD,
         element: (
-          <ProtectedRoute>
+          <ProtectedRoute requireOnboarding={true}>
             <DashboardPage />
           </ProtectedRoute>
         ),
@@ -67,7 +68,7 @@ export const router = createBrowserRouter([
       {
         path: ROUTES.ADMIN,
         element: (
-          <RoleRoute allowedRoles={["ROLE_ADMIN"]}>
+          <RoleRoute allowedRoles={["ROLE_ADMIN"]} requireOnboarding={true}>
             <AdminPage />
           </RoleRoute>
         ),
@@ -75,7 +76,7 @@ export const router = createBrowserRouter([
       {
         path: ROUTES.CALENDAR,
         element: (
-          <ProtectedRoute>
+          <ProtectedRoute requireOnboarding={true}>
             <CalendarPage />
           </ProtectedRoute>
         ),
@@ -83,7 +84,7 @@ export const router = createBrowserRouter([
       {
         path: ROUTES.INSIGHTS,
         element: (
-          <ProtectedRoute>
+          <ProtectedRoute requireOnboarding={true}>
             <InsightsPage />
           </ProtectedRoute>
         ),
@@ -91,7 +92,7 @@ export const router = createBrowserRouter([
       {
         path: ROUTES.PROFILE,
         element: (
-          <ProtectedRoute>
+          <ProtectedRoute requireOnboarding={true}>
             <ProfilePage />
           </ProtectedRoute>
         ),

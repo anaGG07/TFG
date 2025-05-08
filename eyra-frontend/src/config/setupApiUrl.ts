@@ -1,5 +1,5 @@
 /**
- * Configuración optimizada de URL de API
+ * Configuración optimizada de URL de API con soporte mejorado para entornos de producción y desarrollo
  */
 
 // Declaración de la propiedad global para TypeScript
@@ -12,11 +12,11 @@ declare global {
 }
 
 // URL de API para diferentes entornos
-const DEFAULT_PROD_API_URL = 'https://eyraclub.es/api';
-const DEFAULT_IP_API_URL = 'http://54.227.159.169:9000/api';
-const DEFAULT_LOCAL_API_URL = 'http://localhost:9000/api';
+const PROD_API_URL = 'https://eyraclub.es';
+const IP_API_URL = 'http://54.227.159.169:9000';
+const LOCAL_API_URL = 'http://localhost:9000';
 
-// Función optimizada para detectar y corregir URLs
+// Función optimizada para detectar y corregir URLs durante la ejecución
 const setupFetchInterceptor = () => {
   if (typeof window === 'undefined') return;
   
@@ -24,75 +24,76 @@ const setupFetchInterceptor = () => {
   if (window.__fetchInterceptorInstalled) return;
   window.__fetchInterceptorInstalled = true;
   
+  console.log('Interceptor de fetch instalado para redireccionar URLs automáticamente');
+  
   // Monitorear peticiones fetch para detectar y corregir URLs
   const originalFetch = window.fetch;
   window.fetch = function(input, init) {
     // Solo procesamos strings, no Request objects
     if (typeof input === 'string') {
-      // Corregir URL si usa localhost:9000
-      if (input.includes('localhost:9000')) {
-        console.warn('⚠️ Se detectó una petición a localhost:9000:', input);
-        
-        // Mantener localhost:9000 si estamos en entorno local
-        if (window.location.hostname === 'localhost') {
-          console.log('✅ Manteniendo URL local para desarrollo:', input);
-        }
-        // Si estamos accediendo desde la IP, reemplazar por la IP
-        else if (window.location.hostname === '54.227.159.169') {
-          input = input.replace('localhost:9000', '54.227.159.169:9000');
-          console.log('✅ URL corregida a:', input);
-        } 
-        // En cualquier otro caso (producción), usar el dominio
-        else {
-          input = input.replace('http://localhost:9000', 'https://eyraclub.es');
-          console.log('✅ URL corregida a:', input);
-        }
+      // Registrar todas las peticiones fetch para depuración
+      console.log(`Fetch a: ${input}`);
+      
+      // Corregir URL si necesario según el entorno
+      if (window.location.hostname === 'localhost') {
+        // En desarrollo local: mantener URL local
       }
-      // Corregir URL si usa 54.227.159.169:9000 en producción
-      else if (input.includes('54.227.159.169:9000') && window.location.hostname !== 'localhost' && window.location.hostname !== '54.227.159.169') {
-        input = input.replace('http://54.227.159.169:9000', 'https://eyraclub.es');
-        console.log('✅ URL corregida de IP a dominio:', input);
+      else if (window.location.hostname === '54.227.159.169') {
+        // Acceso a través de IP: reemplazar 'localhost' por la IP
+        if (input.includes('localhost')) {
+          input = input.replace('localhost:9000', '54.227.159.169:9000');
+          console.log('URL corregida para entorno IP:', input);
+        }
+      } 
+      else {
+        // En producción: reemplazar localhost o IP por dominio
+        if (input.includes('localhost:9000')) {
+          input = input.replace('http://localhost:9000', 'https://eyraclub.es');
+          console.log('URL corregida para producción:', input);
+        }
+        else if (input.includes('54.227.159.169:9000')) {
+          input = input.replace('http://54.227.159.169:9000', 'https://eyraclub.es');
+          console.log('URL corregida para producción:', input);
+        }
       }
     }
     return originalFetch(input, init);
   };
 };
 
-// Determinar la URL de la API basándose en múltiples fuentes en orden de prioridad
+// Determinar la URL de la API basándose en el entorno
 export const getApiUrl = (): string => {
   // Detectar errores en entorno server-side
   if (typeof window === 'undefined') {
-    return DEFAULT_PROD_API_URL;
+    return PROD_API_URL;
   }
   
   // 1. Variable global definida en index.html (máxima prioridad)
   if (window.API_URL) {
-    console.log('📡 API URL from window.API_URL:', window.API_URL);
+    console.log('API URL desde window.API_URL:', window.API_URL);
     return window.API_URL;
   }
 
   // 2. Variable de entorno de Vite
   if (import.meta.env.VITE_API_URL) {
-    console.log('📡 API URL from import.meta.env.VITE_API_URL:', import.meta.env.VITE_API_URL);
+    console.log('API URL desde variables de entorno:', import.meta.env.VITE_API_URL);
     return import.meta.env.VITE_API_URL as string;
   }
   
   // 3. Determinar basado en la URL actual
-  // Si estamos accediendo a través de la IP, usar la URL de la API con IP
-  if (window.location.hostname === '54.227.159.169') {
-    console.log('📡 API URL using IP address:', DEFAULT_IP_API_URL);
-    return DEFAULT_IP_API_URL;
+  if (window.location.hostname === 'localhost') {
+    console.log('Entorno de desarrollo local detectado. API URL:', LOCAL_API_URL);
+    return LOCAL_API_URL;
   }
   
-  // Si estamos en desarrollo local, usar la URL local
-  if (window.location.hostname === 'localhost') {
-    console.log('📡 API URL using localhost:', DEFAULT_LOCAL_API_URL);
-    return DEFAULT_LOCAL_API_URL;
+  if (window.location.hostname === '54.227.159.169') {
+    console.log('Entorno de IP detectado. API URL:', IP_API_URL);
+    return IP_API_URL;
   }
 
-  // 4. URL por defecto como último recurso (producción)
-  console.log('📡 API URL using default domain:', DEFAULT_PROD_API_URL);
-  return DEFAULT_PROD_API_URL;
+  // 4. URL para producción (dominio real)
+  console.log('Entorno de producción detectado. API URL:', PROD_API_URL);
+  return PROD_API_URL;
 };
 
 // Exportamos la URL de la API
@@ -102,12 +103,14 @@ export const API_URL = getApiUrl();
 export const forceApiUrl = (url: string): void => {
   if (typeof window !== 'undefined') {
     window.API_URL = url;
-    console.log('📡 API URL forced to:', url);
+    console.log('API URL forzada a:', url);
   }
 };
 
 // Activar el interceptor de fetch
 setupFetchInterceptor();
 
-// Debug info
-console.log('🔧 API URL configurada:', API_URL);
+// Imprimir información de depuración
+console.log('API URL configurada:', API_URL);
+console.log('Entorno:', process.env.NODE_ENV);
+console.log('Hostname:', typeof window !== 'undefined' ? window.location.hostname : 'no disponible');

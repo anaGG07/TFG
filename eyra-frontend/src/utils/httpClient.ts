@@ -57,7 +57,7 @@ export async function apiFetch<T>(path: string, options: RequestOptions = {}): P
   const fetchOptions: RequestInit = {
     method: options.method || 'GET',
     headers,
-    credentials: 'include', // Para cookies httpOnly
+    credentials: 'include', // Importante para incluir cookies
     body: options.body ? JSON.stringify(options.body) : undefined,
   };
 

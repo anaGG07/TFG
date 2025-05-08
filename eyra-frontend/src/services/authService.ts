@@ -175,125 +175,80 @@ class AuthService {
 
   /**
    * Inicia sesión con credenciales de usuario
-   * Implementación mejorada para evitar problemas con el body stream
    */
   async login(credentials: LoginRequest): Promise<User> {
     this.ensureInitialized();
     
     try {
-        console.log('Iniciando login con credenciales:', { email: credentials.email });
-        
-        // Validar que todos los campos estén completos
-        if (!credentials.email || !credentials.password) {
-            throw new Error('Por favor completa todos los campos');
-        }
-        
-        // SOLUCIÓN TEMPORAL: Verificar si debemos usar modo forzado de desarrollo
-        const forceDevelopmentMode = true; // Cambiar a true para forzar modo de desarrollo
-        
+      console.log('Iniciando login con credenciales:', { email: credentials.email });
+      
+      // Validar que todos los campos estén completos
+      if (!credentials.email || !credentials.password) {
+        throw new Error('Por favor completa todos los campos');
+      }
+
+      // Distinguir entre entorno de desarrollo y producción
+      const isDevelopment = this.isDevMode();
+      
+      if (isDevelopment) {
         // En modo desarrollo, usar inicio de sesión simulado
-        if (forceDevelopmentMode || process.env.NODE_ENV === 'development' || window.location.hostname === 'localhost') {
-            console.warn('⚠️ MODO DESARROLLO' + (forceDevelopmentMode ? ' FORZADO' : '') + ': Simulando inicio de sesión exitoso');
-            this.setSession(true);
-            
-            const mockUser: User = {
-                id: 1,
-                email: credentials.email,
-                username: 'usuario',
-                name: 'Usuario',
-                lastName: 'Demo',
-                roles: ['ROLE_USER'],
-                profileType: 'profile_women' as any,
-                genderIdentity: 'woman',
-                birthDate: '1990-01-01',
-                createdAt: new Date().toISOString(),
-                updatedAt: null,
-                state: true,
-                onboardingCompleted: false
-            };
-            localStorage.setItem(this.userKey, JSON.stringify(mockUser));
-            
-            console.log('✅ Login simulado exitoso con usuario:', mockUser);
-            
-            // Simular breve retraso para UI
-            await new Promise(resolve => setTimeout(resolve, 500));
-            
-            return mockUser;
+        console.log('Entorno de desarrollo: usando flujo simulado');
+        this.setSession(true);
+        
+        const mockUser: User = {
+          id: 1,
+          email: credentials.email,
+          username: 'usuario',
+          name: 'Usuario',
+          lastName: 'Demo',
+          roles: ['ROLE_USER'],
+          profileType: 'profile_women' as any,
+          genderIdentity: 'woman',
+          birthDate: '1990-01-01',
+          createdAt: new Date().toISOString(),
+          updatedAt: null,
+          state: true,
+          onboardingCompleted: false
+        };
+        localStorage.setItem(this.userKey, JSON.stringify(mockUser));
+        
+        // Simular breve retraso para UI
+        await new Promise(resolve => setTimeout(resolve, 300));
+        
+        return mockUser;
+      } else {
+        // En producción, usar la API real
+        console.log('Entorno de producción: conectando con API real');
+        console.log('URL de login:', API_ROUTES.AUTH.LOGIN);
+        
+        const response = await apiFetch<LoginResponse>(API_ROUTES.AUTH.LOGIN, {
+          method: 'POST',
+          body: credentials
+        });
+
+        console.log('Respuesta del servidor:', response);
+
+        if (!response) {
+          throw new Error('Respuesta del servidor vacía');
         }
         
-        try {
-            console.log('💬 Intentando login real con el servidor...');
-            console.log('🔗 URL de login:', API_ROUTES.AUTH.LOGIN);
-            
-            const response = await apiFetch<LoginResponse>(API_ROUTES.AUTH.LOGIN, {
-                method: 'POST',
-                body: credentials
-            });
-
-            console.log('✅ Respuesta del servidor:', response);
-
-            // Manejo flexible: si la respuesta no contiene user, intentamos adaptarla
-            if (!response) {
-                throw new Error('Respuesta del servidor vacía');
-            }
-            
-            if (!response.user && response.message && response.message.includes('exitoso')) {
-                console.warn('⚠️ Respuesta de login exitosa pero sin datos de usuario. Generando usuario simulado.');
-                
-                // Crear usuario a partir de las credenciales
-                const simulatedUser: User = {
-                    id: 1,
-                    email: credentials.email,
-                    username: credentials.email.split('@')[0],
-                    name: 'Usuario',
-                    lastName: 'Recuperado',
-                    roles: ['ROLE_USER'],
-                    profileType: 'profile_women' as any,
-                    genderIdentity: 'woman',
-                    birthDate: '1990-01-01',
-                    createdAt: new Date().toISOString(),
-                    updatedAt: null,
-                    state: true,
-                    onboardingCompleted: false
-                };
-                
-                this.setSession(true);
-                localStorage.setItem(this.userKey, JSON.stringify(simulatedUser));
-                return simulatedUser;
-            }
-            
-            if (!response.user) {
-                throw new Error('Respuesta del servidor inválida: faltan datos de usuario');
-            }
-
-            this.setSession(true);
-            localStorage.setItem(this.userKey, JSON.stringify(response.user));
-            return response.user;
-
-        } catch (error: unknown) {
-            console.error('❌ Error en la petición de login:', error);
-            
-            // Si hay un error 500, sugerir usar el modo de desarrollo
-            const errorMessage = error instanceof Error ? error.message : 'Error desconocido';
-            if (errorMessage.includes('500') || errorMessage.includes('interno del servidor')) {
-                console.warn('⚠️ Detectado error 500. Recomendación: Cambiar forceDevelopmentMode a true');
-            }
-            
-            if (error instanceof Error) {
-                throw new Error(error.message);
-            }
-            
-            throw new Error('Credenciales incorrectas');
+        if (!response.user) {
+          throw new Error('Respuesta del servidor inválida: faltan datos de usuario');
         }
+
+        this.setSession(true);
+        localStorage.setItem(this.userKey, JSON.stringify(response.user));
+        return response.user;
+      }
     } catch (error: unknown) {
-        console.error('❌ Error en el proceso de login:', error);
-        this.setSession(false);
-        
-        if (error instanceof Error) {
-            throw new Error(error.message);
-        }
-        
-        throw new Error('Error durante el inicio de sesión');
+      console.error('Error en el proceso de login:', error);
+      this.setSession(false);
+      
+      if (error instanceof Error) {
+        throw new Error(error.message);
+      }
+      
+      throw new Error('Error durante el inicio de sesión');
     }
   }
 
@@ -366,24 +321,45 @@ class AuthService {
   }
 
   /**
-   * Actualiza el perfil del usuario
+   * Actualiza el perfil del usuario tanto en el backend como localmente
    */
   async updateProfile(profileData: Partial<User>): Promise<User> {
     this.ensureInitialized();
     
     try {
-      // En un entorno de producción, esto debería enviar los datos al backend
-      // Aquí simulamos una respuesta exitosa
+      // Obtener el usuario actual de localStorage
       const cachedUser = localStorage.getItem(this.userKey);
       if (!cachedUser) {
         throw new Error('No se encontró información de usuario');
       }
       
       const currentUser = JSON.parse(cachedUser) as User;
-      const updatedUser = { ...currentUser, ...profileData };
       
-      localStorage.setItem(this.userKey, JSON.stringify(updatedUser));
-      return updatedUser;
+      // En entorno de desarrollo o producción
+      if (this.isDevMode()) {
+        // En desarrollo: Simular actualización local
+        console.log('Desarrollo: Actualizando perfil localmente', profileData);
+        const updatedUser = { ...currentUser, ...profileData };
+        localStorage.setItem(this.userKey, JSON.stringify(updatedUser));
+        return updatedUser;
+      } else {
+        // En producción: Enviar al backend y actualizar localmente
+        console.log('Producción: Enviando actualización al servidor', profileData);
+        try {
+          const response = await apiFetch<User>(API_ROUTES.AUTH.PROFILE, {
+            method: 'PUT',
+            body: profileData
+          });
+          
+          // Si la respuesta es exitosa, actualizar localmente
+          const updatedUser = { ...currentUser, ...response };
+          localStorage.setItem(this.userKey, JSON.stringify(updatedUser));
+          return updatedUser;
+        } catch (error) {
+          console.error('Error al actualizar perfil en servidor:', error);
+          throw error;
+        }
+      }
     } catch (error) {
       console.error('Error al actualizar perfil:', error);
       throw error;

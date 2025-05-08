@@ -23,19 +23,25 @@ const LoginPage = () => {
     try {
       setIsLoading(true);
       setError("");
+      console.log('Iniciando login en LoginPage...');
+      
+      // Intentar iniciar sesión
       const user = await login({ email, password });
       if (!user) {
         setError("Credenciales incorrectas");
         return;
       }
       
-      // Redirigir al onboarding o al dashboard según el estado
-      if (user.onboardingCompleted) {
-        navigate(ROUTES.DASHBOARD);
-      } else {
-        navigate(ROUTES.ONBOARDING);
-      }
+      // Registrar estado del onboarding
+      console.log('Login exitoso. Estado onboarding:', {
+        completed: user.onboardingCompleted,
+        redirigiendo: 'a onboarding'
+      });
+      
+      // Siempre redirigir al onboarding primero, siguiendo el flujo del diagrama
+      navigate(ROUTES.ONBOARDING);
     } catch (error: any) {
+      console.error('Error en login:', error);
       setError(error.message || "Error al iniciar sesión");
     } finally {
       setIsLoading(false);
