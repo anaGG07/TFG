@@ -1,28 +1,4 @@
-    public function getAiQueries(): Collection
-    {
-        return $this->aiQueries;
-    }
-
-    public function addAiQuery(AIQuery $aiQuery): static
-    {
-        if (!$this->aiQueries->contains($aiQuery)) {
-            $this->aiQueries->add($aiQuery);
-            $aiQuery->setUser($this);
-        }
-
-        return $this;
-    }
-
-    public function removeAiQuery(AIQuery $aiQuery): static
-    {
-        if ($this->aiQueries->removeElement($aiQuery)) {
-            if ($aiQuery->getUser() === $this) {
-                $aiQuery->setUser(null);
-            }
-        }
-
-        return $this;
-    }<?php
+<?php
 
 namespace App\Entity;
 
