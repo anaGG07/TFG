@@ -17,8 +17,8 @@ final class Version20250508000001 extends AbstractMigration
     public function up(Schema $schema): void
     {
         // Añadir el campo onboardingCompleted a la tabla user
-        $this->addSql('ALTER TABLE user ADD onboarding_completed TINYINT(1) NOT NULL DEFAULT 0');
-        
+        $this->addSql('ALTER TABLE "user" ADD onboarding_completed BOOLEAN NOT NULL');
+
         // Actualizar cualquier usuario existente como no completado
         $this->addSql('UPDATE user SET onboarding_completed = 0');
     }
