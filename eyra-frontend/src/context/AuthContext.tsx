@@ -202,6 +202,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     setIsLoading(true);
     try {
       await authService.logout();
+      localStorage.removeItem("eyra_user");
       setUser(null);
       setIsAuthenticated(false);
       setCycles([]);
@@ -211,6 +212,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       setPatterns([]);
     } catch (error) {
       console.error("Error durante logout:", error);
+      localStorage.removeItem("eyra_user");
       setUser(null);
       setIsAuthenticated(false);
     } finally {
