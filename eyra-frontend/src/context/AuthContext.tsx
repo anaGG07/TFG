@@ -153,13 +153,18 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   };
 
   useEffect(() => {
-    const publicPaths = ["/", "/login", "/register", "/onboarding"];
+    
 
     const initApp = async () => {
       if (initializedRef.current || isAuthenticated) return;
       initializedRef.current = true;
 
-      if (!location || publicPaths.includes(location.pathname)) return;
+      const publicPaths = ["/", "/login", "/register", "/onboarding"];
+
+      if (!location || publicPaths.includes(location.pathname)) {
+        setIsLoading(false); // ✅ <- añade esto para liberar el loading
+        return;
+      }
 
       await new Promise((resolve) => setTimeout(resolve, 150));
       await loadDashboardSafely();
@@ -168,6 +173,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         window.dispatchEvent(window.appReadyEvent);
       }
     };
+
 
     setTimeout(initApp, 0);
   }, [location?.pathname, isAuthenticated]);
