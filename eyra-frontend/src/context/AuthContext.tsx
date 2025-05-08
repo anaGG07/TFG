@@ -6,18 +6,16 @@ import {
   ReactNode,
   useRef,
 } from "react";
+import { useLocation } from "react-router-dom";
 import { User } from "../types/domain";
 import { authService } from "../services/authService";
 import { LoginRequest, RegisterRequest } from "../types/api";
-import { useLocation } from "react-router-dom";
 import { Cycle } from "../services/cycleService";
-
 import {
   CycleSummary,
   Prediction,
   SymptomPattern,
 } from "../services/insightService";
-
 import { apiFetchParallel } from "../utils/httpClient";
 
 interface AuthContextType {
@@ -73,8 +71,16 @@ const defaultContextValue: AuthContextType = {
 };
 
 const AuthContext = createContext<AuthContextType>(defaultContextValue);
-
 export const useAuth = () => useContext(AuthContext);
+
+// ✅ Safe useLocation to prevent errors outside <Router>
+const useSafeLocation = () => {
+  try {
+    return useLocation();
+  } catch {
+    return null;
+  }
+};
 
 interface AuthProviderProps {
   children: ReactNode;
@@ -89,13 +95,16 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     DEFAULT_CURRENT_CYCLE
   );
   const [summary, setSummary] = useState<CycleSummary>(DEFAULT_SUMMARY);
-  const [predictions, setPredictions] =
-    useState<Prediction>(DEFAULT_PREDICTIONS);
+  const [predictions, setPredictions] = useState<Prediction>(
+    DEFAULT_PREDICTIONS
+  );
   const [patterns, setPatterns] = useState<SymptomPattern[]>(DEFAULT_PATTERNS);
+
+  const location = useSafeLocation();
+  const initializedRef = useRef(false);
 
   const loadDashboardSafely = async () => {
     try {
-      // Obtener el perfil de usuario desde el backend directamente
       const userData = await authService
         .getProfile({ skipRedirectCheck: true })
         .catch((err) => {
@@ -107,7 +116,6 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         setUser(userData);
         setIsAuthenticated(true);
 
-        // Cargar el resto de datos del dashboard
         const [
           cyclesData,
           currentCycleData,
@@ -129,7 +137,6 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         if (predictionsData) setPredictions(predictionsData);
         if (patternsData) setPatterns(patternsData);
       } else {
-        // Usuario no autenticado o error al obtener el perfil
         setIsAuthenticated(false);
         setUser(null);
       }
@@ -145,10 +152,6 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     }
   };
 
-  const initializedRef = useRef(false);
-
-  const location = useLocation();
-
   useEffect(() => {
     const publicPaths = ["/", "/login", "/register", "/onboarding"];
 
@@ -156,7 +159,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       if (initializedRef.current || isAuthenticated) return;
       initializedRef.current = true;
 
-      if (publicPaths.includes(location.pathname)) return;
+      if (!location || publicPaths.includes(location.pathname)) return;
 
       await new Promise((resolve) => setTimeout(resolve, 150));
       await loadDashboardSafely();
@@ -167,7 +170,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     };
 
     setTimeout(initApp, 0);
-  }, [location.pathname, isAuthenticated]);
+  }, [location?.pathname, isAuthenticated]);
 
   const login = async (credentials: LoginRequest) => {
     setIsLoading(true);
@@ -177,8 +180,6 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
       setUser(loggedInUser);
       setIsAuthenticated(true);
-
-
       return loggedInUser;
     } catch (error) {
       console.error("Error durante login:", error);
@@ -205,10 +206,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const logout = async () => {
     setIsLoading(true);
     try {
-      // La llamada al backend eliminará las cookies HTTP-only
       await authService.logout();
-
-      // Actualizar el estado localmente después del logout exitoso
       setUser(null);
       setIsAuthenticated(false);
       setCycles([]);
@@ -218,7 +216,6 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       setPatterns([]);
     } catch (error) {
       console.error("Error durante logout:", error);
-      // Aún limpiamos el estado local en caso de error
       setUser(null);
       setIsAuthenticated(false);
     } finally {
