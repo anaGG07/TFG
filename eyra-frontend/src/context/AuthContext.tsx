@@ -10,9 +10,7 @@ import { User } from "../types/domain";
 import { authService } from "../services/authService";
 import { LoginRequest, RegisterRequest } from "../types/api";
 
-import {
-  Cycle,
-} from "../services/cycleService";
+import { Cycle } from "../services/cycleService";
 
 import {
   CycleSummary,
@@ -98,15 +96,17 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const loadDashboardSafely = async () => {
     try {
       // Obtener el perfil de usuario desde el backend directamente
-      const userData = await authService.getProfile({ skipRedirectCheck: true }).catch((err) => {
-        console.warn("Error al obtener perfil:", err);
-        return null;
-      });
-      
+      const userData = await authService
+        .getProfile({ skipRedirectCheck: true })
+        .catch((err) => {
+          console.warn("Error al obtener perfil:", err);
+          return null;
+        });
+
       if (userData) {
         setUser(userData);
         setIsAuthenticated(true);
-        
+
         // Cargar el resto de datos del dashboard
         const [
           cyclesData,
@@ -163,8 +163,6 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     setTimeout(initApp, 0);
   }, [isAuthenticated]);
 
-
-
   const login = async (credentials: LoginRequest) => {
     setIsLoading(true);
     try {
@@ -174,10 +172,6 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       setUser(loggedInUser);
       setIsAuthenticated(true);
 
-      // 🔧 Delay antes de llamar a /api/profile para permitir al navegador activar las cookies
-      await new Promise((resolve) => setTimeout(resolve, 150));
-
-      await loadDashboardSafely();
 
       return loggedInUser;
     } catch (error) {
@@ -189,7 +183,6 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       setIsLoading(false);
     }
   };
-
 
   const register = async (userData: RegisterRequest) => {
     setIsLoading(true);
@@ -208,7 +201,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     try {
       // La llamada al backend eliminará las cookies HTTP-only
       await authService.logout();
-      
+
       // Actualizar el estado localmente después del logout exitoso
       setUser(null);
       setIsAuthenticated(false);
