@@ -37,7 +37,7 @@ final class Version20250509000001 extends AbstractMigration
             receive_workout_suggestions BOOLEAN NOT NULL,
             receive_nutrition_advice BOOLEAN NOT NULL,
             share_cycle_with_partner BOOLEAN NOT NULL,
-            want_ai_companion BOOLEAN NOT NULL
+            want_ai_companion BOOLEAN NOT NULL,
             health_concerns JSONB NOT NULL,
             access_code VARCHAR(20) DEFAULT NULL,
             allow_parental_monitoring BOOLEAN NOT NULL,
