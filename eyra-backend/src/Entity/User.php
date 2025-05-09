@@ -19,7 +19,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 use App\Entity\GuestAccess;
 use App\Entity\AIQuery;
-
+use App\Entity\Onboarding;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ORM\Table(name: '`user`')]
@@ -160,6 +160,37 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      */
     #[ORM\OneToMany(mappedBy: 'guest', targetEntity: GuestAccess::class)]
     private Collection $guestAccesses;
+
+    /**
+     * @var Onboarding|null
+     */
+    #[ORM\OneToOne(mappedBy: 'user', targetEntity: Onboarding::class, cascade: ['persist', 'remove'])]
+    #[Groups(['user:read'])]
+    private ?Onboarding $onboarding = null;
+
+    // Y añadir estos métodos getter/setter:
+
+    public function getOnboarding(): ?Onboarding
+    {
+        return $this->onboarding;
+    }
+
+    public function setOnboarding(?Onboarding $onboarding): static
+    {
+        // Establecer el lado propietario de la relación (bidireccional)
+        if ($onboarding === null && $this->onboarding !== null) {
+            $this->onboarding->setUser(null);
+        }
+
+        // Establecer el nuevo Onboarding y actualizar su lado de la relación
+        if ($onboarding !== null && $onboarding->getUser() !== $this) {
+            $onboarding->setUser($this);
+        }
+
+        $this->onboarding = $onboarding;
+
+        return $this;
+    }
 
     public function __construct()
     {
