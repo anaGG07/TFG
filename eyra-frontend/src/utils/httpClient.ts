@@ -1,35 +1,4 @@
-    // Manejo especial para peticiones de onboarding que reciben 401
-    const isOnboardingRequest = url.includes('/onboarding') && options.method === 'POST';
-    
-    if (isOnboardingRequest && response.status === 401) {
-      console.warn('Petición de onboarding devuelve 401 - Manejo especial para evitar ciclos');
-      
-      // Clonar la respuesta para leerla múltiples veces
-      const responseClone = response.clone();
-      
-      try {
-        // Intentar leer mensaje de error
-        const errorData = await response.json();
-        console.log('Respuesta de error en onboarding:', errorData);
-        
-        if (errorData && errorData.retryAfterLogin) {
-          console.log('Servidor sugiere reiniciar sesión antes de continuar');
-          
-          // Limpiar cookies actuales (podrían estar desincronizadas)
-          document.cookie = 'jwt_token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
-          document.cookie = 'refresh_token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
-          
-          throw new Error('Sesión expirada. Vuelve a iniciar sesión para continuar con el onboarding.');
-        }
-        
-        throw new Error(errorData.message || 'No autorizado para completar onboarding');
-      } catch (jsonError) {
-        if (jsonError instanceof Error) throw jsonError;
-        
-        // Si falla el parsing, devolver error genérico
-        throw new Error('Error de conexión: Sesión expirada o inválida.');
-      }
-    }import { API_URL } from '../config/setupApiUrl';
+import { API_URL } from '../config/setupApiUrl';
 
 // Módulo de eventos para evitar dependencia circular
 export const authEvents = {
@@ -65,6 +34,32 @@ interface RequestOptions extends RequestInit {
 console.log('httpClient inicializado, API_URL base:', API_URL);
 
 /**
+ * Función para manejar errores en peticiones de onboarding
+ * Separado para evitar el uso de await a nivel de top-level
+ */
+const handleOnboardingError = async (response: Response): Promise<string> => {
+  try {
+    const errorData = await response.json();
+    console.log('Respuesta de error en onboarding:', errorData);
+    
+    if (errorData && errorData.retryAfterLogin) {
+      console.log('Servidor sugiere reiniciar sesión antes de continuar');
+      
+      // Limpiar cookies actuales (podrían estar desincronizadas)
+      document.cookie = 'jwt_token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+      document.cookie = 'refresh_token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+      
+      return 'Sesión expirada. Vuelve a iniciar sesión para continuar con el onboarding.';
+    }
+    
+    return errorData.message || 'No autorizado para completar onboarding';
+  } catch (parseError) {
+    console.error('Error al parsear respuesta JSON del onboarding:', parseError);
+    return 'Error de conexión: Sesión expirada o inválida.';
+  }
+};
+
+/**
  * Función mejorada para realizar peticiones a la API
  * con mejor manejo de respuestas y errores
  */
@@ -95,6 +90,8 @@ export async function apiFetch<T>(path: string, options: RequestOptions = {}): P
 
   // Detectar si es una petición de login para manejo especial
   const isLoginRequest = url.includes('/login') && options.method === 'POST';
+  // Detectar si es una petición de onboarding para manejo especial
+  const isOnboardingRequest = url.includes('/onboarding') && options.method === 'POST';
   
   try {
     console.log(`📡 Fetching: ${url}`);
@@ -192,6 +189,15 @@ export async function apiFetch<T>(path: string, options: RequestOptions = {}): P
           throw new Error(`Error ${response.status}: ${response.statusText}`);
         }
       }
+    }
+    
+    // Manejo especial para peticiones de onboarding que reciben 401
+    if (isOnboardingRequest && response.status === 401) {
+      console.warn('🔒 Petición de onboarding devuelve 401 - Manejo especial para evitar ciclos');
+      
+      // Usar función asíncrona separada para manejar el error
+      const errorMessage = await handleOnboardingError(response);
+      throw new Error(errorMessage);
     }
     
     // Manejo de respuestas para peticiones normales (no login)
@@ -292,4 +298,3 @@ export async function apiFetchParallel<T extends any[]>(
     result.status === 'fulfilled' ? result.value : requests[i].defaultValue
   ) as T;
 }
-
