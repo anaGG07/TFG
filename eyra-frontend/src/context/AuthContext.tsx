@@ -5,6 +5,7 @@ import {
   useEffect,
   ReactNode,
   useRef,
+  useCallback,
 } from "react";
 import { useLocation } from "react-router-dom";
 import { User } from "../types/domain";
@@ -17,6 +18,8 @@ import {
   SymptomPattern,
 } from "../services/insightService";
 import { apiFetchParallel } from "../utils/httpClient";
+import tokenService from "../services/tokenService";
+import cookieService from "../services/cookieService";
 
 interface AuthContextType {
   user: User | null;
@@ -32,6 +35,9 @@ interface AuthContextType {
   summary: CycleSummary | null;
   predictions: Prediction | null;
   patterns: SymptomPattern[];
+  checkAuth: () => Promise<boolean>;
+  refreshSession: () => Promise<boolean>;
+  hasAuthCookie: () => boolean;
 }
 
 const DEFAULT_CYCLES: Cycle[] = [];
@@ -68,6 +74,9 @@ const defaultContextValue: AuthContextType = {
   summary: DEFAULT_SUMMARY,
   predictions: DEFAULT_PREDICTIONS,
   patterns: DEFAULT_PATTERNS,
+  checkAuth: () => Promise.reject(new Error("AuthContext no inicializado")),
+  refreshSession: () => Promise.reject(new Error("AuthContext no inicializado")),
+  hasAuthCookie: () => false
 };
 
 const AuthContext = createContext<AuthContextType>(defaultContextValue);
@@ -102,6 +111,25 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
   const location = useSafeLocation();
   const initializedRef = useRef(false);
+  const tokenRefresherRef = useRef<(() => void) | null>(null);
+
+  // Inicializar el sistema de renovación automática de tokens
+  useEffect(() => {
+    console.log('Configurando sistema de renovación automática de tokens...');
+    
+    // Solo configurar si no existe ya
+    if (!tokenRefresherRef.current) {
+      tokenRefresherRef.current = tokenService.setupTokenRefresher();
+    }
+    
+    // Limpiar al desmontar
+    return () => {
+      if (tokenRefresherRef.current) {
+        tokenRefresherRef.current();
+        tokenRefresherRef.current = null;
+      }
+    };
+  }, []);
 
   const loadDashboardSafely = async () => {
     try {
@@ -136,14 +164,18 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         if (summaryData) setSummary(summaryData);
         if (predictionsData) setPredictions(predictionsData);
         if (patternsData) setPatterns(patternsData);
+        
+        return true;
       } else {
         setIsAuthenticated(false);
         setUser(null);
+        return false;
       }
     } catch (error) {
       console.error("Error al cargar dashboard:", error);
       setIsAuthenticated(false);
       setUser(null);
+      return false;
     } finally {
       setIsLoading(false);
       if (typeof window !== "undefined" && window.appReadyEvent) {
@@ -152,9 +184,80 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     }
   };
 
-  useEffect(() => {
+  // Verificar autenticación actual
+  const checkAuth = useCallback(async (): Promise<boolean> => {
+    console.log('Verificando estado de autenticación...');
     
+    try {
+      // Si ya estamos autenticados y tenemos usuario, no es necesario volver a verificar
+      if (isAuthenticated && user) {
+        console.log('Ya estamos autenticados con usuario:', user);
+        return true;
+      }
+      
+      // Verificar si hay cookies de autenticación
+      const { hasJwt, hasRefresh } = cookieService.getAuthCookiesStatus();
+      console.log('Estado de cookies:', { hasJwt, hasRefresh });
+      
+      // Si no hay cookies, no hay autenticación
+      if (!hasJwt) {
+        console.log('No hay cookies JWT, no estamos autenticados');
+        setIsAuthenticated(false);
+        setUser(null);
+        return false;
+      }
+      
+      // Intentar cargar el perfil
+      setIsLoading(true);
+      const result = await loadDashboardSafely();
+      console.log('Resultado de verificación de autenticación:', result);
+      return result;
+    } catch (error) {
+      console.error('Error al verificar autenticación:', error);
+      setIsAuthenticated(false);
+      setUser(null);
+      return false;
+    } finally {
+      setIsLoading(false);
+    }
+  }, [isAuthenticated, user]);
 
+  // Método para renovar la sesión si es necesario
+  const refreshSession = useCallback(async (): Promise<boolean> => {
+    console.log('Intentando renovar sesión...');
+    
+    try {
+      // Verificar si hay cookies que renovar
+      if (!cookieService.hasValidAuthCookie()) {
+        console.log('No hay cookies para renovar');
+        return false;
+      }
+      
+      // Intentar renovar el token
+      setIsLoading(true);
+      const refreshed = await tokenService.checkAndRefreshToken();
+      
+      if (refreshed) {
+        console.log('Token renovado, recargando perfil');
+        return await loadDashboardSafely();
+      } else {
+        console.log('No fue necesario renovar el token o no se pudo');
+        return await checkAuth();
+      }
+    } catch (error) {
+      console.error('Error al renovar sesión:', error);
+      return false;
+    } finally {
+      setIsLoading(false);
+    }
+  }, [checkAuth]);
+
+  // Verificar si hay cookie de autenticación
+  const hasAuthCookie = useCallback((): boolean => {
+    return cookieService.hasValidAuthCookie();
+  }, []);
+
+  useEffect(() => {
     const initApp = async () => {
       if (initializedRef.current || isAuthenticated) return;
       initializedRef.current = true;
@@ -162,7 +265,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       const publicPaths = ["/", "/login", "/register", "/onboarding"];
 
       if (!location || publicPaths.includes(location.pathname)) {
-        setIsLoading(false); // ✅ <- añade esto para liberar el loading
+        setIsLoading(false);
         return;
       }
 
@@ -173,7 +276,6 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         window.dispatchEvent(window.appReadyEvent);
       }
     };
-
 
     setTimeout(initApp, 0);
   }, [location?.pathname, isAuthenticated]);
@@ -239,13 +341,36 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const completeOnboarding = async (onboardingData: any) => {
     if (user) {
       try {
+        console.log('Enviando datos de onboarding:', {
+          ...onboardingData,
+          onboardingCompleted: true
+        });
+        
         const updatedUser = await authService.completeOnboarding({
           ...onboardingData,
           onboardingCompleted: true,
         });
 
-        setUser(updatedUser);
-        return updatedUser;
+        // Verificar que el usuario se actualizó correctamente y establecer el estado
+        if (updatedUser) {
+          console.log('Usuario actualizado después del onboarding:', updatedUser);
+          setUser(updatedUser);
+          setIsAuthenticated(true); // Asegurar que el estado de autenticación se mantenga
+          
+          // Carga adicional de datos del dashboard para garantizar una transición fluida
+          try {
+            // Intentar cargar los datos del dashboard en segundo plano
+            await loadDashboardSafely();
+          } catch (dashboardError) {
+            console.warn('Error al precargar datos del dashboard:', dashboardError);
+            // Continuar con el flujo normal aunque falle la precarga
+          }
+          
+          return updatedUser;
+        } else {
+          console.error('Onboarding completado pero no se recibió usuario actualizado');
+          throw new Error('Error al actualizar el perfil de usuario');
+        }
       } catch (error) {
         console.error("Error al completar onboarding:", error);
         throw error;
@@ -269,6 +394,9 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     summary,
     predictions,
     patterns,
+    checkAuth,
+    refreshSession,
+    hasAuthCookie
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

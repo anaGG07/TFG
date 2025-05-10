@@ -17,7 +17,8 @@ export const API_ROUTES = {
     LOGIN: createApiUrl('/login_check'),
     LOGOUT: createApiUrl('/logout'),
     PROFILE: createApiUrl('/profile'), // Endpoint para gestionar perfil
-    ONBOARDING: createApiUrl('/onboarding') // Endpoint específico para onboarding
+    ONBOARDING: createApiUrl('/onboarding'), // Endpoint específico para onboarding
+    REFRESH_TOKEN: createApiUrl('/refresh-token') // Endpoint para renovar token JWT
   },
 
   USER: {

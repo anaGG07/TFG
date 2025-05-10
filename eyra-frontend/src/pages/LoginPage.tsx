@@ -1,16 +1,62 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { ROUTES } from "../router/paths";
+import { authService } from "../services/authService";
 
 const LoginPage = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [checkingSession, setCheckingSession] = useState(true);
 
-  const { login } = useAuth();
+  const { login, user, isAuthenticated } = useAuth();
   const navigate = useNavigate();
+  
+  // Verificar si el usuario ya tiene una sesión válida al cargar la página
+  useEffect(() => {
+    const checkExistingSession = async () => {
+      console.log('LoginPage - Verificando si hay una sesión existente...');
+      // Si ya tenemos un usuario en el contexto, usarlo directamente
+      if (user && isAuthenticated) {
+        console.log('LoginPage - Usuario ya autenticado en el contexto:', user);
+        if (user.onboardingCompleted) {
+          navigate(ROUTES.DASHBOARD, { replace: true });
+        } else {
+          navigate(ROUTES.ONBOARDING, { replace: true });
+        }
+        return;
+      }
+      
+      // Si hay cookies, intentar obtener el perfil
+      try {
+        if (document.cookie.includes('jwt_token')) {
+          console.log('LoginPage - Cookie jwt_token encontrada, verificando perfil...');
+          const userData = await authService.getProfile({ skipRedirectCheck: true });
+          
+          if (userData) {
+            console.log('LoginPage - Sesión activa detectada:', userData);
+            // Redirigir según el estado del onboarding
+            if (userData.onboardingCompleted) {
+              navigate(ROUTES.DASHBOARD, { replace: true });
+            } else {
+              navigate(ROUTES.ONBOARDING, { replace: true });
+            }
+          }
+        } else {
+          console.log('LoginPage - No se encontró cookie jwt_token');
+        }
+      } catch (error) {
+        console.warn('LoginPage - Error al verificar sesión existente:', error);
+        // Si hay error, simplemente continuamos mostrando la página de login
+      } finally {
+        setCheckingSession(false);
+      }
+    };
+    
+    checkExistingSession();
+  }, [user, isAuthenticated, navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -50,6 +96,14 @@ const LoginPage = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-[#e7e0d5] p-4">
+      {checkingSession && (
+        <div className="fixed inset-0 flex items-center justify-center bg-white bg-opacity-80 z-50">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#5b0108] mx-auto mb-4"></div>
+            <p className="text-[#5b0108]">Verificando sesión...</p>
+          </div>
+        </div>
+      )}
      
 
       <main className="bg-[#fefefe] rounded-xl border border-[#5b010820] shadow-md p-8 w-full max-w-md">

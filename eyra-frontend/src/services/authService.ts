@@ -379,15 +379,43 @@ class AuthService {
         API_ROUTES.AUTH.ONBOARDING
       );
 
-      const response: { user: User } = await apiFetch<{ user: User }>(
+      // Verificación previa de cookies
+      console.log('Estado de cookies antes de enviar onboarding:', {
+        jwt_token_exists: document.cookie.includes('jwt_token'),
+        refresh_token_exists: document.cookie.includes('refresh_token')
+      });
+
+      const response = await apiFetch<{message: string, user: User, onboarding: any}>(
         API_ROUTES.AUTH.ONBOARDING,
         {
           method: "POST",
           body: completeData,
+          skipRedirectCheck: true, // Evitar redirecciones automáticas por problemas de autenticación
         }
       );
 
-      console.log("Respuesta del servidor:", response);
+      console.log("Respuesta completa del servidor:", response);
+
+      if (!response || !response.user) {
+        console.error('Respuesta inválida del servidor:', response);
+        throw new Error('No se pudo completar el onboarding: respuesta inválida del servidor');
+      }
+
+      // Verificación posterior de cookies
+      console.log('Estado de cookies después de onboarding:', {
+        jwt_token_exists: document.cookie.includes('jwt_token'),
+        refresh_token_exists: document.cookie.includes('refresh_token')
+      });
+
+      // Verificar que el perfil está disponible inmediatamente después
+      try {
+        console.log('Verificando disponibilidad del perfil después del onboarding...');
+        const profileCheck = await this.getProfile({ skipRedirectCheck: true });
+        console.log('Verificación de perfil exitosa:', profileCheck);
+      } catch (profileError) {
+        console.warn('Error al verificar perfil después de onboarding:', profileError);
+        // Continuar aunque falle la verificación
+      }
 
       // Devolver el usuario actualizado desde la respuesta
       return response.user;

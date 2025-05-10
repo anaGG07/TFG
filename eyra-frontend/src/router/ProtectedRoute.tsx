@@ -3,6 +3,7 @@ import { Navigate, useLocation } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import LoadingSpinner from "../components/LoadingSpinner";
 import { ROUTES } from "./paths";
+import cookieService from "../services/cookieService";
 
 interface ProtectedRouteProps {
   children: ReactNode;
@@ -19,6 +20,7 @@ const ProtectedRoute = ({ children, requireOnboarding = true }: ProtectedRoutePr
       ruta: location.pathname,
       autenticado: isAuthenticated,
       cargando: isLoading,
+      cookieStatus: cookieService.getAuthCookiesStatus(),
       usuario: user ? `${user.email} (onboarding: ${user.onboardingCompleted})` : 'no disponible',
       requireOnboarding,
     });
@@ -32,7 +34,18 @@ const ProtectedRoute = ({ children, requireOnboarding = true }: ProtectedRoutePr
   
   // Si no está autenticado, redirigir al login
   if (!isAuthenticated) {
-    console.log('ProtectedRoute: No autenticado, redirigiendo a login');
+    console.log('ProtectedRoute: No autenticado, verificando cookies...');
+    
+    // Verificar si existe cookie de JWT (para recuperar sesión perdida)
+    const { hasJwt, isAuthenticated: hasCookieAuth } = cookieService.getAuthCookiesStatus();
+    
+    if (hasCookieAuth) {
+      console.log('ProtectedRoute: Se encontró cookie JWT válida a pesar de estado no autenticado');
+      // Mostrar spinner mientras intentamos recuperar la sesión
+      return <LoadingSpinner text="Recuperando sesión..." />;
+    }
+    
+    console.log('ProtectedRoute: No hay cookies de autenticación, redirigiendo a login');
     // Evitar ciclo de redirecciones si estamos intentando acceder a una ruta
     // que requiere autenticación inmediatamente después de un cierre de sesión
     if (location.state && location.state.justLoggedOut) {

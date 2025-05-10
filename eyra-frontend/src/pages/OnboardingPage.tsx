@@ -158,14 +158,24 @@ const OnboardingPage: React.FC = () => {
       const finalData = step === 5 ? { ...data, completed: true } : data;
       
       // Enviar datos al backend a través del servicio de autenticación
-      await completeOnboarding(finalData);
+      const updatedUser = await completeOnboarding(finalData);
+      console.log('Onboarding completado, usuario actualizado:', updatedUser);
       
       if (step < 5) {
         // Si no es el último paso, avanzamos al siguiente
         nextStep();
       } else {
-        // Si es el último paso, redirigimos al dashboard
-        navigate(ROUTES.DASHBOARD, { replace: true });
+        // Si es el último paso, verificamos que la autenticación se mantenga antes de redirigir
+        if (updatedUser && updatedUser.onboardingCompleted) {
+          console.log('Redirigiendo al dashboard con usuario autenticado:', updatedUser);
+          // Usar timeout para garantizar que el estado se actualice completamente
+          setTimeout(() => {
+            navigate(ROUTES.DASHBOARD, { replace: true });
+          }, 50);
+        } else {
+          console.warn('Usuario actualizado pero no marcado como onboarding completado');
+          setError('Tu perfil se guardó pero ocurrió un error al completar el proceso. Por favor, contacta a soporte.');
+        }
       }
     } catch (err) {
       console.error('Error al guardar datos de onboarding:', err);
