@@ -23,20 +23,31 @@ class OnboardingController extends AbstractController
         // Log para verificar la autenticación
         error_log('Onboarding: Estado de autenticación - Usuario: ' . ($user ? $user->getEmail() : 'no autenticado'));
         error_log('Onboarding: Cookies presentes: ' . json_encode($request->cookies->all()));
+        
+        // Verificar y mostrar todos los encabezados de la petición
+        error_log('Headers de la petición: ' . json_encode($request->headers->all()));
 
         if (!$user instanceof User) {
             // Intentar recuperar el usuario usando cualquier cookie JWT que exista
             $jwtCookie = $request->cookies->get('jwt_token');
             
             if ($jwtCookie) {
-                // Si tenemos la cookie pero no el usuario, hay un problema en la sesión
-                error_log('Onboarding: Cookie JWT existe pero usuario no disponible. Investigar SecurityContext');
-                return $this->json([
-                    'message' => 'No autenticado - Problema con la sesión de usuario',
-                    'retryAfterLogin' => true,
-                ], 401);
+                // Si tenemos la cookie JWT pero no el usuario, intentemos verificar el token
+                error_log('DEBUG: Cookie JWT presente: ' . substr($jwtCookie, 0, 20) . '...');
+                
+                try {
+                    // Devolver respuesta especial para el frontend indicando reintento
+                    return $this->json([
+                        'message' => 'La cookie JWT existe pero no se pudo autenticar. Reintentando...',
+                        'jwtExists' => true,
+                        'retryAuth' => true,
+                    ], 200);  // Devolvemos 200 en lugar de 401 para que el frontend pueda manejar esto
+                } catch (\Exception $e) {
+                    error_log('Error al verificar token JWT: ' . $e->getMessage());
+                }
             }
             
+            // Si llegamos aquí, no hay usuario autenticado o la recuperación falló
             return $this->json(['message' => 'No autenticado'], 401);
         }
 

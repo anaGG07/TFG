@@ -37,10 +37,21 @@ console.log('httpClient inicializado, API_URL base:', API_URL);
  * Función para manejar errores en peticiones de onboarding
  * Separado para evitar el uso de await a nivel de top-level
  */
-const handleOnboardingError = async (response: Response): Promise<string> => {
+const handleOnboardingError = async (response: Response): Promise<string | {needsReauth: boolean, message: string}> => {
   try {
     const errorData = await response.json();
     console.log('Respuesta de error en onboarding:', errorData);
+    
+    // Caso especial: el servidor detecta JWT pero no pudo autenticar
+    if (errorData && errorData.jwtExists && errorData.retryAuth) {
+      console.log('El servidor detectó la cookie JWT pero necesita reautenticación');
+      
+      // En este caso, no lanzamos error sino que devolvemos un objeto especial
+      return { 
+        needsReauth: true,
+        message: 'Necesita reautenticación'
+      };
+    }
     
     if (errorData && errorData.retryAfterLogin) {
       console.log('Servidor sugiere reiniciar sesión antes de continuar');
@@ -196,8 +207,16 @@ export async function apiFetch<T>(path: string, options: RequestOptions = {}): P
       console.warn('🔒 Petición de onboarding devuelve 401 - Manejo especial para evitar ciclos');
       
       // Usar función asíncrona separada para manejar el error
-      const errorMessage = await handleOnboardingError(response);
-      throw new Error(errorMessage);
+      const result = await handleOnboardingError(response);
+      
+      // Verificar si es un objeto con needsReauth
+      if (typeof result === 'object' && result.needsReauth) {
+        // Devolver un objeto especial para manejar la reautenticación
+        return { needsReauth: true, message: result.message } as any as T;
+      } else {
+        // Si es una cadena, lanzar error normal
+        throw new Error(result as string);
+      }
     }
     
     // Manejo de respuestas para peticiones normales (no login)

@@ -57,6 +57,39 @@ class AuthService {
   }
 
   /**
+   * Refresca el token JWT usando el refresh token
+   * @returns Respuesta del servidor
+   */
+  async refreshToken(): Promise<any> {
+    this.ensureInitialized();
+    
+    try {
+      // Verificar si hay refresh token
+      const hasRefreshToken = document.cookie.includes('refresh_token');
+      
+      if (!hasRefreshToken) {
+        console.warn('No hay refresh token para renovar');
+        return false;
+      }
+      
+      console.log('Intentando refrescar token JWT...');
+      
+      // Realizar solicitud al endpoint de refresh token
+      const response = await apiFetch(API_ROUTES.AUTH.REFRESH_TOKEN, {
+        method: 'POST',
+        skipRedirectCheck: true,
+        skipErrorHandling: true
+      });
+      
+      console.log('Respuesta al refrescar token:', response);
+      return response;
+    } catch (error) {
+      console.error('Error al refrescar token:', error);
+      return false;
+    }
+  }
+
+  /**
    * Verificar si un email ya existe - función mejorada
    */
   async checkEmailExists(email: string): Promise<boolean> {
@@ -285,7 +318,7 @@ class AuthService {
    * Obtiene el perfil del usuario actual desde el backend
    * @param options Opciones adicionales como skipRedirectCheck para evitar ciclos
    */
-  async getProfile(options: { skipRedirectCheck?: boolean } = {}): Promise<User> {
+  async getProfile(options: { skipRedirectCheck?: boolean, attemptRecovery?: boolean } = {}): Promise<User> {
     this.ensureInitialized();
 
     try {
@@ -298,6 +331,21 @@ class AuthService {
         return userData;
       } catch (apiError) {
         console.error("Error al obtener perfil desde API:", apiError);
+        
+        // Si se solicita explícitamente intentar recuperar la sesión
+        if (options.attemptRecovery) {
+          console.log('Intentando recuperar sesión mediante refresh token...');
+          const refreshed = await this.refreshToken();
+          
+          if (refreshed) {
+            console.log('Token renovado, reintentando obtener perfil...');
+            const userData = await apiFetch<User>(API_ROUTES.AUTH.PROFILE, {
+              method: "GET",
+              skipRedirectCheck: true,
+            });
+            return userData;
+          }
+        }
         
         // En modo desarrollo, podemos usar un usuario simulado si la API falla
         if (
@@ -385,22 +433,42 @@ class AuthService {
         refresh_token_exists: document.cookie.includes('refresh_token')
       });
       
-      // Si no hay cookies, intentar una verificación del estado de sesión
-      if (!document.cookie.includes('jwt_token')) {
-        console.warn('No se detectó cookie JWT antes de enviar onboarding. Posible problema de sesión.');
+      // Verificar siempre la existencia de la cookie JWT
+      const hasCookies = document.cookie.includes('jwt_token');
+      console.log('Estado de cookies antes de enviar onboarding:', {
+        hasCookies,
+        rawCookies: document.cookie,
+        documentLocation: window.location.href
+      });
+      
+      // Tratar de recuperar la sesión si no hay cookies
+      if (!hasCookies) {
+        console.warn('No se detectó cookie JWT antes de enviar onboarding. Intentando renovar sesión...');
         
-        // Intentar verificar el perfil primero para confirmar el estado de la sesión
+        // Intentar hacer un login silencioso para recuperar la sesión
         try {
+          // Intentamos primero una verificación silenciosa del perfil
           console.log('Verificando estado de sesión antes de enviar onboarding...');
-          const profileCheck = await this.getProfile({ skipRedirectCheck: true });
-          console.log('Verificación de perfil exitosa, continuando:', profileCheck);
-        } catch (profileError) {
-          console.error('Error al verificar perfil antes de onboarding:', profileError);
+          const profileCheck = await this.getProfile({ 
+            skipRedirectCheck: true,
+            attemptRecovery: true
+          });
+          
+          if (profileCheck) {
+            console.log('Recuperación de sesión exitosa, continuando:', profileCheck);
+          } else {
+            console.error('No se pudo recuperar la sesión');
+            throw new Error('Sesión expirada o inválida. Por favor, inicia sesión nuevamente.');
+          }
+        } catch (sessionError) {
+          console.error('Error al verificar perfil antes de onboarding:', sessionError);
           throw new Error('Sesión expirada o inválida. Por favor, inicia sesión nuevamente.');
         }
+      } else {
+        console.log('Cookie JWT detectada, continuando con onboarding');
       }
 
-      const response = await apiFetch<{message: string, user: User, onboarding: any}>(
+      const response = await apiFetch<{message: string, user: User, onboarding: any} | {needsReauth: boolean, message: string}>(
         API_ROUTES.AUTH.ONBOARDING,
         {
           method: "POST",
@@ -410,8 +478,45 @@ class AuthService {
       );
 
       console.log("Respuesta completa del servidor:", response);
-
-      if (!response || !response.user) {
+      
+      // Verificar si es una respuesta especial que indica reautenticación
+      if ('needsReauth' in response && response.needsReauth) {
+        console.log('Se requiere reautenticación. Intentando renovar sesión...');
+        
+        // Intentar refrescar tokens
+        try {
+          // Primero hacer una petición al endpoint de refresco de token
+          await this.refreshToken();
+          
+          // Volver a verificar el perfil
+          const profileCheck = await this.getProfile({ skipRedirectCheck: true });
+          console.log('Perfil verificado tras refresco:', profileCheck);
+          
+          // Reintentar la petición original
+          console.log('Reintentando petición de onboarding...');
+          const retryResponse = await apiFetch<{message: string, user: User, onboarding: any}>(
+            API_ROUTES.AUTH.ONBOARDING,
+            {
+              method: "POST",
+              body: completeData,
+              skipRedirectCheck: true,
+            }
+          );
+          
+          if (!retryResponse || !retryResponse.user) {
+            console.error('Respuesta inválida en reintento:', retryResponse);
+            throw new Error('No se pudo completar el onboarding tras recuperar la sesión.');
+          }
+          
+          return retryResponse.user;
+        } catch (refreshError) {
+          console.error('Error al refrescar la sesión:', refreshError);
+          throw new Error('No se pudo recuperar la sesión. Por favor, inicia sesión nuevamente.');
+        }
+      }
+      
+      // Procesar respuesta normal
+      if (!response || !('user' in response) || !response.user) {
         console.error('Respuesta inválida del servidor:', response);
         throw new Error('No se pudo completar el onboarding: respuesta inválida del servidor');
       }
