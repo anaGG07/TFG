@@ -98,7 +98,7 @@ class Onboarding
 
     #[ORM\Column]
     #[Groups(['onboarding:read', 'onboarding:write', 'user:read'])]
-    private bool $wantAICompanion = true;
+    private bool $wantAiCompanion = true;
 
     #[ORM\Column(type: Types::JSON)]
     #[Groups(['onboarding:read', 'onboarding:write', 'user:read'])]
@@ -349,14 +349,14 @@ class Onboarding
         return $this;
     }
 
-    public function isWantAICompanion(): bool
+    public function isWantAiCompanion(): bool
     {
-        return $this->wantAICompanion;
+        return $this->wantAiCompanion;
     }
 
-    public function setWantAICompanion(bool $wantAICompanion): static
+    public function setWantAiCompanion(bool $wantAiCompanion): static
     {
-        $this->wantAICompanion = $wantAICompanion;
+        $this->wantAiCompanion = $wantAiCompanion;
 
         return $this;
     }
