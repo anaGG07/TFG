@@ -4,6 +4,7 @@ import { ROUTES } from '../router/paths';
 import { useAuth } from '../context/AuthContext';
 import { useForm, SubmitHandler, Controller } from 'react-hook-form';
 import { ProfileType } from '../types/domain';
+import cookieService from '../services/cookieService';
 
 // Tipos de hormonas inferido de la entidad backend
 enum HormoneType {
@@ -52,7 +53,7 @@ interface OnboardingFormData {
 
 const OnboardingPage: React.FC = () => {
   const navigate = useNavigate();
-  const { user, completeOnboarding } = useAuth();
+  const { user, completeOnboarding, refreshSession } = useAuth();
   const [step, setStep] = useState(1);
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -154,6 +155,40 @@ const OnboardingPage: React.FC = () => {
     setError(null);
     
     try {
+      // Verificar el estado de las cookies antes de continuar
+      const cookieStatus = cookieService.getAuthCookiesStatus();
+      console.log('Estado de cookies antes de enviar onboarding:', cookieStatus);
+      
+      // Si no hay cookie JWT, intentar renovar la sesión primero
+      if (!cookieStatus.hasJwt) {
+        console.log('No se encontró cookie JWT. Intentando renovar sesión antes de continuar...');
+        
+        try {
+          const sessionRefreshed = await refreshSession();
+          
+          if (!sessionRefreshed) {
+            console.error('No se pudo renovar la sesión. Redirigiendo a login...');
+            setError('Tu sesión ha expirado. Por favor, inicia sesión nuevamente.');
+            
+            // Esperar un momento para mostrar el mensaje de error
+            setTimeout(() => {
+              navigate(ROUTES.LOGIN, { replace: true });
+            }, 2000);
+            return;
+          }
+          
+          console.log('Sesión renovada exitosamente, continuando con onboarding');
+        } catch (refreshError) {
+          console.error('Error al renovar sesión:', refreshError);
+          setError('Error al verificar tu sesión. Por favor, inicia sesión nuevamente.');
+          
+          setTimeout(() => {
+            navigate(ROUTES.LOGIN, { replace: true });
+          }, 2000);
+          return;
+        }
+      }
+    
       // Si estamos completando el último paso, marcamos como completado
       const finalData = step === 5 ? { ...data, completed: true } : data;
       

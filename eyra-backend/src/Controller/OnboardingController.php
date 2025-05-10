@@ -20,7 +20,23 @@ class OnboardingController extends AbstractController
         /** @var User|null $user */
         $user = $this->getUser();
 
+        // Log para verificar la autenticación
+        error_log('Onboarding: Estado de autenticación - Usuario: ' . ($user ? $user->getEmail() : 'no autenticado'));
+        error_log('Onboarding: Cookies presentes: ' . json_encode($request->cookies->all()));
+
         if (!$user instanceof User) {
+            // Intentar recuperar el usuario usando cualquier cookie JWT que exista
+            $jwtCookie = $request->cookies->get('jwt_token');
+            
+            if ($jwtCookie) {
+                // Si tenemos la cookie pero no el usuario, hay un problema en la sesión
+                error_log('Onboarding: Cookie JWT existe pero usuario no disponible. Investigar SecurityContext');
+                return $this->json([
+                    'message' => 'No autenticado - Problema con la sesión de usuario',
+                    'retryAfterLogin' => true,
+                ], 401);
+            }
+            
             return $this->json(['message' => 'No autenticado'], 401);
         }
 

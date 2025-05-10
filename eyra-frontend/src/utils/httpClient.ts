@@ -1,4 +1,35 @@
-import { API_URL } from '../config/setupApiUrl';
+    // Manejo especial para peticiones de onboarding que reciben 401
+    const isOnboardingRequest = url.includes('/onboarding') && options.method === 'POST';
+    
+    if (isOnboardingRequest && response.status === 401) {
+      console.warn('Petición de onboarding devuelve 401 - Manejo especial para evitar ciclos');
+      
+      // Clonar la respuesta para leerla múltiples veces
+      const responseClone = response.clone();
+      
+      try {
+        // Intentar leer mensaje de error
+        const errorData = await response.json();
+        console.log('Respuesta de error en onboarding:', errorData);
+        
+        if (errorData && errorData.retryAfterLogin) {
+          console.log('Servidor sugiere reiniciar sesión antes de continuar');
+          
+          // Limpiar cookies actuales (podrían estar desincronizadas)
+          document.cookie = 'jwt_token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+          document.cookie = 'refresh_token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+          
+          throw new Error('Sesión expirada. Vuelve a iniciar sesión para continuar con el onboarding.');
+        }
+        
+        throw new Error(errorData.message || 'No autorizado para completar onboarding');
+      } catch (jsonError) {
+        if (jsonError instanceof Error) throw jsonError;
+        
+        // Si falla el parsing, devolver error genérico
+        throw new Error('Error de conexión: Sesión expirada o inválida.');
+      }
+    }import { API_URL } from '../config/setupApiUrl';
 
 // Módulo de eventos para evitar dependencia circular
 export const authEvents = {

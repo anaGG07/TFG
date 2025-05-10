@@ -384,6 +384,21 @@ class AuthService {
         jwt_token_exists: document.cookie.includes('jwt_token'),
         refresh_token_exists: document.cookie.includes('refresh_token')
       });
+      
+      // Si no hay cookies, intentar una verificación del estado de sesión
+      if (!document.cookie.includes('jwt_token')) {
+        console.warn('No se detectó cookie JWT antes de enviar onboarding. Posible problema de sesión.');
+        
+        // Intentar verificar el perfil primero para confirmar el estado de la sesión
+        try {
+          console.log('Verificando estado de sesión antes de enviar onboarding...');
+          const profileCheck = await this.getProfile({ skipRedirectCheck: true });
+          console.log('Verificación de perfil exitosa, continuando:', profileCheck);
+        } catch (profileError) {
+          console.error('Error al verificar perfil antes de onboarding:', profileError);
+          throw new Error('Sesión expirada o inválida. Por favor, inicia sesión nuevamente.');
+        }
+      }
 
       const response = await apiFetch<{message: string, user: User, onboarding: any}>(
         API_ROUTES.AUTH.ONBOARDING,
