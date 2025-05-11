@@ -33,7 +33,7 @@ class TokenService
     /**
      * Generate a new refresh token for a user
      */
-    public function createRefreshToken(User $user, Request $request = null): RefreshToken
+    public function createRefreshToken(User $user, Request $request): RefreshToken
     {
         // Clean up old tokens first to prevent accumulation
         $this->cleanup($user);
@@ -66,7 +66,7 @@ class TokenService
      * @param Request|null $request Request actual para validación adicional (opcional)
      * @return User|null Usuario asociado si el token es válido, null en caso contrario
      */
-    public function validateRefreshToken(string $token, Request $request = null): ?User
+    public function validateRefreshToken(string $token, Request $request): ?User
     {
         $refreshToken = $this->refreshTokenRepository->findValidToken($token);
         
@@ -82,11 +82,11 @@ class TokenService
             
             // Verificación de User-Agent
             // Esto previene el uso de tokens robados en otros navegadores
-            if ($currentUserAgent !== $refreshToken->getUserAgent()) {
-                // Log para depurar sin exponer datos sensibles
-                error_log('Intento de uso de refresh token con User-Agent diferente');
-                return null;
-            }
+            // if ($currentUserAgent !== $refreshToken->getUserAgent()) {
+            //     // Log para depurar sin exponer datos sensibles
+            //     error_log('Intento de uso de refresh token con User-Agent diferente');
+            //     return null;
+            // }
             
             // Verificación de IP opcional, menos estricta ya que las IPs pueden cambiar legítimamente
             // Si la IP es completamente diferente (no solo en un segmento), es sospechosa
@@ -159,7 +159,7 @@ class TokenService
     /**
      * Cleanup - Remove expired tokens and limit number of active tokens per user
      */
-    public function cleanup(User $user = null): void
+    public function cleanup(User $user): void
     {
         // Remove expired tokens for all users
         $this->refreshTokenRepository->removeExpiredTokens();
