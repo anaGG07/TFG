@@ -40,26 +40,6 @@ class AuthService {
   }
 
   /**
-   * Verifica si el usuario está autenticado basado en la presencia de cookies
-   * Cookie comprobada implícitamente por la API al solicitar el perfil
-   */
-  isAuthenticated(): boolean {
-    // Ahora solo comprueba si hay cookies mediante una petición al backend
-    // La presencia de cookies es verificada por el backend automáticamente
-    try {
-      // Verificamos haciendo una consulta al endpoint de perfil
-      // Esta función no devuelve un resultado directo, solo señala si debemos
-      // considerar que el usuario está autenticado basado en si las cookies están presentes
-      return (
-        document.cookie.includes("jwt_token") ||
-        document.cookie.includes("refresh_token")
-      );
-    } catch (e) {
-      return false;
-    }
-  }
-
-  /**
    * Verificar si un email ya existe - función mejorada
    */
   async checkEmailExists(email: string): Promise<boolean> {
@@ -230,6 +210,7 @@ class AuthService {
     }
   }
 
+
   /**
    * Cierra la sesión del usuario
    */
@@ -237,19 +218,13 @@ class AuthService {
     this.ensureInitialized();
 
     try {
-      if (this.isAuthenticated()) {
-        try {
-          await apiFetch(API_ROUTES.AUTH.LOGOUT, {
-            method: "POST",
-          });
-        } catch (e) {
-          console.warn(
-            "Error al hacer logout en el servidor, continuando localmente"
-          );
-        }
-      }
-    } catch (error) {
-      console.error("Error durante el cierre de sesión:", error);
+      await apiFetch(API_ROUTES.AUTH.LOGOUT, {
+        method: "POST",
+      });
+    } catch (e) {
+      console.warn(
+        "Error al hacer logout en el servidor, continuando localmente"
+      );
     }
   }
 

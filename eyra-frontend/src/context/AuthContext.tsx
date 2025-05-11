@@ -19,7 +19,6 @@ import {
 } from "../services/insightService";
 import { apiFetchParallel } from "../utils/httpClient";
 import tokenService from "../services/tokenService";
-import cookieService from "../services/cookieService";
 
 interface AuthContextType {
   user: User | null;
@@ -186,34 +185,22 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
   // Verificar autenticación actual
   const checkAuth = useCallback(async (): Promise<boolean> => {
-    console.log('Verificando estado de autenticación...');
-    
+    console.log("🔍 Verificando estado de autenticación...");
+
     try {
-      // Si ya estamos autenticados y tenemos usuario, no es necesario volver a verificar
+      // Si ya estamos autenticados y tenemos usuario, no volvemos a verificar
       if (isAuthenticated && user) {
-        console.log('Ya estamos autenticados con usuario:', user);
+        console.log("Usuario ya autenticado en contexto:", user);
         return true;
       }
-      
-      // Verificar si hay cookies de autenticación
-      const { hasJwt, hasRefresh } = cookieService.getAuthCookiesStatus();
-      console.log('Estado de cookies:', { hasJwt, hasRefresh });
-      
-      // Si no hay cookies, no hay autenticación
-      if (!hasJwt) {
-        console.log('No hay cookies JWT, no estamos autenticados');
-        setIsAuthenticated(false);
-        setUser(null);
-        return false;
-      }
-      
-      // Intentar cargar el perfil
+
+      // Intentar cargar el perfil desde el backend
       setIsLoading(true);
       const result = await loadDashboardSafely();
-      console.log('Resultado de verificación de autenticación:', result);
+      console.log("Resultado de carga del perfil:", result);
       return result;
     } catch (error) {
-      console.error('Error al verificar autenticación:', error);
+      console.error("Error al verificar autenticación:", error);
       setIsAuthenticated(false);
       setUser(null);
       return false;
@@ -222,40 +209,33 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     }
   }, [isAuthenticated, user]);
 
-  // Método para renovar la sesión si es necesario
+
   const refreshSession = useCallback(async (): Promise<boolean> => {
-    console.log('Intentando renovar sesión...');
-    
+    console.log("Intentando renovar sesión...");
+
     try {
-      // Verificar si hay cookies que renovar
-      if (!cookieService.hasValidAuthCookie()) {
-        console.log('No hay cookies para renovar');
-        return false;
-      }
-      
-      // Intentar renovar el token
       setIsLoading(true);
+
+      // Intentar renovar el token directamente
       const refreshed = await tokenService.checkAndRefreshToken();
-      
+
       if (refreshed) {
-        console.log('Token renovado, recargando perfil');
+        console.log("Token renovado, recargando perfil");
         return await loadDashboardSafely();
       } else {
-        console.log('No fue necesario renovar el token o no se pudo');
+        console.warn(
+          "No se pudo renovar el token, intentando verificar sesión..."
+        );
         return await checkAuth();
       }
     } catch (error) {
-      console.error('Error al renovar sesión:', error);
+      console.error("Error al renovar sesión:", error);
       return false;
     } finally {
       setIsLoading(false);
     }
   }, [checkAuth]);
 
-  // Verificar si hay cookie de autenticación
-  const hasAuthCookie = useCallback((): boolean => {
-    return cookieService.hasValidAuthCookie();
-  }, []);
 
   useEffect(() => {
     const initApp = async () => {
@@ -315,6 +295,8 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     setIsLoading(true);
     try {
       await authService.logout();
+
+      // Limpiar datos de sesión del contexto
       setUser(null);
       setIsAuthenticated(false);
       setCycles([]);
@@ -324,6 +306,8 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       setPatterns([]);
     } catch (error) {
       console.error("Error durante logout:", error);
+
+      // Asegurar que se limpia el estado 
       setUser(null);
       setIsAuthenticated(false);
     } finally {
