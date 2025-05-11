@@ -11,6 +11,6 @@
   }
   
   body {
-    @apply bg-[#f5dfc4;] text-[#701a29];
+    @apply bg-[#f5dfc4] text-[#701a29];
   }
 }

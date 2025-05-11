@@ -22,7 +22,7 @@ export const Alert = ({
   // Variant-specific styles - EYRA CLUB colors en formato plano
   const variantStyles = {
     info: {
-      container: 'bg-[#f5dfc4;] border-[#FF6C5C] text-[#C62328]',
+      container: 'bg-[#f5dfc4] border-[#FF6C5C] text-[#C62328]',
       icon: 'text-[#FF6C5C]',
       closeButton: 'text-[#FF6C5C] hover:text-[#B5413A]',
     },
