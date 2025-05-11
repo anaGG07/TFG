@@ -82,11 +82,11 @@ class TokenService
             
             // Verificación de User-Agent
             // Esto previene el uso de tokens robados en otros navegadores
-            // if ($currentUserAgent !== $refreshToken->getUserAgent()) {
-            //     // Log para depurar sin exponer datos sensibles
-            //     error_log('Intento de uso de refresh token con User-Agent diferente');
-            //     return null;
-            // }
+            if ($currentUserAgent !== $refreshToken->getUserAgent()) {
+                // Log para depurar sin exponer datos sensibles
+                error_log('Intento de uso de refresh token con User-Agent diferente');
+                return null;
+            }
             
             // Verificación de IP opcional, menos estricta ya que las IPs pueden cambiar legítimamente
             // Si la IP es completamente diferente (no solo en un segmento), es sospechosa

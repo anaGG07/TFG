@@ -45,6 +45,13 @@ class RefreshTokenRepository extends ServiceEntityRepository
      */
     public function findValidToken(string $token): ?RefreshToken
     {
+        $count = $this->createQueryBuilder('r')
+            ->select('COUNT(r.id)')
+            ->getQuery()
+            ->getSingleScalarResult();
+
+        dump($count); // o logger, si estás en prod
+
         return $this->createQueryBuilder('r')
             ->where('r.token = :token')
             ->andWhere('r.expiresAt > :now')
