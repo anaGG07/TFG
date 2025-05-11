@@ -174,10 +174,10 @@ class AuthController extends AbstractController
             /** @var User|null $user */
             $user = $this->tokenService->validateRefreshToken($refreshTokenStr, $request);
 
-            if (!$user instanceof User) {
-                $this->logger->info('Refresh token inválido o expirado');
-                return $this->json(['message' => 'Token inválido o expirado'], 401);
-            }
+            // if (!$user instanceof User) {
+            //     $this->logger->info('Refresh token inválido o expirado');
+            //     return $this->json(['message' => 'Token inválido o expirado'], 401);
+            // }
 
             // 3. Revocar el token anterior
             $this->tokenService->revokeRefreshToken($refreshTokenStr);
