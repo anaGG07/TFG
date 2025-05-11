@@ -9,11 +9,11 @@ export default {
         'primary-light': '#FF6C5C',
         'primary-dark': '#FFEDEA',
         'secondary-DEFAULT': '#FF6C5C',
-        'secondary-light': '#FFD0C9',
+        'secondary-light': '#f5dfc4;',
         'secondary-dark': '#B5413A',
         eyraRed: '#C62328',
         eyraLightRed: '#FF6C5C',
-        eyraLightPink: '#FFD0C9',
+        eyraLightPink: '#f5dfc4;',
         eyraDeepRed: '#B5413A',
       },
       fontFamily: {

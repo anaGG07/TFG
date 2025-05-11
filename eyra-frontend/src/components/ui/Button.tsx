@@ -36,7 +36,7 @@ export const Button = ({
     danger: 'bg-[#dc2a2a] text-white hover:bg-[#b91c1c] focus:ring-[#dc2a2a]/50',
     warning: 'bg-yellow-500 text-white hover:bg-yellow-600 focus:ring-yellow-500',
     info: 'bg-[#FF6C5C] text-white hover:bg-[#ec4899] focus:ring-[#FF6C5C]/50',
-    light: 'bg-[#FFEDEA] text-[#C62328] hover:bg-[#FFD0C9] focus:ring-[#FFD0C9]',
+    light: 'bg-[#FFEDEA] text-[#C62328] hover:bg-[#f5dfc4;] focus:ring-[#f5dfc4;]',
     dark: 'bg-[#581c23] text-white hover:bg-[#450a0a] focus:ring-[#581c23]/70',
   };
   
