@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useForm, SubmitHandler } from "react-hook-form";
+import {
+  useForm, SubmitHandler,} from "react-hook-form";
+
 import { useAuth } from "../context/AuthContext";
 import { ROUTES } from "../router/paths";
 import Step1Context from "../components/onboarding/Step1Context";
@@ -22,6 +24,7 @@ const OnboardingPage: React.FC = () => {
     control,
     watch,
     setValue,
+    handleSubmit,
     formState: { errors, isValid },
   } = useForm<OnboardingFormData>({
     defaultValues: {
@@ -88,6 +91,8 @@ const OnboardingPage: React.FC = () => {
       setIsSubmitting(false);
     }
   };
+  
+  const onSubmit = handleSubmit(saveOnboarding);
 
   const formProps = {
     step,
@@ -101,6 +106,7 @@ const OnboardingPage: React.FC = () => {
     setValue,
     errors,
     saveOnboarding,
+    onSubmit,
   };
 
   return (
@@ -110,7 +116,7 @@ const OnboardingPage: React.FC = () => {
         {step === 2 && <Step2LifeStage {...formProps} />}
         {step === 3 && <Step3Preferences {...formProps} />}
         {step === 4 && <Step4Symptoms {...formProps} />}
-        {step === 5 && <Step5Health {...formProps} />}
+        {step === 5 && <Step5Health {...formProps} onSubmit={onSubmit} />}
       </div>
     </div>
   );

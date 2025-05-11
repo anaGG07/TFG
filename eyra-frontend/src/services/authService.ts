@@ -13,7 +13,6 @@ class AuthService {
   private initialized = false;
 
   constructor() {
-    // Configurar los manejadores de eventos para el httpClient
     configureAuthHandlers({
       onUnauthorized: () => this.handleUnauthorized(),
       onLogout: () => this.logout(),
@@ -23,272 +22,88 @@ class AuthService {
     console.log("AuthService inicializado correctamente");
   }
 
-  /**
-   * Verifica si el servicio está correctamente inicializado
-   */
   private ensureInitialized(): void {
     if (!this.initialized) {
       throw new Error("AuthService no está inicializado correctamente");
     }
   }
 
-  /**
-   * Manejador para redirecciones cuando el usuario no está autorizado
-   */
   private handleUnauthorized(): void {
     window.location.href = "/login";
   }
 
-  /**
-   * Verificar si un email ya existe - función mejorada
-   */
-  async checkEmailExists(email: string): Promise<boolean> {
-    // Simulación en cliente para entorno de desarrollo
-    const existingEmails = ["test@example.com", "admin@eyra.com"];
-
-    if (existingEmails.includes(email.toLowerCase())) {
-      return true;
-    }
-
-    // En un entorno de producción, deberías verificar con el servidor
-    try {
-      // No realizamos la petición real para evitar errores 404
-      // cuando el endpoint no exista
-      console.log("Verificación de email simulada para:", email);
-      return false;
-    } catch (error) {
-      console.warn("Error al verificar email, usando simulación local:", error);
-      return existingEmails.includes(email.toLowerCase());
-    }
-  }
-
-  /**
-   * Determina la URL de registro completa con fallbacks
-   */
-  private getRegisterUrl(): string {
-    // 1. Intentar usar la URL configurada en API_ROUTES
-    const configuredUrl = API_ROUTES.AUTH.REGISTER;
-
-    // 2. Si eso no funciona, probar con una ruta directa usando API_URL
-    if (!configuredUrl || configuredUrl.includes("undefined")) {
-      // Asegurarse de que no haya dobles barras
-      const baseUrl = API_URL.endsWith("/") ? API_URL.slice(0, -1) : API_URL;
-      console.warn(
-        "URL de registro incorrecta, usando fallback:",
-        `${baseUrl}/register`
-      );
-      return `${baseUrl}/register`;
-    }
-
-    console.log("Usando URL de registro configurada:", configuredUrl);
-    return configuredUrl;
-  }
-
-  // Determina si estamos en modo de desarrollo
-  private isDevMode(): boolean {
-    return (
-      process.env.NODE_ENV === "development" ||
-      window.location.hostname === "localhost"
-    );
-  }
-
-  /**
-   * Registra un nuevo usuario con manejo mejorado de errores
-   */
   async register(userData: RegisterRequest): Promise<void> {
     this.ensureInitialized();
 
     try {
-      console.log("Iniciando registro con datos:", { email: userData.email });
-
       const emailExists = await this.checkEmailExists(userData.email);
-      if (emailExists) {
-        throw new Error("Email en uso");
-      }
-
-      if (this.isDevMode()) {
-        console.log("Modo desarrollo: Simulando registro exitoso");
-        return;
-      }
+      if (emailExists) throw new Error("Email en uso");
 
       const registerUrl = this.getRegisterUrl();
-      console.log("URL de registro final:", registerUrl);
-
-      const response = await apiFetch<{ message: string }>(registerUrl, {
+      await apiFetch<{ message: string }>(registerUrl, {
         method: "POST",
         body: userData,
       });
-
-      console.log("Registro completado correctamente:", response);
-      return;
     } catch (err) {
       console.error("Error durante el registro:", err);
       throw err;
     }
   }
 
-  /**
-   * Inicia sesión con credenciales de usuario
-   */
   async login(credentials: LoginRequest): Promise<User> {
     this.ensureInitialized();
 
+    if (!credentials.email || !credentials.password) {
+      throw new Error("Por favor completa todos los campos");
+    }
+
     try {
-      console.log("Iniciando login con credenciales:", {
-        email: credentials.email,
+      const response = await apiFetch<LoginResponse>(API_ROUTES.AUTH.LOGIN, {
+        method: "POST",
+        body: credentials,
       });
 
-      // Validar que todos los campos estén completos
-      if (!credentials.email || !credentials.password) {
-        throw new Error("Por favor completa todos los campos");
+      if (!response || !response.user) {
+        throw new Error("Credenciales incorrectas o respuesta inválida");
       }
 
-      // Distinguir entre entorno de desarrollo y producción
-      const isDevelopment = this.isDevMode();
-
-      if (isDevelopment) {
-        // En modo desarrollo, usar inicio de sesión simulado
-        console.log("Entorno de desarrollo: usando flujo simulado");
-
-        // Crear cookies simuladas para desarrollo
-        document.cookie = "jwt_token=mock_jwt_token; path=/; max-age=3600";
-        document.cookie =
-          "refresh_token=mock_refresh_token; path=/; max-age=86400";
-
-        const mockUser: User = {
-          id: 1,
-          email: credentials.email,
-          username: "usuario",
-          name: "Usuario",
-          lastName: "Demo",
-          roles: ["ROLE_USER"],
-          profileType: "profile_women" as any,
-          genderIdentity: "woman",
-          birthDate: "1990-01-01",
-          createdAt: new Date().toISOString(),
-          updatedAt: null,
-          state: true,
-          onboardingCompleted: false,
-        };
-
-        // Simular breve retraso para UI
-        await new Promise((resolve) => setTimeout(resolve, 300));
-
-        return mockUser;
-      } else {
-        // En producción, usar la API real
-        console.log("Entorno de producción: conectando con API real");
-        console.log("URL de login:", API_ROUTES.AUTH.LOGIN);
-
-        const response = await apiFetch<LoginResponse>(API_ROUTES.AUTH.LOGIN, {
-          method: "POST",
-          body: credentials,
-        });
-
-        console.log("Respuesta del servidor:", response);
-
-        if (!response) {
-          throw new Error("Respuesta del servidor vacía");
-        }
-
-        if (!response.user) {
-          throw new Error(
-            "Respuesta del servidor inválida: faltan datos de usuario"
-          );
-        }
-
-        return response.user;
-      }
+      return response.user;
     } catch (error: unknown) {
-      console.error("Error en el proceso de login:", error);
-
-      if (error instanceof Error) {
-        throw new Error(error.message);
-      }
-
-      throw new Error("Error durante el inicio de sesión");
+      console.error("Error en login:", error);
+      throw new Error((error as Error)?.message || "Error al iniciar sesión");
     }
   }
 
-
-  /**
-   * Cierra la sesión del usuario
-   */
   async logout(): Promise<void> {
     this.ensureInitialized();
 
     try {
-      await apiFetch(API_ROUTES.AUTH.LOGOUT, {
-        method: "POST",
-      });
+      await apiFetch(API_ROUTES.AUTH.LOGOUT, { method: "POST" });
     } catch (e) {
-      console.warn(
-        "Error al hacer logout en el servidor, continuando localmente"
-      );
+      console.warn("Error al hacer logout en el servidor");
     }
   }
 
-  /**
-   * Obtiene el perfil del usuario actual desde el backend
-   * @param options Opciones adicionales como skipRedirectCheck para evitar ciclos
-   */
   async getProfile(
     options: { skipRedirectCheck?: boolean } = {}
   ): Promise<User> {
     this.ensureInitialized();
 
     try {
-      // Intentamos obtener el perfil del usuario desde el backend
-      try {
-        const userData = await apiFetch<User>(API_ROUTES.AUTH.PROFILE, {
-          method: "GET",
-          skipRedirectCheck: options.skipRedirectCheck,
-        });
-        return userData;
-      } catch (apiError) {
-        console.error("Error al obtener perfil desde API:", apiError);
-
-        // En modo desarrollo, podemos usar un usuario simulado si la API falla
-        if (
-          process.env.NODE_ENV === "development" ||
-          window.location.hostname === "localhost"
-        ) {
-          console.warn("⚠️ MODO DESARROLLO: Creando usuario simulado");
-          return {
-            id: 1,
-            email: "usuario@example.com",
-            username: "usuario",
-            name: "Usuario",
-            lastName: "Demo",
-            roles: ["ROLE_USER"],
-            profileType: "profile_women" as any,
-            genderIdentity: "woman",
-            birthDate: "1990-01-01",
-            createdAt: new Date().toISOString(),
-            updatedAt: null,
-            state: true,
-            onboardingCompleted: false,
-          };
-        }
-
-        throw apiError;
-      }
+      return await apiFetch<User>(API_ROUTES.AUTH.PROFILE, {
+        method: "GET",
+        skipRedirectCheck: options.skipRedirectCheck,
+      });
     } catch (error) {
       console.error("Error al obtener perfil:", error);
       throw error;
     }
   }
 
-  /**
-   * Actualiza el perfil del usuario en el backend
-   */
   async updateProfile(profileData: Partial<User>): Promise<User> {
     this.ensureInitialized();
 
     try {
-      console.log("Actualizando perfil con datos:", profileData);
-
-      // Realizar la petición al backend
       const response: { user: User } = await apiFetch<{ user: User }>(
         API_ROUTES.AUTH.PROFILE,
         {
@@ -296,73 +111,22 @@ class AuthService {
           body: profileData,
         }
       );
-
-      console.log("Respuesta de la API:", response);
-
-      // Devolver el usuario actualizado desde la respuesta
       return response.user;
     } catch (error) {
-      console.error("Error al actualizar perfil en servidor:", error);
+      console.error("Error al actualizar perfil:", error);
       throw error;
     }
   }
 
-  /**
-   * Completa el proceso de onboarding
-   */
   async completeOnboarding(onboardingData: any): Promise<User> {
     this.ensureInitialized();
 
+    const completeData = {
+      ...onboardingData,
+      onboardingCompleted: true,
+    };
+
     try {
-      console.log("Completando onboarding con datos:", onboardingData);
-
-      // Asegurar que onboardingCompleted esté establecido
-      const completeData = {
-        ...onboardingData,
-        onboardingCompleted: true,
-      };
-
-      // Intentar usar el endpoint específico de onboarding
-      console.log(
-        "Enviando datos de onboarding a:",
-        API_ROUTES.AUTH.ONBOARDING
-      );
-
-      // Verificación previa de cookies
-      console.log("Estado de cookies antes de enviar onboarding:", {
-        jwt_token_exists: document.cookie.includes("jwt_token"),
-        refresh_token_exists: document.cookie.includes("refresh_token"),
-      });
-
-      // Si no hay cookies, intentar una verificación del estado de sesión
-      if (!document.cookie.includes("jwt_token")) {
-        console.warn(
-          "No se detectó cookie JWT antes de enviar onboarding. Posible problema de sesión."
-        );
-
-        // Intentar verificar el perfil primero para confirmar el estado de la sesión
-        try {
-          console.log(
-            "Verificando estado de sesión antes de enviar onboarding..."
-          );
-          const profileCheck = await this.getProfile({
-            skipRedirectCheck: true,
-          });
-          console.log(
-            "Verificación de perfil exitosa, continuando:",
-            profileCheck
-          );
-        } catch (profileError) {
-          console.error(
-            "Error al verificar perfil antes de onboarding:",
-            profileError
-          );
-          throw new Error(
-            "Sesión expirada o inválida. Por favor, inicia sesión nuevamente."
-          );
-        }
-      }
-
       const response = await apiFetch<{
         message: string;
         user: User;
@@ -370,48 +134,35 @@ class AuthService {
       }>(API_ROUTES.AUTH.ONBOARDING, {
         method: "POST",
         body: completeData,
-        skipRedirectCheck: true, // Evitar redirecciones automáticas por problemas de autenticación
+        skipRedirectCheck: true,
       });
-
-      console.log("Respuesta completa del servidor:", response);
 
       if (!response || !response.user) {
-        console.error("Respuesta inválida del servidor:", response);
-        throw new Error(
-          "No se pudo completar el onboarding: respuesta inválida del servidor"
-        );
+        throw new Error("No se pudo completar el onboarding correctamente");
       }
 
-      // Verificación posterior de cookies
-      console.log("Estado de cookies después de onboarding:", {
-        jwt_token_exists: document.cookie.includes("jwt_token"),
-        refresh_token_exists: document.cookie.includes("refresh_token"),
-      });
-
-      // Verificar que el perfil está disponible inmediatamente después
-      try {
-        console.log(
-          "Verificando disponibilidad del perfil después del onboarding..."
-        );
-        const profileCheck = await this.getProfile({ skipRedirectCheck: true });
-        console.log("Verificación de perfil exitosa:", profileCheck);
-      } catch (profileError) {
-        console.warn(
-          "Error al verificar perfil después de onboarding:",
-          profileError
-        );
-        // Continuar aunque falle la verificación
-      }
-
-      // Devolver el usuario actualizado desde la respuesta
       return response.user;
     } catch (error) {
-      console.error("Error grave al completar onboarding:", error);
+      console.error("Error al completar onboarding:", error);
       throw error;
     }
   }
+
+  private getRegisterUrl(): string {
+    const configuredUrl = API_ROUTES.AUTH.REGISTER;
+    if (!configuredUrl || configuredUrl.includes("undefined")) {
+      const baseUrl = API_URL.endsWith("/") ? API_URL.slice(0, -1) : API_URL;
+      return `${baseUrl}/register`;
+    }
+    return configuredUrl;
+  }
+
+  async checkEmailExists(email: string): Promise<boolean> {
+    const existing = ["test@example.com", "admin@eyra.com"];
+    return existing.includes(email.toLowerCase());
+  }
+
 }
 
-// Exportamos una singleton del servicio
 export const authService = new AuthService();
 export default authService;

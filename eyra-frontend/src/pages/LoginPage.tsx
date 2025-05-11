@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { ROUTES } from "../router/paths";
-import { authService } from "../services/authService";
 
 const LoginPage = () => {
   const [email, setEmail] = useState("");
@@ -13,50 +12,46 @@ const LoginPage = () => {
 
   const { login, user, isAuthenticated } = useAuth();
   const navigate = useNavigate();
-  
+
   // Verificar si el usuario ya tiene una sesión válida al cargar la página
   useEffect(() => {
     const checkExistingSession = async () => {
-      console.log('LoginPage - Verificando si hay una sesión existente...');
-      // Si ya tenemos un usuario en el contexto, usarlo directamente
-      if (user && isAuthenticated) {
-        console.log('LoginPage - Usuario ya autenticado en el contexto:', user);
-        if (user.onboardingCompleted) {
-          navigate(ROUTES.DASHBOARD, { replace: true });
-        } else {
-          navigate(ROUTES.ONBOARDING, { replace: true });
-        }
-        return;
-      }
-      
-      // Si hay cookies, intentar obtener el perfil
+      console.log("LoginPage - Verificando si hay una sesión existente...");
+
       try {
-        if (document.cookie.includes('jwt_token')) {
-          console.log('LoginPage - Cookie jwt_token encontrada, verificando perfil...');
-          const userData = await authService.getProfile({ skipRedirectCheck: true });
-          
-          if (userData) {
-            console.log('LoginPage - Sesión activa detectada:', userData);
-            // Redirigir según el estado del onboarding
-            if (userData.onboardingCompleted) {
-              navigate(ROUTES.DASHBOARD, { replace: true });
-            } else {
-              navigate(ROUTES.ONBOARDING, { replace: true });
-            }
-          }
-        } else {
-          console.log('LoginPage - No se encontró cookie jwt_token');
+        if (user && isAuthenticated) {
+          console.log(
+            "LoginPage - Usuario ya autenticado en el contexto:",
+            user
+          );
+          navigate(
+            user.onboardingCompleted ? ROUTES.DASHBOARD : ROUTES.ONBOARDING,
+            { replace: true }
+          );
+          return;
+        }
+
+        // Intentar obtener el perfil directamente, si hay sesión válida, se redirige automáticamente
+        const profile = await login({ email: "", password: "" });
+        if (profile) {
+          console.log("LoginPage - Perfil obtenido:", profile);
+          navigate(
+            profile.onboardingCompleted ? ROUTES.DASHBOARD : ROUTES.ONBOARDING,
+            { replace: true }
+          );
         }
       } catch (error) {
-        console.warn('LoginPage - Error al verificar sesión existente:', error);
-        // Si hay error, simplemente continuamos mostrando la página de login
+        console.warn(
+          "LoginPage - No se detectó sesión activa o error al verificar:",
+          error
+        );
       } finally {
         setCheckingSession(false);
       }
     };
-    
+
     checkExistingSession();
-  }, [user, isAuthenticated, navigate]);
+  }, [user, isAuthenticated, navigate, login]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -69,25 +64,22 @@ const LoginPage = () => {
     try {
       setIsLoading(true);
       setError("");
-      console.log('Iniciando login en LoginPage...');
-      
-      // Intentar iniciar sesión
+      console.log("Iniciando login en LoginPage...");
+
       const user = await login({ email, password });
       if (!user) {
         setError("Credenciales incorrectas");
         return;
       }
-      
-      // Registrar estado del onboarding
-      console.log('Login exitoso. Estado onboarding:', {
+
+      console.log("Login exitoso. Estado onboarding:", {
         completed: user.onboardingCompleted,
-        redirigiendo: 'a onboarding'
+        redirigiendo: "a onboarding",
       });
-      
-      // Siempre redirigir al onboarding primero, siguiendo el flujo del diagrama
+
       navigate(ROUTES.ONBOARDING);
     } catch (error: any) {
-      console.error('Error en login:', error);
+      console.error("Error en login:", error);
       setError(error.message || "Error al iniciar sesión");
     } finally {
       setIsLoading(false);
@@ -104,7 +96,6 @@ const LoginPage = () => {
           </div>
         </div>
       )}
-     
 
       <main className="bg-[#fefefe] rounded-xl border border-[#5b010820] shadow-md p-8 w-full max-w-md">
         <div className="text-center mb-8">

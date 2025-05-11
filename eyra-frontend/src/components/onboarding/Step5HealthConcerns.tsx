@@ -14,7 +14,7 @@ interface Props {
   setValue: UseFormSetValue<OnboardingFormData>;
   register: UseFormRegister<OnboardingFormData>;
   errors: FieldErrors<OnboardingFormData>;
-  saveOnboarding: (data: OnboardingFormData) => void;
+  onSubmit: () => void;
   setStep: (step: number) => void;
 }
 
@@ -39,7 +39,7 @@ const Step5HealthConcerns: React.FC<Props> = ({
   setValue,
   register,
   errors,
-  saveOnboarding,
+  onSubmit,
   setStep,
 }) => {
   const selected = watch("healthConcerns") || [];
@@ -117,7 +117,7 @@ const Step5HealthConcerns: React.FC<Props> = ({
 
         <button
           type="submit"
-          onClick={() => saveOnboarding(watch())}
+          onClick={onSubmit}
           disabled={!isValid || isSubmitting}
           className="px-8 py-3 bg-[#5b0108] text-white rounded-lg font-medium transition-all hover:bg-[#9d0d0b] disabled:opacity-50 disabled:cursor-not-allowed"
         >
