@@ -36,7 +36,6 @@ interface AuthContextType {
   patterns: SymptomPattern[];
   checkAuth: () => Promise<boolean>;
   refreshSession: () => Promise<boolean>;
-  hasAuthCookie: () => boolean;
 }
 
 const DEFAULT_CYCLES: Cycle[] = [];
@@ -74,8 +73,7 @@ const defaultContextValue: AuthContextType = {
   predictions: DEFAULT_PREDICTIONS,
   patterns: DEFAULT_PATTERNS,
   checkAuth: () => Promise.reject(new Error("AuthContext no inicializado")),
-  refreshSession: () => Promise.reject(new Error("AuthContext no inicializado")),
-  hasAuthCookie: () => false
+  refreshSession: () => Promise.reject(new Error("AuthContext no inicializado"))
 };
 
 const AuthContext = createContext<AuthContextType>(defaultContextValue);
@@ -379,8 +377,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     predictions,
     patterns,
     checkAuth,
-    refreshSession,
-    hasAuthCookie
+    refreshSession
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
