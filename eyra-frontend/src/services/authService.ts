@@ -50,7 +50,10 @@ class AuthService {
       // Verificamos haciendo una consulta al endpoint de perfil
       // Esta función no devuelve un resultado directo, solo señala si debemos
       // considerar que el usuario está autenticado basado en si las cookies están presentes
-      return document.cookie.includes('jwt_token') || document.cookie.includes('refresh_token');
+      return (
+        document.cookie.includes("jwt_token") ||
+        document.cookie.includes("refresh_token")
+      );
     } catch (e) {
       return false;
     }
@@ -118,61 +121,29 @@ class AuthService {
     try {
       console.log("Iniciando registro con datos:", { email: userData.email });
 
-      // Verificar si el email ya existe
       const emailExists = await this.checkEmailExists(userData.email);
       if (emailExists) {
         throw new Error("Email en uso");
       }
 
-      // Si estamos en modo desarrollo, simulamos un registro exitoso
       if (this.isDevMode()) {
         console.log("Modo desarrollo: Simulando registro exitoso");
         return;
       }
 
-      // Obtener la URL de registro con fallbacks
       const registerUrl = this.getRegisterUrl();
       console.log("URL de registro final:", registerUrl);
 
-      try {
-        console.log("Intentando registro con URL:", registerUrl);
+      const response = await apiFetch<{ message: string }>(registerUrl, {
+        method: "POST",
+        body: userData,
+      });
 
-        const response = await fetch(registerUrl, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Accept: "application/json",
-          },
-          body: JSON.stringify(userData),
-        });
-
-        console.log("Respuesta del servidor:", {
-          url: registerUrl,
-          status: response.status,
-          statusText: response.statusText,
-        });
-
-        if (response.ok) {
-          console.log("Registro completado correctamente");
-          return; // Éxito, salimos de la función
-        }
-
-        // Si llegamos aquí, la respuesta no fue ok
-        const errorData = await response.json().catch(() => ({
-          message: `Error ${response.status}: ${response.statusText}`,
-        }));
-
-        throw new Error(
-          errorData.message ||
-            `Error ${response.status}: ${response.statusText}`
-        );
-      } catch (err) {
-        console.error("Error durante el registro:", err);
-        throw err;
-      }
-    } catch (error) {
-      console.error("Error en el registro:", error);
-      throw error;
+      console.log("Registro completado correctamente:", response);
+      return;
+    } catch (err) {
+      console.error("Error durante el registro:", err);
+      throw err;
     }
   }
 
@@ -198,10 +169,11 @@ class AuthService {
       if (isDevelopment) {
         // En modo desarrollo, usar inicio de sesión simulado
         console.log("Entorno de desarrollo: usando flujo simulado");
-        
+
         // Crear cookies simuladas para desarrollo
         document.cookie = "jwt_token=mock_jwt_token; path=/; max-age=3600";
-        document.cookie = "refresh_token=mock_refresh_token; path=/; max-age=86400";
+        document.cookie =
+          "refresh_token=mock_refresh_token; path=/; max-age=86400";
 
         const mockUser: User = {
           id: 1,
@@ -218,7 +190,7 @@ class AuthService {
           state: true,
           onboardingCompleted: false,
         };
-        
+
         // Simular breve retraso para UI
         await new Promise((resolve) => setTimeout(resolve, 300));
 
@@ -285,7 +257,9 @@ class AuthService {
    * Obtiene el perfil del usuario actual desde el backend
    * @param options Opciones adicionales como skipRedirectCheck para evitar ciclos
    */
-  async getProfile(options: { skipRedirectCheck?: boolean } = {}): Promise<User> {
+  async getProfile(
+    options: { skipRedirectCheck?: boolean } = {}
+  ): Promise<User> {
     this.ensureInitialized();
 
     try {
@@ -298,7 +272,7 @@ class AuthService {
         return userData;
       } catch (apiError) {
         console.error("Error al obtener perfil desde API:", apiError);
-        
+
         // En modo desarrollo, podemos usar un usuario simulado si la API falla
         if (
           process.env.NODE_ENV === "development" ||
@@ -321,7 +295,7 @@ class AuthService {
             onboardingCompleted: false,
           };
         }
-        
+
         throw apiError;
       }
     } catch (error) {
@@ -380,55 +354,77 @@ class AuthService {
       );
 
       // Verificación previa de cookies
-      console.log('Estado de cookies antes de enviar onboarding:', {
-        jwt_token_exists: document.cookie.includes('jwt_token'),
-        refresh_token_exists: document.cookie.includes('refresh_token')
+      console.log("Estado de cookies antes de enviar onboarding:", {
+        jwt_token_exists: document.cookie.includes("jwt_token"),
+        refresh_token_exists: document.cookie.includes("refresh_token"),
       });
-      
+
       // Si no hay cookies, intentar una verificación del estado de sesión
-      if (!document.cookie.includes('jwt_token')) {
-        console.warn('No se detectó cookie JWT antes de enviar onboarding. Posible problema de sesión.');
-        
+      if (!document.cookie.includes("jwt_token")) {
+        console.warn(
+          "No se detectó cookie JWT antes de enviar onboarding. Posible problema de sesión."
+        );
+
         // Intentar verificar el perfil primero para confirmar el estado de la sesión
         try {
-          console.log('Verificando estado de sesión antes de enviar onboarding...');
-          const profileCheck = await this.getProfile({ skipRedirectCheck: true });
-          console.log('Verificación de perfil exitosa, continuando:', profileCheck);
+          console.log(
+            "Verificando estado de sesión antes de enviar onboarding..."
+          );
+          const profileCheck = await this.getProfile({
+            skipRedirectCheck: true,
+          });
+          console.log(
+            "Verificación de perfil exitosa, continuando:",
+            profileCheck
+          );
         } catch (profileError) {
-          console.error('Error al verificar perfil antes de onboarding:', profileError);
-          throw new Error('Sesión expirada o inválida. Por favor, inicia sesión nuevamente.');
+          console.error(
+            "Error al verificar perfil antes de onboarding:",
+            profileError
+          );
+          throw new Error(
+            "Sesión expirada o inválida. Por favor, inicia sesión nuevamente."
+          );
         }
       }
 
-      const response = await apiFetch<{message: string, user: User, onboarding: any}>(
-        API_ROUTES.AUTH.ONBOARDING,
-        {
-          method: "POST",
-          body: completeData,
-          skipRedirectCheck: true, // Evitar redirecciones automáticas por problemas de autenticación
-        }
-      );
+      const response = await apiFetch<{
+        message: string;
+        user: User;
+        onboarding: any;
+      }>(API_ROUTES.AUTH.ONBOARDING, {
+        method: "POST",
+        body: completeData,
+        skipRedirectCheck: true, // Evitar redirecciones automáticas por problemas de autenticación
+      });
 
       console.log("Respuesta completa del servidor:", response);
 
       if (!response || !response.user) {
-        console.error('Respuesta inválida del servidor:', response);
-        throw new Error('No se pudo completar el onboarding: respuesta inválida del servidor');
+        console.error("Respuesta inválida del servidor:", response);
+        throw new Error(
+          "No se pudo completar el onboarding: respuesta inválida del servidor"
+        );
       }
 
       // Verificación posterior de cookies
-      console.log('Estado de cookies después de onboarding:', {
-        jwt_token_exists: document.cookie.includes('jwt_token'),
-        refresh_token_exists: document.cookie.includes('refresh_token')
+      console.log("Estado de cookies después de onboarding:", {
+        jwt_token_exists: document.cookie.includes("jwt_token"),
+        refresh_token_exists: document.cookie.includes("refresh_token"),
       });
 
       // Verificar que el perfil está disponible inmediatamente después
       try {
-        console.log('Verificando disponibilidad del perfil después del onboarding...');
+        console.log(
+          "Verificando disponibilidad del perfil después del onboarding..."
+        );
         const profileCheck = await this.getProfile({ skipRedirectCheck: true });
-        console.log('Verificación de perfil exitosa:', profileCheck);
+        console.log("Verificación de perfil exitosa:", profileCheck);
       } catch (profileError) {
-        console.warn('Error al verificar perfil después de onboarding:', profileError);
+        console.warn(
+          "Error al verificar perfil después de onboarding:",
+          profileError
+        );
         // Continuar aunque falle la verificación
       }
 

@@ -154,100 +154,83 @@ class AuthController extends AbstractController
     }
 
 
-    #[Route('/refresh-token', name: 'api_refresh_token', methods: ['POST'])]
+    #[Route('/api/refresh-token', name: 'api_refresh_token', methods: ['POST'])]
     public function refreshToken(Request $request): JsonResponse
     {
         try {
-            // Intentamos leer el refresh token de la cookie primero (más seguro)
+            // 1. Leer refresh token desde la cookie o el cuerpo del request
             $refreshTokenStr = $request->cookies->get('refresh_token');
 
-            // Si no hay token en la cookie, intentamos leerlo del body (compatibilidad)
             if (!$refreshTokenStr) {
                 $data = json_decode($request->getContent(), true);
                 if (!isset($data['refreshToken']) || !is_string($data['refreshToken'])) {
-                    $this->logger->warning('Intento de refresh token sin proporcionar token');
+                    $this->logger->warning('Refresh token no proporcionado');
                     return $this->json(['message' => 'Refresh token requerido'], 400);
                 }
                 $refreshTokenStr = $data['refreshToken'];
             }
 
-            // Validar el refresh token (incluyendo verificación de browser fingerprint)
+            // 2. Validar el token recibido
             /** @var User|null $user */
             $user = $this->tokenService->validateRefreshToken($refreshTokenStr, $request);
-            
+
             if (!$user instanceof User) {
-                $this->logger->info('Intento de refresh token fallido: token inválido o expirado');
-                return $this->json(['message' => 'Refresh token inválido o expirado'], 401);
+                $this->logger->info('Refresh token inválido o expirado');
+                return $this->json(['message' => 'Token inválido o expirado'], 401);
             }
 
-            // Invalidar el token anterior
+            // 3. Revocar el token anterior
             $this->tokenService->revokeRefreshToken($refreshTokenStr);
 
-            // Generar nuevos tokens
+            // 4. Generar nuevos tokens
             $jwtToken = $this->tokenService->createJwtToken($user);
             $refreshToken = $this->tokenService->createRefreshToken($user, $request);
 
-            $this->logger->info('Refresh token exitoso', [
-                'userId' => $user->getId()
-            ]);
+            // 5. Configurar cookies seguras
+            $isSecure = $request->isSecure();
+            $sameSite = $isSecure ? 'Strict' : 'Lax';
+            $expiresAt = $refreshToken->getExpiresAt()->getTimestamp();
 
-            // Crear respuesta con cookies HTTP-only actualizadas
+            $jwtCookie = Cookie::create('jwt_token')
+                ->withValue($jwtToken)
+                ->withExpires(time() + 3600)
+                ->withPath('/')
+                ->withSecure($isSecure)
+                ->withHttpOnly(true)
+                ->withSameSite($sameSite);
+
+            $refreshCookie = Cookie::create('refresh_token')
+                ->withValue($refreshToken->getToken())
+                ->withExpires($expiresAt)
+                ->withPath('/')
+                ->withSecure($isSecure)
+                ->withHttpOnly(true)
+                ->withSameSite($sameSite);
+
+            // 6. Crear respuesta con cookies
             $response = new JsonResponse([
                 'message' => 'Tokens renovados con éxito',
-                'expiresAt' => $refreshToken->getExpiresAt()->format('c')
+                'expiresAt' => $refreshToken->getExpiresAt()->format(DATE_ATOM),
             ]);
-            
-            // Establecer cookies adaptadas según el origen de la solicitud
-            $isSecureConnection = $request->isSecure();
-            $hostname = $request->getHost();
-            
-            // Log para depuración
-            $this->logger->info('Configurando cookies para refresh token', [
-                'host' => $hostname,
-                'isSecure' => $isSecureConnection
+            $response->headers->setCookie($jwtCookie);
+            $response->headers->setCookie($refreshCookie);
+
+            $this->logger->info('Tokens renovados correctamente', [
+                'userId' => $user->getId(),
+                'secure' => $isSecure,
+                'sameSite' => $sameSite,
             ]);
-            
-            // Configurar la cookie JWT
-            $response->headers->setCookie(
-                new Cookie(
-                    'jwt_token',
-                    $jwtToken,
-                    time() + 3600,
-                    '/',
-                    null,
-                    $isSecureConnection, // Secure solo si es HTTPS
-                    true, // HTTPOnly siempre activado
-                    false,
-                    $isSecureConnection ? 'Strict' : 'Lax' // SameSite adaptado
-                )
-            );
-            
-            // Configurar la cookie refresh token
-            $response->headers->setCookie(
-                new Cookie(
-                    'refresh_token',
-                    $refreshToken->getToken(),
-                    $refreshToken->getExpiresAt()->getTimestamp(),
-                    '/',
-                    null,
-                    $isSecureConnection, // Secure solo si es HTTPS
-                    true, // HTTPOnly siempre activado
-                    false,
-                    $isSecureConnection ? 'Strict' : 'Lax' // SameSite adaptado
-                )
-            );
-            
+
             return $response;
         } catch (Exception $e) {
-            // Log del error para depuración
-            $this->logger->error('Error en refresh-token: ' . $e->getMessage(), [
+            $this->logger->error('Error al renovar tokens: ' . $e->getMessage(), [
                 'exception' => $e,
-                'trace' => $e->getTraceAsString()
             ]);
-            
-            return $this->json(['message' => 'Error al renovar tokens: ' . $e->getMessage()], 500);
+
+            return $this->json(['message' => 'Error interno al renovar tokens'], 500);
         }
     }
+
 
     #[Route('/logout', name: 'api_logout', methods: ['POST'])]
     public function logout(Request $request): JsonResponse

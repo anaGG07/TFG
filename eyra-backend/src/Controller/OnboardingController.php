@@ -154,6 +154,7 @@ class OnboardingController extends AbstractController
 
         // Guardar los cambios en la base de datos
         $em->persist($onboarding);
+        $em->persist($user);
         $em->flush();
 
         return $this->json(
