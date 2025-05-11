@@ -50,7 +50,8 @@ class RefreshTokenRepository extends ServiceEntityRepository
             ->getQuery()
             ->getSingleScalarResult();
 
-        dump($count); // o logger, si estás en prod
+        error_log('Total de tokens en BD: ' . $count);
+
 
         return $this->createQueryBuilder('r')
             ->where('r.token = :token')
