@@ -1,6 +1,6 @@
 import { API_ROUTES } from '../config/apiRoutes';
 import { apiFetch } from '../utils/httpClient';
-import cookieService from './cookieService';
+
 
 /**
  * Servicio para manejar tokens JWT
@@ -64,18 +64,6 @@ class TokenService {
       if (this.refreshing || now - this.lastRefreshTime < this.MIN_REFRESH_INTERVAL) {
         return false;
       }
-      
-      // Verificar si tenemos cookies de autenticación
-      const { hasJwt, hasRefresh } = cookieService.getAuthCookiesStatus();
-      
-      // Si no tenemos cookies, no hay nada que renovar
-      if (!hasJwt || !hasRefresh) {
-        return false;
-      }
-      
-      // En una implementación completa, aquí verificaríamos la expiración del token
-      // Pero como no podemos decodificar fácilmente la cookie httpOnly, simplemente
-      // confiamos en la validación del servidor
       
       // Para evitar múltiples renovaciones simultáneas, usamos una promesa compartida
       if (!this.refreshPromise) {
