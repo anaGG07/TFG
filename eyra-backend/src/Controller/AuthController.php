@@ -154,7 +154,7 @@ class AuthController extends AbstractController
     }
 
 
-    #[Route('/api/refresh-token', name: 'api_refresh_token', methods: ['POST'])]
+    #[Route('/refresh-token', name: 'api_refresh_token', methods: ['POST'])]
     public function refreshToken(Request $request): JsonResponse
     {
         try {
