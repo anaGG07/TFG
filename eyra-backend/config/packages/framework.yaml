@@ -3,7 +3,10 @@ framework:
     secret: '%env(APP_SECRET)%'
 
     # Note that the session will be started ONLY if you read or write from it.
-    session: true
+    session:
+        cookie_secure: '%env(bool:COOKIE_SECURE)%'
+        cookie_samesite: 'strict'
+        cookie_httponly: true
     trusted_proxies: '127.0.0.1,REMOTE_ADDR'
     trusted_headers:
         - x-forwarded-for
