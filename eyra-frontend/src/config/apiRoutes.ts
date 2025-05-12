@@ -5,8 +5,8 @@ console.log('API_ROUTES utilizando URL base:', API_URL);
 
 // Función auxiliar para crear URLs completas
 const createApiUrl = (path: string): string => {
-  // Asegurar formato correcto
-  const basePath = path.startsWith('/') ? path : `/${path}`;
+  // Asegurar formato correcto y añadir prefijo /api
+  const basePath = path.startsWith('/') ? `/api${path}` : `/api/${path}`;
   return `${API_URL}${basePath}`;
 };
 
