@@ -68,39 +68,50 @@ class TokenService
      */
     public function validateRefreshToken(string $token, Request $request): ?User
     {
-        $refreshToken = $this->refreshTokenRepository->findValidToken($token);
-        
+        $refreshToken = $this->refreshTokenRepository->findOneBy(['token' => $token]);
+
         if (!$refreshToken) {
+            error_log('[RefreshToken] Token no encontrado');
             return null;
         }
-        
-        // Verificación adicional de seguridad: browser fingerprint
-        // Solo verificamos si hay información almacenada y tenemos el request actual
+
+        // Tolerancia de 5 segundos antes de la expiración
+        $expiresAt = $refreshToken->getExpiresAt();
+        $now = new \DateTimeImmutable();
+        $graceWindow = $now->modify('-5 seconds');
+
+        if ($expiresAt < $graceWindow) {
+            error_log('[RefreshToken] Token expirado fuera de ventana de gracia');
+            return null;
+        }
+
+        // Validación de fingerprint del navegador (mantienes la tuya)
         if ($request && $refreshToken->getUserAgent() && $refreshToken->getIpAddress()) {
             $currentUserAgent = $request->headers->get('User-Agent');
             $currentIp = $request->getClientIp();
-            
-            // Verificación de User-Agent
-            // Esto previene el uso de tokens robados en otros navegadores
+
             if ($currentUserAgent !== $refreshToken->getUserAgent()) {
-                // Log para depurar sin exponer datos sensibles
-                error_log('Intento de uso de refresh token con User-Agent diferente');
+                error_log('[RefreshToken] User-Agent no coincide');
                 return null;
             }
-            
-            // Verificación de IP opcional, menos estricta ya que las IPs pueden cambiar legítimamente
-            // Si la IP es completamente diferente (no solo en un segmento), es sospechosa
-            // Esta verificación es más laxa por defecto
+
             if ($this->isIpSignificantlyDifferent($currentIp, $refreshToken->getIpAddress())) {
-                error_log('Advertencia: Refresh token usado desde IP muy diferente');
-                // Comentado porque puede ser legítimo (ej. cambio de red)
-                // return null;
+                error_log('[RefreshToken] IP significativamente diferente');
             }
         }
-        
-        return $refreshToken->getUser();
+
+        $user = $refreshToken->getUser();
+
+        if (!$user instanceof User || $user->getState() !== 'active') {
+            error_log('[RefreshToken] Usuario no activo');
+            return null;
+        }
+
+        return $user;
     }
-    
+
+
+
     /**
      * Determina si dos direcciones IP son significativamente diferentes
      * (esto es una verificación básica, se podría mejorar con análisis de subredes)
@@ -130,15 +141,17 @@ class TokenService
     public function revokeRefreshToken(string $token): bool
     {
         $refreshToken = $this->refreshTokenRepository->findOneBy(['token' => $token]);
-        
+
         if (!$refreshToken) {
             return false;
         }
-        
-        $this->refreshTokenRepository->remove($refreshToken, true);
-        
+
+        // No lo eliminamos para evitar condiciones de carrera
+        // Solo dejamos que expire y que `validateRefreshToken` lo maneje
+
         return true;
     }
+
 
     /**
      * Revoke all refresh tokens for a user

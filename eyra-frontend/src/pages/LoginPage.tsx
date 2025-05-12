@@ -10,7 +10,7 @@ const LoginPage = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [checkingSession, setCheckingSession] = useState(true);
 
-  const { login, user, isAuthenticated } = useAuth();
+  const { login, user, checkAuth } = useAuth();
   const navigate = useNavigate();
 
   // Verificar si el usuario ya tiene una sesión válida al cargar la página
@@ -19,39 +19,23 @@ const LoginPage = () => {
       console.log("LoginPage - Verificando si hay una sesión existente...");
 
       try {
-        if (user && isAuthenticated) {
-          console.log(
-            "LoginPage - Usuario ya autenticado en el contexto:",
-            user
-          );
+        const sessionActive = await checkAuth();
+        if (sessionActive && user) {
+          console.log("LoginPage - Sesión activa detectada:", user);
           navigate(
             user.onboardingCompleted ? ROUTES.DASHBOARD : ROUTES.ONBOARDING,
             { replace: true }
           );
-          return;
-        }
-
-        // Intentar obtener el perfil directamente, si hay sesión válida, se redirige automáticamente
-        const profile = await login({ email: "", password: "" });
-        if (profile) {
-          console.log("LoginPage - Perfil obtenido:", profile);
-          navigate(
-            profile.onboardingCompleted ? ROUTES.DASHBOARD : ROUTES.ONBOARDING,
-            { replace: true }
-          );
         }
       } catch (error) {
-        console.warn(
-          "LoginPage - No se detectó sesión activa o error al verificar:",
-          error
-        );
+        console.warn("LoginPage - No se detectó sesión activa:", error);
       } finally {
         setCheckingSession(false);
       }
     };
 
     checkExistingSession();
-  }, [user, isAuthenticated, navigate, login]);
+  }, [user, checkAuth, navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -74,10 +58,9 @@ const LoginPage = () => {
 
       console.log("Login exitoso. Estado onboarding:", {
         completed: user.onboardingCompleted,
-        redirigiendo: "a onboarding",
       });
 
-      navigate(ROUTES.ONBOARDING);
+      navigate(user.onboardingCompleted ? ROUTES.DASHBOARD : ROUTES.ONBOARDING);
     } catch (error: any) {
       console.error("Error en login:", error);
       setError(error.message || "Error al iniciar sesión");

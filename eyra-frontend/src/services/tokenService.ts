@@ -1,6 +1,5 @@
-import { API_ROUTES } from '../config/apiRoutes';
-import { apiFetch } from '../utils/httpClient';
-
+import { API_ROUTES } from "../config/apiRoutes";
+import { apiFetch } from "../utils/httpClient";
 
 /**
  * Servicio para manejar tokens JWT
@@ -11,97 +10,113 @@ class TokenService {
   private refreshing = false;
   private lastRefreshTime = 0;
   private readonly MIN_REFRESH_INTERVAL = 30000; // 30 segundos mínimo entre refrescos
-  
+
   /**
    * Configura el servicio de tokens e inicializa la renovación automática
-   * cuando sea necesario
    */
   public setupTokenRefresher() {
-    // Configurar renovación automática de token
     this.setupAutoRefresh();
-    
-    console.log('Token refresher configurado correctamente');
-    
-    // Devolver una función para limpiar
+    console.log("✅ Token refresher configurado correctamente");
     return () => {
       this.cleanupAutoRefresh();
     };
   }
-  
+
   /**
-   * Configura la renovación automática del token JWT
-   * Utiliza un intervalo para verificar periódicamente la necesidad de renovar
+   * Verifica cada 60 segundos si es necesario renovar el token
    */
   private setupAutoRefresh() {
-    // Verificar cada 60 segundos (para producción podría ser más)
     const intervalId = setInterval(() => {
       this.checkAndRefreshToken();
-    }, 60000);
-    
-    // Guardar el ID del intervalo en window para poder limpiarlo posteriormente
-    if (typeof window !== 'undefined') {
+    }, 60000); // 1 minuto
+
+    if (typeof window !== "undefined") {
       (window as any).__tokenRefreshIntervalId = intervalId;
     }
   }
-  
+
   /**
    * Limpia el intervalo de renovación automática
    */
   private cleanupAutoRefresh() {
-    if (typeof window !== 'undefined' && (window as any).__tokenRefreshIntervalId) {
+    if (
+      typeof window !== "undefined" &&
+      (window as any).__tokenRefreshIntervalId
+    ) {
       clearInterval((window as any).__tokenRefreshIntervalId);
       (window as any).__tokenRefreshIntervalId = null;
     }
   }
-  
+
   /**
-   * Verifica si es necesario renovar el token y lo hace si corresponde
+   * Verifica si se necesita renovar el token y lo hace si es posible
    */
-  public async checkAndRefreshToken() {
+  public async checkAndRefreshToken(): Promise<boolean> {
+    const now = Date.now();
+
+    // Demasiado pronto desde el último intento
+    if (
+      this.refreshing ||
+      now - this.lastRefreshTime < this.MIN_REFRESH_INTERVAL
+    ) {
+      return false;
+    }
+
+    if (!this.refreshPromise) {
+      this.refreshing = true;
+      this.refreshPromise = this.refreshToken();
+    }
+
     try {
-      // Evitar renovaciones demasiado frecuentes
-      const now = Date.now();
-      if (this.refreshing || now - this.lastRefreshTime < this.MIN_REFRESH_INTERVAL) {
-        return false;
-      }
-      
-      // Para evitar múltiples renovaciones simultáneas, usamos una promesa compartida
-      if (!this.refreshPromise) {
-        this.refreshing = true;
-        this.refreshPromise = this.refreshToken();
-      }
-      
       await this.refreshPromise;
       return true;
     } catch (error) {
-      console.error('Error al renovar token:', error);
+      console.error("🚫 Fallo al renovar el token:", error);
+      this.clearAuthCookies();
       return false;
     } finally {
       this.refreshing = false;
       this.refreshPromise = null;
     }
   }
-  
+
   /**
-   * Realiza la petición al servidor para renovar el token JWT
-   * @returns Promesa con la respuesta del servidor
+   * Realiza la petición al servidor para renovar el token
    */
-  private async refreshToken() {
+  private async refreshToken(): Promise<any> {
+    this.lastRefreshTime = Date.now();
+
+    console.log("🔁 Intentando renovar token JWT...");
+
     try {
-      this.lastRefreshTime = Date.now();
-      
-      console.log('Renovando token JWT...');
       const response = await apiFetch(API_ROUTES.AUTH.REFRESH_TOKEN, {
-        method: 'POST',
-        skipRedirectCheck: true, // Evitar redirecciones automáticas
+        method: "POST",
+        credentials: "include",
+        skipRedirectCheck: true,
       });
-      
-      console.log('Token renovado con éxito:', response);
+
+      console.log("✅ Token renovado:", response);
       return response;
-    } catch (error) {
-      console.error('Error al renovar token JWT:', error);
+    } catch (error: any) {
+      if (error?.response?.status === 401) {
+        console.warn(
+          "🔒 Refresh token inválido o expirado. Se limpiarán las cookies."
+        );
+        this.clearAuthCookies();
+      } else {
+        console.error("💥 Error inesperado en renovación de token:", error);
+      }
+
       throw error;
     }
+  }
+
+  /**
+   * Elimina cookies de autenticación del navegador
+   */
+  private clearAuthCookies() {
+    document.cookie = "jwt_token=; Max-Age=0; path=/";
+    document.cookie = "refresh_token=; Max-Age=0; path=/";
   }
 }
 
