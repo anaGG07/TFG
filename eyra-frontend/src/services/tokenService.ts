@@ -12,9 +12,24 @@ class TokenService {
   private readonly MIN_REFRESH_INTERVAL = 30000; // 30 segundos mínimo entre refrescos
 
   /**
+   * Comprueba si la ruta actual es login o registro
+   */
+  private isLoginOrRegister(): boolean {
+    return typeof window !== "undefined" && 
+           (window.location.pathname === '/login' || 
+            window.location.pathname === '/register');
+  }
+
+  /**
    * Configura el servicio de tokens e inicializa la renovación automática
    */
   public setupTokenRefresher() {
+    // SOLUCIÓN: No activar renovación automática en páginas de login/registro
+    if (this.isLoginOrRegister()) {
+      console.log("En login/registro: sin configurar renovación automática");
+      return () => {}; // Función vacía de limpieza
+    }
+    
     this.setupAutoRefresh();
     console.log("✅ Token refresher configurado correctamente");
     return () => {
@@ -27,7 +42,12 @@ class TokenService {
    */
   private setupAutoRefresh() {
     const intervalId = setInterval(() => {
-      this.checkAndRefreshToken();
+      // Verificar que no estamos en login/registro antes de intentar renovar
+      if (!this.isLoginOrRegister()) {
+        this.checkAndRefreshToken();
+      } else {
+        console.log("Saltando renovación automática en página de login/registro");
+      }
     }, 60000); // 1 minuto
 
     if (typeof window !== "undefined") {
@@ -52,6 +72,12 @@ class TokenService {
    * Verifica si se necesita renovar el token y lo hace si es posible
    */
   public async checkAndRefreshToken(): Promise<boolean> {
+    // SOLUCIÓN: No intentar renovar el token en páginas de login/registro
+    if (this.isLoginOrRegister()) {
+      console.log("En login/registro: evitando renovación automática de token");
+      return false;
+    }
+    
     const now = Date.now();
 
     // Demasiado pronto desde el último intento
@@ -84,6 +110,12 @@ class TokenService {
    * Realiza la petición al servidor para renovar el token
    */
   private async refreshToken(): Promise<any> {
+    // SOLUCIÓN: Verificar nuevamente aquí para tener seguridad adicional
+    if (this.isLoginOrRegister()) {
+      console.log("En login/registro: cancelando intento de renovación de token");
+      throw new Error("Renovación de token cancelada en página de login/registro");
+    }
+    
     this.lastRefreshTime = Date.now();
 
     console.log("🔁 Intentando renovar token JWT...");
