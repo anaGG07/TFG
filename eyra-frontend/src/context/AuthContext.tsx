@@ -129,6 +129,16 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   }, []);
 
   const loadDashboardSafely = async () => {
+    // SOLUCIÓN: No cargar datos en páginas de login/registro
+    if (
+      window.location.pathname === '/login' ||
+      window.location.pathname === '/register'
+    ) {
+      console.log("Omitiendo carga de datos en página de login/registro");
+      setIsLoading(false);
+      return false;
+    }
+
     try {
       const userData = await authService
         .getProfile({ skipRedirectCheck: true })
@@ -184,6 +194,16 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   // Verificar autenticación actual
   const checkAuth = useCallback(async (): Promise<boolean> => {
     console.log("🔍 Verificando estado de autenticación...");
+
+    // SOLUCIÓN: Evitar verificación de autenticación en páginas de login/registro
+    if (
+      window.location.pathname === '/login' ||
+      window.location.pathname === '/register'
+    ) {
+      console.log("Omitiendo verificación de autenticación en página de login/registro");
+      setIsLoading(false);
+      return false;
+    }
 
     try {
       // Si ya estamos autenticados y tenemos usuario, no volvemos a verificar

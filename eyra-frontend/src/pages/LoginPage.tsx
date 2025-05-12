@@ -15,6 +15,11 @@ const LoginPage = () => {
 
   // Verificar si el usuario ya tiene una sesión válida al cargar la página
   useEffect(() => {
+    // SOLUCIÓN: No verificar autenticación en la página de login para evitar bucles
+    console.log("LoginPage - No verificando sesión para evitar bucles");
+    setCheckingSession(false);
+    
+    /* COMENTADO PARA EVITAR BUCLES
     const checkExistingSession = async () => {
       console.log("LoginPage - Verificando si hay una sesión existente...");
 
@@ -35,6 +40,7 @@ const LoginPage = () => {
     };
 
     checkExistingSession();
+    */
   }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {

@@ -68,6 +68,16 @@ export async function apiFetch<T>(
 ): Promise<T> {
   if (!path) throw new Error("Ruta de API no especificada");
 
+  // SOLUCIÓN: Evitar llamadas API en páginas de login/registro excepto el login mismo
+  if (
+    window.location.pathname === '/login' &&
+    !path.includes('login_check') &&
+    !options.skipRedirectCheck
+  ) {
+    console.log(`Evitando llamada API ${path} en página de login`);
+    throw new Error("Llamada API evitada en página de login");
+  }
+
   const url = path.startsWith("http")
     ? path
     : `${API_URL}${path.startsWith("/") ? "" : "/"}${path}`;
@@ -85,7 +95,7 @@ export async function apiFetch<T>(
     body: options.body ? JSON.stringify(options.body) : undefined,
   };
 
-  const isLoginRequest = url.includes("/login") && options.method === "POST";
+  const isLoginRequest = url.includes("/login_check") && options.method === "POST";
 
   try {
     console.log(`Fetching: ${url}`);
