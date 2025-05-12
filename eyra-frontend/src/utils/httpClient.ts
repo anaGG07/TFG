@@ -98,6 +98,11 @@ export async function apiFetch<T>(
   const isLoginRequest = url.includes("/login_check") && options.method === "POST";
 
   try {
+    // LOGGERS PARA VERIFICAR URLS
+    console.log(`Preparando fetch para URL: ${url}`);
+    console.log(`Path original: ${path}`);
+    console.log(`Método: ${options.method}`);
+    
     console.log(`Fetching: ${url}`);
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 15000);
