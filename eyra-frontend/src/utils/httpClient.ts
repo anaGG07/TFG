@@ -34,6 +34,12 @@ console.log("httpClient (fetch) inicializado, API_URL base:", API_URL);
  * Llama al endpoint de refresh-token y devuelve si fue exitoso.
  */
 async function tryRefreshToken(): Promise<boolean> {
+  // Si ya estamos en la página de login, no intentamos reautenticar para evitar bucles
+  if (window.location.pathname === '/login') {
+    console.log("[httpClient] Ya en página de login, evitando bucle de renovación");
+    return false;
+  }
+  
   try {
     const res = await fetch(`${API_URL}/refresh-token`, {
       method: "POST",
@@ -101,6 +107,12 @@ export async function apiFetch<T>(
       !options.skipErrorHandling &&
       !options.skipRedirectCheck
     ) {
+      // Evitar redirigir si ya estamos en la página de login
+      if (window.location.pathname === '/login') {
+        console.log("Ya en página de login, evitando redirección para prevenir bucle");
+        throw new Error("Sesión no iniciada");
+      }
+      
       console.warn("🔒 Token expirado, intentando renovar...");
       const refreshed = await tryRefreshToken();
 
