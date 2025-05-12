@@ -4,6 +4,7 @@ framework:
 
     # Note that the session will be started ONLY if you read or write from it.
     session:
+        auto_start: false
         cookie_secure: '%env(bool:COOKIE_SECURE)%'
         cookie_samesite: 'strict'
         cookie_httponly: true
