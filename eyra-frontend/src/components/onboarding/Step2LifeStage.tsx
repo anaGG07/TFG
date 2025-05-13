@@ -1,22 +1,27 @@
 import React from "react";
-import { UseFormRegister, FieldErrors, UseFormWatch } from "react-hook-form";
+import {
+  UseFormRegister,
+  FieldErrors,
+  UseFormWatch,
+  UseFormTrigger,
+} from "react-hook-form";
 import { OnboardingFormData } from "../../types/forms/OnboardingFormData";
 
 interface Props {
   isSubmitting: boolean;
-  isValid: boolean;
   register: UseFormRegister<OnboardingFormData>;
   errors: FieldErrors<OnboardingFormData>;
   watch: UseFormWatch<OnboardingFormData>;
+  trigger: UseFormTrigger<OnboardingFormData>;
   setStep: (step: number) => void;
 }
 
 const Step2LifeStage: React.FC<Props> = ({
   isSubmitting,
-  isValid,
   register,
   errors,
   watch,
+  trigger,
   setStep,
 }) => {
   const stageOfLife = watch("stageOfLife");
@@ -46,6 +51,24 @@ const Step2LifeStage: React.FC<Props> = ({
       default:
         return null;
     }
+  };
+
+  const handleNext = async () => {
+    const valid = await trigger("stageOfLife");
+    if (!valid) return;
+
+    const transition = stageOfLife === "transition";
+    const hasSome = hormoneType || hormoneStartDate || hormoneFrequencyDays;
+    const hasAll = hormoneType && hormoneStartDate && hormoneFrequencyDays;
+
+    if (transition && hasSome && !hasAll) {
+      alert(
+        "Para registrar tu tratamiento hormonal, completa los tres campos o deja todos vacíos."
+      );
+      return;
+    }
+
+    setStep(3);
   };
 
   return (
@@ -167,8 +190,8 @@ const Step2LifeStage: React.FC<Props> = ({
 
         <button
           type="button"
-          onClick={() => setStep(3)}
-          disabled={!isValid || isSubmitting}
+          onClick={handleNext}
+          disabled={isSubmitting}
           className="px-8 py-3 bg-[#5b0108] text-white rounded-lg font-medium transition-all hover:bg-[#9d0d0b] disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {isSubmitting ? "Guardando..." : "Siguiente"}

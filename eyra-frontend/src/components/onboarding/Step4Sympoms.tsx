@@ -42,6 +42,17 @@ const Step4Symptoms: React.FC<Props> = ({
 
   const hasSelected = selected.length > 0;
 
+  const handleNext = async () => {
+    // Solo necesario si se exige al menos un síntoma:
+    // const valid = await trigger("commonSymptoms");
+    // if (!valid || selected.length === 0) {
+    //   alert("Por favor, selecciona al menos un síntoma o deja el campo vacío intencionalmente.");
+    //   return;
+    // }
+
+    setStep(5);
+  };
+
   return (
     <div className="space-y-6">
       <p className="text-[#300808] mb-8 text-center text-lg">
@@ -95,7 +106,7 @@ const Step4Symptoms: React.FC<Props> = ({
 
         <button
           type="button"
-          onClick={() => setStep(5)}
+          onClick={handleNext}
           disabled={isSubmitting}
           className="px-8 py-3 bg-[#5b0108] text-white rounded-lg font-medium transition-all hover:bg-[#9d0d0b] disabled:opacity-50 disabled:cursor-not-allowed"
         >

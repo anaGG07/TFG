@@ -4,7 +4,6 @@ import { OnboardingFormData } from "../../types/forms/OnboardingFormData";
 
 interface Props {
   isSubmitting: boolean;
-  isValid: boolean;
   register: UseFormRegister<OnboardingFormData>;
   errors: FieldErrors<OnboardingFormData>;
   watch: UseFormWatch<OnboardingFormData>;
@@ -13,7 +12,6 @@ interface Props {
 
 const Step3Preferences: React.FC<Props> = ({
   isSubmitting,
-  isValid,
   register,
   watch,
   setStep,
@@ -33,6 +31,7 @@ const Step3Preferences: React.FC<Props> = ({
           <h3 className="text-sm text-[#300808] font-medium mb-2">
             Notificaciones y seguimiento
           </h3>
+
           <label className="flex items-center">
             <input
               type="checkbox"
@@ -136,7 +135,7 @@ const Step3Preferences: React.FC<Props> = ({
         <button
           type="button"
           onClick={() => setStep(4)}
-          disabled={!isValid || isSubmitting}
+          disabled={isSubmitting}
           className="px-8 py-3 bg-[#5b0108] text-white rounded-lg font-medium transition-all hover:bg-[#9d0d0b] disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {isSubmitting ? "Guardando..." : "Siguiente"}

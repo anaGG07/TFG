@@ -29,7 +29,7 @@ const Step1Context: React.FC<Props> = ({
   const isPersonal = watch("isPersonal");
   const genderInputRef = useRef<HTMLInputElement>(null);
 
-  // Accesibilidad: enfocar primer campo al montar
+  // Autofocus en el primer input
   useEffect(() => {
     genderInputRef.current?.focus();
   }, []);
@@ -89,8 +89,7 @@ const Step1Context: React.FC<Props> = ({
             {...register("genderIdentity", {
               required: "Este campo es obligatorio",
               validate: (value) =>
-                value.trim().length >= 2 ||
-                "Debes escribir al menos 2 caracteres",
+                value.trim().length > 0 || "Este campo no puede estar vacío",
             })}
             ref={genderInputRef}
             className={`w-full bg-white border ${
@@ -104,8 +103,8 @@ const Step1Context: React.FC<Props> = ({
             </p>
           )}
           <p className="text-xs text-gray-500 mt-1">
-            Puedes escribir lo que tú prefieras. Este dato solo se usará para
-            personalizar tu experiencia.
+            Puedes escribir lo que tú prefieras. Este dato es obligatorio para
+            continuar.
           </p>
         </div>
 

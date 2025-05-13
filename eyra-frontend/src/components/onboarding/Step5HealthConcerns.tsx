@@ -9,7 +9,6 @@ import { OnboardingFormData } from "../../types/forms/OnboardingFormData";
 
 interface Props {
   isSubmitting: boolean;
-  isValid: boolean;
   watch: UseFormWatch<OnboardingFormData>;
   setValue: UseFormSetValue<OnboardingFormData>;
   register: UseFormRegister<OnboardingFormData>;
@@ -34,7 +33,6 @@ const healthOptions = [
 
 const Step5HealthConcerns: React.FC<Props> = ({
   isSubmitting,
-  isValid,
   watch,
   setValue,
   register,
@@ -51,7 +49,13 @@ const Step5HealthConcerns: React.FC<Props> = ({
     setValue("healthConcerns", updated, { shouldValidate: true });
   };
 
-  const hasSelected = selected.length > 0;
+  const handleFinalSubmit = async () => {
+    // Si decides validar algo, puedes usar trigger:
+    // const valid = await trigger(["healthConcerns", "accessCode"]);
+    // if (!valid) return;
+
+    onSubmit();
+  };
 
   return (
     <div className="space-y-6">
@@ -88,7 +92,7 @@ const Step5HealthConcerns: React.FC<Props> = ({
         })}
       </div>
 
-      {!hasSelected && (
+      {selected.length === 0 && (
         <p className="text-sm text-[#5b0108] mt-4 text-center">
           Este paso es completamente opcional. Si no aplican estas condiciones,
           puedes continuar sin seleccionar nada.
@@ -122,9 +126,9 @@ const Step5HealthConcerns: React.FC<Props> = ({
         </button>
 
         <button
-          type="submit"
-          onClick={onSubmit}
-          disabled={!isValid || isSubmitting}
+          type="button"
+          onClick={handleFinalSubmit}
+          disabled={isSubmitting}
           className="px-8 py-3 bg-[#5b0108] text-white rounded-lg font-medium transition-all hover:bg-[#9d0d0b] disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {isSubmitting ? "Enviando..." : "Finalizar"}

@@ -24,6 +24,7 @@ const OnboardingPage: React.FC = () => {
     watch,
     setValue,
     handleSubmit,
+    trigger,
     formState: { errors, isValid },
   } = useForm<OnboardingFormData>({
     defaultValues: {
@@ -47,7 +48,8 @@ const OnboardingPage: React.FC = () => {
       allowParentalMonitoring: false,
       commonSymptoms: [],
     },
-    mode: "onChange",
+    mode: "onTouched",
+    reValidateMode: "onChange",
   });
 
   // Función para calcular profileType
@@ -142,7 +144,7 @@ const OnboardingPage: React.FC = () => {
     <div className="min-h-screen bg-gradient-to-br from-[#f8e9ea] to-[#f5dfc4] flex items-center justify-center p-4">
       <div className="bg-white rounded-xl p-8 w-full max-w-2xl shadow-xl">
         {step === 1 && <Step1Context {...formProps} />}
-        {step === 2 && <Step2LifeStage {...formProps} />}
+        {step === 2 && <Step2LifeStage {...formProps} trigger={trigger} />}
         {step === 3 && <Step3Preferences {...formProps} />}
         {step === 4 && <Step4Symptoms {...formProps} />}
         {step === 5 && <Step5Health {...formProps} onSubmit={onSubmit} />}
