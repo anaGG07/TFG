@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useRef } from "react";
 import {
   UseFormRegister,
   FieldErrors,
@@ -27,19 +27,25 @@ const Step1Context: React.FC<Props> = ({
   setStep,
 }) => {
   const isPersonal = watch("isPersonal");
+  const genderInputRef = useRef<HTMLInputElement>(null);
+
+  // Accesibilidad: enfocar primer campo al montar
+  useEffect(() => {
+    genderInputRef.current?.focus();
+  }, []);
 
   return (
     <div className="space-y-6">
-      <p className="text-[#300808] mb-8 text-center">
+      <p className="text-[#300808] mb-8 text-center text-lg">
         Antes de empezar, cuéntanos un poco sobre ti para personalizar tu
         experiencia en EYRA.
       </p>
 
       <div className="space-y-4">
-        <div>
-          <label className="block text-[#300808] mb-2 font-medium">
+        <fieldset>
+          <legend className="block text-[#300808] mb-2 font-medium">
             ¿Usarás EYRA para ti o para acompañar a alguien?
-          </label>
+          </legend>
           <div className="flex gap-4">
             <label className="flex items-center">
               <input
@@ -64,7 +70,15 @@ const Step1Context: React.FC<Props> = ({
               <span>Para acompañar</span>
             </label>
           </div>
-        </div>
+
+          {typeof isPersonal === "boolean" && (
+            <p className="text-sm text-[#5b0108] mt-2 italic">
+              {isPersonal
+                ? "Configuraremos EYRA para ayudarte con el seguimiento de tu ciclo y salud hormonal."
+                : "EYRA se adaptará para que puedas acompañar a otra persona en su experiencia."}
+            </p>
+          )}
+        </fieldset>
 
         <div>
           <label className="block text-[#300808] mb-2 font-medium">
@@ -75,7 +89,10 @@ const Step1Context: React.FC<Props> = ({
             {...register("genderIdentity", {
               required: "Este campo es obligatorio",
             })}
-            className="w-full bg-white border border-[#300808]/20 rounded-lg py-3 px-4 text-[#5b0108]"
+            ref={genderInputRef}
+            className={`w-full bg-white border ${
+              errors.genderIdentity ? "border-red-500" : "border-[#300808]/20"
+            } rounded-lg py-3 px-4 text-[#5b0108]`}
             placeholder="Ej: Mujer cis, Persona trans, No binaria..."
           />
           {errors.genderIdentity && (
@@ -83,6 +100,10 @@ const Step1Context: React.FC<Props> = ({
               {errors.genderIdentity.message}
             </p>
           )}
+          <p className="text-xs text-gray-500 mt-1">
+            Puedes escribir lo que tú prefieras. Este dato solo se usará para
+            personalizar tu experiencia.
+          </p>
         </div>
 
         <div>
@@ -105,7 +126,11 @@ const Step1Context: React.FC<Props> = ({
           disabled={!isValid || isSubmitting}
           className="px-8 py-3 bg-[#5b0108] text-white rounded-lg font-medium transition-all hover:bg-[#9d0d0b] disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          {isSubmitting ? "Guardando..." : "Siguiente"}
+          {isSubmitting
+            ? "Guardando..."
+            : isPersonal
+            ? "Continuar con mi perfil"
+            : "Continuar como acompañante"}
         </button>
       </div>
     </div>

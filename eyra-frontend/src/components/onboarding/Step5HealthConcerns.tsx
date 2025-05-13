@@ -55,43 +55,49 @@ const Step5HealthConcerns: React.FC<Props> = ({
 
   return (
     <div className="space-y-6">
-      <p className="text-[#300808] mb-8 text-center">
+      <p className="text-[#300808] mb-8 text-center text-lg">
         ¿Hay alguna condición médica o preocupación de salud que quieras que
-        EYRA tenga en cuenta?
+        EYRA tenga en cuenta? Puedes seleccionar todas las que apliquen.
       </p>
 
       <div className="grid grid-cols-2 gap-4">
-        {healthOptions.map((item) => (
-          <label
-            key={item}
-            className={`flex items-center p-3 border rounded-lg cursor-pointer transition-all ${
-              selected.includes(item)
-                ? "bg-[#fceced] border-[#5b0108]/60"
-                : "hover:bg-[#5b010810] hover:border-[#5b0108]/30"
-            }`}
-            onClick={() => toggleConcern(item)}
-          >
-            <input
-              type="checkbox"
-              checked={selected.includes(item)}
-              readOnly
-              className="mr-3"
-            />
-            <span>{item}</span>
-          </label>
-        ))}
+        {healthOptions.map((item) => {
+          const isChecked = selected.includes(item);
+          return (
+            <label
+              key={item}
+              className={`flex items-center justify-between p-3 border rounded-lg cursor-pointer transition-all ${
+                isChecked
+                  ? "bg-[#fceced] border-[#5b0108]/60"
+                  : "hover:bg-[#5b010810] hover:border-[#5b0108]/30"
+              }`}
+              onClick={() => toggleConcern(item)}
+            >
+              <div className="flex items-center">
+                <input
+                  type="checkbox"
+                  checked={isChecked}
+                  readOnly
+                  className="mr-3"
+                />
+                <span>{item}</span>
+              </div>
+              {isChecked && <span className="text-[#5b0108] text-lg">✓</span>}
+            </label>
+          );
+        })}
       </div>
 
       {!hasSelected && (
-        <p className="text-sm text-[#5b0108] mt-4">
-          Puedes omitir este paso si no tienes condiciones médicas conocidas o
-          prefieres no especificar.
+        <p className="text-sm text-[#5b0108] mt-4 text-center">
+          Este paso es completamente opcional. Si no aplican estas condiciones,
+          puedes continuar sin seleccionar nada.
         </p>
       )}
 
-      <div className="mt-4">
+      <div className="mt-6">
         <label className="block text-[#300808] mb-2 font-medium">
-          Otros detalles que quieras añadir (opcional):
+          ¿Quieres añadir algún otro detalle o contexto? (opcional)
         </label>
         <textarea
           {...register("accessCode")}

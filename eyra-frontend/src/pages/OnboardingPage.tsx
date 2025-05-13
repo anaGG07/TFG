@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import {
-  useForm, SubmitHandler,} from "react-hook-form";
+import { useForm, SubmitHandler } from "react-hook-form";
 
 import { useAuth } from "../context/AuthContext";
 import { ROUTES } from "../router/paths";
@@ -29,6 +28,7 @@ const OnboardingPage: React.FC = () => {
   } = useForm<OnboardingFormData>({
     defaultValues: {
       isPersonal: true,
+      profileType: "profile_women",
       genderIdentity: "",
       pronouns: "",
       stageOfLife: "",
@@ -50,6 +50,17 @@ const OnboardingPage: React.FC = () => {
     mode: "onChange",
   });
 
+  // Función para calcular profileType
+  const deriveProfileType = (): string => {
+    const isPersonal = watch("isPersonal");
+    const stage = watch("stageOfLife");
+
+    if (!isPersonal) return "profile_guest";
+    if (stage === "transition") return "profile_trans";
+    if (stage === "underage") return "profile_underage";
+    return "profile_women";
+  };
+
   useEffect(() => {
     if (user?.onboardingCompleted) {
       navigate(ROUTES.DASHBOARD, { replace: true });
@@ -70,7 +81,25 @@ const OnboardingPage: React.FC = () => {
         return;
       }
 
-      const finalData = step === 5 ? { ...data, completed: true } : data;
+      const profileType = deriveProfileType();
+      const finalData =
+        step === 5
+          ? { ...data, profileType, completed: true }
+          : { ...data, profileType };
+
+      // Validación manual adicional (opcional)
+      if (
+        !finalData.genderIdentity ||
+        !finalData.stageOfLife ||
+        !finalData.profileType
+      ) {
+        setError("Faltan campos obligatorios para completar tu perfil.");
+        setIsSubmitting(false);
+        return;
+      }
+
+      console.log("Payload final:", finalData);
+
       const updatedUser = await completeOnboarding(finalData);
 
       if (step < 5) {
@@ -91,7 +120,7 @@ const OnboardingPage: React.FC = () => {
       setIsSubmitting(false);
     }
   };
-  
+
   const onSubmit = handleSubmit(saveOnboarding);
 
   const formProps = {

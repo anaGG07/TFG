@@ -44,36 +44,43 @@ const Step4Symptoms: React.FC<Props> = ({
 
   return (
     <div className="space-y-6">
-      <p className="text-[#300808] mb-8 text-center">
-        ¿Qué síntomas experimentas con más frecuencia? Puedes seleccionar
-        varios.
+      <p className="text-[#300808] mb-8 text-center text-lg">
+        Elige los síntomas que sueles experimentar en tu ciclo. Esto nos ayudará
+        a darte mejores recomendaciones.
       </p>
 
       <div className="grid grid-cols-2 gap-4">
-        {symptomOptions.map((symptom) => (
-          <label
-            key={symptom}
-            className={`flex items-center p-3 border rounded-lg cursor-pointer transition-all ${
-              selected.includes(symptom)
-                ? "bg-[#fceced] border-[#5b0108]/60"
-                : "hover:bg-[#5b010810] hover:border-[#5b0108]/30"
-            }`}
-            onClick={() => toggleSymptom(symptom)}
-          >
-            <input
-              type="checkbox"
-              checked={selected.includes(symptom)}
-              readOnly
-              className="mr-3"
-            />
-            <span>{symptom}</span>
-          </label>
-        ))}
+        {symptomOptions.map((symptom) => {
+          const isChecked = selected.includes(symptom);
+          return (
+            <label
+              key={symptom}
+              className={`flex items-center justify-between p-3 border rounded-lg cursor-pointer transition-all ${
+                isChecked
+                  ? "bg-[#fceced] border-[#5b0108]/60"
+                  : "hover:bg-[#5b010810] hover:border-[#5b0108]/30"
+              }`}
+              onClick={() => toggleSymptom(symptom)}
+            >
+              <div className="flex items-center">
+                <input
+                  type="checkbox"
+                  checked={isChecked}
+                  readOnly
+                  className="mr-3"
+                />
+                <span>{symptom}</span>
+              </div>
+              {isChecked && <span className="text-[#5b0108] text-lg">✓</span>}
+            </label>
+          );
+        })}
       </div>
 
       {!hasSelected && (
-        <p className="text-sm text-[#5b0108] mt-4">
-          Puedes dejar este paso vacío si no reconoces síntomas frecuentes aún.
+        <p className="text-sm text-[#5b0108] mt-4 text-center">
+          Puedes dejar este paso vacío si aún no identificas patrones en tus
+          síntomas.
         </p>
       )}
 

@@ -20,4 +20,9 @@ export interface OnboardingFormData {
   accessCode?: string;
   allowParentalMonitoring: boolean;
   commonSymptoms: string[];
+  profileType:
+    | "profile_guest"
+    | "profile_women"
+    | "profile_trans"
+    | "profile_underage";
 }

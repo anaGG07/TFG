@@ -23,88 +23,106 @@ const Step3Preferences: React.FC<Props> = ({
 
   return (
     <div className="space-y-6">
-      <p className="text-[#300808] mb-8 text-center">
-        ¿Cómo quieres que EYRA te acompañe durante tu experiencia?
+      <p className="text-[#300808] mb-8 text-center text-lg">
+        ¿Cómo quieres que EYRA te acompañe durante tu experiencia? Selecciona
+        las opciones que más se ajusten a tus necesidades.
       </p>
 
-      <div className="space-y-4">
-        <label className="flex items-center">
-          <input
-            type="checkbox"
-            {...register("receiveAlerts")}
-            className="mr-2"
-          />
-          Recibir alertas relacionadas con mi ciclo o seguimiento
-        </label>
+      <div className="space-y-6">
+        <div>
+          <h3 className="text-sm text-[#300808] font-medium mb-2">
+            Notificaciones y seguimiento
+          </h3>
+          <label className="flex items-center">
+            <input
+              type="checkbox"
+              {...register("receiveAlerts")}
+              className="mr-2"
+            />
+            Recibir alertas relacionadas con mi ciclo o seguimiento
+          </label>
 
-        <label className="flex items-center">
-          <input
-            type="checkbox"
-            {...register("receiveRecommendations")}
-            className="mr-2"
-          />
-          Recibir recomendaciones personalizadas
-        </label>
+          <label className="flex items-center">
+            <input
+              type="checkbox"
+              {...register("receiveRecommendations")}
+              className="mr-2"
+            />
+            Recibir recomendaciones personalizadas
+          </label>
 
-        <label className="flex items-center">
-          <input
-            type="checkbox"
-            {...register("receiveCyclePhaseTips")}
-            className="mr-2"
-          />
-          Consejos según cada fase del ciclo
-        </label>
+          <label className="flex items-center">
+            <input
+              type="checkbox"
+              {...register("receiveCyclePhaseTips")}
+              className="mr-2"
+            />
+            Consejos según cada fase del ciclo
+          </label>
 
-        <label className="flex items-center">
-          <input
-            type="checkbox"
-            {...register("receiveWorkoutSuggestions")}
-            className="mr-2"
-          />
-          Sugerencias de actividad física
-        </label>
+          <label className="flex items-center">
+            <input
+              type="checkbox"
+              {...register("receiveWorkoutSuggestions")}
+              className="mr-2"
+            />
+            Sugerencias de actividad física
+          </label>
 
-        <label className="flex items-center">
-          <input
-            type="checkbox"
-            {...register("receiveNutritionAdvice")}
-            className="mr-2"
-          />
-          Consejos de alimentación
-        </label>
+          <label className="flex items-center">
+            <input
+              type="checkbox"
+              {...register("receiveNutritionAdvice")}
+              className="mr-2"
+            />
+            Consejos de alimentación
+          </label>
+        </div>
 
-        <label className="flex items-center">
-          <input
-            type="checkbox"
-            {...register("shareCycleWithPartner")}
-            className="mr-2"
-          />
-          Compartir el seguimiento con otra persona (pareja, tutor, acompañante)
-        </label>
+        <div className="pt-4 border-t">
+          <h3 className="text-sm text-[#300808] font-medium mb-2">
+            Acompañamiento y asistencia
+          </h3>
 
-        {wantsPartner && (
-          <p className="text-sm text-[#5b0108] ml-6">
-            Podrás invitar a una persona para que te acompañe y reciba
-            actualizaciones de tu estado.
-          </p>
-        )}
+          <label className="flex items-center">
+            <input
+              type="checkbox"
+              {...register("shareCycleWithPartner")}
+              className="mr-2"
+            />
+            Compartir el seguimiento con otra persona (pareja, tutor,
+            acompañante)
+          </label>
 
-        <label className="flex items-center">
-          <input
-            type="checkbox"
-            {...register("wantAICompanion")}
-            className="mr-2"
-          />
-          Usar asistente IA para resolver dudas y acompañar procesos
-        </label>
+          {wantsPartner && (
+            <p className="text-sm text-[#5b0108] ml-6">
+              Podrás invitar a una persona para que te acompañe y reciba
+              actualizaciones.
+            </p>
+          )}
 
-        {wantsAI && (
-          <p className="text-sm text-[#5b0108] ml-6">
-            EYRA incluirá un asistente de IA con respaldo científico para
-            resolver tus dudas.
-          </p>
-        )}
+          <label className="flex items-center">
+            <input
+              type="checkbox"
+              {...register("wantAICompanion")}
+              className="mr-2"
+            />
+            Usar asistente IA para resolver dudas y acompañar procesos
+          </label>
+
+          {wantsAI && (
+            <p className="text-sm text-[#5b0108] ml-6">
+              EYRA incluirá un asistente de IA con respaldo científico para
+              ayudarte en el día a día.
+            </p>
+          )}
+        </div>
       </div>
+
+      <p className="text-sm text-[#5b0108] text-center mt-4">
+        Todas estas preferencias son opcionales y podrás cambiarlas más
+        adelante.
+      </p>
 
       <div className="flex justify-between mt-8">
         <button

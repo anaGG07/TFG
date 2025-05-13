@@ -11,11 +11,12 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 class OnboardingController extends AbstractController
 {
     #[Route('/api/onboarding', name: 'api_onboarding', methods: ['POST'])]
-    public function completeOnboarding(Request $request, EntityManagerInterface $em): JsonResponse
+    public function completeOnboarding(Request $request, EntityManagerInterface $em, ValidatorInterface $validator): JsonResponse
     {
         /** @var User|null $user */
         $user = $this->getUser();
@@ -58,7 +59,8 @@ class OnboardingController extends AbstractController
         }
 
         if (isset($data['genderIdentity'])) {
-            $onboarding->setGenderIdentity($data['genderIdentity']);
+            $value = trim($data['genderIdentity'] ?? '');
+            $onboarding->setGenderIdentity($value !== '' ? $value : null);
         }
 
         if (isset($data['pronouns'])) {
@@ -153,9 +155,24 @@ class OnboardingController extends AbstractController
         }
 
         // Guardar los cambios en la base de datos
+        $errors = $validator->validate($onboarding);
+
+        if (count($errors) > 0) {
+            $errorMessages = [];
+            foreach ($errors as $error) {
+                $errorMessages[$error->getPropertyPath()] = $error->getMessage();
+            }
+
+            return $this->json([
+                'message' => 'Error de validación en los datos enviados',
+                'errors' => $errorMessages,
+            ], 400);
+        }
+
         $em->persist($onboarding);
         $em->persist($user);
         $em->flush();
+
 
         return $this->json(
             [

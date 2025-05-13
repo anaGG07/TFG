@@ -20,6 +20,14 @@ const Step2LifeStage: React.FC<Props> = ({
   setStep,
 }) => {
   const stageOfLife = watch("stageOfLife");
+  const hormoneType = watch("hormoneType");
+  const hormoneStartDate = watch("hormoneStartDate");
+  const hormoneFrequencyDays = watch("hormoneFrequencyDays");
+
+  const hormoneIncomplete =
+    stageOfLife === "transition" &&
+    (hormoneType || hormoneStartDate || hormoneFrequencyDays) &&
+    (!hormoneType || !hormoneStartDate || !hormoneFrequencyDays);
 
   const getStageDescription = (stage: string) => {
     switch (stage) {
@@ -85,6 +93,66 @@ const Step2LifeStage: React.FC<Props> = ({
           <p className="text-sm text-[#300808] bg-[#f8f4f2] p-4 rounded-md border border-[#300808]/10">
             {getStageDescription(stageOfLife)}
           </p>
+        )}
+
+        {stageOfLife === "transition" && (
+          <div className="space-y-4 mt-6 border-t pt-6">
+            <p className="text-sm text-[#5b0108] italic">
+              Para adaptar EYRA a tu transición hormonal, puedes completar estos
+              datos.
+            </p>
+
+            <div>
+              <label className="block text-[#300808] mb-2 font-medium">
+                Tipo de hormona{" "}
+                <span className="text-sm text-gray-500">(opcional)</span>
+              </label>
+              <select
+                {...register("hormoneType")}
+                className="w-full bg-white border border-[#300808]/20 rounded-lg py-3 px-4 text-[#5b0108]"
+              >
+                <option value="">-- Selecciona --</option>
+                <option value="estrogen">Estrógeno</option>
+                <option value="progesterone">Progesterona</option>
+                <option value="testosterone">Testosterona</option>
+                <option value="luteinizing_hormone">LH</option>
+                <option value="follicle_stimulating_hormone">FSH</option>
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-[#300808] mb-2 font-medium">
+                Fecha de inicio de la terapia hormonal{" "}
+                <span className="text-sm text-gray-500">(opcional)</span>
+              </label>
+              <input
+                type="date"
+                {...register("hormoneStartDate")}
+                className="w-full bg-white border border-[#300808]/20 rounded-lg py-3 px-4 text-[#5b0108]"
+                placeholder="Selecciona una fecha"
+              />
+            </div>
+
+            <div>
+              <label className="block text-[#300808] mb-2 font-medium">
+                Frecuencia de administración (en días){" "}
+                <span className="text-sm text-gray-500">(opcional)</span>
+              </label>
+              <input
+                type="number"
+                {...register("hormoneFrequencyDays")}
+                className="w-full bg-white border border-[#300808]/20 rounded-lg py-3 px-4 text-[#5b0108]"
+                placeholder="Ej: 30"
+              />
+            </div>
+
+            {hormoneIncomplete && (
+              <p className="text-red-500 text-sm mt-2">
+                Para registrar tu tratamiento hormonal, completa los tres campos
+                o deja todos vacíos.
+              </p>
+            )}
+          </div>
         )}
       </div>
 
