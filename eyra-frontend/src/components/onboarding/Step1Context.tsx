@@ -88,6 +88,9 @@ const Step1Context: React.FC<Props> = ({
             type="text"
             {...register("genderIdentity", {
               required: "Este campo es obligatorio",
+              validate: (value) =>
+                value.trim().length >= 2 ||
+                "Debes escribir al menos 2 caracteres",
             })}
             ref={genderInputRef}
             className={`w-full bg-white border ${
