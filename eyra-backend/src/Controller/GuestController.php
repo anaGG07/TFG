@@ -176,4 +176,10 @@ class GuestController extends AbstractController
         
         return $this->json($invitations, 200, [], ['groups' => 'guest_access:read']);
     }
+
+    #[Route('/test-route', name: 'api_test', methods: ['GET'])]
+    public function testRoute(): JsonResponse
+    {
+        return $this->json(['message' => 'Test route works!']);
+    }
 }
