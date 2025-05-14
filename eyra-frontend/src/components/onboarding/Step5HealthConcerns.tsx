@@ -1,21 +1,5 @@
 import React from "react";
-import {
-  UseFormWatch,
-  UseFormSetValue,
-  UseFormRegister,
-  FieldErrors,
-} from "react-hook-form";
-import { OnboardingFormData } from "../../types/forms/OnboardingFormData";
-
-interface Props {
-  isSubmitting: boolean;
-  watch: UseFormWatch<OnboardingFormData>;
-  setValue: UseFormSetValue<OnboardingFormData>;
-  register: UseFormRegister<OnboardingFormData>;
-  errors: FieldErrors<OnboardingFormData>;
-  onSubmit: () => void;
-  setStep: (step: number) => void;
-}
+import { StepProps, Step5Props } from "../../types/components/StepProps";
 
 const healthOptions = [
   "Síndrome de ovario poliquístico",
@@ -31,14 +15,16 @@ const healthOptions = [
   "Otro",
 ];
 
-const Step5HealthConcerns: React.FC<Props> = ({
+const Step5HealthConcerns: React.FC<Step5Props> = ({
   isSubmitting,
   watch,
   setValue,
   register,
   errors,
   onSubmit,
-  setStep,
+  onPreviousStep,
+  trigger, // Añadimos esta prop para cumplir con la interfaz
+  setStep, // Añadimos esta prop para cumplir con la interfaz
 }) => {
   const selected = watch("healthConcerns") || [];
 
@@ -49,13 +35,7 @@ const Step5HealthConcerns: React.FC<Props> = ({
     setValue("healthConcerns", updated, { shouldValidate: true });
   };
 
-  const handleFinalSubmit = async () => {
-    // Si decides validar algo, puedes usar trigger:
-    // const valid = await trigger(["healthConcerns", "accessCode"]);
-    // if (!valid) return;
-
-    onSubmit();
-  };
+  // La validación se maneja a través de la función onSubmit proporcionada por el componente padre
 
   return (
     <div className="space-y-6">
@@ -119,7 +99,7 @@ const Step5HealthConcerns: React.FC<Props> = ({
       <div className="flex justify-between mt-8">
         <button
           type="button"
-          onClick={() => setStep(4)}
+          onClick={onPreviousStep}
           className="px-6 py-3 bg-gray-300 text-[#300808] rounded-lg font-medium hover:bg-gray-400"
         >
           Atrás
@@ -127,7 +107,7 @@ const Step5HealthConcerns: React.FC<Props> = ({
 
         <button
           type="button"
-          onClick={handleFinalSubmit}
+          onClick={onSubmit}
           disabled={isSubmitting}
           className="px-8 py-3 bg-[#5b0108] text-white rounded-lg font-medium transition-all hover:bg-[#9d0d0b] disabled:opacity-50 disabled:cursor-not-allowed"
         >

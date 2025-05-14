@@ -1,20 +1,12 @@
 import React from "react";
-import { UseFormRegister, FieldErrors, UseFormWatch } from "react-hook-form";
-import { OnboardingFormData } from "../../types/forms/OnboardingFormData";
+import { StepProps } from "../../types/components/StepProps";
 
-interface Props {
-  isSubmitting: boolean;
-  register: UseFormRegister<OnboardingFormData>;
-  errors: FieldErrors<OnboardingFormData>;
-  watch: UseFormWatch<OnboardingFormData>;
-  setStep: (step: number) => void;
-}
-
-const Step3Preferences: React.FC<Props> = ({
+const Step3Preferences: React.FC<StepProps> = ({
   isSubmitting,
   register,
   watch,
-  setStep,
+  onNextStep,
+  onPreviousStep,
 }) => {
   const wantsAI = watch("wantAICompanion");
   const wantsPartner = watch("shareCycleWithPartner");
@@ -126,7 +118,7 @@ const Step3Preferences: React.FC<Props> = ({
       <div className="flex justify-between mt-8">
         <button
           type="button"
-          onClick={() => setStep(2)}
+          onClick={onPreviousStep}
           className="px-6 py-3 bg-gray-300 text-[#300808] rounded-lg font-medium hover:bg-gray-400"
         >
           Atrás
@@ -134,7 +126,7 @@ const Step3Preferences: React.FC<Props> = ({
 
         <button
           type="button"
-          onClick={() => setStep(4)}
+          onClick={onNextStep}
           disabled={isSubmitting}
           className="px-8 py-3 bg-[#5b0108] text-white rounded-lg font-medium transition-all hover:bg-[#9d0d0b] disabled:opacity-50 disabled:cursor-not-allowed"
         >

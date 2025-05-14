@@ -1,28 +1,13 @@
 import React from "react";
-import {
-  UseFormRegister,
-  FieldErrors,
-  UseFormWatch,
-  UseFormTrigger,
-} from "react-hook-form";
-import { OnboardingFormData } from "../../types/forms/OnboardingFormData";
+import { StepProps } from "../../types/components/StepProps";
 
-interface Props {
-  isSubmitting: boolean;
-  register: UseFormRegister<OnboardingFormData>;
-  errors: FieldErrors<OnboardingFormData>;
-  watch: UseFormWatch<OnboardingFormData>;
-  trigger: UseFormTrigger<OnboardingFormData>;
-  setStep: (step: number) => void;
-}
-
-const Step2LifeStage: React.FC<Props> = ({
+const Step2LifeStage: React.FC<StepProps> = ({
   isSubmitting,
   register,
   errors,
   watch,
-  trigger,
-  setStep,
+  onNextStep,
+  onPreviousStep,
 }) => {
   const stageOfLife = watch("stageOfLife");
   const hormoneType = watch("hormoneType");
@@ -53,23 +38,8 @@ const Step2LifeStage: React.FC<Props> = ({
     }
   };
 
-  const handleNext = async () => {
-    const valid = await trigger("stageOfLife");
-    if (!valid) return;
-
-    const transition = stageOfLife === "transition";
-    const hasSome = hormoneType || hormoneStartDate || hormoneFrequencyDays;
-    const hasAll = hormoneType && hormoneStartDate && hormoneFrequencyDays;
-
-    if (transition && hasSome && !hasAll) {
-      alert(
-        "Para registrar tu tratamiento hormonal, completa los tres campos o deja todos vacíos."
-      );
-      return;
-    }
-
-    setStep(3);
-  };
+  // Ya no necesitamos validar aquí, la validación se maneja en el componente padre
+  // a través de la función onNextStep
 
   return (
     <div className="space-y-6">
@@ -182,7 +152,7 @@ const Step2LifeStage: React.FC<Props> = ({
       <div className="flex justify-between mt-8">
         <button
           type="button"
-          onClick={() => setStep(1)}
+          onClick={onPreviousStep}
           className="px-6 py-3 bg-gray-300 text-[#300808] rounded-lg font-medium hover:bg-gray-400"
         >
           Atrás
@@ -190,7 +160,7 @@ const Step2LifeStage: React.FC<Props> = ({
 
         <button
           type="button"
-          onClick={handleNext}
+          onClick={onNextStep}
           disabled={isSubmitting}
           className="px-8 py-3 bg-[#5b0108] text-white rounded-lg font-medium transition-all hover:bg-[#9d0d0b] disabled:opacity-50 disabled:cursor-not-allowed"
         >

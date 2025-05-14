@@ -1,30 +1,13 @@
 import React, { useEffect, useRef } from "react";
-import {
-  UseFormRegister,
-  FieldErrors,
-  UseFormWatch,
-  UseFormSetValue,
-} from "react-hook-form";
-import { OnboardingFormData } from "../../types/forms/OnboardingFormData";
+import { StepProps } from "../../types/components/StepProps";
 
-interface Props {
-  isSubmitting: boolean;
-  isValid: boolean;
-  register: UseFormRegister<OnboardingFormData>;
-  errors: FieldErrors<OnboardingFormData>;
-  watch: UseFormWatch<OnboardingFormData>;
-  setValue: UseFormSetValue<OnboardingFormData>;
-  setStep: (step: number) => void;
-}
-
-const Step1Context: React.FC<Props> = ({
+const Step1Context: React.FC<StepProps> = ({
   isSubmitting,
-  isValid,
   register,
   errors,
   watch,
   setValue,
-  setStep,
+  onNextStep,
 }) => {
   const isPersonal = watch("isPersonal");
   const genderInputRef = useRef<HTMLInputElement>(null);
@@ -124,8 +107,8 @@ const Step1Context: React.FC<Props> = ({
       <div className="flex justify-end mt-8">
         <button
           type="button"
-          onClick={() => setStep(2)}
-          disabled={!isValid || isSubmitting}
+          onClick={onNextStep}
+          disabled={isSubmitting}
           className="px-8 py-3 bg-[#5b0108] text-white rounded-lg font-medium transition-all hover:bg-[#9d0d0b] disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {isSubmitting

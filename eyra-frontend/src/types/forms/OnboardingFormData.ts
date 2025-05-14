@@ -25,4 +25,5 @@ export interface OnboardingFormData {
     | "profile_women"
     | "profile_trans"
     | "profile_underage";
+  completed: boolean;
 }

@@ -1,13 +1,5 @@
 import React from "react";
-import { UseFormWatch, UseFormSetValue } from "react-hook-form";
-import { OnboardingFormData } from "../../types/forms/OnboardingFormData";
-
-interface Props {
-  isSubmitting: boolean;
-  watch: UseFormWatch<OnboardingFormData>;
-  setValue: UseFormSetValue<OnboardingFormData>;
-  setStep: (step: number) => void;
-}
+import { StepProps } from "../../types/components/StepProps";
 
 const symptomOptions = [
   "Dolor de cabeza",
@@ -24,11 +16,12 @@ const symptomOptions = [
   "Ansiedad",
 ];
 
-const Step4Symptoms: React.FC<Props> = ({
+const Step4Symptoms: React.FC<StepProps> = ({
   isSubmitting,
   watch,
   setValue,
-  setStep,
+  onNextStep,
+  onPreviousStep,
 }) => {
   const selected = watch("commonSymptoms") || [];
 
@@ -42,16 +35,7 @@ const Step4Symptoms: React.FC<Props> = ({
 
   const hasSelected = selected.length > 0;
 
-  const handleNext = async () => {
-    // Solo necesario si se exige al menos un síntoma:
-    // const valid = await trigger("commonSymptoms");
-    // if (!valid || selected.length === 0) {
-    //   alert("Por favor, selecciona al menos un síntoma o deja el campo vacío intencionalmente.");
-    //   return;
-    // }
-
-    setStep(5);
-  };
+  // La validación se maneja a través de la función onNextStep del componente padre
 
   return (
     <div className="space-y-6">
@@ -98,7 +82,7 @@ const Step4Symptoms: React.FC<Props> = ({
       <div className="flex justify-between mt-8">
         <button
           type="button"
-          onClick={() => setStep(3)}
+          onClick={onPreviousStep}
           className="px-6 py-3 bg-gray-300 text-[#300808] rounded-lg font-medium hover:bg-gray-400"
         >
           Atrás
@@ -106,7 +90,7 @@ const Step4Symptoms: React.FC<Props> = ({
 
         <button
           type="button"
-          onClick={handleNext}
+          onClick={onNextStep}
           disabled={isSubmitting}
           className="px-8 py-3 bg-[#5b0108] text-white rounded-lg font-medium transition-all hover:bg-[#9d0d0b] disabled:opacity-50 disabled:cursor-not-allowed"
         >
