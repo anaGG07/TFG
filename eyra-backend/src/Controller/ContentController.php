@@ -14,7 +14,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
-#[Route('/api/content')]
+#[Route('//content')]
 class ContentController extends AbstractController
 {
     public function __construct(

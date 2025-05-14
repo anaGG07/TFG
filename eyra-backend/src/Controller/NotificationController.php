@@ -13,7 +13,7 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 use Doctrine\ORM\EntityManagerInterface;
 
-#[Route('/api/notifications')]
+#[Route('//notifications')]
 class NotificationController extends AbstractController
 {
     public function __construct(

@@ -14,7 +14,7 @@ use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Doctrine\ORM\EntityManagerInterface;
 
-#[Route('/api/menopause')]
+#[Route('//menopause')]
 class MenopauseController extends AbstractController
 {
     public function __construct(

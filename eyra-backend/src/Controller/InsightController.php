@@ -8,7 +8,7 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class InsightController extends AbstractController
 {
-    #[Route('/api/insights/summary', name: 'api_insights_summary', methods: ['GET'])]
+    #[Route('//insights/summary', name: 'api_insights_summary', methods: ['GET'])]
     public function summary(): JsonResponse
     {
         // Simulación: devolver resumen de ciclos
@@ -24,7 +24,7 @@ class InsightController extends AbstractController
         ]);
     }
 
-    #[Route('/api/insights/predictions', name: 'api_insights_predictions', methods: ['GET'])]
+    #[Route('//insights/predictions', name: 'api_insights_predictions', methods: ['GET'])]
     public function predictions(): JsonResponse
     {
         // Simulación: predicción próxima menstruación y ventana fértil
@@ -38,7 +38,7 @@ class InsightController extends AbstractController
         ]);
     }
 
-    #[Route('/api/insights/patterns', name: 'api_insights_patterns', methods: ['GET'])]
+    #[Route('//insights/patterns', name: 'api_insights_patterns', methods: ['GET'])]
     public function patterns(): JsonResponse
     {
         // Simulación: patrón de síntomas

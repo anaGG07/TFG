@@ -17,7 +17,7 @@ use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Doctrine\ORM\EntityManagerInterface;
 
-#[Route('/api/conditions')]
+#[Route('//conditions')]
 class ConditionController extends AbstractController
 {
     public function __construct(
