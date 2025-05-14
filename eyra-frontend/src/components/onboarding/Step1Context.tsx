@@ -72,7 +72,7 @@ const Step1Context: React.FC<StepProps> = ({
             {...register("genderIdentity", {
               required: "Este campo es obligatorio",
               validate: (value) =>
-                value.trim().length > 0 || "Este campo no puede estar vacío",
+                (value && value.trim().length > 0) || "Este campo no puede estar vacío",
             })}
             ref={genderInputRef}
             className={`w-full bg-white border ${

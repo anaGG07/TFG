@@ -81,6 +81,13 @@ const OnboardingPage: React.FC = () => {
       case 1:
         // Paso 1: Validar genderIdentity
         isValid = await trigger("genderIdentity");
+        // Verificación adicional para asegurarnos de que el valor es válido
+        const genderValue = watch("genderIdentity");
+        if (!genderValue || genderValue.trim() === "") {
+          setValue("genderIdentity", ""); // Limpiar cualquier espacio en blanco
+          isValid = false;
+          setError("El campo de identidad de género es obligatorio");
+        }
         break;
 
       case 2:
@@ -126,10 +133,16 @@ const OnboardingPage: React.FC = () => {
   };
 
   const handleNextStep = async () => {
-    const valid = await validateStep(step);
-    if (!valid) return;
-    
-    setStep((prev) => prev + 1);
+    try {
+      const valid = await validateStep(step);
+      if (valid) {
+        // Si la validación es exitosa, avanzamos al siguiente paso
+        setStep((prev) => prev + 1);
+      }
+    } catch (err) {
+      console.error("Error en la validación:", err);
+      setError("Ha ocurrido un error al validar el formulario.");
+    }
   };
 
   const handlePreviousStep = () => {
@@ -182,10 +195,16 @@ const OnboardingPage: React.FC = () => {
   };
 
   const handleFinalSubmit = async () => {
-    const valid = await validateStep(step);
-    if (!valid) return;
-    
-    handleSubmit(saveOnboarding)();
+    try {
+      const valid = await validateStep(step);
+      if (valid) {
+        // Si la validación es exitosa, enviamos el formulario
+        handleSubmit(saveOnboarding)();
+      }
+    } catch (err) {
+      console.error("Error en la validación final:", err);
+      setError("Ha ocurrido un error al validar el formulario.");
+    }
   };
 
   // Props comunes para todos los componentes Step
