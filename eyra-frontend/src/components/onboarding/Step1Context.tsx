@@ -8,7 +8,7 @@ const Step1Context: React.FC<StepProps> = ({
   watch,
   setValue,
   onNextStep,
-  onGenderBlur,
+  // onGenderBlur,
 }) => {
   const isPersonal = watch("isPersonal");
   const genderInputRef = useRef<HTMLInputElement>(null);

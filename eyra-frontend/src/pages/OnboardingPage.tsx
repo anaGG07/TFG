@@ -79,7 +79,7 @@ const OnboardingPage: React.FC = () => {
     if (currentStep === 1) {
       // Para el paso 1, solo verificamos que haya algún texto en el campo
       const genderValue = watch("genderIdentity");
-      
+      console.log("El valor de genderValue es: ", genderValue);
       if (genderValue) {
         // Si hay algún valor, permitimos continuar
         return true;
