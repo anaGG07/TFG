@@ -23,6 +23,7 @@ const OnboardingPage: React.FC = () => {
     register,
     control,
     watch,
+    getValues,
     setValue,
     handleSubmit,
     trigger,
@@ -77,21 +78,24 @@ const OnboardingPage: React.FC = () => {
     setError(null);
 
     if (currentStep === 1) {
-      // Para el paso 1, solo verificamos que haya algún texto en el campo
-      const genderValue = watch("genderIdentity");
+      const genderValue = getValues("genderIdentity");
       console.log("El valor de genderValue es: ", genderValue);
-      if (genderValue) {
-        // Si hay algún valor, permitimos continuar
+      
+      const inputValue = document.querySelector(
+        'input[name="genderIdentity"]'
+      );
+      console.log("El valor directo del input es: ", inputValue);
+
+      if (genderValue && genderValue.trim() !== "") {
         return true;
       } else {
-        // Si no hay valor, mostramos un error
         setError("El campo de identidad de género es obligatorio");
         return false;
       }
     } else if (currentStep === 2) {
       // Paso 2: Validar stageOfLife y campos de transición hormonal si aplica
       let isValid = await trigger("stageOfLife");
-      
+
       if (isValid) {
         const stage = watch("stageOfLife");
         const hormoneType = watch("hormoneType");
@@ -99,14 +103,18 @@ const OnboardingPage: React.FC = () => {
         const hormoneFrequencyDays = watch("hormoneFrequencyDays");
 
         // Si es transición y al menos un campo está completo, entonces los tres deben estarlo
-        if (stage === "transition" && 
-            (hormoneType || hormoneStartDate || hormoneFrequencyDays) && 
-            (!hormoneType || !hormoneStartDate || !hormoneFrequencyDays)) {
-          setError("Si estás en transición hormonal, debes completar los tres campos o dejarlos vacíos.");
+        if (
+          stage === "transition" &&
+          (hormoneType || hormoneStartDate || hormoneFrequencyDays) &&
+          (!hormoneType || !hormoneStartDate || !hormoneFrequencyDays)
+        ) {
+          setError(
+            "Si estás en transición hormonal, debes completar los tres campos o dejarlos vacíos."
+          );
           isValid = false;
         }
       }
-      
+
       return isValid;
     }
     
