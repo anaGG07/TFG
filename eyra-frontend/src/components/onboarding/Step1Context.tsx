@@ -68,13 +68,34 @@ const Step1Context: React.FC<StepProps> = ({
           <label className="block text-[#300808] mb-2 font-medium">
             ¿Cómo te identificas?
           </label>
-          <input
+          {/* <input
             type="text"
             {...register("genderIdentity")}
             ref={genderInputRef}
-            className={`w-full bg-white border ${errors.genderIdentity ? "border-red-500" : "border-[#300808]/20"} rounded-lg py-3 px-4 text-[#5b0108]`}
+            className={`w-full bg-white border ${
+              errors.genderIdentity ? "border-red-500" : "border-[#300808]/20"
+            } rounded-lg py-3 px-4 text-[#5b0108]`}
+            placeholder="Ej: Mujer cis, Persona trans, No binaria..."
+          /> */}
+          <input
+            type="text"
+            // Usar una función que combine ambas referencias
+            ref={(element) => {
+              // Asigna la ref de React Hook Form
+              register("genderIdentity").ref(element);
+              // También asigna la ref del componente
+              genderInputRef.current = element;
+            }}
+            // Incluir el resto de las propiedades de register excepto ref
+            name="genderIdentity"
+            onChange={register("genderIdentity").onChange}
+            onBlur={register("genderIdentity").onBlur}
+            className={`w-full bg-white border ${
+              errors.genderIdentity ? "border-red-500" : "border-[#300808]/20"
+            } rounded-lg py-3 px-4 text-[#5b0108]`}
             placeholder="Ej: Mujer cis, Persona trans, No binaria..."
           />
+
           {errors.genderIdentity && (
             <p className="text-red-500 text-sm mt-1">
               {errors.genderIdentity.message}
@@ -82,7 +103,7 @@ const Step1Context: React.FC<StepProps> = ({
           )}
           <p className="text-xs text-gray-500 mt-1">
             Puedes escribir lo que tú prefieras. Este dato es obligatorio para
-            continuar. 
+            continuar.
           </p>
         </div>
 

@@ -84,7 +84,7 @@ const OnboardingPage: React.FC = () => {
       const inputValue = document.querySelector(
         'input[name="genderIdentity"]'
       );
-      console.log("El valor directo del input es: ", inputValue);
+      console.log("El valor directo del input es: ", inputValue.value);
 
       if (genderValue && genderValue.trim() !== "") {
         return true;
