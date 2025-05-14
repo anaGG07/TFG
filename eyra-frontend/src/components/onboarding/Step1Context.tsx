@@ -67,16 +67,7 @@ const Step1Context: React.FC<StepProps> = ({
         <div>
           <label className="block text-[#300808] mb-2 font-medium">
             ¿Cómo te identificas?
-          </label>
-          {/* <input
-            type="text"
-            {...register("genderIdentity")}
-            ref={genderInputRef}
-            className={`w-full bg-white border ${
-              errors.genderIdentity ? "border-red-500" : "border-[#300808]/20"
-            } rounded-lg py-3 px-4 text-[#5b0108]`}
-            placeholder="Ej: Mujer cis, Persona trans, No binaria..."
-          /> */}
+          </label>          
           <input
             type="text"
             // Usar una función que combine ambas referencias
