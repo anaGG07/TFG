@@ -71,10 +71,7 @@ const Step1Context: React.FC<StepProps> = ({
           <input
             type="text"
             {...register("genderIdentity", {
-              required: "El campo de identidad de género es obligatorio",
-              validate: (value) => {
-                return value.trim() !== "" || "El campo de identidad de género es obligatorio";
-              }
+              required: "El campo de identidad de género es obligatorio"
             })}
             ref={genderInputRef}
             onBlur={onGenderBlur} // Añadimos el evento onBlur

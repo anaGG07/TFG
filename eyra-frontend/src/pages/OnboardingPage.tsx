@@ -79,12 +79,11 @@ const OnboardingPage: React.FC = () => {
 
     switch (currentStep) {
       case 1:
-        // Paso 1: Validar genderIdentity usando directamente React Hook Form
-        isValid = await trigger("genderIdentity");
-        
-        // Si la validación falló, podemos mostrar un mensaje de error general
-        if (!isValid) {
-          setError("Por favor, completa todos los campos obligatorios.");
+        // Paso 1: Simplemente verificar si hay algún valor
+        const genderValue = watch("genderIdentity");
+        if (!genderValue) {
+          setError("El campo de identidad de género es obligatorio");
+          return false;
         }
         break;
 
@@ -205,17 +204,9 @@ const OnboardingPage: React.FC = () => {
     }
   };
 
-  // Función para limpiar espacios al salir del campo
-  const handleGenderBlur = (e: React.FocusEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    if (value) {
-      const trimmedValue = value.trim();
-      if (trimmedValue !== value) {
-        setValue("genderIdentity", trimmedValue);
-        // Actualizar también el valor del campo en el DOM
-        e.target.value = trimmedValue;
-      }
-    }
+  // Función para manejar el evento onBlur del campo gender
+  const handleGenderBlur = () => {
+    // No hacemos nada especial, simplemente dejamos que React Hook Form maneje la validación
   };
 
   // Props comunes para todos los componentes Step
