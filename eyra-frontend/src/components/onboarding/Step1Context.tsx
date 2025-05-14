@@ -70,9 +70,7 @@ const Step1Context: React.FC<StepProps> = ({
           </label>
           <input
             type="text"
-            {...register("genderIdentity", {
-              required: "El campo de identidad de género es obligatorio"
-            })}
+            {...register("genderIdentity")}
             ref={genderInputRef}
             onBlur={onGenderBlur} // Añadimos el evento onBlur
             className={`w-full bg-white border ${
@@ -108,7 +106,7 @@ const Step1Context: React.FC<StepProps> = ({
         <button
           type="button"
           onClick={onNextStep}
-          disabled={isSubmitting || Object.keys(errors).length > 0}
+          disabled={isSubmitting}
           className="px-8 py-3 bg-[#5b0108] text-white rounded-lg font-medium transition-all hover:bg-[#9d0d0b] disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {isSubmitting

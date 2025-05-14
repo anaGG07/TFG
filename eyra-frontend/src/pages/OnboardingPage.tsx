@@ -28,7 +28,7 @@ const OnboardingPage: React.FC = () => {
     trigger,
     formState: { errors },
   } = useForm<OnboardingFormData>({
-    mode: "onChange", // Validamos al cambiar el valor
+    mode: "onSubmit", // Validamos solo al enviar
     reValidateMode: "onChange",
     defaultValues: {
       isPersonal: true,
@@ -74,17 +74,28 @@ const OnboardingPage: React.FC = () => {
   // 🧩 Validación por paso
 
   const validateStep = async (currentStep: number): Promise<boolean> => {
-    let isValid = true;
-    setError(null);
+    setError(null); // Limpiamos errores previos
 
     switch (currentStep) {
       case 1:
-        // Validar el formulario del paso 1 completamente
-        return await trigger(["genderIdentity"]);
+        // Comprueba solo si hay un valor (cualquier valor) en el campo genderIdentity
+        const genderValue = watch("genderIdentity");
+        
+        if (!genderValue || genderValue.trim() === "") {
+          // Establece un error si el campo está vacío
+          errors.genderIdentity = {
+            type: "required",
+            message: "El campo de identidad de género es obligatorio"
+          };
+          return false;
+        }
+        
+        // Si hay un valor, eliminamos cualquier error y permitimos avanzar
+        return true;
 
       case 2:
         // Paso 2: Validar stageOfLife y campos de transición hormonal si aplica
-        isValid = await trigger("stageOfLife");
+        let isValid = await trigger("stageOfLife");
         
         if (isValid) {
           const stage = watch("stageOfLife");
@@ -126,12 +137,14 @@ const OnboardingPage: React.FC = () => {
 
   const handleNextStep = async () => {
     try {
-      // Usamos directamente el sistema de validación de React Hook Form
-      const isValid = await validateStep(step);
+      const valid = await validateStep(step);
       
-      if (isValid) {
-        // Si la validación es exitosa, avanzamos al siguiente paso
+      if (valid) {
+        // Avanzamos al siguiente paso
         setStep((prev) => prev + 1);
+      } else if (step === 1) {
+        // Si estamos en el paso 1 y falló la validación, mostramos un mensaje específico
+        setError("El campo de identidad de género es obligatorio");
       }
     } catch (err) {
       console.error("Error en la validación:", err);
