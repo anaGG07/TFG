@@ -80,14 +80,20 @@ const OnboardingPage: React.FC = () => {
     switch (currentStep) {
       case 1:
         // Paso 1: Validar genderIdentity
-        isValid = await trigger("genderIdentity");
-        // Verificación adicional para asegurarnos de que el valor es válido
+        // Primero verificamos manualmente el valor para asegurarnos que no esté vacío
         const genderValue = watch("genderIdentity");
+        
         if (!genderValue || genderValue.trim() === "") {
-          setValue("genderIdentity", ""); // Limpiar cualquier espacio en blanco
-          isValid = false;
+          // Si está vacío o solo tiene espacios, lo actualizamos a cadena vacía
+          setValue("genderIdentity", "", { shouldValidate: true });
+          // Forzamos la validación para que se muestre el error
+          await trigger("genderIdentity");
           setError("El campo de identidad de género es obligatorio");
+          return false;
         }
+        
+        // Si tiene un valor válido, procedemos con la validación estándar
+        isValid = await trigger("genderIdentity");
         break;
 
       case 2:
@@ -207,6 +213,17 @@ const OnboardingPage: React.FC = () => {
     }
   };
 
+  // Función para limpiar espacios al salir del campo
+  const handleGenderBlur = (e: React.FocusEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    if (value) {
+      const trimmedValue = value.trim();
+      if (trimmedValue !== value) {
+        setValue("genderIdentity", trimmedValue);
+      }
+    }
+  };
+
   // Props comunes para todos los componentes Step
   const commonStepProps: StepProps = {
     isSubmitting,
@@ -220,6 +237,7 @@ const OnboardingPage: React.FC = () => {
     onNextStep: handleNextStep,
     onPreviousStep: handlePreviousStep,
     setStep, // Props legacy para compatibilidad
+    onGenderBlur: handleGenderBlur, // Función para limpiar espacios
   };
 
   return (

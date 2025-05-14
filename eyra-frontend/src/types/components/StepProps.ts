@@ -17,6 +17,7 @@ export interface StepProps {
   onNextStep: () => void;
   onPreviousStep?: () => void;
   onSubmit?: () => void;
+  onGenderBlur?: (e: React.FocusEvent<HTMLInputElement>) => void; // Función para manejar el evento onBlur
   // Props legacy para compatibilidad
   setStep: Dispatch<SetStateAction<number>>;
 }

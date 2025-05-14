@@ -8,6 +8,7 @@ const Step1Context: React.FC<StepProps> = ({
   watch,
   setValue,
   onNextStep,
+  onGenderBlur,
 }) => {
   const isPersonal = watch("isPersonal");
   const genderInputRef = useRef<HTMLInputElement>(null);
@@ -70,11 +71,11 @@ const Step1Context: React.FC<StepProps> = ({
           <input
             type="text"
             {...register("genderIdentity", {
-              required: "Este campo es obligatorio",
-              validate: (value) =>
-                (value && value.trim().length > 0) || "Este campo no puede estar vacío",
+              required: "El campo de identidad de género es obligatorio",
+              setValueAs: (value) => (typeof value === 'string' ? value.trim() : value)
             })}
             ref={genderInputRef}
+            onBlur={onGenderBlur} // Añadimos el evento onBlur
             className={`w-full bg-white border ${
               errors.genderIdentity ? "border-red-500" : "border-[#300808]/20"
             } rounded-lg py-3 px-4 text-[#5b0108]`}
