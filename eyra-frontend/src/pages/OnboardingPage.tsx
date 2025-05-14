@@ -113,7 +113,6 @@ const OnboardingPage: React.FC = () => {
     // Para otros pasos, simplemente permitimos avanzar
     return true;
   };
-  };
 
   const handleNextStep = async () => {
     try {
