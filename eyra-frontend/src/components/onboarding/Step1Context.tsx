@@ -72,10 +72,7 @@ const Step1Context: React.FC<StepProps> = ({
             type="text"
             {...register("genderIdentity")}
             ref={genderInputRef}
-            onBlur={onGenderBlur} // Añadimos el evento onBlur
-            className={`w-full bg-white border ${
-              errors.genderIdentity ? "border-red-500" : "border-[#300808]/20"
-            } rounded-lg py-3 px-4 text-[#5b0108]`}
+            className={`w-full bg-white border ${errors.genderIdentity ? "border-red-500" : "border-[#300808]/20"} rounded-lg py-3 px-4 text-[#5b0108]`}
             placeholder="Ej: Mujer cis, Persona trans, No binaria..."
           />
           {errors.genderIdentity && (

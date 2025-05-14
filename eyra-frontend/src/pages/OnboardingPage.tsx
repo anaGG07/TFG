@@ -74,77 +74,53 @@ const OnboardingPage: React.FC = () => {
   // 🧩 Validación por paso
 
   const validateStep = async (currentStep: number): Promise<boolean> => {
-    setError(null); // Limpiamos errores previos
+    setError(null);
 
-    switch (currentStep) {
-      case 1:
-        // Comprueba solo si hay un valor (cualquier valor) en el campo genderIdentity
-        const genderValue = watch("genderIdentity");
-        
-        if (!genderValue || genderValue.trim() === "") {
-          // Establece un error si el campo está vacío
-          errors.genderIdentity = {
-            type: "required",
-            message: "El campo de identidad de género es obligatorio"
-          };
-          return false;
-        }
-        
-        // Si hay un valor, eliminamos cualquier error y permitimos avanzar
+    if (currentStep === 1) {
+      // Para el paso 1, solo verificamos que haya algún texto en el campo
+      const genderValue = watch("genderIdentity");
+      
+      if (genderValue) {
+        // Si hay algún valor, permitimos continuar
         return true;
+      } else {
+        // Si no hay valor, mostramos un error
+        setError("El campo de identidad de género es obligatorio");
+        return false;
+      }
+    } else if (currentStep === 2) {
+      // Paso 2: Validar stageOfLife y campos de transición hormonal si aplica
+      let isValid = await trigger("stageOfLife");
+      
+      if (isValid) {
+        const stage = watch("stageOfLife");
+        const hormoneType = watch("hormoneType");
+        const hormoneStartDate = watch("hormoneStartDate");
+        const hormoneFrequencyDays = watch("hormoneFrequencyDays");
 
-      case 2:
-        // Paso 2: Validar stageOfLife y campos de transición hormonal si aplica
-        let isValid = await trigger("stageOfLife");
-        
-        if (isValid) {
-          const stage = watch("stageOfLife");
-          const hormoneType = watch("hormoneType");
-          const hormoneStartDate = watch("hormoneStartDate");
-          const hormoneFrequencyDays = watch("hormoneFrequencyDays");
-
-          // Si es transición y al menos un campo está completo, entonces los tres deben estarlo
-          if (stage === "transition" && 
-              (hormoneType || hormoneStartDate || hormoneFrequencyDays) && 
-              (!hormoneType || !hormoneStartDate || !hormoneFrequencyDays)) {
-            setError("Si estás en transición hormonal, debes completar los tres campos o dejarlos vacíos.");
-            isValid = false;
-          }
+        // Si es transición y al menos un campo está completo, entonces los tres deben estarlo
+        if (stage === "transition" && 
+            (hormoneType || hormoneStartDate || hormoneFrequencyDays) && 
+            (!hormoneType || !hormoneStartDate || !hormoneFrequencyDays)) {
+          setError("Si estás en transición hormonal, debes completar los tres campos o dejarlos vacíos.");
+          isValid = false;
         }
-        break;
-
-      case 3:
-        // Paso 3: Sin validaciones específicas
-        isValid = true;
-        break;
-
-      case 4:
-        // Paso 4: Sin validaciones requeridas
-        isValid = true;
-        break;
-
-      case 5:
-        // Paso 5: Sin validaciones requeridas
-        isValid = true;
-        break;
-
-      default:
-        isValid = true;
+      }
+      
+      return isValid;
     }
-
-    return isValid;
+    
+    // Para otros pasos, simplemente permitimos avanzar
+    return true;
+  };
   };
 
   const handleNextStep = async () => {
     try {
-      const valid = await validateStep(step);
-      
-      if (valid) {
-        // Avanzamos al siguiente paso
+      // Validamos el paso actual
+      if (await validateStep(step)) {
+        // Si pasa la validación, avanzamos al siguiente paso
         setStep((prev) => prev + 1);
-      } else if (step === 1) {
-        // Si estamos en el paso 1 y falló la validación, mostramos un mensaje específico
-        setError("El campo de identidad de género es obligatorio");
       }
     } catch (err) {
       console.error("Error en la validación:", err);
