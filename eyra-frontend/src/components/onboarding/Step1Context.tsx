@@ -72,7 +72,10 @@ const Step1Context: React.FC<StepProps> = ({
             type="text"
             {...register("genderIdentity", {
               required: "El campo de identidad de género es obligatorio",
-              setValueAs: (value) => (typeof value === 'string' ? value.trim() : value)
+              setValueAs: (value) => {
+                console.log(typeof value);
+                return typeof value === "string" ? value.trim() : value;
+              }
             })}
             ref={genderInputRef}
             onBlur={onGenderBlur} // Añadimos el evento onBlur
@@ -88,7 +91,7 @@ const Step1Context: React.FC<StepProps> = ({
           )}
           <p className="text-xs text-gray-500 mt-1">
             Puedes escribir lo que tú prefieras. Este dato es obligatorio para
-            continuar.
+            continuar. 
           </p>
         </div>
 
