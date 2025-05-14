@@ -28,7 +28,7 @@ const OnboardingPage: React.FC = () => {
     trigger,
     formState: { errors },
   } = useForm<OnboardingFormData>({
-    mode: "onSubmit", // ✅ validación solo al intentar avanzar
+    mode: "onChange", // Validamos al cambiar el valor
     reValidateMode: "onChange",
     defaultValues: {
       isPersonal: true,
@@ -79,13 +79,8 @@ const OnboardingPage: React.FC = () => {
 
     switch (currentStep) {
       case 1:
-        // Paso 1: Simplemente verificar si hay algún valor
-        const genderValue = watch("genderIdentity");
-        if (!genderValue) {
-          setError("El campo de identidad de género es obligatorio");
-          return false;
-        }
-        break;
+        // Validar el formulario del paso 1 completamente
+        return await trigger(["genderIdentity"]);
 
       case 2:
         // Paso 2: Validar stageOfLife y campos de transición hormonal si aplica
@@ -131,8 +126,10 @@ const OnboardingPage: React.FC = () => {
 
   const handleNextStep = async () => {
     try {
-      const valid = await validateStep(step);
-      if (valid) {
+      // Usamos directamente el sistema de validación de React Hook Form
+      const isValid = await validateStep(step);
+      
+      if (isValid) {
         // Si la validación es exitosa, avanzamos al siguiente paso
         setStep((prev) => prev + 1);
       }

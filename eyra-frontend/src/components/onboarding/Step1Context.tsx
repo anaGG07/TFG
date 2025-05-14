@@ -108,7 +108,7 @@ const Step1Context: React.FC<StepProps> = ({
         <button
           type="button"
           onClick={onNextStep}
-          disabled={isSubmitting}
+          disabled={isSubmitting || Object.keys(errors).length > 0}
           className="px-8 py-3 bg-[#5b0108] text-white rounded-lg font-medium transition-all hover:bg-[#9d0d0b] disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {isSubmitting
