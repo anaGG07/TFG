@@ -15,7 +15,7 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 class OnboardingController extends AbstractController
 {
-    #[Route('/onboarding', name: 'api_onboarding', methods: ['POST'])]
+    #[Route('/api/onboarding', name: 'api_onboarding', methods: ['POST'])]
     public function completeOnboarding(Request $request, EntityManagerInterface $em, ValidatorInterface $validator): JsonResponse
     {
         /** @var User|null $user */

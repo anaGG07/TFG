@@ -462,8 +462,7 @@ class AuthController extends AbstractController
         }
     }
 
-    // Ruta movida a OnboardingController
-    // #[Route('/onboarding', name: 'api_complete_onboarding', methods: ['POST'])]
+    #[Route('/onboarding', name: 'api_complete_onboarding', methods: ['POST'])]
     public function completeOnboarding(Request $request): JsonResponse
     {
         try {
