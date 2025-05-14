@@ -99,11 +99,13 @@ export async function apiFetch<T>(
 
   try {
     // LOGGERS PARA VERIFICAR URLS
-    console.log(`Preparando fetch para URL: ${url}`);
-    console.log(`Path original: ${path}`);
-    console.log(`Método: ${options.method}`);
+    console.log(`🔍 Preparando fetch para URL: ${url}`);
+    console.log(`🔍 Path original: ${path}`);
+    console.log(`🔍 Método: ${options.method}`);
+    console.log(`🔍 Headers:`, headers);
+    console.log(`🔍 Body:`, options.body);
     
-    console.log(`Fetching: ${url}`);
+    console.log(`📥 Fetching: ${url}`);
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 15000);
     fetchOptions.signal = controller.signal;
@@ -111,10 +113,14 @@ export async function apiFetch<T>(
     let response = await fetch(url, fetchOptions);
     clearTimeout(timeoutId);
 
-    console.log(`Respuesta de ${url}:`, {
+    console.log(`📢 Respuesta de ${url}:`, {
       status: response.status,
       statusText: response.statusText,
+      headers: Object.fromEntries([...response.headers]),
     });
+
+    // Intentar imprimir cookies presentes
+    console.log('Cookies disponibles:', document.cookie ? document.cookie : 'No hay cookies visibles');
 
     // 🔐 Si expiró sesión, intentar refresh
     if (

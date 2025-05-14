@@ -127,6 +127,11 @@ class AuthService {
     };
 
     try {
+      // Añadir console logs detallados para diagnóstico
+      console.log('🔍 DEBUG - INICIO PETICIÓN ONBOARDING');
+      console.log('URL a la que se envía la petición:', API_ROUTES.AUTH.ONBOARDING);
+      console.log('Datos completos enviados:', JSON.stringify(completeData, null, 2));
+      
       const response = await apiFetch<{
         message: string;
         user: User;
@@ -137,6 +142,9 @@ class AuthService {
         skipRedirectCheck: true,
       });
 
+      console.log('Respuesta recibida del endpoint onboarding:', response);
+      console.log('🔍 DEBUG - FIN PETICIÓN ONBOARDING');
+
       if (!response || !response.user) {
         throw new Error("No se pudo completar el onboarding correctamente");
       }
@@ -144,6 +152,12 @@ class AuthService {
       return response.user;
     } catch (error) {
       console.error("Error al completar onboarding:", error);
+      // Añadir más detalles sobre el error
+      if (error instanceof Error) {
+        console.log('Nombre del error:', error.name);
+        console.log('Mensaje del error:', error.message);
+        console.log('Stack trace:', error.stack);
+      }
       throw error;
     }
   }
