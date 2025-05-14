@@ -72,9 +72,8 @@ const Step1Context: React.FC<StepProps> = ({
             type="text"
             {...register("genderIdentity", {
               required: "El campo de identidad de género es obligatorio",
-              setValueAs: (value) => {
-                console.log(typeof value);
-                return typeof value === "string" ? value.trim() : value;
+              validate: (value) => {
+                return value.trim() !== "" || "El campo de identidad de género es obligatorio";
               }
             })}
             ref={genderInputRef}

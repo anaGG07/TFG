@@ -79,21 +79,13 @@ const OnboardingPage: React.FC = () => {
 
     switch (currentStep) {
       case 1:
-        // Paso 1: Validar genderIdentity
-        // Primero verificamos manualmente el valor para asegurarnos que no esté vacío
-        const genderValue = watch("genderIdentity");
-        
-        if (!genderValue || genderValue.trim() === "") {
-          // Si está vacío o solo tiene espacios, lo actualizamos a cadena vacía
-          setValue("genderIdentity", "", { shouldValidate: true });
-          // Forzamos la validación para que se muestre el error
-          await trigger("genderIdentity");
-          setError("El campo de identidad de género es obligatorio");
-          return false;
-        }
-        
-        // Si tiene un valor válido, procedemos con la validación estándar
+        // Paso 1: Validar genderIdentity usando directamente React Hook Form
         isValid = await trigger("genderIdentity");
+        
+        // Si la validación falló, podemos mostrar un mensaje de error general
+        if (!isValid) {
+          setError("Por favor, completa todos los campos obligatorios.");
+        }
         break;
 
       case 2:
@@ -220,6 +212,8 @@ const OnboardingPage: React.FC = () => {
       const trimmedValue = value.trim();
       if (trimmedValue !== value) {
         setValue("genderIdentity", trimmedValue);
+        // Actualizar también el valor del campo en el DOM
+        e.target.value = trimmedValue;
       }
     }
   };
