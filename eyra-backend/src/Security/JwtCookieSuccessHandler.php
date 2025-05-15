@@ -100,13 +100,13 @@ class JwtCookieSuccessHandler implements AuthenticationSuccessHandlerInterface
                 new Cookie(
                     'jwt_token',       // Nombre de la cookie
                     $jwtToken,         // Valor (el token JWT)
-                    time() + 3600,     // Expiración (1 hora)
+                    time() + 7200,     // Expiración (2 horas)
                     '/',              // Path
                     null,              // Domain (null = current domain)
                     $isDevEnvironment ? false : $this->cookieSecure, // No requerir HTTPS en desarrollo
                     true,              // HTTPOnly - Previene acceso desde JavaScript
                     false,             // Raw
-                    $isDevEnvironment ? 'Lax' : 'Strict'  // Más permisivo en desarrollo
+                    $isDevEnvironment ? 'Lax' : 'Lax'  // Siempre usar Lax para mayor compatibilidad
                 )
             );
             
@@ -121,7 +121,7 @@ class JwtCookieSuccessHandler implements AuthenticationSuccessHandlerInterface
                     $isDevEnvironment ? false : $this->cookieSecure, // No requerir HTTPS en desarrollo
                     true,                          // HTTPOnly
                     false,                         // Raw
-                    $isDevEnvironment ? 'Lax' : 'Strict'  // Más permisivo en desarrollo
+                    $isDevEnvironment ? 'Lax' : 'Lax'  // Siempre usar Lax para mayor compatibilidad
                 )
             );
             
