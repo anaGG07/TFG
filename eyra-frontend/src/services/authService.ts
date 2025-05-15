@@ -1,9 +1,8 @@
 import { apiFetch, configureAuthHandlers } from "../utils/httpClient";
-import { API_ROUTES } from "../config/apiRoutes";
+import { API_ROUTES, API_URL } from "../config/apiRoutes";
 import { LoginRequest, LoginResponse } from "../types/api";
 import { RegisterRequest } from "../types/api";
 import { User } from "../types/domain";
-import { API_URL } from "../config/setupApiUrl";
 
 /**
  * Servicio de autenticación mejorado con manejo de errores y

@@ -1,4 +1,4 @@
-import { API_URL } from "../config/setupApiUrl";
+import { API_URL } from "../config/apiRoutes";
 
 // Módulo de eventos para evitar dependencia circular
 export const authEvents = {
