@@ -258,6 +258,10 @@ class OnboardingController extends AbstractController
         }
 
         $data = json_decode($request->getContent(), true);
+        
+        // Agregar logs para depuración
+        error_log('Onboarding: Datos recibidos: ' . json_encode($data));
+        error_log('Onboarding: \u00BFonboardingCompleted presente?: ' . (isset($data['onboardingCompleted']) ? 'S\u00CD - Valor: ' . ($data['onboardingCompleted'] ? 'true' : 'false') : 'NO'));
 
         // Buscar si el usuario ya tiene un onboarding asociado
         $onboarding = $em->getRepository(Onboarding::class)->findOneBy(['user' => $user]);
@@ -363,11 +367,11 @@ class OnboardingController extends AbstractController
         }
 
         // Marcar como completado si viene en los datos
-        if (isset($data['completed'])) {
-            $onboarding->setCompleted((bool) $data['completed']);
+        if (isset($data['onboardingCompleted'])) {
+            $onboarding->setCompleted((bool) $data['onboardingCompleted']);
             
             // También actualizar el estado en el usuario
-            $user->setOnboardingCompleted((bool) $data['completed']);
+            $user->setOnboardingCompleted((bool) $data['onboardingCompleted']);
         }
 
         // Guardar los cambios en la base de datos
@@ -388,6 +392,10 @@ class OnboardingController extends AbstractController
         $em->persist($onboarding);
         $em->persist($user);
         $em->flush();
+
+        // Verificar que se haya actualizado correctamente
+        error_log('Onboarding: Estado después de guardar - Usuario: ' . ($user->isOnboardingCompleted() ? 'Completado' : 'No completado'));
+        error_log('Onboarding: Estado después de guardar - Onboarding: ' . ($onboarding->isCompleted() ? 'Completado' : 'No completado'));
 
 
         return $this->json(
