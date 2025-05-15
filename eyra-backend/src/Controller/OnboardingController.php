@@ -91,10 +91,35 @@ class OnboardingController extends AbstractController
                                     $now = new \DateTime();
                                     $expiration = new \DateTime('@' . $payload2['exp']);
                                     $isExpired = $now > $expiration;
-                                    error_log('Onboarding: Token exp: ' . $payload2['exp'] . ', ahora: ' . $now->getTimestamp() . ', ¿expirado?: ' . ($isExpired ? 'SÍ' : 'NO'));
+                                    $expireMessage = 'Onboarding: Token exp: ' . $payload2['exp'] . ', ahora: ' . $now->getTimestamp() . ', ¿expirado?: ' . ($isExpired ? 'SÍ' : 'NO');
+                                    error_log($expireMessage);
+                                    
+                                    // Si está expirado, mostrarlo en pantalla
+                                    if ($isExpired) {
+                                        return $this->json([
+                                            'message' => 'Token JWT Expirado - Por favor, inicie sesión nuevamente',
+                                            'error' => $expireMessage,
+                                            'currentTime' => $now->getTimestamp(),
+                                            'expirationTime' => $payload2['exp'],
+                                            'timeDifference' => $now->getTimestamp() - $payload2['exp'] . ' segundos',
+                                            'retryAfterLogin' => true,
+                                        ], 401);
+                                    } else {
+                            error_log('Onboarding: El token no tiene el formato esperado de 3 partes');
+                            return $this->json([
+                                'message' => 'Token JWT inválido - Formato incorrecto',
+                                'token_parts_count' => count($tokenParts),
+                                'retryAfterLogin' => true,
+                            ], 401);
+                        }
                                 }
                             } else {
                                 error_log('Onboarding: El token no tiene el formato esperado de 3 partes');
+                                return $this->json([
+                                    'message' => 'Token JWT inválido - Formato incorrecto',
+                                    'token_parts_count' => count($tokenParts),
+                                    'retryAfterLogin' => true,
+                                ], 401);
                             }
                             
                             // Usar el username del payload para buscar al usuario
@@ -123,6 +148,7 @@ class OnboardingController extends AbstractController
                             return $this->json([
                                 'message' => 'Error al decodificar el token JWT',
                                 'error' => $e->getMessage(),
+                                'tokenFirstChars' => substr($jwtCookie, 0, 20) . '...',
                                 'retryAfterLogin' => true,
                             ], 401);
                         }
@@ -136,6 +162,27 @@ class OnboardingController extends AbstractController
                                 $payload = json_decode(base64_decode(str_replace('_', '/', str_replace('-','+', $tokenParts[1]))), true);
                                 error_log('Onboarding: Decodificación manual, payload: ' . json_encode($payload));
                                 
+                                // Verificar si el token ha expirado manualmente
+                                if (isset($payload['exp'])) {
+                                    $now = new \DateTime();
+                                    $expiration = new \DateTime('@' . $payload['exp']);
+                                    $isExpired = $now > $expiration;
+                                    $expireMessage = 'Onboarding: Token exp: ' . $payload['exp'] . ', ahora: ' . $now->getTimestamp() . ', ¿expirado?: ' . ($isExpired ? 'SÍ' : 'NO');
+                                    error_log($expireMessage);
+                                    
+                                    // Si está expirado, mostrarlo en pantalla
+                                    if ($isExpired) {
+                                        return $this->json([
+                                            'message' => 'Token JWT Expirado - Por favor, inicie sesión nuevamente',
+                                            'error' => $expireMessage,
+                                            'currentTime' => $now->getTimestamp(),
+                                            'expirationTime' => $payload['exp'],
+                                            'timeDifference' => $now->getTimestamp() - $payload['exp'] . ' segundos',
+                                            'retryAfterLogin' => true,
+                                        ], 401);
+                                    }
+                                }
+                                
                                 if (isset($payload['username'])) {
                                     $userRepo = $em->getRepository(User::class);
                                     $user = $userRepo->findOneBy(['email' => $payload['username']]);
@@ -144,10 +191,30 @@ class OnboardingController extends AbstractController
                                         error_log('Onboarding: Usuario recuperado manualmente sin encoder: ' . $user->getEmail());
                                     } else {
                                         error_log('Onboarding: No se pudo encontrar el usuario con email (fallback): ' . $payload['username']);
+                                        return $this->json([
+                                            'message' => 'No se pudo encontrar el usuario con email',
+                                            'email' => $payload['username'],
+                                            'retryAfterLogin' => true,
+                                        ], 401);
                                     }
+                                } else {
+                                    return $this->json([
+                                        'message' => 'Token JWT inválido - No contiene username',
+                                        'payload' => $payload,
+                                        'retryAfterLogin' => true,
+                                    ], 401);
                                 }
                             } catch (\Exception $e) {
                                 error_log('Onboarding: Error en la decodificación manual: ' . $e->getMessage());
+                                return $this->json([
+                                    'message' => 'Error en la decodificación manual del token',
+                                    'error' => $e->getMessage(),
+                                    'token_parts' => count($tokenParts),
+                                    'token_part1_length' => strlen($tokenParts[0]),
+                                    'token_part2_length' => strlen($tokenParts[1]),
+                                    'token_part3_length' => strlen($tokenParts[2]),
+                                    'retryAfterLogin' => true,
+                                ], 401);
                             }
                         }
                         
