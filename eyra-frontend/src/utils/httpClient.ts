@@ -41,8 +41,17 @@ async function tryRefreshToken(): Promise<boolean> {
   }
   
   try {
+    console.log("[httpClient] Intentando renovar token...");
+    
+    // Las cookies HttpOnly se envían automáticamente con credentials: "include"
+    // Solo necesitamos incluir un cuerpo JSON vacío para que no sea undefined
     const res = await fetch(`${API_URL}/refresh-token`, {
       method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Accept": "application/json"
+      },
+      body: JSON.stringify({}),  // Enviamos un objeto vacío para que el body no sea undefined
       credentials: "include",
     });
 
