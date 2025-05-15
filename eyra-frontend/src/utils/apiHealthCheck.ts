@@ -1,4 +1,5 @@
-import { API_URL } from '../config/setupApiUrl';
+// Obtenemos la URL de la API directamente de las variables de entorno
+const API_URL = import.meta.env.VITE_API_URL || 'https://eyraclub.es';
 
 /**
  * Comprueba si la API está disponible
