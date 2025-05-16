@@ -26,13 +26,7 @@ security:
         api:
             pattern: ^/api
             stateless: true
-            jwt:
-                # Configuración específica para JWT con cookie
-                provider: app_user_provider
-                # Lista explícita de extractores a usar (primero cookie, luego header)
-                token_extractors:
-                    - lexik_jwt_authentication.extractor.cookie_extractor
-                    - lexik_jwt_authentication.extractor.authorization_header_extractor
+            jwt: ~
     
     access_control:
         - { path: ^/api/login_check, roles: PUBLIC_ACCESS } 
