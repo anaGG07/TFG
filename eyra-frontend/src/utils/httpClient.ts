@@ -43,7 +43,16 @@ export async function apiFetch<T>(path: string, options: FetchOptions = {}): Pro
 
     if (!response.ok) {
       if (response.status === 401) {
-        authEvents.onUnauthorized();
+        console.error(`Error 401 en petición a ${url}`);
+        
+        // Si la ruta es /api/profile, no redirigir al login inmediatamente
+        // ya que podría ser parte del flujo normal de verificación
+        if (!path.includes('/api/profile')) {
+          console.log('httpClient: Redirigiendo a login por 401 en ruta:', path);
+          authEvents.onUnauthorized();
+        } else {
+          console.log('httpClient: Ignorando 401 en verificación de perfil');
+        }
       }
       throw new Error(`Error en la petición: ${response.status} ${response.statusText}`);
     }

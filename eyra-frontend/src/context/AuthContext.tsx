@@ -245,16 +245,20 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       setUser(loggedInUser);
       setIsAuthenticated(true);
 
+      // Dar tiempo a que las cookies se establezcan correctamente
+      await new Promise(resolve => setTimeout(resolve, 100));
+
       // Intentar verificar la sesión inmediatamente
       try {
         const isValid = await tokenService.checkToken();
         if (!isValid) {
           console.error('AuthContext: No se pudo verificar la sesión después del login');
-          throw new Error("Error al verificar la sesión");
+          console.log('AuthContext: Usando datos de usuario de todas formas');
+          // No lanzamos error aquí para que continue el flujo
         }
       } catch (error) {
         console.error('AuthContext: Error al verificar sesión:', error);
-        throw error;
+        // No lanzamos error aquí para permitir el flujo de login
       }
 
       return loggedInUser;

@@ -24,7 +24,7 @@ class JwtCookieListener implements EventSubscriberInterface
         ];
     }
 
-    /**
+/**
      * En cada petición, verifica si existe la cookie JWT y la convierte en header de Authorization
      * 
      * Este método permite usar cookies HttpOnly+Secure para almacenar el token JWT,
@@ -52,7 +52,14 @@ class JwtCookieListener implements EventSubscriberInterface
 
         $token = $request->cookies->get('jwt_token');
         if ($token) {
+            // Log para depuración
+            error_log("JwtCookieListener: Estableciendo token desde cookie para la ruta [$path]");
+            
+            // Añadir el token a los headers de autorización
             $request->headers->set('Authorization', 'Bearer ' . $token);
+        } else {
+            // Log para depuración
+            error_log("JwtCookieListener: No hay cookie JWT para la ruta [$path]");
         }
     }
 }

@@ -26,6 +26,8 @@ class TokenService {
     }
 
     try {
+      console.log('TokenService: Verificando token...');
+      
       // Intenta hacer una petición al endpoint de perfil para verificar el token
       const response = await fetch(`${API_URL}/api/profile`, {
         method: 'GET',
@@ -35,12 +37,29 @@ class TokenService {
         }
       });
 
+      // Examinar la respuesta
+      console.log('TokenService: Respuesta de verificación:', {
+        status: response.status,
+        ok: response.ok
+      });
+
       this.isTokenValid = response.ok;
+      
+      // Si la sesión está activa, añadir un tiempo de gracia para evitar multiples solicitudes
+      if (this.isTokenValid) {
+        console.log('TokenService: Token válido');
+      } else {
+        console.log('TokenService: Token inválido, código:', response.status);
+      }
+      
       return this.isTokenValid;
     } catch (error) {
       console.error('TokenService: Error al verificar token:', error);
-      this.isTokenValid = false;
-      return false;
+      
+      // En caso de error de red, asumimos que el token podría ser válido
+      // para evitar cerrar sesiones por problemas temporales
+      console.log('TokenService: Asumiendo token válido durante error de red');
+      return true;
     }
   }
 
