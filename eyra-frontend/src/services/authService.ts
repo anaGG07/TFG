@@ -58,18 +58,48 @@ class AuthService {
     }
 
     try {
-      const response = await apiFetch<LoginResponse>(API_ROUTES.AUTH.LOGIN, {
+      console.log('AuthService: Iniciando login...');
+      
+      const response = await fetch(`${API_URL}/api/login_check`, {
         method: "POST",
-        body: credentials,
+        headers: {
+          "Content-Type": "application/json",
+          "Accept": "application/json"
+        },
+        credentials: "include",
+        body: JSON.stringify(credentials)
       });
 
-      if (!response || !response.user) {
-        throw new Error("Credenciales incorrectas o respuesta inválida");
+      if (!response.ok) {
+        console.error('AuthService: Error en login:', {
+          status: response.status,
+          statusText: response.statusText
+        });
+        throw new Error("Credenciales incorrectas");
       }
 
-      return response.user;
+      const data = await response.json();
+      console.log('AuthService: Login exitoso, respuesta:', data);
+
+      if (!data || !data.user) {
+        throw new Error("Respuesta inválida del servidor");
+      }
+
+      // Esperar un momento para que las cookies se establezcan
+      await new Promise(resolve => setTimeout(resolve, 100));
+
+      // Verificar que podemos obtener el perfil
+      try {
+        console.log('AuthService: Verificando perfil después de login...');
+        const profile = await this.getProfile({ skipRedirectCheck: true });
+        console.log('AuthService: Perfil verificado:', profile);
+        return profile;
+      } catch (profileError) {
+        console.error('AuthService: Error al verificar perfil:', profileError);
+        throw new Error("Error al obtener el perfil después del login");
+      }
     } catch (error: unknown) {
-      console.error("Error en login:", error);
+      console.error("AuthService: Error en login:", error);
       throw new Error((error as Error)?.message || "Error al iniciar sesión");
     }
   }
@@ -90,12 +120,27 @@ class AuthService {
     this.ensureInitialized();
 
     try {
-      return await apiFetch<User>(API_ROUTES.AUTH.PROFILE, {
+      const response = await fetch(`${API_URL}/api/profile`, {
         method: "GET",
-        skipRedirectCheck: options.skipRedirectCheck,
+        headers: {
+          "Content-Type": "application/json",
+          "Accept": "application/json"
+        },
+        credentials: "include"
       });
+
+      if (!response.ok) {
+        console.error('AuthService: Error al obtener perfil:', {
+          status: response.status,
+          statusText: response.statusText
+        });
+        throw new Error("Error al obtener el perfil");
+      }
+
+      const data = await response.json();
+      return data;
     } catch (error) {
-      console.error("Error al obtener perfil:", error);
+      console.error("AuthService: Error al obtener perfil:", error);
       throw error;
     }
   }

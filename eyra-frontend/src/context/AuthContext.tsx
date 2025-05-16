@@ -207,21 +207,19 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     try {
       setIsLoading(true);
       
-      // Si ya estamos autenticados y tenemos usuario, verificar que el token sea válido
-      if (isAuthenticated && user) {
-        console.log("AuthContext: Usuario en contexto, verificando token...");
-        const tokenValid = await tokenService.checkAndRefreshToken();
-        if (tokenValid) {
-          console.log("AuthContext: Token válido, usuario autenticado");
-          return true;
-        }
+      // Intentar refrescar el token primero
+      console.log("AuthContext: Intentando refrescar token...");
+      const tokenValid = await tokenService.checkAndRefreshToken();
+      
+      if (!tokenValid) {
         console.log("AuthContext: Token inválido, limpiando estado");
         setIsAuthenticated(false);
         setUser(null);
+        return false;
       }
 
-      // Intentar cargar el perfil desde el backend
-      console.log("AuthContext: Intentando cargar perfil...");
+      // Si el token es válido, intentar cargar el perfil
+      console.log("AuthContext: Token válido, cargando perfil...");
       const result = await loadDashboardSafely();
       console.log("AuthContext: Resultado de carga del perfil:", result);
       return result;
@@ -233,7 +231,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     } finally {
       setIsLoading(false);
     }
-  }, [isAuthenticated, user]);
+  }, []);
 
   const refreshSession = useCallback(async (): Promise<boolean> => {
     console.log("AuthContext: Iniciando renovación de sesión...");
@@ -297,14 +295,33 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const login = async (credentials: LoginRequest) => {
     setIsLoading(true);
     try {
+      console.log('AuthContext: Iniciando proceso de login...');
       const loggedInUser = await authService.login(credentials);
-      if (!loggedInUser) throw new Error("Login fallido");
+      
+      if (!loggedInUser) {
+        console.error('AuthContext: No se recibió usuario del servidor');
+        throw new Error("Login fallido");
+      }
 
+      console.log('AuthContext: Login exitoso, usuario:', loggedInUser);
       setUser(loggedInUser);
       setIsAuthenticated(true);
+
+      // Intentar verificar la sesión inmediatamente
+      try {
+        const isValid = await tokenService.checkAndRefreshToken();
+        if (!isValid) {
+          console.error('AuthContext: No se pudo verificar la sesión después del login');
+          throw new Error("Error al verificar la sesión");
+        }
+      } catch (error) {
+        console.error('AuthContext: Error al verificar sesión:', error);
+        throw error;
+      }
+
       return loggedInUser;
     } catch (error) {
-      console.error("Error durante login:", error);
+      console.error("AuthContext: Error durante login:", error);
       setIsAuthenticated(false);
       setUser(null);
       throw error;
