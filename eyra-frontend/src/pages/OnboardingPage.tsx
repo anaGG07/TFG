@@ -142,8 +142,20 @@ const OnboardingPage: React.FC = () => {
     setError(null);
 
     try {
+      // Verificar que el usuario esté autenticado
+      if (!user) {
+        console.error('No hay usuario autenticado al intentar guardar el onboarding');
+        setError("Tu sesión ha expirado. Por favor, inicia sesión nuevamente.");
+        setTimeout(() => {
+          navigate(ROUTES.LOGIN, { replace: true });
+        }, 2000);
+        return;
+      }
+
+      // Intentar refrescar la sesión
       const sessionRefreshed = await refreshSession();
       if (!sessionRefreshed) {
+        console.error('No se pudo refrescar la sesión');
         setError("Tu sesión ha expirado. Por favor, inicia sesión nuevamente.");
         setTimeout(() => {
           navigate(ROUTES.LOGIN, { replace: true });
@@ -160,19 +172,33 @@ const OnboardingPage: React.FC = () => {
 
       console.log("📦 Payload final enviado al backend:", finalData);
 
-      const updatedUser = await completeOnboarding(finalData);
+      try {
+        const updatedUser = await completeOnboarding(finalData);
 
-      if (updatedUser?.onboardingCompleted) {
-        setTimeout(() => {
-          navigate(ROUTES.DASHBOARD, { replace: true });
-        }, 50);
-      } else {
-        setError(
-          "Tu perfil se guardó pero ocurrió un error al completar el proceso."
-        );
+        if (updatedUser?.onboardingCompleted) {
+          setTimeout(() => {
+            navigate(ROUTES.DASHBOARD, { replace: true });
+          }, 50);
+        } else {
+          setError(
+            "Tu perfil se guardó pero ocurrió un error al completar el proceso."
+          );
+        }
+      } catch (error: any) {
+        console.error("Error específico al completar onboarding:", error);
+        if (error.message === "No hay usuario autenticado") {
+          setError("Tu sesión ha expirado. Por favor, inicia sesión nuevamente.");
+          setTimeout(() => {
+            navigate(ROUTES.LOGIN, { replace: true });
+          }, 2000);
+        } else {
+          setError(
+            error.message || "Ocurrió un error al guardar tus datos. Intenta de nuevo."
+          );
+        }
       }
     } catch (err) {
-      console.error(err);
+      console.error("Error general en saveOnboarding:", err);
       setError("Ocurrió un error al guardar tus datos. Intenta de nuevo.");
     } finally {
       setIsSubmitting(false);

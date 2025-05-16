@@ -341,44 +341,65 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   };
 
   const completeOnboarding = async (onboardingData: any) => {
-    if (user) {
-      try {
-        console.log('Enviando datos de onboarding:', {
-          ...onboardingData,
-          onboardingCompleted: true
-        });
-        
-        const updatedUser = await authService.completeOnboarding({
-          ...onboardingData,
-          onboardingCompleted: true,
-        });
+    console.log('AuthContext: Iniciando completeOnboarding', {
+      hayUsuario: !!user,
+      estaAutenticado: isAuthenticated,
+      estaCargando: isLoading
+    });
 
-        // Verificar que el usuario se actualizó correctamente y establecer el estado
-        if (updatedUser) {
-          console.log('Usuario actualizado después del onboarding:', updatedUser);
-          setUser(updatedUser);
-          setIsAuthenticated(true); // Asegurar que el estado de autenticación se mantenga
-          
-          // Carga adicional de datos del dashboard para garantizar una transición fluida
-          try {
-            // Intentar cargar los datos del dashboard en segundo plano
-            await loadDashboardSafely();
-          } catch (dashboardError) {
-            console.warn('Error al precargar datos del dashboard:', dashboardError);
-            // Continuar con el flujo normal aunque falle la precarga
-          }
-          
-          return updatedUser;
-        } else {
-          console.error('Onboarding completado pero no se recibió usuario actualizado');
-          throw new Error('Error al actualizar el perfil de usuario');
-        }
-      } catch (error) {
-        console.error("Error al completar onboarding:", error);
-        throw error;
-      }
-    } else {
+    if (!user) {
+      console.error('AuthContext: Intento de completar onboarding sin usuario');
       throw new Error("No hay usuario autenticado");
+    }
+
+    try {
+      // Intentar refrescar la sesión antes de continuar
+      const refreshed = await refreshSession();
+      if (!refreshed) {
+        console.error('AuthContext: No se pudo refrescar la sesión');
+        throw new Error("La sesión ha expirado");
+      }
+
+      console.log('AuthContext: Enviando datos de onboarding:', {
+        ...onboardingData,
+        onboardingCompleted: true
+      });
+      
+      const updatedUser = await authService.completeOnboarding({
+        ...onboardingData,
+        onboardingCompleted: true,
+      });
+
+      // Verificar que el usuario se actualizó correctamente y establecer el estado
+      if (updatedUser) {
+        console.log('AuthContext: Usuario actualizado después del onboarding:', updatedUser);
+        setUser(updatedUser);
+        setIsAuthenticated(true); // Asegurar que el estado de autenticación se mantenga
+        
+        // Carga adicional de datos del dashboard para garantizar una transición fluida
+        try {
+          // Intentar cargar los datos del dashboard en segundo plano
+          await loadDashboardSafely();
+        } catch (dashboardError) {
+          console.warn('AuthContext: Error al precargar datos del dashboard:', dashboardError);
+          // Continuar con el flujo normal aunque falle la precarga
+        }
+        
+        return updatedUser;
+      } else {
+        console.error('AuthContext: Onboarding completado pero no se recibió usuario actualizado');
+        throw new Error('Error al actualizar el perfil de usuario');
+      }
+    } catch (error: any) {
+      console.error("AuthContext: Error al completar onboarding:", error);
+      // Si el error es de autenticación, limpiar el estado
+      if (error instanceof Error && 
+          (error.message === "No hay usuario autenticado" || 
+           error.message === "La sesión ha expirado")) {
+        setUser(null);
+        setIsAuthenticated(false);
+      }
+      throw error;
     }
   };
 
