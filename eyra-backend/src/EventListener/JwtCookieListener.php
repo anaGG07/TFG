@@ -108,11 +108,10 @@ class JwtCookieListener implements EventSubscriberInterface
         
         $token = $request->cookies->get(self::COOKIE_NAME);
         if (empty($token)) {
-            $this->logger->warning("Cookie '{self::COOKIE_NAME}' está vacía");
+            $this->logger->warning("Cookie '".self::COOKIE_NAME."' está vacía");
             return null;
         }
         
         return $token;
     }
-}
 }
