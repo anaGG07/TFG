@@ -231,10 +231,20 @@ class AuthController extends AbstractController
         try {
             /** @var User|null $user */
             $user = $this->getUser();
+            
+            // Log para depuración
+            $this->logger->info('AuthController::getProfile - Usuario autenticado:', [
+                'id' => $user ? $user->getId() : 'null',
+                'email' => $user ? $user->getEmail() : 'null'
+            ]);
+            
             if (!$user instanceof User) {
+                $this->logger->warning('AuthController::getProfile - Usuario no autenticado (getUser() devuelve nulo)');
                 return $this->json(['message' => 'Usuario no autenticado'], 401);
             }
 
+            $this->logger->info('AuthController::getProfile - Devolviendo perfil usuario: ' . $user->getEmail());
+            
             return $this->json([
                 'user' => [
                     'id' => $user->getId(),

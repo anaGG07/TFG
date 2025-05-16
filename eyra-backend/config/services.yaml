@@ -45,3 +45,10 @@ services:
     App\EventListener\AuthenticationDebugListener:
         tags:
             - { name: kernel.event_subscriber }
+    
+    # Listener para convertir cookies JWT en headers de Authorization    
+    App\EventListener\JwtCookieListener:
+        arguments:
+            $logger: '@logger'
+        tags:
+            - { name: kernel.event_subscriber }
