@@ -60,6 +60,22 @@ class JwtCookieSuccessHandler implements AuthenticationSuccessHandlerInterface
                 // Generar JWT token
                 $jwtToken = $this->jwtManager->create($user);
                 error_log('JWT generado correctamente');
+
+                // Log detallado del token y su configuración
+                error_log('=== DETALLE DEL TOKEN JWT ===');
+                error_log('Token completo: ' . $jwtToken);
+                error_log('Partes del token: ' . json_encode(explode('.', $jwtToken)));
+                error_log('Usuario: ' . json_encode([
+                    'id' => $user->getId(),
+                    'email' => $user->getEmail()
+                ]));
+                error_log('Configuración de cookie: ' . json_encode([
+                    'secure' => $isDevEnvironment ? false : $this->cookieSecure,
+                    'httpOnly' => true,
+                    'sameSite' => $isDevEnvironment ? 'Lax' : 'Lax'
+                ]));
+                error_log('==========================');
+
             } catch (\Exception $e) {
                 error_log('Error al generar JWT: ' . $e->getMessage());
                 throw $e; // Re-lanzar para manejo posterior
