@@ -1,6 +1,7 @@
 PASOS PARA CREAR UN PROYECTO NUEVO SYMFONY
 ------------------------------------------
 
+
 1º -> Crear carpeta de proyecto: 
 	`--> symfony new companyContact --webapp
 	`--> symfony new cardGame --webapp
