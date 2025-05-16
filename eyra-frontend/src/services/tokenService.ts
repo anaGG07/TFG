@@ -78,25 +78,31 @@ class TokenService {
     try {
       console.log("TokenService: Enviando petición de renovación...");
       
-      const res = await fetch(`${API_URL}${API_ROUTES.AUTH.REFRESH_TOKEN}`, {
+      const res = await fetch(`${API_URL}/api/refresh-token`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           "Accept": "application/json"
         },
         credentials: "include",
+        cache: "no-cache",
+        mode: "cors"
       });
 
       if (!res.ok) {
         console.error("TokenService: Error en respuesta:", {
           status: res.status,
-          statusText: res.statusText
+          statusText: res.statusText,
+          url: res.url
         });
         
         if (res.status === 401) {
           console.warn("TokenService: Token expirado o inválido");
           this.isTokenValid = false;
-          window.location.href = '/login';
+          // Solo redirigir si no estamos ya en login
+          if (window.location.pathname !== '/login') {
+            window.location.href = '/login';
+          }
         }
         
         return false;

@@ -43,17 +43,23 @@ async function tryRefreshToken(): Promise<boolean> {
   try {
     console.log("[httpClient] Intentando renovar token...");
     
-    const res = await fetch(`${API_URL}/refresh-token`, {
+    const res = await fetch(`${API_URL}/api/refresh-token`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
         "Accept": "application/json"
       },
       credentials: "include",
+      cache: "no-cache",
+      mode: "cors"
     });
 
     if (!res.ok) {
-      console.warn("[httpClient] Error al renovar token:", res.status);
+      console.warn("[httpClient] Error al renovar token:", {
+        status: res.status,
+        statusText: res.statusText,
+        url: res.url
+      });
       return false;
     }
 
@@ -86,7 +92,9 @@ export async function apiFetch<T>(
 
   const url = path.startsWith("http")
     ? path
-    : `${API_URL}${path.startsWith("/") ? "" : "/"}${path}`;
+    : path.startsWith("/api")
+      ? `${API_URL}${path}`
+      : `${API_URL}/api/${path}`;
 
   const headers: HeadersInit = {
     "Content-Type": "application/json",
@@ -98,10 +106,12 @@ export async function apiFetch<T>(
     method: options.method || "GET",
     headers,
     credentials: "include",
+    cache: "no-cache",
+    mode: "cors",
     body: options.body ? JSON.stringify(options.body) : undefined,
   };
 
-  const isLoginRequest = url.includes("/login_check") && options.method === "POST";
+  const isLoginRequest = path.includes("/login_check") && options.method === "POST";
 
   try {
     console.log(`📥 Enviando petición:`, {
@@ -129,7 +139,8 @@ export async function apiFetch<T>(
     if (
       response.status === 401 &&
       !options.skipErrorHandling &&
-      !options.skipRedirectCheck
+      !options.skipRedirectCheck &&
+      !isLoginRequest
     ) {
       // Evitar redirigir si ya estamos en la página de login
       if (window.location.pathname === '/login') {
@@ -147,7 +158,12 @@ export async function apiFetch<T>(
 
       console.warn("⛔ Refresh fallido. Ejecutando logout y redirección.");
       await authEvents.onLogout();
-      authEvents.onUnauthorized();
+      
+      // Solo redirigir si no estamos ya en login
+      if (window.location.pathname !== '/login') {
+        authEvents.onUnauthorized();
+      }
+      
       throw new Error("Sesión expirada o inválida.");
     }
 
