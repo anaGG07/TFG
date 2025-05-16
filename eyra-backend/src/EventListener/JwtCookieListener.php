@@ -36,8 +36,17 @@ class JwtCookieListener implements EventSubscriberInterface
         $request = $event->getRequest();
         $path = $request->getPathInfo();
 
-        // Solo excluir register, ya que login_check necesita el token
-        if (!str_starts_with($path, '/api') || $path === '/api/register') {
+        // Rutas públicas que no necesitan el token JWT
+        $publicRoutes = [
+            '/api/register',
+            '/api/login',
+            '/api/login_check',
+            '/api/docs',
+            '/api/password-reset'
+        ];
+        
+        // No procesar si no es una petición a la API o es una ruta pública
+        if (!str_starts_with($path, '/api') || in_array($path, $publicRoutes) || str_starts_with($path, '/api/docs')) {
             return;
         }
 
