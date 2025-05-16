@@ -3,6 +3,7 @@ import { API_ROUTES, API_URL } from "../config/apiRoutes";
 import { LoginRequest, LoginResponse } from "../types/api";
 import { RegisterRequest } from "../types/api";
 import { User } from "../types/domain";
+import { tokenService } from "./tokenService";
 
 /**
  * Servicio de autenticación mejorado con manejo de errores y
@@ -126,10 +127,16 @@ class AuthService {
     };
 
     try {
-      // Añadir console logs detallados para diagnóstico
-      console.log('🔍 DEBUG - INICIO PETICIÓN ONBOARDING');
-      console.log('URL a la que se envía la petición:', API_ROUTES.AUTH.ONBOARDING);
-      console.log('Datos completos enviados:', JSON.stringify(completeData, null, 2));
+      console.log('AuthService: Iniciando petición onboarding');
+      console.log('AuthService: URL:', API_ROUTES.AUTH.ONBOARDING);
+      console.log('AuthService: Datos:', JSON.stringify(completeData, null, 2));
+      
+      // Verificar que tenemos un token válido antes de hacer la petición
+      const hasValidToken = await tokenService.checkAndRefreshToken();
+      if (!hasValidToken) {
+        console.error('AuthService: No hay token válido para la petición');
+        throw new Error("No hay usuario autenticado");
+      }
       
       const response = await apiFetch<{
         message: string;
@@ -141,21 +148,20 @@ class AuthService {
         skipRedirectCheck: true,
       });
 
-      console.log('Respuesta recibida del endpoint onboarding:', response);
-      console.log('🔍 DEBUG - FIN PETICIÓN ONBOARDING');
+      console.log('AuthService: Respuesta del servidor:', response);
 
       if (!response || !response.user) {
+        console.error('AuthService: Respuesta inválida del servidor');
         throw new Error("No se pudo completar el onboarding correctamente");
       }
 
       return response.user;
     } catch (error) {
-      console.error("Error al completar onboarding:", error);
-      // Añadir más detalles sobre el error
+      console.error("AuthService: Error al completar onboarding:", error);
       if (error instanceof Error) {
-        console.log('Nombre del error:', error.name);
-        console.log('Mensaje del error:', error.message);
-        console.log('Stack trace:', error.stack);
+        console.log('AuthService: Tipo de error:', error.name);
+        console.log('AuthService: Mensaje:', error.message);
+        console.log('AuthService: Stack:', error.stack);
       }
       throw error;
     }

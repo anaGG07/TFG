@@ -14,7 +14,7 @@ import { StepProps } from "../types/components/StepProps";
 
 const OnboardingPage: React.FC = () => {
   const navigate = useNavigate();
-  const { user, completeOnboarding, refreshSession } = useAuth();
+  const { user, completeOnboarding, refreshSession, isLoading, isAuthenticated, checkAuth } = useAuth();
   const [step, setStep] = useState(1);
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -67,10 +67,44 @@ const OnboardingPage: React.FC = () => {
   
 
   useEffect(() => {
-    if (user?.onboardingCompleted) {
+    const verifyAuth = async () => {
+      try {
+        const isAuth = await checkAuth();
+        if (!isAuth) {
+          console.error('OnboardingPage: Usuario no autenticado');
+          navigate(ROUTES.LOGIN, { replace: true });
+        }
+      } catch (err) {
+        console.error('OnboardingPage: Error al verificar autenticación:', err);
+        navigate(ROUTES.LOGIN, { replace: true });
+      }
+    };
+
+    verifyAuth();
+  }, [checkAuth, navigate]);
+
+  useEffect(() => {
+    if (!isLoading && user?.onboardingCompleted) {
       navigate(ROUTES.DASHBOARD, { replace: true });
     }
-  }, [user, navigate]);
+  }, [user, isLoading, navigate]);
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-[#f8e9ea] to-[#f5dfc4] flex items-center justify-center p-4">
+        <div className="bg-white rounded-xl p-8 shadow-xl text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#5b0108] mx-auto"></div>
+          <p className="mt-4 text-[#5b0108]">Verificando sesión...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!isAuthenticated || !user) {
+    console.error('OnboardingPage: No hay usuario autenticado');
+    navigate(ROUTES.LOGIN, { replace: true });
+    return null;
+  }
 
   // 🧩 Validación por paso
 
@@ -142,9 +176,9 @@ const OnboardingPage: React.FC = () => {
     setError(null);
 
     try {
-      // Verificar que el usuario esté autenticado
-      if (!user) {
-        console.error('No hay usuario autenticado al intentar guardar el onboarding');
+      // Verificación adicional de autenticación
+      if (!isAuthenticated || !user) {
+        console.error('OnboardingPage: No hay usuario autenticado al guardar');
         setError("Tu sesión ha expirado. Por favor, inicia sesión nuevamente.");
         setTimeout(() => {
           navigate(ROUTES.LOGIN, { replace: true });
@@ -155,7 +189,7 @@ const OnboardingPage: React.FC = () => {
       // Intentar refrescar la sesión
       const sessionRefreshed = await refreshSession();
       if (!sessionRefreshed) {
-        console.error('No se pudo refrescar la sesión');
+        console.error('OnboardingPage: No se pudo refrescar la sesión');
         setError("Tu sesión ha expirado. Por favor, inicia sesión nuevamente.");
         setTimeout(() => {
           navigate(ROUTES.LOGIN, { replace: true });
@@ -170,10 +204,11 @@ const OnboardingPage: React.FC = () => {
         completed: true,
       };
 
-      console.log("📦 Payload final enviado al backend:", finalData);
+      console.log("OnboardingPage: Enviando datos al backend:", finalData);
 
       try {
         const updatedUser = await completeOnboarding(finalData);
+        console.log("OnboardingPage: Respuesta del servidor:", updatedUser);
 
         if (updatedUser?.onboardingCompleted) {
           setTimeout(() => {
@@ -185,8 +220,8 @@ const OnboardingPage: React.FC = () => {
           );
         }
       } catch (error: any) {
-        console.error("Error específico al completar onboarding:", error);
-        if (error.message === "No hay usuario autenticado") {
+        console.error("OnboardingPage: Error al completar onboarding:", error);
+        if (error.message === "No hay usuario autenticado" || error.message === "La sesión ha expirado") {
           setError("Tu sesión ha expirado. Por favor, inicia sesión nuevamente.");
           setTimeout(() => {
             navigate(ROUTES.LOGIN, { replace: true });
@@ -198,7 +233,7 @@ const OnboardingPage: React.FC = () => {
         }
       }
     } catch (err) {
-      console.error("Error general en saveOnboarding:", err);
+      console.error("OnboardingPage: Error general:", err);
       setError("Ocurrió un error al guardar tus datos. Intenta de nuevo.");
     } finally {
       setIsSubmitting(false);

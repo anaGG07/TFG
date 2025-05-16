@@ -191,34 +191,42 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     }
   };
 
-  // Verificar autenticación actual
   const checkAuth = useCallback(async (): Promise<boolean> => {
-    console.log("🔍 Verificando estado de autenticación...");
+    console.log("AuthContext: Verificando estado de autenticación...");
 
-    // SOLUCIÓN: Evitar verificación de autenticación en páginas de login/registro
+    // Si estamos en páginas públicas, no verificamos autenticación
     if (
       window.location.pathname === '/login' ||
       window.location.pathname === '/register'
     ) {
-      console.log("Omitiendo verificación de autenticación en página de login/registro");
+      console.log("AuthContext: Omitiendo verificación en página pública");
       setIsLoading(false);
       return false;
     }
 
     try {
-      // Si ya estamos autenticados y tenemos usuario, no volvemos a verificar
+      setIsLoading(true);
+      
+      // Si ya estamos autenticados y tenemos usuario, verificar que el token sea válido
       if (isAuthenticated && user) {
-        console.log("Usuario ya autenticado en contexto:", user);
-        return true;
+        console.log("AuthContext: Usuario en contexto, verificando token...");
+        const tokenValid = await tokenService.checkAndRefreshToken();
+        if (tokenValid) {
+          console.log("AuthContext: Token válido, usuario autenticado");
+          return true;
+        }
+        console.log("AuthContext: Token inválido, limpiando estado");
+        setIsAuthenticated(false);
+        setUser(null);
       }
 
       // Intentar cargar el perfil desde el backend
-      setIsLoading(true);
+      console.log("AuthContext: Intentando cargar perfil...");
       const result = await loadDashboardSafely();
-      console.log("Resultado de carga del perfil:", result);
+      console.log("AuthContext: Resultado de carga del perfil:", result);
       return result;
     } catch (error) {
-      console.error("Error al verificar autenticación:", error);
+      console.error("AuthContext: Error al verificar autenticación:", error);
       setIsAuthenticated(false);
       setUser(null);
       return false;
@@ -227,33 +235,41 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     }
   }, [isAuthenticated, user]);
 
-
   const refreshSession = useCallback(async (): Promise<boolean> => {
-    console.log("Intentando renovar sesión...");
+    console.log("AuthContext: Iniciando renovación de sesión...");
 
     try {
       setIsLoading(true);
 
-      // Intentar renovar el token directamente
+      // Intentar renovar el token
       const refreshed = await tokenService.checkAndRefreshToken();
+      console.log("AuthContext: Resultado de renovación de token:", refreshed);
 
       if (refreshed) {
-        console.log("Token renovado, recargando perfil");
-        return await loadDashboardSafely();
+        console.log("AuthContext: Token renovado, recargando perfil");
+        const profileLoaded = await loadDashboardSafely();
+        if (!profileLoaded) {
+          console.error("AuthContext: No se pudo cargar el perfil después de renovar token");
+          setIsAuthenticated(false);
+          setUser(null);
+          return false;
+        }
+        return true;
       } else {
-        console.warn(
-          "No se pudo renovar el token, intentando verificar sesión..."
-        );
-        return await checkAuth();
+        console.warn("AuthContext: No se pudo renovar el token");
+        setIsAuthenticated(false);
+        setUser(null);
+        return false;
       }
     } catch (error) {
-      console.error("Error al renovar sesión:", error);
+      console.error("AuthContext: Error al renovar sesión:", error);
+      setIsAuthenticated(false);
+      setUser(null);
       return false;
     } finally {
       setIsLoading(false);
     }
-  }, [checkAuth]);
-
+  }, []);
 
   useEffect(() => {
     const initApp = async () => {
@@ -347,8 +363,8 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       estaCargando: isLoading
     });
 
-    if (!user) {
-      console.error('AuthContext: Intento de completar onboarding sin usuario');
+    if (!isAuthenticated || !user) {
+      console.error('AuthContext: Intento de completar onboarding sin autenticación');
       throw new Error("No hay usuario autenticado");
     }
 
@@ -370,29 +386,24 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         onboardingCompleted: true,
       });
 
-      // Verificar que el usuario se actualizó correctamente y establecer el estado
-      if (updatedUser) {
-        console.log('AuthContext: Usuario actualizado después del onboarding:', updatedUser);
-        setUser(updatedUser);
-        setIsAuthenticated(true); // Asegurar que el estado de autenticación se mantenga
-        
-        // Carga adicional de datos del dashboard para garantizar una transición fluida
-        try {
-          // Intentar cargar los datos del dashboard en segundo plano
-          await loadDashboardSafely();
-        } catch (dashboardError) {
-          console.warn('AuthContext: Error al precargar datos del dashboard:', dashboardError);
-          // Continuar con el flujo normal aunque falle la precarga
-        }
-        
-        return updatedUser;
-      } else {
-        console.error('AuthContext: Onboarding completado pero no se recibió usuario actualizado');
-        throw new Error('Error al actualizar el perfil de usuario');
+      if (!updatedUser) {
+        console.error('AuthContext: No se recibió respuesta del servidor');
+        throw new Error('No se recibió respuesta del servidor');
       }
+
+      console.log('AuthContext: Usuario actualizado después del onboarding:', updatedUser);
+      setUser(updatedUser);
+      setIsAuthenticated(true);
+      
+      try {
+        await loadDashboardSafely();
+      } catch (dashboardError) {
+        console.warn('AuthContext: Error al precargar datos del dashboard:', dashboardError);
+      }
+      
+      return updatedUser;
     } catch (error: any) {
       console.error("AuthContext: Error al completar onboarding:", error);
-      // Si el error es de autenticación, limpiar el estado
       if (error instanceof Error && 
           (error.message === "No hay usuario autenticado" || 
            error.message === "La sesión ha expirado")) {
