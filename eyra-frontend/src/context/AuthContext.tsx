@@ -248,24 +248,11 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       // Dar tiempo a que las cookies se establezcan correctamente
       await new Promise(resolve => setTimeout(resolve, 100));
 
-      // Intentar verificar la sesión inmediatamente
-      try {
-        const isValid = await tokenService.checkToken();
-        if (!isValid) {
-          console.error('AuthContext: No se pudo verificar la sesión después del login');
-          console.log('AuthContext: Usando datos de usuario de todas formas');
-          // No lanzamos error aquí para que continue el flujo
-        }
-      } catch (error) {
-        console.error('AuthContext: Error al verificar sesión:', error);
-        // No lanzamos error aquí para permitir el flujo de login
-      }
-
       return loggedInUser;
-    } catch (error) {
-      console.error("AuthContext: Error durante login:", error);
-      setIsAuthenticated(false);
+    } catch (error: any) {
+      console.error('AuthContext: Error en login:', error);
       setUser(null);
+      setIsAuthenticated(false);
       throw error;
     } finally {
       setIsLoading(false);

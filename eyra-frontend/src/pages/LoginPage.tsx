@@ -10,37 +10,14 @@ const LoginPage = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [checkingSession, setCheckingSession] = useState(true);
 
-  const { login, user, checkAuth } = useAuth();
+  const { login } = useAuth();
   const navigate = useNavigate();
 
   // Verificar si el usuario ya tiene una sesión válida al cargar la página
   useEffect(() => {
-    // SOLUCIÓN: No verificar autenticación en la página de login para evitar bucles
+    // No verificamos la sesión en la página de login para evitar bucles
     console.log("LoginPage - No verificando sesión para evitar bucles");
     setCheckingSession(false);
-    
-    /* COMENTADO PARA EVITAR BUCLES
-    const checkExistingSession = async () => {
-      console.log("LoginPage - Verificando si hay una sesión existente...");
-
-      try {
-        const sessionActive = await checkAuth();
-        if (sessionActive && user) {
-          console.log("LoginPage - Sesión activa detectada:", user);
-          navigate(
-            user.onboardingCompleted ? ROUTES.DASHBOARD : ROUTES.ONBOARDING,
-            { replace: true }
-          );
-        }
-      } catch (error) {
-        console.warn("LoginPage - No se detectó sesión activa:", error);
-      } finally {
-        setCheckingSession(false);
-      }
-    };
-
-    checkExistingSession();
-    */
   }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -66,7 +43,14 @@ const LoginPage = () => {
         completed: user.onboardingCompleted,
       });
 
-      navigate(user.onboardingCompleted ? ROUTES.DASHBOARD : ROUTES.ONBOARDING);
+      // Redirigir basado en el estado del onboarding
+      if (!user.onboardingCompleted) {
+        console.log("Redirigiendo a onboarding...");
+        navigate(ROUTES.ONBOARDING, { replace: true });
+      } else {
+        console.log("Redirigiendo a dashboard...");
+        navigate(ROUTES.DASHBOARD, { replace: true });
+      }
     } catch (error: any) {
       console.error("Error en login:", error);
       setError(error.message || "Error al iniciar sesión");

@@ -42,16 +42,8 @@ class AuthService {
         throw new Error("Respuesta inválida del servidor");
       }
 
-      // Verificar que podemos obtener el perfil
-      try {
-        console.log('AuthService: Verificando perfil después de login...');
-        const profile = await this.getProfile();
-        console.log('AuthService: Perfil verificado:', profile);
-        return profile;
-      } catch (profileError) {
-        console.error('AuthService: Error al verificar perfil:', profileError);
-        throw new Error("Error al obtener el perfil después del login");
-      }
+      console.log('AuthService: Login exitoso, usuario:', data.user);
+      return data.user;
     } catch (error: unknown) {
       console.error("AuthService: Error en login:", error);
       throw new Error((error as Error)?.message || "Error al iniciar sesión");
