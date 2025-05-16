@@ -138,24 +138,39 @@ class AuthService {
         throw new Error("No hay usuario autenticado");
       }
       
-      const response = await apiFetch<{
-        message: string;
-        user: User;
-        onboarding: any;
-      }>(API_ROUTES.AUTH.ONBOARDING, {
+      const response = await fetch(`${API_URL}${API_ROUTES.AUTH.ONBOARDING}`, {
         method: "POST",
-        body: completeData,
-        skipRedirectCheck: true,
+        headers: {
+          "Content-Type": "application/json",
+          "Accept": "application/json"
+        },
+        credentials: "include",
+        body: JSON.stringify(completeData)
       });
 
-      console.log('AuthService: Respuesta del servidor:', response);
+      if (!response.ok) {
+        console.error('AuthService: Error en respuesta:', {
+          status: response.status,
+          statusText: response.statusText
+        });
+        
+        if (response.status === 401) {
+          tokenService.invalidateToken();
+          throw new Error("No hay usuario autenticado");
+        }
+        
+        throw new Error(`Error al completar el onboarding: ${response.statusText}`);
+      }
 
-      if (!response || !response.user) {
+      const data = await response.json();
+      console.log('AuthService: Respuesta del servidor:', data);
+
+      if (!data || !data.user) {
         console.error('AuthService: Respuesta inválida del servidor');
         throw new Error("No se pudo completar el onboarding correctamente");
       }
 
-      return response.user;
+      return data.user;
     } catch (error) {
       console.error("AuthService: Error al completar onboarding:", error);
       if (error instanceof Error) {

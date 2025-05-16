@@ -1,15 +1,15 @@
-import { API_ROUTES } from "../config/apiRoutes";
-import { apiFetch } from "../utils/httpClient";
+import { API_ROUTES, API_URL } from "../config/apiRoutes";
 
 /**
  * Servicio para manejar tokens JWT
  * Encapsula la lógica de renovación y verificación de tokens
  */
 class TokenService {
-  private refreshPromise: Promise<any> | null = null;
+  private refreshPromise: Promise<boolean> | null = null;
   private refreshing = false;
   private lastRefreshTime = 0;
   private readonly MIN_REFRESH_INTERVAL = 30000; // 30 segundos mínimo entre refrescos
+  private isTokenValid = false;
 
   /**
    * Comprueba si la ruta actual es login o registro
@@ -21,84 +21,49 @@ class TokenService {
   }
 
   /**
-   * Configura el servicio de tokens e inicializa la renovación automática
+   * Verifica y renueva el token si es necesario
    */
-  public setupTokenRefresher() {
-    // SOLUCIÓN: No activar renovación automática en páginas de login/registro
+  async checkAndRefreshToken(): Promise<boolean> {
+    // Si estamos en login/registro, no intentamos renovar
     if (this.isLoginOrRegister()) {
-      console.log("En login/registro: sin configurar renovación automática");
-      return () => {}; // Función vacía de limpieza
+      console.log("TokenService: En página de login/registro, omitiendo renovación");
+      return false;
     }
-    
-    this.setupAutoRefresh();
-    console.log("✅ Token refresher configurado correctamente");
-    return () => {
-      this.cleanupAutoRefresh();
-    };
-  }
 
-  /**
-   * Verifica cada 60 segundos si es necesario renovar el token
-   */
-  private setupAutoRefresh() {
-    const intervalId = setInterval(() => {
-      // Verificar que no estamos en login/registro antes de intentar renovar
-      if (!this.isLoginOrRegister()) {
-        this.checkAndRefreshToken();
-      } else {
-        console.log("Saltando renovación automática en página de login/registro");
+    // Si ya hay una renovación en curso, esperamos por ella
+    if (this.refreshPromise) {
+      console.log("TokenService: Esperando renovación en curso...");
+      try {
+        return await this.refreshPromise;
+      } catch (error) {
+        console.error("TokenService: Error esperando renovación:", error);
+        return false;
       }
-    }, 60000); // 1 minuto
-
-    if (typeof window !== "undefined") {
-      (window as any).__tokenRefreshIntervalId = intervalId;
     }
-  }
 
-  /**
-   * Limpia el intervalo de renovación automática
-   */
-  private cleanupAutoRefresh() {
-    if (
-      typeof window !== "undefined" &&
-      (window as any).__tokenRefreshIntervalId
-    ) {
-      clearInterval((window as any).__tokenRefreshIntervalId);
-      (window as any).__tokenRefreshIntervalId = null;
-    }
-  }
-
-  /**
-   * Verifica si se necesita renovar el token y lo hace si es posible
-   */
-  public async checkAndRefreshToken(): Promise<boolean> {
-    // SOLUCIÓN: No intentar renovar el token en páginas de login/registro
-    if (this.isLoginOrRegister()) {
-      console.log("En login/registro: evitando renovación automática de token");
-      return false;
-    }
-    
+    // Evitar renovaciones muy frecuentes
     const now = Date.now();
-
-    // Demasiado pronto desde el último intento
-    if (
-      this.refreshing ||
-      now - this.lastRefreshTime < this.MIN_REFRESH_INTERVAL
-    ) {
-      return false;
+    if (now - this.lastRefreshTime < this.MIN_REFRESH_INTERVAL && this.isTokenValid) {
+      console.log("TokenService: Renovación muy reciente y token válido, omitiendo");
+      return true;
     }
 
-    if (!this.refreshPromise) {
-      this.refreshing = true;
-      this.refreshPromise = this.refreshToken();
-    }
+    console.log("TokenService: Iniciando renovación de token...");
+    this.refreshing = true;
+    this.refreshPromise = this.refreshToken();
 
     try {
-      await this.refreshPromise;
-      return true;
+      const result = await this.refreshPromise;
+      if (result) {
+        this.lastRefreshTime = Date.now();
+        this.isTokenValid = true;
+      } else {
+        this.isTokenValid = false;
+      }
+      return result;
     } catch (error) {
-      console.error("🚫 Fallo al renovar el token:", error);
-      this.clearAuthCookies();
+      console.error("TokenService: Error en renovación:", error);
+      this.isTokenValid = false;
       return false;
     } finally {
       this.refreshing = false;
@@ -109,46 +74,70 @@ class TokenService {
   /**
    * Realiza la petición al servidor para renovar el token
    */
-  private async refreshToken(): Promise<any> {
-    // SOLUCIÓN: Verificar nuevamente aquí para tener seguridad adicional
-    if (this.isLoginOrRegister()) {
-      console.log("En login/registro: cancelando intento de renovación de token");
-      throw new Error("Renovación de token cancelada en página de login/registro");
-    }
-    
-    this.lastRefreshTime = Date.now();
-
-    console.log("🔁 Intentando renovar token JWT...");
-
+  private async refreshToken(): Promise<boolean> {
     try {
-      const response = await apiFetch(API_ROUTES.AUTH.REFRESH_TOKEN, {
+      console.log("TokenService: Enviando petición de renovación...");
+      
+      const res = await fetch(`${API_URL}${API_ROUTES.AUTH.REFRESH_TOKEN}`, {
         method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Accept": "application/json"
+        },
         credentials: "include",
-        skipRedirectCheck: true,
       });
 
-      console.log("✅ Token renovado:", response);
-      return response;
-    } catch (error: any) {
-      if (error?.response?.status === 401) {
-        console.warn(
-          "🔒 Refresh token inválido o expirado. Se limpiarán las cookies."
-        );
-        this.clearAuthCookies();
-      } else {
-        console.error("💥 Error inesperado en renovación de token:", error);
+      if (!res.ok) {
+        console.error("TokenService: Error en respuesta:", {
+          status: res.status,
+          statusText: res.statusText
+        });
+        
+        if (res.status === 401) {
+          console.warn("TokenService: Token expirado o inválido");
+          this.isTokenValid = false;
+          window.location.href = '/login';
+        }
+        
+        return false;
       }
 
-      throw error;
+      const data = await res.json();
+      console.log("TokenService: Token renovado exitosamente");
+      this.isTokenValid = true;
+      return true;
+    } catch (error) {
+      console.error("TokenService: Error en petición de renovación:", error);
+      this.isTokenValid = false;
+      return false;
     }
   }
 
   /**
-   * Elimina cookies de autenticación del navegador
+   * Marca el token como inválido (usado al cerrar sesión)
    */
-  private clearAuthCookies() {
-    document.cookie = "jwt_token=; Max-Age=0; path=/";
-    document.cookie = "refresh_token=; Max-Age=0; path=/";
+  invalidateToken(): void {
+    this.isTokenValid = false;
+    this.lastRefreshTime = 0;
+  }
+
+  /**
+   * Configura el sistema de renovación automática de tokens
+   */
+  setupTokenRefresher(): () => void {
+    console.log("TokenService: Configurando renovación automática");
+    
+    const checkInterval = 60000; // Verificar cada minuto
+    const intervalId = setInterval(() => {
+      if (!this.refreshing && !this.isLoginOrRegister()) {
+        this.checkAndRefreshToken().catch(console.error);
+      }
+    }, checkInterval);
+
+    return () => {
+      console.log("TokenService: Limpiando renovación automática");
+      clearInterval(intervalId);
+    };
   }
 }
 

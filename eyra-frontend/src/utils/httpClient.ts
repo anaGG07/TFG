@@ -43,15 +43,12 @@ async function tryRefreshToken(): Promise<boolean> {
   try {
     console.log("[httpClient] Intentando renovar token...");
     
-    // Las cookies HttpOnly se envían automáticamente con credentials: "include"
-    // Solo necesitamos incluir un cuerpo JSON vacío para que no sea undefined
     const res = await fetch(`${API_URL}/refresh-token`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
         "Accept": "application/json"
       },
-      body: JSON.stringify({}),  // Enviamos un objeto vacío para que el body no sea undefined
       credentials: "include",
     });
 
@@ -107,14 +104,13 @@ export async function apiFetch<T>(
   const isLoginRequest = url.includes("/login_check") && options.method === "POST";
 
   try {
-    // LOGGERS PARA VERIFICAR URLS
-    console.log(`🔍 Preparando fetch para URL: ${url}`);
-    console.log(`🔍 Path original: ${path}`);
-    console.log(`🔍 Método: ${options.method}`);
-    console.log(`🔍 Headers:`, headers);
-    console.log(`🔍 Body:`, options.body);
+    console.log(`📥 Enviando petición:`, {
+      url,
+      method: options.method,
+      headers,
+      body: options.body
+    });
     
-    console.log(`📥 Fetching: ${url}`);
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 15000);
     fetchOptions.signal = controller.signal;
@@ -122,14 +118,12 @@ export async function apiFetch<T>(
     let response = await fetch(url, fetchOptions);
     clearTimeout(timeoutId);
 
-    console.log(`📢 Respuesta de ${url}:`, {
+    console.log(`📢 Respuesta recibida:`, {
+      url,
       status: response.status,
       statusText: response.statusText,
-      headers: Object.fromEntries([...response.headers]),
+      headers: Object.fromEntries([...response.headers])
     });
-
-    // Intentar imprimir cookies presentes
-    console.log('Cookies disponibles:', document.cookie ? document.cookie : 'No hay cookies visibles');
 
     // 🔐 Si expiró sesión, intentar refresh
     if (

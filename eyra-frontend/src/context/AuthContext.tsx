@@ -370,13 +370,17 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
     try {
       // Intentar refrescar la sesión antes de continuar
-      const refreshed = await refreshSession();
+      console.log('AuthContext: Intentando refrescar sesión antes del onboarding...');
+      const refreshed = await tokenService.checkAndRefreshToken();
+      
       if (!refreshed) {
         console.error('AuthContext: No se pudo refrescar la sesión');
+        setIsAuthenticated(false);
+        setUser(null);
         throw new Error("La sesión ha expirado");
       }
 
-      console.log('AuthContext: Enviando datos de onboarding:', {
+      console.log('AuthContext: Sesión refrescada correctamente, enviando datos:', {
         ...onboardingData,
         onboardingCompleted: true
       });
@@ -388,28 +392,24 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
       if (!updatedUser) {
         console.error('AuthContext: No se recibió respuesta del servidor');
-        throw new Error('No se recibió respuesta del servidor');
+        throw new Error('No se pudo completar el onboarding correctamente');
       }
 
       console.log('AuthContext: Usuario actualizado después del onboarding:', updatedUser);
       setUser(updatedUser);
       setIsAuthenticated(true);
       
-      try {
-        await loadDashboardSafely();
-      } catch (dashboardError) {
-        console.warn('AuthContext: Error al precargar datos del dashboard:', dashboardError);
-      }
-      
       return updatedUser;
     } catch (error: any) {
       console.error("AuthContext: Error al completar onboarding:", error);
-      if (error instanceof Error && 
-          (error.message === "No hay usuario autenticado" || 
-           error.message === "La sesión ha expirado")) {
+      
+      // Si el error es de autenticación, limpiamos el estado
+      if (error.message === "No hay usuario autenticado" || 
+          error.message === "La sesión ha expirado") {
         setUser(null);
         setIsAuthenticated(false);
       }
+      
       throw error;
     }
   };
