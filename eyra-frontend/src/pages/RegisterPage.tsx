@@ -158,6 +158,7 @@ const RegisterPage = () => {
               onChange={(e) => setPassword(e.target.value)}
               className="w-full bg-white/30 border border-[#300808]/20 rounded-lg py-3 px-4 text-[#5b0108] placeholder-[#5b0108]/40 focus:outline-none focus:ring-2 focus:ring-[#9d0d0b]/50"
               placeholder="••••••••"
+              autoComplete="new-password"
               required
             />
           </div>
@@ -176,6 +177,7 @@ const RegisterPage = () => {
               onChange={(e) => setConfirmPassword(e.target.value)}
               className="w-full bg-white/30 border border-[#300808]/20 rounded-lg py-3 px-4 text-[#5b0108] placeholder-[#5b0108]/40 focus:outline-none focus:ring-2 focus:ring-[#9d0d0b]/50"
               placeholder="••••••••"
+              autoComplete="new-password"
               required
             />
           </div>

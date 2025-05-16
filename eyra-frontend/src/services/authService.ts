@@ -3,6 +3,7 @@ import { LoginRequest } from "../types/api";
 import { RegisterRequest } from "../types/api";
 import { User } from "../types/domain";
 import { tokenService } from "./tokenService";
+import { apiFetch } from "../utils/httpClient";
 
 /**
  * Servicio de autenticación simplificado
@@ -32,27 +33,10 @@ class AuthService {
 
     try {
       console.log('AuthService: Iniciando login...');
-      
-      const response = await fetch(`${API_URL}/api/login_check`, {
+      const data = await apiFetch<{ user: User }>("/api/login_check", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Accept": "application/json"
-        },
-        credentials: "include",
-        body: JSON.stringify(credentials)
+        body: credentials
       });
-
-      if (!response.ok) {
-        console.error('AuthService: Error en login:', {
-          status: response.status,
-          statusText: response.statusText
-        });
-        throw new Error("Credenciales incorrectas");
-      }
-
-      const data = await response.json();
-      console.log('AuthService: Login exitoso, respuesta:', data);
 
       if (!data || !data.user) {
         throw new Error("Respuesta inválida del servidor");
@@ -78,9 +62,8 @@ class AuthService {
     this.ensureInitialized();
 
     try {
-      await fetch(`${API_URL}/api/logout`, {
-        method: "POST",
-        credentials: "include"
+      await apiFetch("/api/logout", {
+        method: "POST"
       });
     } catch (error) {
       console.error("Error al cerrar sesión:", error);
@@ -94,25 +77,9 @@ class AuthService {
     this.ensureInitialized();
 
     try {
-      const response = await fetch(`${API_URL}/api/profile`, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          "Accept": "application/json"
-        },
-        credentials: "include"
+      return await apiFetch<User>("/api/profile", {
+        method: "GET"
       });
-
-      if (!response.ok) {
-        console.error('AuthService: Error al obtener perfil:', {
-          status: response.status,
-          statusText: response.statusText
-        });
-        throw new Error("Error al obtener el perfil");
-      }
-
-      const data = await response.json();
-      return data;
     } catch (error) {
       console.error("AuthService: Error al obtener perfil:", error);
       throw error;
@@ -121,20 +88,11 @@ class AuthService {
 
   async register(userData: RegisterRequest): Promise<void> {
     this.ensureInitialized();
-    
     try {
-      const response = await fetch(`${API_URL}/register`, {
+      await apiFetch("/api/register", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Accept": "application/json"
-        },
-        body: JSON.stringify(userData)
+        body: userData
       });
-
-      if (!response.ok) {
-        throw new Error("Error al registrar usuario");
-      }
     } catch (error) {
       console.error("Error durante el registro:", error);
       throw error;
