@@ -112,14 +112,6 @@ class JwtCookieListener implements EventSubscriberInterface
             return null;
         }
         
-        // Añadir dd() para ver el contenido exacto del token
-        dd([
-            'token' => $token,
-            'token_parts' => explode('.', $token),
-            'cookies' => $request->cookies->all(),
-            'headers' => $request->headers->all()
-        ]);
-        
         return $token;
     }
 }
