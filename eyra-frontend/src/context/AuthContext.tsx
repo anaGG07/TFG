@@ -188,6 +188,12 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         return false;
       }
 
+      // Si el usuario está en onboarding, NO cargar el perfil
+      if (window.location.pathname === '/onboarding') {
+        console.log("AuthContext: Usuario en onboarding, no se carga perfil");
+        return true;
+      }
+
       // Si el token es válido, intentar cargar el perfil
       console.log("AuthContext: Token válido, cargando perfil...");
       const result = await loadDashboardSafely();
