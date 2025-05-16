@@ -46,11 +46,14 @@ services:
       - "9000"
     volumes:
       - ./eyra-backend:/var/www/html
+      - ./eyra-backend/config/jwt:/var/www/html/config/jwt
     environment:
       - DATABASE_URL=${DATABASE_URL}
       - APP_ENV=${APP_ENV}
       - APP_SECRET=${APP_SECRET}
       - JWT_PASSPHRASE=${JWT_PASSPHRASE}
+      - JWT_SECRET_KEY=/var/www/html/config/jwt/private.pem
+      - JWT_PUBLIC_KEY=/var/www/html/config/jwt/public.pem
     networks:
       - eyra-network
 
