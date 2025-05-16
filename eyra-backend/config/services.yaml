@@ -28,14 +28,9 @@ services:
         arguments:
             $cookieName: 'jwt_token'
             $logger: '@logger'
+        tags:
+            - { name: 'lexik_jwt_authentication.token_extractor', alias: 'cookie_extractor' }
         
-    # Registrar nuestro extractor de cookie como servicio usado por lexik_jwt_authentication
-    lexik_jwt_authentication.extractor.cookie_extractor:
-        class: App\Security\CookieTokenExtractor
-        arguments:
-            $cookieName: 'jwt_token'
-            $logger: '@logger'
-            
     # Handler personalizado para autenticación con cookies
     App\Security\JwtCookieSuccessHandler:
         arguments:
