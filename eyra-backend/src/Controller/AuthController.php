@@ -226,20 +226,30 @@ class AuthController extends AbstractController
     }
 
     #[Route('/profile', name: 'api_profile', methods: ['GET'])]
-    public function getProfile(): JsonResponse
+    public function getProfile(Request $request): JsonResponse
     {
         try {
+            // Log de depuración detallado
+            $this->logger->info('AuthController::getProfile - Iniciando solicitud de perfil', [
+                'headers' => $request->headers->keys(),
+                'has_auth_header' => $request->headers->has('Authorization'),
+                'auth_header_prefix' => $request->headers->has('Authorization') ? substr($request->headers->get('Authorization'), 0, 15) . '...' : 'no',
+                'cookies' => array_keys($request->cookies->all()),
+                'token_cookie' => $request->cookies->has('jwt_token') ? 'presente' : 'ausente'
+            ]);
+            
             /** @var User|null $user */
-            $user = $this->getUser();
+            $user = $this->getUser(); 
             
             // Log para depuración
-            $this->logger->info('AuthController::getProfile - Usuario autenticado:', [
-                'id' => $user ? $user->getId() : 'null',
-                'email' => $user ? $user->getEmail() : 'null'
+            $this->logger->info('AuthController::getProfile - Estado de autenticación', [
+                'user_authenticated' => $user !== null,
+                'user_id' => $user ? $user->getId() : 'null',
+                'user_email' => $user ? $user->getEmail() : 'null'
             ]);
             
             if (!$user instanceof User) {
-                $this->logger->warning('AuthController::getProfile - Usuario no autenticado (getUser() devuelve nulo)');
+                $this->logger->warning('AuthController::getProfile - Usuario no autenticado');
                 return $this->json(['message' => 'Usuario no autenticado'], 401);
             }
 
@@ -258,16 +268,17 @@ class AuthController extends AbstractController
                     'birthDate' => $user->getBirthDate()->format('Y-m-d'),
                     'createdAt' => $user->getCreatedAt()->format('c'),
                     'updatedAt' => $user->getUpdatedAt() ? $user->getUpdatedAt()->format('c') : null,
-                    'state' => $user->getState()
+                    'state' => $user->getState(),
+                    'onboardingCompleted' => $user->isOnboardingCompleted()
                 ]
             ]);
         } catch (Exception $e) {
             $this->logger->error('Error al obtener perfil: ' . $e->getMessage(), [
-                'exception' => $e,
+                'exception' => $e->getMessage(),
                 'trace' => $e->getTraceAsString()
             ]);
             
-            return $this->json(['message' => 'Error al obtener perfil'], 500);
+            return $this->json(['message' => 'Error al obtener perfil: ' . $e->getMessage()], 500);
         }
     }
 

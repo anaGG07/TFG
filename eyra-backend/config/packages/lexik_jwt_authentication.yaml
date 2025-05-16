@@ -24,3 +24,7 @@ lexik_jwt_authentication:
             httpOnly: true
     # No remover el token del cuerpo cuando se usan cookies
     remove_token_from_body_when_cookies_used: false
+    # Eventos - CRUCIAL para detectar errores en la autenticación
+    access_token_verification:
+        # Activar logs detallados para depurar problemas de autenticación
+        debug: true

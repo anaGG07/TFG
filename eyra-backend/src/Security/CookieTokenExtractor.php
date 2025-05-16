@@ -19,33 +19,51 @@ class CookieTokenExtractor implements TokenExtractorInterface
 
     public function extract(Request $request): ?string
     {
-        // Extraemos y registramos todas las cookies para depurar
-        $this->logger->info('CookieTokenExtractor: Extracting token', [
-            'has_cookie' => $request->cookies->has($this->cookieName),
-            'all_cookies' => array_keys($request->cookies->all()),
-            'has_auth_header' => $request->headers->has('Authorization'),
-            'auth_header' => $request->headers->get('Authorization'),
-            'request_uri' => $request->getRequestUri(),
-            'request_method' => $request->getMethod()
-        ]);
+        // Verificar si estamos en una ruta pública o no una ruta API
+        $path = $request->getPathInfo();
+        $publicRoutes = [
+            '/api/register',
+            '/api/login',
+            '/api/login_check',
+            '/api/docs',
+            '/api/password-reset'
+        ];
 
+        if (!str_starts_with($path, '/api') || in_array($path, $publicRoutes) || str_starts_with($path, '/api/docs')) {
+            $this->logger->info('CookieTokenExtractor: Ruta pública, no se necesita token');
+            return null;
+        }
+
+        // Verificar si hay un header Authorization
+        if ($request->headers->has('Authorization')) {
+            $header = $request->headers->get('Authorization');
+            if (str_starts_with($header, 'Bearer ')) {
+                $this->logger->info('CookieTokenExtractor: El token ya existe en Authorization header');
+                return null; // No extraemos de la cookie si ya hay un header
+            }
+        }
+
+        // Intentar extraer el token de la cookie
         if (!$request->cookies->has($this->cookieName)) {
-            $this->logger->warning("CookieTokenExtractor: No token found in cookie named '{$this->cookieName}'");
+            $this->logger->warning("CookieTokenExtractor: No hay cookie '{$this->cookieName}'", [
+                'path' => $request->getPathInfo(),
+                'cookies' => array_keys($request->cookies->all()),
+                'method' => $request->getMethod()
+            ]);
             return null;
         }
 
         $token = $request->cookies->get($this->cookieName);
         
         if (empty($token)) {
-            $this->logger->warning("CookieTokenExtractor: Empty token in cookie '{$this->cookieName}'");
+            $this->logger->warning("CookieTokenExtractor: Cookie '{$this->cookieName}' está vacía");
             return null;
         }
 
-        $this->logger->info("CookieTokenExtractor: Token found in cookie '{$this->cookieName}'", [
-            'token_start' => substr($token, 0, 10) . '...'
+        $this->logger->info("CookieTokenExtractor: Token encontrado en cookie '{$this->cookieName}'", [
+            'token_prefix' => substr($token, 0, 10) . '...'
         ]);
 
-        // Si tenemos el token JWT en la cookie, lo retornamos para su procesamiento
         return $token;
     }
 }

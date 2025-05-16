@@ -47,3 +47,11 @@ services:
             $logger: '@logger'
         tags:
             - { name: kernel.event_subscriber }
+    
+    # Listener para eventos de autenticación JWT
+    App\EventListener\JwtAuthenticationListener:
+        arguments:
+            $logger: '@logger'
+            $requestStack: '@request_stack'
+        tags:
+            - { name: kernel.event_subscriber }

@@ -6,6 +6,7 @@ use Symfony\Component\HttpKernel\Event\RequestEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpKernel\KernelEvents;
 use Psr\Log\LoggerInterface;
+use Symfony\Component\HttpFoundation\Request;
 
 /**
  * JwtCookieListener
@@ -18,6 +19,7 @@ use Psr\Log\LoggerInterface;
 class JwtCookieListener implements EventSubscriberInterface
 {
     private LoggerInterface $logger;
+    private const COOKIE_NAME = 'jwt_token';
 
     public function __construct(LoggerInterface $logger)
     {
@@ -27,19 +29,26 @@ class JwtCookieListener implements EventSubscriberInterface
     public static function getSubscribedEvents(): array
     {
         return [
-            // Alta prioridad (255) para asegurar que se ejecuta antes del firewall de seguridad
-            KernelEvents::REQUEST => ['onKernelRequest', 255],
+            // Prioridad extremadamente alta (999) para asegurar que se ejecuta antes de cualquier otro listener
+            KernelEvents::REQUEST => ['onKernelRequest', 999],
         ];
     }
 
+    /**
+     * En cada petición, verifica si existe la cookie JWT y la convierte en header de Authorization
+     */
     public function onKernelRequest(RequestEvent $event): void
     {
+        if (!$event->isMainRequest()) {
+            return;
+        }
+
         $request = $event->getRequest();
         $path = $request->getPathInfo();
 
         // Para depuración - registrar todas las peticiones API
         if (str_starts_with($path, '/api')) {
-            $this->logger->info("JwtCookieListener: Petición a [{$path}]", [
+            $this->logger->info("JwtCookieListener: Petición a {$path}", [
                 'cookies' => array_keys($request->cookies->all()),
                 'has_auth_header' => $request->headers->has('Authorization'),
                 'method' => $request->getMethod()
@@ -60,10 +69,14 @@ class JwtCookieListener implements EventSubscriberInterface
             return;
         }
 
-        $token = $request->cookies->get('jwt_token');
+        // Intentar extraer el token JWT desde la cookie
+        $token = $this->extractTokenFromCookie($request);
+        
         if ($token) {
             // Registrar la presencia del token
-            $this->logger->info("JwtCookieListener: Token JWT encontrado en cookie, añadiendo a Authorization para: {$path}");
+            $this->logger->info("JwtCookieListener: Token JWT encontrado en cookie para: {$path}", [
+                'token_prefix' => substr($token, 0, 10) . '...'
+            ]);
             
             // Añadir el token a los headers de autorización
             $request->headers->set('Authorization', 'Bearer ' . $token);
@@ -72,14 +85,34 @@ class JwtCookieListener implements EventSubscriberInterface
             $authHeader = $request->headers->get('Authorization');
             if ($authHeader) {
                 $this->logger->info('JwtCookieListener: Header Authorization establecido correctamente', [
-                    'header' => substr($authHeader, 0, 20) . '...'
+                    'header' => substr($authHeader, 0, 15) . '...'
                 ]);
             } else {
-                $this->logger->warning('JwtCookieListener: No se pudo establecer el header Authorization');
+                $this->logger->critical('JwtCookieListener: FALLO AL ESTABLECER el header Authorization');
             }
         } else {
             // Log para depuración
-            $this->logger->warning("JwtCookieListener: No hay cookie JWT para la ruta {$path}");
+            $this->logger->error("JwtCookieListener: No hay cookie JWT para la ruta {$path}");
+            $this->logger->info('Cookies disponibles: ' . json_encode(array_keys($request->cookies->all())));
         }
     }
+    
+    /**
+     * Extrae el token JWT de la cookie
+     */
+    private function extractTokenFromCookie(Request $request): ?string
+    {
+        if (!$request->cookies->has(self::COOKIE_NAME)) {
+            return null;
+        }
+        
+        $token = $request->cookies->get(self::COOKIE_NAME);
+        if (empty($token)) {
+            $this->logger->warning("Cookie '{self::COOKIE_NAME}' está vacía");
+            return null;
+        }
+        
+        return $token;
+    }
+}
 }
