@@ -92,19 +92,26 @@ class JwtCookieSuccessHandler implements AuthenticationSuccessHandlerInterface
             ]);
             
             // Establecer cookie JWT con configuración adaptada al entorno
-            $response->headers->setCookie(
-                new Cookie(
-                    'jwt_token',       // Nombre de la cookie
-                    $jwtToken,         // Valor (el token JWT)
-                    time() + 7200,     // Expiración (2 horas)
-                    '/',              // Path
-                    null,              // Domain (null = current domain)
-                    $isDevEnvironment ? false : $this->cookieSecure, // No requerir HTTPS en desarrollo
-                    true,              // HTTPOnly - Previene acceso desde JavaScript
-                    false,             // Raw
-                    $isDevEnvironment ? 'Lax' : 'Lax'  // Siempre usar Lax para mayor compatibilidad
-                )
+            $cookie = new Cookie(
+                'jwt_token',       // Nombre de la cookie
+                $jwtToken,         // Valor (el token JWT)
+                time() + 7200,     // Expiración (2 horas)
+                '/',              // Path
+                null,              // Domain (null = current domain)
+                $isDevEnvironment ? false : $this->cookieSecure, // No requerir HTTPS en desarrollo
+                true,              // HTTPOnly - Previene acceso desde JavaScript
+                false,             // Raw
+                $isDevEnvironment ? 'Lax' : 'Lax'  // Siempre usar Lax para mayor compatibilidad
             );
+            
+            error_log('Estableciendo cookie JWT: ' . substr($jwtToken, 0, 15) . '...');
+            error_log('Cookie settings: ' . json_encode([
+                'secure' => $isDevEnvironment ? false : $this->cookieSecure,
+                'httpOnly' => true,
+                'sameSite' => $isDevEnvironment ? 'Lax' : 'Lax'
+            ]));
+            
+            $response->headers->setCookie($cookie);
             
             return $response;
         } catch (\Exception $e) {

@@ -24,7 +24,9 @@ class CookieTokenExtractor implements TokenExtractorInterface
             'has_cookie' => $request->cookies->has($this->cookieName),
             'all_cookies' => array_keys($request->cookies->all()),
             'has_auth_header' => $request->headers->has('Authorization'),
-            'request_uri' => $request->getRequestUri()
+            'auth_header' => $request->headers->get('Authorization'),
+            'request_uri' => $request->getRequestUri(),
+            'request_method' => $request->getMethod()
         ]);
 
         if (!$request->cookies->has($this->cookieName)) {
@@ -43,6 +45,7 @@ class CookieTokenExtractor implements TokenExtractorInterface
             'token_start' => substr($token, 0, 10) . '...'
         ]);
 
+        // Si tenemos el token JWT en la cookie, lo retornamos para su procesamiento
         return $token;
     }
 }

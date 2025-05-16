@@ -3,8 +3,6 @@ lexik_jwt_authentication:
     public_key: '%env(resolve:JWT_PUBLIC_KEY)%'
     pass_phrase: '%env(JWT_PASSPHRASE)%'
     token_ttl: 7200
-    api_token_authenticator:
-        enabled: true  # Activar este modo explícitamente para asegurar compatibilidad
     token_extractors:
         authorization_header:
             enabled: true

@@ -32,13 +32,6 @@ class JwtCookieListener implements EventSubscriberInterface
         ];
     }
 
-    /**
-     * En cada petición, verifica si existe la cookie JWT y la convierte en header de Authorization
-     * 
-     * Este método permite usar cookies HttpOnly+Secure para almacenar el token JWT,
-     * ofreciendo mayor protección contra ataques XSS, mientras mantiene la compatibilidad
-     * con el sistema de autenticación JWT estándar basado en headers.
-     */
     public function onKernelRequest(RequestEvent $event): void
     {
         $request = $event->getRequest();
@@ -46,9 +39,10 @@ class JwtCookieListener implements EventSubscriberInterface
 
         // Para depuración - registrar todas las peticiones API
         if (str_starts_with($path, '/api')) {
-            $this->logger->info('JwtCookieListener: Petición a [{$path}]', [
+            $this->logger->info("JwtCookieListener: Petición a [{$path}]", [
                 'cookies' => array_keys($request->cookies->all()),
-                'has_auth_header' => $request->headers->has('Authorization')
+                'has_auth_header' => $request->headers->has('Authorization'),
+                'method' => $request->getMethod()
             ]);
         }
 
@@ -69,14 +63,17 @@ class JwtCookieListener implements EventSubscriberInterface
         $token = $request->cookies->get('jwt_token');
         if ($token) {
             // Registrar la presencia del token
-            $this->logger->info("JwtCookieListener: Token JWT encontrado, añadiendo a Authorization para: {$path}");
+            $this->logger->info("JwtCookieListener: Token JWT encontrado en cookie, añadiendo a Authorization para: {$path}");
             
             // Añadir el token a los headers de autorización
             $request->headers->set('Authorization', 'Bearer ' . $token);
             
             // Verificar que se añadió correctamente
-            if ($request->headers->has('Authorization')) {
-                $this->logger->info('JwtCookieListener: Header Authorization establecido correctamente');
+            $authHeader = $request->headers->get('Authorization');
+            if ($authHeader) {
+                $this->logger->info('JwtCookieListener: Header Authorization establecido correctamente', [
+                    'header' => substr($authHeader, 0, 20) . '...'
+                ]);
             } else {
                 $this->logger->warning('JwtCookieListener: No se pudo establecer el header Authorization');
             }
