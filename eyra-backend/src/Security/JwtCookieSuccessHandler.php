@@ -65,9 +65,6 @@ class JwtCookieSuccessHandler implements AuthenticationSuccessHandlerInterface
                 throw $e; // Re-lanzar para manejo posterior
             }
             
-            // Generar refresh token
-            $refreshToken = $this->tokenService->createRefreshToken($user, $request);
-            
             // Añadir datos del usuario a la respuesta
             $userData = [
                 'id' => $user->getId(),
@@ -87,7 +84,6 @@ class JwtCookieSuccessHandler implements AuthenticationSuccessHandlerInterface
             // Crear una respuesta JSON con datos de usuario
             $responseData = [
                 'message' => 'Login exitoso',
-                'expiresAt' => $refreshToken->getExpiresAt()->format('c'),
                 'user' => $userData
             ];
             
@@ -106,21 +102,6 @@ class JwtCookieSuccessHandler implements AuthenticationSuccessHandlerInterface
                     $isDevEnvironment ? false : $this->cookieSecure, // No requerir HTTPS en desarrollo
                     true,              // HTTPOnly - Previene acceso desde JavaScript
                     false,             // Raw
-                    $isDevEnvironment ? 'Lax' : 'Lax'  // Siempre usar Lax para mayor compatibilidad
-                )
-            );
-            
-            // Establecer cookie de refresh token con configuración adaptada
-            $response->headers->setCookie(
-                new Cookie(
-                    'refresh_token',               // Nombre de la cookie
-                    $refreshToken->getToken(),     // Valor (el refresh token)
-                    $refreshToken->getExpiresAt()->getTimestamp(), // Expiración
-                    '/',                          // Path
-                    null,                          // Domain (null = current domain)
-                    $isDevEnvironment ? false : $this->cookieSecure, // No requerir HTTPS en desarrollo
-                    true,                          // HTTPOnly
-                    false,                         // Raw
                     $isDevEnvironment ? 'Lax' : 'Lax'  // Siempre usar Lax para mayor compatibilidad
                 )
             );

@@ -20,15 +20,6 @@ api_register:
         _api_operation_name: post_register
         _api_respond: true
         
-api_refresh_token:
-    path: /api/refresh-token
-    methods: ['POST']
-    defaults:
-        _controller: App\Controller\AuthController::refreshToken
-        _api_resource_class: App\Entity\User
-        _api_operation_name: post_refresh_token
-        _api_respond: true
-        
 api_logout:
     path: /api/logout
     methods: ['POST']

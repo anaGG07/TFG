@@ -97,39 +97,16 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const [isLoading, setIsLoading] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [cycles, setCycles] = useState<Cycle[]>(DEFAULT_CYCLES);
-  const [currentCycle, setCurrentCycle] = useState<Cycle | null>(
-    DEFAULT_CURRENT_CYCLE
-  );
+  const [currentCycle, setCurrentCycle] = useState<Cycle | null>(DEFAULT_CURRENT_CYCLE);
   const [summary, setSummary] = useState<CycleSummary>(DEFAULT_SUMMARY);
-  const [predictions, setPredictions] = useState<Prediction>(
-    DEFAULT_PREDICTIONS
-  );
+  const [predictions, setPredictions] = useState<Prediction>(DEFAULT_PREDICTIONS);
   const [patterns, setPatterns] = useState<SymptomPattern[]>(DEFAULT_PATTERNS);
 
   const location = useSafeLocation();
   const initializedRef = useRef(false);
-  const tokenRefresherRef = useRef<(() => void) | null>(null);
-
-  // Inicializar el sistema de renovación automática de tokens
-  useEffect(() => {
-    console.log('Configurando sistema de renovación automática de tokens...');
-    
-    // Solo configurar si no existe ya
-    if (!tokenRefresherRef.current) {
-      tokenRefresherRef.current = tokenService.setupTokenRefresher();
-    }
-    
-    // Limpiar al desmontar
-    return () => {
-      if (tokenRefresherRef.current) {
-        tokenRefresherRef.current();
-        tokenRefresherRef.current = null;
-      }
-    };
-  }, []);
 
   const loadDashboardSafely = async () => {
-    // SOLUCIÓN: No cargar datos en páginas de login/registro
+    // No cargar datos en páginas de login/registro
     if (
       window.location.pathname === '/login' ||
       window.location.pathname === '/register'
@@ -140,12 +117,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     }
 
     try {
-      const userData = await authService
-        .getProfile({ skipRedirectCheck: true })
-        .catch((err) => {
-          console.warn("Error al obtener perfil:", err);
-          return null;
-        });
+      const userData = await authService.getProfile();
 
       if (userData) {
         setUser(userData);
@@ -157,14 +129,13 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
           summaryData,
           predictionsData,
           patternsData,
-        ]: [Cycle[], Cycle | null, CycleSummary, Prediction, SymptomPattern[]] =
-          await apiFetchParallel([
-            { path: "cycles", defaultValue: DEFAULT_CYCLES },
-            { path: "cycles/current", defaultValue: DEFAULT_CURRENT_CYCLE },
-            { path: "insights/summary", defaultValue: DEFAULT_SUMMARY },
-            { path: "insights/predictions", defaultValue: DEFAULT_PREDICTIONS },
-            { path: "insights/patterns", defaultValue: DEFAULT_PATTERNS },
-          ]);
+        ] = await apiFetchParallel<Cycle[] | Cycle | null | CycleSummary | Prediction | SymptomPattern[]>([
+          { path: "cycles", defaultValue: DEFAULT_CYCLES },
+          { path: "cycles/current", defaultValue: DEFAULT_CURRENT_CYCLE },
+          { path: "insights/summary", defaultValue: DEFAULT_SUMMARY },
+          { path: "insights/predictions", defaultValue: DEFAULT_PREDICTIONS },
+          { path: "insights/patterns", defaultValue: DEFAULT_PATTERNS },
+        ]) as [Cycle[], Cycle | null, CycleSummary, Prediction, SymptomPattern[]];
 
         if (cyclesData) setCycles(cyclesData);
         if (currentCycleData) setCurrentCycle(currentCycleData);
@@ -207,9 +178,8 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     try {
       setIsLoading(true);
       
-      // Intentar refrescar el token primero
-      console.log("AuthContext: Intentando refrescar token...");
-      const tokenValid = await tokenService.checkAndRefreshToken();
+      // Verificar si el token es válido
+      const tokenValid = await tokenService.checkToken();
       
       if (!tokenValid) {
         console.log("AuthContext: Token inválido, limpiando estado");
@@ -234,40 +204,8 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   }, []);
 
   const refreshSession = useCallback(async (): Promise<boolean> => {
-    console.log("AuthContext: Iniciando renovación de sesión...");
-
-    try {
-      setIsLoading(true);
-
-      // Intentar renovar el token
-      const refreshed = await tokenService.checkAndRefreshToken();
-      console.log("AuthContext: Resultado de renovación de token:", refreshed);
-
-      if (refreshed) {
-        console.log("AuthContext: Token renovado, recargando perfil");
-        const profileLoaded = await loadDashboardSafely();
-        if (!profileLoaded) {
-          console.error("AuthContext: No se pudo cargar el perfil después de renovar token");
-          setIsAuthenticated(false);
-          setUser(null);
-          return false;
-        }
-        return true;
-      } else {
-        console.warn("AuthContext: No se pudo renovar el token");
-        setIsAuthenticated(false);
-        setUser(null);
-        return false;
-      }
-    } catch (error) {
-      console.error("AuthContext: Error al renovar sesión:", error);
-      setIsAuthenticated(false);
-      setUser(null);
-      return false;
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
+    return checkAuth();
+  }, [checkAuth]);
 
   useEffect(() => {
     const initApp = async () => {
@@ -309,7 +247,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
       // Intentar verificar la sesión inmediatamente
       try {
-        const isValid = await tokenService.checkAndRefreshToken();
+        const isValid = await tokenService.checkToken();
         if (!isValid) {
           console.error('AuthContext: No se pudo verificar la sesión después del login');
           throw new Error("Error al verificar la sesión");
@@ -388,7 +326,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     try {
       // Intentar refrescar la sesión antes de continuar
       console.log('AuthContext: Intentando refrescar sesión antes del onboarding...');
-      const refreshed = await tokenService.checkAndRefreshToken();
+      const refreshed = await tokenService.checkToken();
       
       if (!refreshed) {
         console.error('AuthContext: No se pudo refrescar la sesión');

@@ -153,85 +153,6 @@ class AuthController extends AbstractController
         }
     }
 
-
-    #[Route('/refresh-token', name: 'api_refresh_token', methods: ['POST'])]
-    public function refreshToken(Request $request): JsonResponse
-    {
-        try {
-            // 1. Leer refresh token desde la cookie o el cuerpo del request
-            $refreshTokenStr = $request->cookies->get('refresh_token');
-
-            if (!$refreshTokenStr) {
-                $data = json_decode($request->getContent(), true);
-                if (!isset($data['refreshToken']) || !is_string($data['refreshToken'])) {
-                    $this->logger->warning('Refresh token no proporcionado');
-                    return $this->json(['message' => 'Refresh token requerido'], 400);
-                }
-                $refreshTokenStr = $data['refreshToken'];
-            }
-
-            // 2. Validar el token recibido
-            /** @var User|null $user */
-            $user = $this->tokenService->validateRefreshToken($refreshTokenStr, $request);
-
-            if (!$user instanceof User) {
-                $this->logger->info('Refresh token inválido o expirado');
-                return $this->json(['message' => 'Token inválido o expirado'], 401);
-            }
-
-            // 3. Revocar el token anterior
-            $this->tokenService->revokeRefreshToken($refreshTokenStr);
-
-            // 4. Generar nuevos tokens
-            $jwtToken = $this->tokenService->createJwtToken($user);
-            $refreshToken = $this->tokenService->createRefreshToken($user, $request);
-
-            // 5. Configurar cookies seguras
-            $isSecure = $request->isSecure();
-            $sameSite = $isSecure ? 'Strict' : 'Lax';
-            $expiresAt = $refreshToken->getExpiresAt()->getTimestamp();
-
-            $jwtCookie = Cookie::create('jwt_token')
-                ->withValue($jwtToken)
-                ->withExpires(time() + 3600)
-                ->withPath('/')
-                ->withSecure($isSecure)
-                ->withHttpOnly(true)
-                ->withSameSite($sameSite);
-
-            $refreshCookie = Cookie::create('refresh_token')
-                ->withValue($refreshToken->getToken())
-                ->withExpires($expiresAt)
-                ->withPath('/')
-                ->withSecure($isSecure)
-                ->withHttpOnly(true)
-                ->withSameSite($sameSite);
-
-            // 6. Crear respuesta con cookies
-            $response = new JsonResponse([
-                'message' => 'Tokens renovados con éxito',
-                'expiresAt' => $refreshToken->getExpiresAt()->format(DATE_ATOM),
-            ]);
-            $response->headers->setCookie($jwtCookie);
-            $response->headers->setCookie($refreshCookie);
-
-            $this->logger->info('Tokens renovados correctamente', [
-                'userId' => $user->getId(),
-                'secure' => $isSecure,
-                'sameSite' => $sameSite,
-            ]);
-
-            return $response;
-        } catch (Exception $e) {
-            $this->logger->error('Error al renovar tokens: ' . $e->getMessage(), [
-                'exception' => $e,
-            ]);
-
-            return $this->json(['message' => 'Error interno al renovar tokens'], 500);
-        }
-    }
-
-
     #[Route('/logout', name: 'api_logout', methods: ['POST'])]
     public function logout(Request $request): JsonResponse
     {
@@ -264,28 +185,6 @@ class AuthController extends AbstractController
                 )
             );
             
-            // Eliminar cookie refresh token
-            $response->headers->setCookie(
-                new Cookie(
-                    'refresh_token',    // Nombre de la cookie
-                    '',                // Valor vacío
-                    1,                 // Tiempo en el pasado
-                    '/',               // Path
-                    null,               // Domain
-                    $isSecureConnection, // Secure solo si es HTTPS
-                    true,               // HTTPOnly siempre activado
-                    false,              // Raw
-                    $isSecureConnection ? 'Strict' : 'Lax' // SameSite adaptado
-                )
-            );
-            
-            // Intentar revocar el refresh token de la base de datos si está disponible
-            $refreshToken = $request->cookies->get('refresh_token');
-            if ($refreshToken && is_string($refreshToken)) {
-                $this->tokenService->revokeRefreshToken($refreshToken);
-                $this->logger->info('Token revocado durante logout');
-            }
-            
             $this->logger->info('Sesión cerrada con éxito');
             return $response;
         } catch (Exception $e) {
@@ -309,17 +208,12 @@ class AuthController extends AbstractController
                 return $this->json(['message' => 'Usuario no autenticado'], 401);
             }
 
-            // Revocar todos los refresh tokens del usuario
-            $tokensRevoked = $this->tokenService->revokeAllUserTokens($user);
-
             $this->logger->info('Todas las sesiones cerradas', [
-                'userId' => $user->getId(),
-                'tokensRevoked' => $tokensRevoked
+                'userId' => $user->getId()
             ]);
 
             return $this->json([
-                'message' => 'Se han cerrado todas las sesiones',
-                'sessionsRevoked' => $tokensRevoked
+                'message' => 'Se han cerrado todas las sesiones'
             ]);
         } catch (Exception $e) {
             $this->logger->error('Error durante el cierre de todas las sesiones: ' . $e->getMessage(), [
@@ -332,39 +226,31 @@ class AuthController extends AbstractController
     }
 
     #[Route('/profile', name: 'api_profile', methods: ['GET'])]
-    public function getProfile(Request $request): JsonResponse
+    public function getProfile(): JsonResponse
     {
         try {
-            // Depuración: Verificar cookies y cabeceras de autenticación
-            $this->logger->info('Petición a /profile recibida', [
-                'cookies' => array_keys($request->cookies->all()),
-                'has_jwt_token' => $request->cookies->has('jwt_token'),
-                'jwt_token_value_first_chars' => $request->cookies->has('jwt_token') ? substr($request->cookies->get('jwt_token'), 0, 20) . '...' : 'no presente',
-                'has_auth_header' => $request->headers->has('Authorization'),
-                'authorization_header' => $request->headers->get('Authorization'),
-                'origin' => $request->headers->get('Origin'),
-                'credentials' => $request->headers->get('Credentials')
-            ]);
-            
             /** @var User|null $user */
             $user = $this->getUser();
-            
-            // Depuración: Verificar si se obtuvo un usuario autenticado
-            $this->logger->info('Estado de autenticación', [
-                'usuario_autenticado' => $user instanceof User,
-                'usuario_id' => $user instanceof User ? $user->getId() : 'no autenticado'
-            ]);
-            
             if (!$user instanceof User) {
-                $this->logger->warning('Intento de acceso al perfil sin autenticación');
                 return $this->json(['message' => 'Usuario no autenticado'], 401);
             }
 
-            $this->logger->info('Perfil consultado', [
-                'userId' => $user->getId()
+            return $this->json([
+                'user' => [
+                    'id' => $user->getId(),
+                    'email' => $user->getEmail(),
+                    'username' => $user->getUsername(),
+                    'name' => $user->getName(),
+                    'lastName' => $user->getLastName(),
+                    'roles' => $user->getRoles(),
+                    'profileType' => $user->getProfileType()->value,
+                    'genderIdentity' => $user->getGenderIdentity(),
+                    'birthDate' => $user->getBirthDate()->format('Y-m-d'),
+                    'createdAt' => $user->getCreatedAt()->format('c'),
+                    'updatedAt' => $user->getUpdatedAt() ? $user->getUpdatedAt()->format('c') : null,
+                    'state' => $user->getState()
+                ]
             ]);
-
-            return $this->json($user, 200, [], ['groups' => 'user:read']);
         } catch (Exception $e) {
             $this->logger->error('Error al obtener perfil: ' . $e->getMessage(), [
                 'exception' => $e,
@@ -547,14 +433,6 @@ class AuthController extends AbstractController
 
             $this->entityManager->flush();
 
-            // Opcionalmente, revocar todos los refresh tokens para obligar a reconectarse
-            if (isset($data['revokeAllSessions']) && $data['revokeAllSessions']) {
-                $tokensRevoked = $this->tokenService->revokeAllUserTokens($user);
-                $this->logger->info('Tokens revocados durante cambio de contraseña', [
-                    'tokensRevoked' => $tokensRevoked
-                ]);
-            }
-
             $this->logger->info('Contraseña actualizada con éxito', [
                 'userId' => $user->getId()
             ]);
@@ -600,47 +478,6 @@ class AuthController extends AbstractController
             ]);
             
             return $this->json(['message' => 'Error al procesar la solicitud'], 500);
-        }
-    }
-
-    #[Route('/active-sessions', name: 'api_active_sessions', methods: ['GET'])]
-    public function getActiveSessions(): JsonResponse
-    {
-        try {
-            /** @var User|null $user */
-            $user = $this->getUser();
-            if (!$user instanceof User) {
-                $this->logger->warning('Intento de obtener sesiones activas sin autenticación');
-                return $this->json(['message' => 'Usuario no autenticado'], 401);
-            }
-
-            // Obtener todos los tokens activos
-            $activeTokens = $this->tokenService->getUserActiveTokens($user);
-            
-            $sessions = [];
-            foreach ($activeTokens as $token) {
-                $sessions[] = [
-                    'id' => $token->getId(),
-                    'createdAt' => $token->getCreatedAt()->format('c'),
-                    'expiresAt' => $token->getExpiresAt()->format('c'),
-                    'ipAddress' => $token->getIpAddress(),
-                    'userAgent' => $token->getUserAgent()
-                ];
-            }
-
-            $this->logger->info('Sesiones activas consultadas', [
-                'userId' => $user->getId(),
-                'totalSesiones' => count($sessions)
-            ]);
-
-            return $this->json(['sessions' => $sessions]);
-        } catch (Exception $e) {
-            $this->logger->error('Error al obtener sesiones activas: ' . $e->getMessage(), [
-                'exception' => $e,
-                'trace' => $e->getTraceAsString()
-            ]);
-            
-            return $this->json(['message' => 'Error al obtener sesiones activas'], 500);
         }
     }
 }

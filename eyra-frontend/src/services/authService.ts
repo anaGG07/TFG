@@ -1,54 +1,27 @@
-import { apiFetch, configureAuthHandlers } from "../utils/httpClient";
-import { API_ROUTES, API_URL } from "../config/apiRoutes";
-import { LoginRequest, LoginResponse } from "../types/api";
+import { API_URL } from "../config/apiRoutes";
+import { LoginRequest } from "../types/api";
 import { RegisterRequest } from "../types/api";
 import { User } from "../types/domain";
 import { tokenService } from "./tokenService";
 
 /**
- * Servicio de autenticación mejorado con manejo de errores y
- * soluciones para problemas de conectividad
+ * Servicio de autenticación simplificado
+ * Maneja el login/logout y obtención del perfil del usuario
  */
 class AuthService {
   private initialized = false;
 
   constructor() {
-    configureAuthHandlers({
-      onUnauthorized: () => this.handleUnauthorized(),
-      onLogout: () => this.logout(),
-    });
-
     this.initialized = true;
     console.log("AuthService inicializado correctamente");
   }
 
-  private ensureInitialized(): void {
+  private ensureInitialized() {
     if (!this.initialized) {
-      throw new Error("AuthService no está inicializado correctamente");
+      throw new Error("AuthService no está inicializado");
     }
   }
 
-  private handleUnauthorized(): void {
-    window.location.href = "/login";
-  }
-
-  async register(userData: RegisterRequest): Promise<void> {
-    this.ensureInitialized();
-
-    try {
-      const emailExists = await this.checkEmailExists(userData.email);
-      if (emailExists) throw new Error("Email en uso");
-
-      const registerUrl = this.getRegisterUrl();
-      await apiFetch<{ message: string }>(registerUrl, {
-        method: "POST",
-        body: userData,
-      });
-    } catch (err) {
-      console.error("Error durante el registro:", err);
-      throw err;
-    }
-  }
 
   async login(credentials: LoginRequest): Promise<User> {
     this.ensureInitialized();
@@ -85,13 +58,10 @@ class AuthService {
         throw new Error("Respuesta inválida del servidor");
       }
 
-      // Esperar un momento para que las cookies se establezcan
-      await new Promise(resolve => setTimeout(resolve, 100));
-
       // Verificar que podemos obtener el perfil
       try {
         console.log('AuthService: Verificando perfil después de login...');
-        const profile = await this.getProfile({ skipRedirectCheck: true });
+        const profile = await this.getProfile();
         console.log('AuthService: Perfil verificado:', profile);
         return profile;
       } catch (profileError) {
@@ -108,15 +78,19 @@ class AuthService {
     this.ensureInitialized();
 
     try {
-      await apiFetch(API_ROUTES.AUTH.LOGOUT, { method: "POST" });
-    } catch (e) {
-      console.warn("Error al hacer logout en el servidor");
+      await fetch(`${API_URL}/api/logout`, {
+        method: "POST",
+        credentials: "include"
+      });
+    } catch (error) {
+      console.error("Error al cerrar sesión:", error);
+    } finally {
+      tokenService.invalidateToken();
+      window.location.href = "/login";
     }
   }
 
-  async getProfile(
-    options: { skipRedirectCheck?: boolean } = {}
-  ): Promise<User> {
+  async getProfile(): Promise<User> {
     this.ensureInitialized();
 
     try {
@@ -145,20 +119,24 @@ class AuthService {
     }
   }
 
-  async updateProfile(profileData: Partial<User>): Promise<User> {
+  async register(userData: RegisterRequest): Promise<void> {
     this.ensureInitialized();
-
+    
     try {
-      const response: { user: User } = await apiFetch<{ user: User }>(
-        API_ROUTES.AUTH.PROFILE,
-        {
-          method: "PUT",
-          body: profileData,
-        }
-      );
-      return response.user;
+      const response = await fetch(`${API_URL}/register`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Accept": "application/json"
+        },
+        body: JSON.stringify(userData)
+      });
+
+      if (!response.ok) {
+        throw new Error("Error al registrar usuario");
+      }
     } catch (error) {
-      console.error("Error al actualizar perfil:", error);
+      console.error("Error durante el registro:", error);
       throw error;
     }
   }
@@ -173,17 +151,15 @@ class AuthService {
 
     try {
       console.log('AuthService: Iniciando petición onboarding');
-      console.log('AuthService: URL:', API_ROUTES.AUTH.ONBOARDING);
-      console.log('AuthService: Datos:', JSON.stringify(completeData, null, 2));
       
       // Verificar que tenemos un token válido antes de hacer la petición
-      const hasValidToken = await tokenService.checkAndRefreshToken();
+      const hasValidToken = await tokenService.checkToken();
       if (!hasValidToken) {
         console.error('AuthService: No hay token válido para la petición');
         throw new Error("No hay usuario autenticado");
       }
       
-      const response = await fetch(`${API_URL}${API_ROUTES.AUTH.ONBOARDING}`, {
+      const response = await fetch(`${API_URL}/api/onboarding`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -216,31 +192,11 @@ class AuthService {
       }
 
       return data.user;
-    } catch (error) {
+    } catch (error: any) {
       console.error("AuthService: Error al completar onboarding:", error);
-      if (error instanceof Error) {
-        console.log('AuthService: Tipo de error:', error.name);
-        console.log('AuthService: Mensaje:', error.message);
-        console.log('AuthService: Stack:', error.stack);
-      }
       throw error;
     }
   }
-
-  private getRegisterUrl(): string {
-    const configuredUrl = API_ROUTES.AUTH.REGISTER;
-    if (!configuredUrl || configuredUrl.includes("undefined")) {
-      const baseUrl = API_URL.endsWith("/") ? API_URL.slice(0, -1) : API_URL;
-      return `${baseUrl}/register`;
-    }
-    return configuredUrl;
-  }
-
-  async checkEmailExists(email: string): Promise<boolean> {
-    const existing = ["test@example.com", "admin@eyra.com"];
-    return existing.includes(email.toLowerCase());
-  }
-
 }
 
 export const authService = new AuthService();
