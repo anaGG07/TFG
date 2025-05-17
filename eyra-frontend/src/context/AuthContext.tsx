@@ -163,7 +163,10 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   };
 
   const checkAuth = useCallback(async (): Promise<boolean> => {
-    console.log("AuthContext: Verificando estado de autenticación...");
+    console.log("AuthContext: Verificando estado de autenticación...", {
+      path: window.location.pathname,
+      cookies: document.cookie
+    });
 
     // Si estamos en páginas públicas, no verificamos autenticación
     if (
@@ -179,10 +182,14 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       setIsLoading(true);
       
       // Verificar si el token es válido
+      console.log("AuthContext: Verificando token...");
       const tokenValid = await tokenService.checkToken();
       
       if (!tokenValid) {
-        console.log("AuthContext: Token inválido, limpiando estado");
+        console.log("AuthContext: Token inválido, limpiando estado", {
+          path: window.location.pathname,
+          cookies: document.cookie
+        });
         setIsAuthenticated(false);
         setUser(null);
         return false;
@@ -200,7 +207,10 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       console.log("AuthContext: Resultado de carga del perfil:", result);
       return result;
     } catch (error) {
-      console.error("AuthContext: Error al verificar autenticación:", error);
+      console.error("AuthContext: Error al verificar autenticación:", error, {
+        path: window.location.pathname,
+        cookies: document.cookie
+      });
       setIsAuthenticated(false);
       setUser(null);
       return false;

@@ -39,14 +39,36 @@ export async function apiFetch<T>(path: string, options: FetchOptions = {}): Pro
   }
 
   try {
+    console.log(`httpClient: Iniciando petición a ${url}`, {
+      method: fetchOptions.method || 'GET',
+      headers: fetchOptions.headers,
+      credentials: fetchOptions.credentials
+    });
+
     const response = await fetch(url, fetchOptions);
+
+    console.log(`httpClient: Respuesta de ${url}`, {
+      status: response.status,
+      ok: response.ok,
+      headers: Object.fromEntries(response.headers.entries())
+    });
 
     if (!response.ok) {
       if (response.status === 401) {
-        console.error(`Error 401 en petición a ${url}`);
+        console.error(`Error 401 en petición a ${url}`, {
+          headers: Object.fromEntries(response.headers.entries()),
+          cookies: document.cookie
+        });
+        
+        // Intentar obtener más información del error
+        try {
+          const errorData = await response.json();
+          console.error('Detalles del error 401:', errorData);
+        } catch (e) {
+          console.error('No se pudo obtener detalles del error 401');
+        }
         
         // Si la ruta es /api/profile, no redirigir al login inmediatamente
-        // ya que podría ser parte del flujo normal de verificación
         if (!path.includes('/api/profile')) {
           console.log('httpClient: Redirigiendo a login por 401 en ruta:', path);
           authEvents.onUnauthorized();

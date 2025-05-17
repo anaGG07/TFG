@@ -40,26 +40,31 @@ class TokenService {
       // Examinar la respuesta
       console.log('TokenService: Respuesta de verificación:', {
         status: response.status,
-        ok: response.ok
+        ok: response.ok,
+        headers: Object.fromEntries(response.headers.entries())
       });
 
       this.isTokenValid = response.ok;
       
-      // Si la sesión está activa, añadir un tiempo de gracia para evitar multiples solicitudes
       if (this.isTokenValid) {
         console.log('TokenService: Token válido');
       } else {
         console.log('TokenService: Token inválido, código:', response.status);
+        // Intentar obtener más información del error
+        try {
+          const errorData = await response.json();
+          console.log('TokenService: Detalles del error:', errorData);
+        } catch (e) {
+          console.log('TokenService: No se pudo obtener detalles del error');
+        }
       }
       
       return this.isTokenValid;
     } catch (error) {
       console.error('TokenService: Error al verificar token:', error);
-      
-      // En caso de error de red, asumimos que el token podría ser válido
-      // para evitar cerrar sesiones por problemas temporales
-      console.log('TokenService: Asumiendo token válido durante error de red');
-      return true;
+      // En caso de error, asumimos que el token NO es válido
+      this.isTokenValid = false;
+      return false;
     }
   }
 
