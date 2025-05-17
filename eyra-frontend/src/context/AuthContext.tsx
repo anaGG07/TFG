@@ -225,7 +225,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
   useEffect(() => {
     const initApp = async () => {
-      if (initializedRef.current || isAuthenticated) return;
+      if (initializedRef.current) return; // Solo inicializar una vez
       initializedRef.current = true;
 
       const publicPaths = ["/", "/login", "/register", "/onboarding"];
@@ -244,7 +244,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     };
 
     setTimeout(initApp, 0);
-  }, [location?.pathname, isAuthenticated]);
+  }, [location?.pathname]); // Solo depende de la ruta, nunca de isAuthenticated
 
   const login = async (credentials: LoginRequest) => {
     setIsLoading(true);
