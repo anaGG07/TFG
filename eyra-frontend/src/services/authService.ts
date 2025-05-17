@@ -94,6 +94,15 @@ class AuthService {
   async completeOnboarding(onboardingData: any): Promise<User> {
     this.ensureInitialized();
 
+    // Asegurar que los campos requeridos estén presentes
+    const requiredFields = ['genderIdentity', 'stageOfLife', 'profileType'];
+    for (const field of requiredFields) {
+      if (!onboardingData[field] || (typeof onboardingData[field] === 'string' && !onboardingData[field].trim())) {
+        console.error(`AuthService: Campo requerido faltante: ${field}`);
+        throw new Error(`El campo ${field} es obligatorio`);
+      }
+    }
+
     const completeData = {
       ...onboardingData,
       onboardingCompleted: true,
@@ -109,6 +118,9 @@ class AuthService {
         throw new Error("No hay usuario autenticado");
       }
       
+      console.log('AuthService: URL completa para onboarding:', `${API_URL}/api/onboarding`);
+      console.log('AuthService: Datos enviados:', JSON.stringify(completeData, null, 2));
+      
       const response = await fetch(`${API_URL}/api/onboarding`, {
         method: "POST",
         headers: {
@@ -119,32 +131,67 @@ class AuthService {
         body: JSON.stringify(completeData)
       });
 
+      console.log('AuthService: Respuesta HTTP recibida:', {
+        status: response.status,
+        statusText: response.statusText,
+        headers: Object.fromEntries(response.headers.entries())
+      });
+
       if (!response.ok) {
         console.error('AuthService: Error en respuesta:', {
           status: response.status,
           statusText: response.statusText
         });
         
+        let errorContent = 'No se pudo obtener contenido de error';
+        try {
+          const errorData = await response.text();
+          console.error('AuthService: Contenido del error:', errorData);
+          errorContent = errorData;
+        } catch (e) {
+          console.error('AuthService: No se pudo leer el contenido del error');
+        }
+        
+        // Si es error de autenticación, tratarlo especialmente
         if (response.status === 401) {
           tokenService.invalidateToken();
           throw new Error("No hay usuario autenticado");
         }
         
-        throw new Error(`Error al completar el onboarding: ${response.statusText}`);
+        throw new Error(`Error al completar el onboarding: ${response.statusText}\nDetalle: ${errorContent}`);
       }
 
-      const data = await response.json();
-      console.log('AuthService: Respuesta del servidor:', data);
+      // Intentar parsear la respuesta como JSON
+      try {
+        const data = await response.json();
+        console.log('AuthService: Respuesta del servidor:', data);
 
-      if (!data || !data.user) {
-        console.error('AuthService: Respuesta inválida del servidor');
-        throw new Error("No se pudo completar el onboarding correctamente");
+        if (!data || !data.user) {
+          console.error('AuthService: Respuesta inválida del servidor');
+          throw new Error("No se pudo completar el onboarding correctamente");
+        }
+
+        return data.user;
+      } catch (jsonError) {
+        console.error('AuthService: Error al parsear la respuesta JSON:', jsonError);
+        // Intentar capturar el texto de la respuesta si no es JSON válido
+        try {
+          const textResponse = await response.text();
+          console.error('AuthService: Respuesta de texto:', textResponse);
+          throw new Error('Error al procesar la respuesta del servidor: ' + textResponse);
+        } catch (e) {
+          throw new Error('Error al procesar la respuesta del servidor');
+        }
       }
-
-      return data.user;
     } catch (error: any) {
       console.error("AuthService: Error al completar onboarding:", error);
-      throw error;
+      
+      // Corregir el manejo de errores para verificar si es un error de autenticación
+      if (error.message === "No hay usuario autenticado") {
+        throw error; // Rethrow el error original
+      }
+      
+      throw error; // Propagar cualquier otro error
     }
   }
 }

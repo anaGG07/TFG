@@ -369,54 +369,8 @@ class AuthController extends AbstractController
         }
     }
 
-    #[Route('/sav-onboarding', name: 'api_complete_onboarding', methods: ['POST'])]
-    public function completeOnboarding(Request $request): JsonResponse
-    {
-        try {
-            /** @var User|null $user */
-            $user = $this->getUser();
-            if (!$user instanceof User) {
-                $this->logger->warning('Intento de completar onboarding sin autenticación');
-                return $this->json(['message' => 'Usuario no autenticado'], 401);
-            }
-
-            $data = json_decode($request->getContent(), true);
-            if (!$data) {
-                return $this->json(['message' => 'Datos de solicitud inválidos'], 400);
-            }
-
-            // Actualizar campos relevantes para onboarding
-            if (isset($data['genderIdentity']) && is_string($data['genderIdentity'])) {
-                $user->setGenderIdentity($data['genderIdentity']);
-            }
-
-            // Aquí se podrían guardar más datos específicos del onboarding
-            // como preferencias, fecha de último periodo, etc.
-
-            // Marcar onboarding como completado
-            $user->setOnboardingCompleted(true);
-            
-            // Guardar cambios
-            $this->entityManager->flush();
-
-            $this->logger->info('Onboarding completado con éxito', [
-                'userId' => $user->getId()
-            ]);
-
-            // Devolver el usuario actualizado
-            return $this->json([
-                'message' => 'Onboarding completado con éxito',
-                'user' => $user
-            ], 200, [], ['groups' => 'user:read']);
-        } catch (Exception $e) {
-            $this->logger->error('Error al completar onboarding: ' . $e->getMessage(), [
-                'exception' => $e,
-                'trace' => $e->getTraceAsString()
-            ]);
-            
-            return $this->json(['message' => 'Error al completar onboarding'], 500);
-        }
-    }
+    // El endpoint de onboarding ha sido movido a OnboardingController.php
+    // para mantener una mejor separación de responsabilidades
 
     #[Route('/password-change', name: 'api_password_change', methods: ['POST'])]
     public function changePassword(Request $request): JsonResponse

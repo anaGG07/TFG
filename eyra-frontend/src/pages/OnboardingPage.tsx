@@ -202,10 +202,14 @@ const OnboardingPage: React.FC = () => {
       const finalData: OnboardingFormData = {
         ...data,
         profileType,
-        completed: true,
+        completed: true, 
+        // Asegurar que estos campos requeridos estén presentes y con valores válidos
+        genderIdentity: data.genderIdentity?.trim() || '',
+        stageOfLife: data.stageOfLife?.trim() || '',
       };
 
-      console.log("OnboardingPage: Enviando datos al backend:", finalData);
+      // Registrar datos para depuración
+      console.log("OnboardingPage: Enviando datos al backend:", JSON.stringify(finalData, null, 2));
 
       try {
         const updatedUser = await completeOnboarding(finalData);
@@ -227,6 +231,11 @@ const OnboardingPage: React.FC = () => {
           setTimeout(() => {
             navigate(ROUTES.LOGIN, { replace: true });
           }, 2000);
+        } else if (error.message && error.message.includes("500")) {
+          // Si es un error 500, mostrar un mensaje más específico
+          setError(
+            "Ha ocurrido un error en el servidor. Nuestro equipo técnico ha sido notificado. Por favor, intenta nuevamente más tarde."
+          );
         } else {
           setError(
             error.message || "Ocurrió un error al guardar tus datos. Intenta de nuevo."
