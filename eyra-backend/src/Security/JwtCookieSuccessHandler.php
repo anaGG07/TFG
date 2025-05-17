@@ -55,7 +55,8 @@ class JwtCookieSuccessHandler implements AuthenticationSuccessHandlerInterface
             // Añadir información de depuración
             error_log('Autenticación exitosa para: ' . $user->getEmail());
             error_log('Entorno de aplicación: ' . ($isDevEnvironment ? 'desarrollo' : 'producción'));
-            
+            error_log('getUserIdentifier(): ' . $user->getUserIdentifier());
+
             try {
                 // Generar JWT token
                 $jwtToken = $this->jwtManager->createFromPayload($user, [
