@@ -259,6 +259,25 @@ class OnboardingController extends AbstractController
 
         $data = json_decode($request->getContent(), true);
         
+        // Validación explícita de campos obligatorios
+        $requiredFields = ['profileType', 'genderIdentity', 'stageOfLife'];
+        $missingFields = [];
+        
+        foreach ($requiredFields as $field) {
+            if (!isset($data[$field]) || (is_string($data[$field]) && trim($data[$field]) === '')) {
+                $missingFields[] = $field;
+                error_log("Onboarding: Campo obligatorio faltante o vacío: {$field}");
+            }
+        }
+        
+        if (!empty($missingFields)) {
+            error_log('Onboarding: Faltan campos obligatorios: ' . implode(', ', $missingFields));
+            return $this->json([
+                'message' => 'Faltan campos obligatorios',
+                'missingFields' => $missingFields,
+            ], 400);
+        }
+        
         // Agregar logs para depuración
         error_log('Onboarding: Datos recibidos: ' . json_encode($data));
         error_log('Onboarding: \u00BFonboardingCompleted presente?: ' . (isset($data['onboardingCompleted']) ? 'S\u00CD - Valor: ' . ($data['onboardingCompleted'] ? 'true' : 'false') : 'NO'));
@@ -272,15 +291,31 @@ class OnboardingController extends AbstractController
             $onboarding->setUser($user);
         }
 
-        // Actualizar los datos del onboarding
+        // Validar profileType
         if (isset($data['profileType'])) {
-            $profileType = ProfileType::from($data['profileType']);
-            $onboarding->setProfileType($profileType);
+            try {
+                $profileType = ProfileType::from($data['profileType']);
+                $onboarding->setProfileType($profileType);
+            } catch (\ValueError $e) {
+                error_log("Onboarding: Error al procesar profileType: {$e->getMessage()}");
+                return $this->json([
+                    'message' => 'Tipo de perfil inválido',
+                    'error' => $e->getMessage(),
+                    'allowedValues' => array_map(fn($case) => $case->value, ProfileType::cases())
+                ], 400);
+            }
         }
 
         if (isset($data['genderIdentity'])) {
             $value = trim($data['genderIdentity'] ?? '');
-            $onboarding->setGenderIdentity($value !== '' ? $value : null);
+            if ($value === '') {
+                error_log("Onboarding: genderIdentity está vacío después del trim");
+                return $this->json([
+                    'message' => 'El campo de identidad de género no puede estar vacío',
+                    'field' => 'genderIdentity'
+                ], 400);
+            }
+            $onboarding->setGenderIdentity($value);
         }
 
         if (isset($data['pronouns'])) {
@@ -292,7 +327,15 @@ class OnboardingController extends AbstractController
         }
 
         if (isset($data['stageOfLife'])) {
-            $onboarding->setStageOfLife($data['stageOfLife']);
+            $value = trim($data['stageOfLife'] ?? '');
+            if ($value === '') {
+                error_log("Onboarding: stageOfLife está vacío después del trim");
+                return $this->json([
+                    'message' => 'El campo de etapa de vida no puede estar vacío',
+                    'field' => 'stageOfLife'
+                ], 400);
+            }
+            $onboarding->setStageOfLife($value);
         }
 
         if (isset($data['lastPeriodDate']) && !empty($data['lastPeriodDate'])) {

@@ -110,6 +110,17 @@ class AuthService {
 
     try {
       console.log('AuthService: Iniciando petición onboarding');
+      console.log('AuthService: Datos completos enviados:', JSON.stringify(completeData, null, 2));
+      
+      // Verificar campos requeridos
+      const missingRequiredFields = [];
+      if (!completeData.profileType) missingRequiredFields.push('profileType');
+      if (!completeData.genderIdentity) missingRequiredFields.push('genderIdentity');
+      if (!completeData.stageOfLife) missingRequiredFields.push('stageOfLife');
+      
+      if (missingRequiredFields.length > 0) {
+        console.error('AuthService: Faltan campos requeridos:', missingRequiredFields);
+      }
       
       // Verificar que tenemos un token válido antes de hacer la petición
       const hasValidToken = await tokenService.checkToken();
@@ -145,9 +156,18 @@ class AuthService {
         
         let errorContent = 'No se pudo obtener contenido de error';
         try {
-          const errorData = await response.text();
-          console.error('AuthService: Contenido del error:', errorData);
-          errorContent = errorData;
+          // Intentar obtener el cuerpo completo de la respuesta para más detalles
+          const errorText = await response.text();
+          console.error('AuthService: Contenido completo del error:', errorText);
+          try {
+            // Intentar parsearlo como JSON
+            const errorJson = JSON.parse(errorText);
+            console.error('AuthService: Detalles JSON del error:', errorJson);
+            errorContent = JSON.stringify(errorJson);
+          } catch (e) {
+            // Si no es JSON, usar el texto como está
+            errorContent = errorText;
+          }
         } catch (e) {
           console.error('AuthService: No se pudo leer el contenido del error');
         }
