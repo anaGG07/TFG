@@ -35,6 +35,7 @@ class OnboardingController extends AbstractController
     #[Route('/onboarding', name: 'api_onboarding', methods: ['POST'])]
     public function completeOnboarding(Request $request, EntityManagerInterface $em, ValidatorInterface $validator): JsonResponse
     {
+        try {
         // Log para verificar todos los headers de la petición
         error_log('Onboarding: Headers presentes: ' . json_encode($request->headers->all()));
         
@@ -294,16 +295,37 @@ class OnboardingController extends AbstractController
         // Validar profileType
         if (isset($data['profileType'])) {
             try {
+                // Verificar que el valor sea válido para la enumeración
+                $validProfileTypes = array_map(fn($case) => $case->value, ProfileType::cases());
+                error_log("Onboarding: Valores válidos para ProfileType: " . json_encode($validProfileTypes));
+                error_log("Onboarding: Valor recibido para profileType: {$data['profileType']}");
+                
+                if (!in_array($data['profileType'], $validProfileTypes)) {
+                    error_log("Onboarding: Valor no válido para ProfileType, intentando usar uno por defecto");
+                    // Intentar determinar un valor predeterminado basado en otros campos
+                    if (isset($data['isPersonal']) && $data['isPersonal'] === false) {
+                        $data['profileType'] = 'profile_guest';
+                    } else {
+                        $data['profileType'] = 'profile_women'; // Valor predeterminado
+                    }
+                    error_log("Onboarding: ProfileType establecido a valor predeterminado: {$data['profileType']}");
+                }
+                
                 $profileType = ProfileType::from($data['profileType']);
                 $onboarding->setProfileType($profileType);
+                error_log("Onboarding: ProfileType establecido correctamente como: {$profileType->value}");
             } catch (\ValueError $e) {
                 error_log("Onboarding: Error al procesar profileType: {$e->getMessage()}");
-                return $this->json([
-                    'message' => 'Tipo de perfil inválido',
-                    'error' => $e->getMessage(),
-                    'allowedValues' => array_map(fn($case) => $case->value, ProfileType::cases())
-                ], 400);
+                // Establecer un valor predeterminado en caso de error
+                $profileType = ProfileType::WOMEN; // Valor seguro predeterminado
+                $onboarding->setProfileType($profileType);
+                error_log("Onboarding: ProfileType establecido a valor seguro: {$profileType->value}");
             }
+        } else {
+            // Si no se proporciona, establecer un valor predeterminado
+            $profileType = ProfileType::WOMEN; // Valor predeterminado
+            $onboarding->setProfileType($profileType);
+            error_log("Onboarding: ProfileType no proporcionado, establecido a predeterminado: {$profileType->value}");
         }
 
         if (isset($data['genderIdentity'])) {
@@ -323,7 +345,16 @@ class OnboardingController extends AbstractController
         }
 
         if (isset($data['isPersonal'])) {
-            $onboarding->setIsPersonal((bool) $data['isPersonal']);
+            // Asegurar que se convierta correctamente a booleano
+            if (is_string($data['isPersonal'])) {
+                // Convertir cadenas "true"/"false" a booleanos
+                $isPersonal = strtolower($data['isPersonal']) === 'true';
+                error_log("Onboarding: isPersonal convertido de string '{$data['isPersonal']}' a boolean " . ($isPersonal ? 'true' : 'false'));
+            } else {
+                $isPersonal = (bool) $data['isPersonal'];
+                error_log("Onboarding: isPersonal convertido a boolean: " . ($isPersonal ? 'true' : 'false'));
+            }
+            $onboarding->setIsPersonal($isPersonal);
         }
 
         if (isset($data['stageOfLife'])) {
@@ -338,8 +369,21 @@ class OnboardingController extends AbstractController
             $onboarding->setStageOfLife($value);
         }
 
-        if (isset($data['lastPeriodDate']) && !empty($data['lastPeriodDate'])) {
-            $onboarding->setLastPeriodDate(new \DateTime($data['lastPeriodDate']));
+        if (isset($data['lastPeriodDate'])) {
+            if (!empty($data['lastPeriodDate'])) {
+                try {
+                    $onboarding->setLastPeriodDate(new \DateTime($data['lastPeriodDate']));
+                    error_log("Onboarding: lastPeriodDate establecido: {$data['lastPeriodDate']}");
+                } catch (\Exception $e) {
+                    error_log("Onboarding: Error al convertir lastPeriodDate: {$e->getMessage()}");
+                    // Si hay error, establecer explícitamente a null
+                    $onboarding->setLastPeriodDate(null);
+                }
+            } else {
+                // Si está vacío, establecer explícitamente a null
+                $onboarding->setLastPeriodDate(null);
+                error_log("Onboarding: lastPeriodDate establecido a null (valor vacío)");
+            }
         }
 
         if (isset($data['averageCycleLength'])) {
@@ -351,50 +395,119 @@ class OnboardingController extends AbstractController
         }
 
         if (isset($data['hormoneType']) && !empty($data['hormoneType'])) {
-            $hormoneType = HormoneType::from($data['hormoneType']);
-            $onboarding->setHormoneType($hormoneType);
+            try {
+                $hormoneType = HormoneType::from($data['hormoneType']);
+                $onboarding->setHormoneType($hormoneType);
+                error_log("Onboarding: HormoneType establecido correctamente como: {$hormoneType->value}");
+            } catch (\ValueError $e) {
+                error_log("Onboarding: Error al procesar hormoneType: {$e->getMessage()}");
+                // En lugar de fallar, simplemente establecemos a null
+                $onboarding->setHormoneType(null);
+                error_log("Onboarding: HormoneType inválido, establecido a null");
+            }
+        } else {
+            // Si no se proporciona o está vacío, establecer a null
+            $onboarding->setHormoneType(null);
+            error_log("Onboarding: hormoneType no proporcionado o vacío, establecido a null");
         }
 
-        if (isset($data['hormoneStartDate']) && !empty($data['hormoneStartDate'])) {
-            $onboarding->setHormoneStartDate(new \DateTime($data['hormoneStartDate']));
+        if (isset($data['hormoneStartDate'])) {
+            if (!empty($data['hormoneStartDate'])) {
+                try {
+                    $onboarding->setHormoneStartDate(new \DateTime($data['hormoneStartDate']));
+                    error_log("Onboarding: hormoneStartDate establecido: {$data['hormoneStartDate']}");
+                } catch (\Exception $e) {
+                    error_log("Onboarding: Error al convertir hormoneStartDate: {$e->getMessage()}");
+                    // Si hay error, establecer explícitamente a null
+                    $onboarding->setHormoneStartDate(null);
+                }
+            } else {
+                // Si está vacío, establecer explícitamente a null
+                $onboarding->setHormoneStartDate(null);
+                error_log("Onboarding: hormoneStartDate establecido a null (valor vacío)");
+            }
         }
 
         if (isset($data['hormoneFrequencyDays'])) {
             $onboarding->setHormoneFrequencyDays((int) $data['hormoneFrequencyDays']);
         }
 
-        // Preferencias
+        // Función auxiliar para convertir valores a booleanos
+        $toBool = function($value) use (&$data) {
+            if (is_string($value)) {
+                return strtolower($value) === 'true';
+            }
+            return (bool) $value;
+        };
+
+        // Preferencias - usar la función auxiliar para todos los booleanos
         if (isset($data['receiveAlerts'])) {
-            $onboarding->setReceiveAlerts((bool) $data['receiveAlerts']);
+            $onboarding->setReceiveAlerts($toBool($data['receiveAlerts']));
         }
 
         if (isset($data['receiveRecommendations'])) {
-            $onboarding->setReceiveRecommendations((bool) $data['receiveRecommendations']);
+            $onboarding->setReceiveRecommendations($toBool($data['receiveRecommendations']));
         }
 
         if (isset($data['receiveCyclePhaseTips'])) {
-            $onboarding->setReceiveCyclePhaseTips((bool) $data['receiveCyclePhaseTips']);
+            $onboarding->setReceiveCyclePhaseTips($toBool($data['receiveCyclePhaseTips']));
         }
 
         if (isset($data['receiveWorkoutSuggestions'])) {
-            $onboarding->setReceiveWorkoutSuggestions((bool) $data['receiveWorkoutSuggestions']);
+            $onboarding->setReceiveWorkoutSuggestions($toBool($data['receiveWorkoutSuggestions']));
         }
 
         if (isset($data['receiveNutritionAdvice'])) {
-            $onboarding->setReceiveNutritionAdvice((bool) $data['receiveNutritionAdvice']);
+            $onboarding->setReceiveNutritionAdvice($toBool($data['receiveNutritionAdvice']));
         }
 
         if (isset($data['shareCycleWithPartner'])) {
-            $onboarding->setShareCycleWithPartner((bool) $data['shareCycleWithPartner']);
+            $onboarding->setShareCycleWithPartner($toBool($data['shareCycleWithPartner']));
         }
 
         if (isset($data['wantAICompanion'])) {
-            $onboarding->setWantAICompanion((bool) $data['wantAICompanion']);
+            // Corregir la diferencia entre wantAICompanion (frontend) y wantAiCompanion (entidad)
+            $onboarding->setWantAiCompanion($toBool($data['wantAICompanion']));
+        } else if (isset($data['wantAiCompanion'])) {
+            // Alternativa si viene con el nombre exacto de la entidad
+            $onboarding->setWantAiCompanion($toBool($data['wantAiCompanion']));
         }
 
         // Otros
         if (isset($data['healthConcerns'])) {
-            $onboarding->setHealthConcerns($data['healthConcerns']);
+            // Asegurar que sea un array
+            if (!is_array($data['healthConcerns'])) {
+                if (is_string($data['healthConcerns'])) {
+                    // Intentar convertir de JSON si es un string
+                    try {
+                        $healthConcerns = json_decode($data['healthConcerns'], true);
+                        if (is_array($healthConcerns)) {
+                            $onboarding->setHealthConcerns($healthConcerns);
+                            error_log("Onboarding: healthConcerns convertido de JSON string a array");
+                        } else {
+                            // Si no es un JSON válido, crear array con el string
+                            $onboarding->setHealthConcerns([$data['healthConcerns']]);
+                            error_log("Onboarding: healthConcerns convertido de string a array singular");
+                        }
+                    } catch (\Exception $e) {
+                        // Si hay error en la conversión, crear array con el string
+                        $onboarding->setHealthConcerns([$data['healthConcerns']]);
+                        error_log("Onboarding: healthConcerns fallido al convertir JSON, usando array simple");
+                    }
+                } else {
+                    // Valor no string ni array, usar array vacío
+                    $onboarding->setHealthConcerns([]);
+                    error_log("Onboarding: healthConcerns no válido, establecido como array vacío");
+                }
+            } else {
+                // Ya es un array, usarlo directamente
+                $onboarding->setHealthConcerns($data['healthConcerns']);
+                error_log("Onboarding: healthConcerns establecido como array: " . count($data['healthConcerns']) . " elementos");
+            }
+        } else {
+            // No presente, establecer array vacío
+            $onboarding->setHealthConcerns([]);
+            error_log("Onboarding: healthConcerns no proporcionado, establecido como array vacío");
         }
 
         if (isset($data['accessCode'])) {
@@ -402,54 +515,155 @@ class OnboardingController extends AbstractController
         }
 
         if (isset($data['allowParentalMonitoring'])) {
-            $onboarding->setAllowParentalMonitoring((bool) $data['allowParentalMonitoring']);
+            $onboarding->setAllowParentalMonitoring($toBool($data['allowParentalMonitoring']));
         }
 
         if (isset($data['commonSymptoms'])) {
-            $onboarding->setCommonSymptoms($data['commonSymptoms']);
+            // Asegurar que sea un array
+            if (!is_array($data['commonSymptoms'])) {
+                if (is_string($data['commonSymptoms'])) {
+                    // Intentar convertir de JSON si es un string
+                    try {
+                        $commonSymptoms = json_decode($data['commonSymptoms'], true);
+                        if (is_array($commonSymptoms)) {
+                            $onboarding->setCommonSymptoms($commonSymptoms);
+                            error_log("Onboarding: commonSymptoms convertido de JSON string a array");
+                        } else {
+                            // Si no es un JSON válido, crear array con el string
+                            $onboarding->setCommonSymptoms([$data['commonSymptoms']]);
+                            error_log("Onboarding: commonSymptoms convertido de string a array singular");
+                        }
+                    } catch (\Exception $e) {
+                        // Si hay error en la conversión, crear array con el string
+                        $onboarding->setCommonSymptoms([$data['commonSymptoms']]);
+                        error_log("Onboarding: commonSymptoms fallido al convertir JSON, usando array simple");
+                    }
+                } else {
+                    // Valor no string ni array, usar array vacío
+                    $onboarding->setCommonSymptoms([]);
+                    error_log("Onboarding: commonSymptoms no válido, establecido como array vacío");
+                }
+            } else {
+                // Ya es un array, usarlo directamente
+                $onboarding->setCommonSymptoms($data['commonSymptoms']);
+                error_log("Onboarding: commonSymptoms establecido como array: " . count($data['commonSymptoms']) . " elementos");
+            }
+        } else {
+            // No presente, establecer array vacío
+            $onboarding->setCommonSymptoms([]);
+            error_log("Onboarding: commonSymptoms no proporcionado, establecido como array vacío");
         }
 
         // Marcar como completado si viene en los datos
+        if (isset($data['completed'])) {
+            $onboarding->setCompleted($toBool($data['completed']));
+            error_log("Onboarding: Campo 'completed' establecido a: " . ($toBool($data['completed']) ? 'true' : 'false'));
+        }
+        
         if (isset($data['onboardingCompleted'])) {
-            $onboarding->setCompleted((bool) $data['onboardingCompleted']);
+            $completed = $toBool($data['onboardingCompleted']);
+            error_log("Onboarding: Campo 'onboardingCompleted' establecido a: " . ($completed ? 'true' : 'false'));
             
-            // También actualizar el estado en el usuario
-            $user->setOnboardingCompleted((bool) $data['onboardingCompleted']);
+            // Establecer ambos campos para asegurar consistencia
+            $onboarding->setCompleted($completed);
+            $user->setOnboardingCompleted($completed);
+            
+            error_log("Onboarding: Estado de completado actualizado en ambas entidades");
+        } else if (isset($data['completed'])) {
+            // Si solo se estableció 'completed', usarlo para 'onboardingCompleted' también
+            $completed = $toBool($data['completed']);
+            $user->setOnboardingCompleted($completed);
+            error_log("Onboarding: Usando 'completed' para actualizar User.onboardingCompleted");
+        } else {
+            // Establecer valor por defecto
+            $onboarding->setCompleted(true);
+            $user->setOnboardingCompleted(true);
+            error_log("Onboarding: No se proporcionó estado de completado, estableciendo ambos a 'true' por defecto");
         }
 
-        // Guardar los cambios en la base de datos
-        $errors = $validator->validate($onboarding);
+        // Guardar los cambios en la base de datos con manejo más detallado de errores
+        try {
+            $errors = $validator->validate($onboarding);
 
-        if (count($errors) > 0) {
-            $errorMessages = [];
-            foreach ($errors as $error) {
-                $errorMessages[$error->getPropertyPath()] = $error->getMessage();
+            if (count($errors) > 0) {
+                $errorMessages = [];
+                foreach ($errors as $error) {
+                    $errorMessages[$error->getPropertyPath()] = $error->getMessage();
+                }
+
+                error_log('Onboarding: Errores de validación: ' . json_encode($errorMessages));
+                return $this->json([
+                    'message' => 'Error de validación en los datos enviados',
+                    'errors' => $errorMessages,
+                ], 400);
             }
 
-            return $this->json([
-                'message' => 'Error de validación en los datos enviados',
-                'errors' => $errorMessages,
-            ], 400);
-        }
+            error_log('Onboarding: Intentando persistir la entidad Onboarding...');
+            $em->persist($onboarding);
 
-        $em->persist($onboarding);
-        $em->persist($user);
-        $em->flush();
+            error_log('Onboarding: Intentando persistir el usuario...');
+            $em->persist($user);
+
+            error_log('Onboarding: Ejecutando flush...');
+            $em->flush();
+
+            error_log('Onboarding: Entidades guardadas con éxito');
+        } catch (\Exception $e) {
+            error_log('Onboarding: Error al guardar en la base de datos: ' . $e->getMessage());
+            error_log('Onboarding: Stack trace: ' . $e->getTraceAsString());
+            
+            return $this->json([
+                'message' => 'Error al guardar los datos en la base de datos',
+                'error' => $e->getMessage(),
+                'class' => get_class($e)
+            ], 500);
+        }
 
         // Verificar que se haya actualizado correctamente
         error_log('Onboarding: Estado después de guardar - Usuario: ' . ($user->isOnboardingCompleted() ? 'Completado' : 'No completado'));
         error_log('Onboarding: Estado después de guardar - Onboarding: ' . ($onboarding->isCompleted() ? 'Completado' : 'No completado'));
 
+            // Crear una respuesta serializada evitando problemas de referencias circulares
+        // Configurar un contexto de serialización para evitar problemas de referencias circulares
+        $userData = [
+        'id' => $user->getId(),
+        'email' => $user->getEmail(),
+        'username' => $user->getUsername(),
+        'name' => $user->getName(),
+        'lastName' => $user->getLastName(),
+        'profileType' => $user->getProfileType() ? $user->getProfileType()->value : null,
+        'genderIdentity' => $user->getGenderIdentity(),
+            'onboardingCompleted' => $user->isOnboardingCompleted(),
+            ];
 
-        return $this->json(
-            [
-                'message' => 'Onboarding completado correctamente',
-                'user' => $user,
-                'onboarding' => $onboarding
-            ],
-            200,
-            [],
-            ['groups' => ['user:read', 'onboarding:read']]
-        );
+            $onboardingData = [
+                'id' => $onboarding->getId(),
+                'profileType' => $onboarding->getProfileType() ? $onboarding->getProfileType()->value : null,
+                'genderIdentity' => $onboarding->getGenderIdentity(),
+                'stageOfLife' => $onboarding->getStageOfLife(),
+                'completed' => $onboarding->isCompleted(),
+            ];
+
+            error_log('Onboarding: Preparando respuesta manual serializada');
+
+            return $this->json(
+                [
+                    'message' => 'Onboarding completado correctamente',
+                    'user' => $userData,
+                    'onboarding' => $onboardingData
+                ],
+                200
+            );
+        } catch (\Exception $generalException) {
+            // Capturar cualquier otra excepción no controlada
+            error_log('Onboarding: Error general no controlado: ' . $generalException->getMessage());
+            error_log('Onboarding: Stack trace: ' . $generalException->getTraceAsString());
+            
+            return $this->json([
+                'message' => 'Error interno del servidor',
+                'error' => $generalException->getMessage(),
+                'class' => get_class($generalException)
+            ], 500);
+        }
     }
 }
