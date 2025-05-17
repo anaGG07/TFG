@@ -62,6 +62,7 @@ class JwtCookieSuccessHandler implements AuthenticationSuccessHandlerInterface
                 $jwtToken = $this->jwtManager->createFromPayload($user, [
                     'user_identifier' => $user->getEmail(),
                     'roles' => $user->getRoles(),
+                    'username' => $user->getEmail(),
                 ]);
                 // Comentario de control
 
