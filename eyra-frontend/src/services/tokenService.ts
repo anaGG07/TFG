@@ -24,6 +24,20 @@ class TokenService {
     if (this.isLoginOrRegister()) {
       return false;
     }
+    
+    // Prevenir bucles de verificación
+    const lastCheckTime = localStorage.getItem('lastTokenCheck');
+    const now = Date.now();
+    const MIN_CHECK_INTERVAL = 3000; // 3 segundos de intervalo entre verificaciones
+    
+    // Si verificamos recientemente, devolver el último resultado conocido
+    if (lastCheckTime && (now - parseInt(lastCheckTime)) < MIN_CHECK_INTERVAL) {
+      console.log('TokenService: Usando resultado de verificación reciente, evitando bucle');
+      return this.isTokenValid;
+    }
+    
+    // Registrar esta verificación
+    localStorage.setItem('lastTokenCheck', now.toString());
 
     try {
       console.log('TokenService: Verificando token...');
