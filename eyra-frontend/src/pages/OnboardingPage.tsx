@@ -67,21 +67,22 @@ const OnboardingPage: React.FC = () => {
   
 
   useEffect(() => {
-    const verifyAuth = async () => {
-      try {
-        const isAuth = await checkAuth();
-        if (!isAuth) {
-          console.error('OnboardingPage: Usuario no autenticado');
+    // Solo verifica la sesión si no está autenticado o no hay usuario
+    if (!isAuthenticated || !user) {
+      const verifyAuth = async () => {
+        try {
+          const isAuth = await checkAuth();
+          if (!isAuth) {
+            navigate(ROUTES.LOGIN, { replace: true });
+          }
+        } catch (err) {
           navigate(ROUTES.LOGIN, { replace: true });
         }
-      } catch (err) {
-        console.error('OnboardingPage: Error al verificar autenticación:', err);
-        navigate(ROUTES.LOGIN, { replace: true });
-      }
-    };
-
-    verifyAuth();
-  }, [checkAuth, navigate]);
+      };
+      verifyAuth();
+    }
+    // Si ya está autenticado y hay usuario, no hace falta verificar nada
+  }, [isAuthenticated, user, checkAuth, navigate]);
 
   useEffect(() => {
     if (!isLoading && user?.onboardingCompleted) {
