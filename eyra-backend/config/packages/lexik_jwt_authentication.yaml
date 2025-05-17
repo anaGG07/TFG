@@ -1,19 +1,16 @@
 lexik_jwt_authentication:
-    secret_key: '%env(resolve:JWT_SECRET_KEY)%'
-    public_key: '%env(resolve:JWT_PUBLIC_KEY)%'
+    secret_key: '%kernel.project_dir%/config/jwt/private.pem'
+    public_key: '%kernel.project_dir%/config/jwt/public.pem'
+    pass_phrase: null
     token_ttl: 7200
-    # Configuración para extraer token de cookie
     token_extractors:
-        # La opción del header es imprescindible para las versiones 3.x
         authorization_header:
             enabled: true
             prefix: Bearer
             name: Authorization
-        # Configuración para extraer token de cookies
         cookie:
             enabled: true
             name: jwt_token
-    # Configuración para establecer cookies
     set_cookies:
         jwt_token:
             lifetime: 7200
@@ -21,7 +18,5 @@ lexik_jwt_authentication:
             path: /
             secure: true
             httpOnly: true
-    # No remover el token del cuerpo cuando se usan cookies
     remove_token_from_body_when_cookies_used: false
-    # Configuración para depurar problemas de autenticación
     clock_skew: 10
