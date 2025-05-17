@@ -63,6 +63,7 @@ class JwtCookieSuccessHandler implements AuthenticationSuccessHandlerInterface
                     'user_identifier' => $user->getEmail(),
                     'roles' => $user->getRoles(),
                 ]);
+                // Comentario de control
 
                 error_log('JWT generado correctamente');
 
