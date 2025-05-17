@@ -28,20 +28,40 @@ class AuthenticationDebugListener implements EventSubscriberInterface
 
     public function onKernelRequest(RequestEvent $event): void
     {
+        // Log general: entrada al listener
+        error_log('🟡 JwtCookieListener: Listener activado');
+
         if (!$event->isMainRequest()) {
+            error_log('🔸 No es una petición principal');
             return;
         }
 
         $request = $event->getRequest();
-        
-        // Solo depurar peticiones a /api
-        if (!str_starts_with($request->getPathInfo(), '/api')) {
+        $path = $request->getPathInfo();
+
+        // Solo peticiones a /api
+        if (!str_starts_with($path, '/api')) {
+            error_log("🔸 Ruta no API: {$path}");
             return;
         }
 
-        // Registrar información de la petición
-        $this->logger->info('Petición recibida', [
-            'path' => $request->getPathInfo(),
+        // Rutas públicas que no requieren JWT
+        $publicRoutes = [
+            '/api/register',
+            '/api/login',
+            '/api/login_check',
+            '/api/docs',
+            '/api/password-reset',
+        ];
+
+        if (in_array($path, $publicRoutes) || str_starts_with($path, '/api/docs')) {
+            error_log("🔸 Ruta pública detectada: {$path}");
+            return;
+        }
+
+        // Registrar cookies y headers
+        $this->logger->info('Petición recibida en JwtCookieListener', [
+            'path' => $path,
             'method' => $request->getMethod(),
             'cookies' => array_keys($request->cookies->all()),
             'headers' => [
@@ -50,7 +70,20 @@ class AuthenticationDebugListener implements EventSubscriberInterface
                 'authorization' => $request->headers->has('Authorization') ? 'presente' : 'ausente',
             ],
             'jwt_token_cookie' => $request->cookies->has('jwt_token') ? 'presente' : 'ausente',
-            'refresh_token_cookie' => $request->cookies->has('refresh_token') ? 'presente' : 'ausente',
         ]);
+
+        // Extraer token de la cookie
+        $token = $request->cookies->get('jwt_token');
+
+        if ($token) {
+            $request->headers->set('Authorization', 'Bearer ' . $token);
+            error_log('🟢 Header Authorization establecido a partir de la cookie JWT');
+            $this->logger->info('JwtCookieListener: Header Authorization establecido', [
+                'header_prefix' => substr($token, 0, 10) . '...',
+            ]);
+        } else {
+            error_log('🔴 No se encontró cookie jwt_token');
+            $this->logger->warning('JwtCookieListener: No se encontró la cookie jwt_token');
+        }
     }
 }
