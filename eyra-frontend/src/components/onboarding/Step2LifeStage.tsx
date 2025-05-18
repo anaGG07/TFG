@@ -13,6 +13,7 @@ const Step2LifeStage: React.FC<StepProps> = ({
   const hormoneType = watch("hormoneType");
   const hormoneStartDate = watch("hormoneStartDate");
   const hormoneFrequencyDays = watch("hormoneFrequencyDays");
+  const averageCycleLength = watch("averageCycleLength");
 
   const hormoneIncomplete =
     stageOfLife === "transition" &&
@@ -86,6 +87,92 @@ const Step2LifeStage: React.FC<StepProps> = ({
           <p className="text-sm text-[#300808] bg-[#f8f4f2] p-4 rounded-md border border-[#300808]/10">
             {getStageDescription(stageOfLife)}
           </p>
+        )}
+
+        {stageOfLife === "menstrual" && (
+          <div className="space-y-4 mt-6 border-t pt-6">
+            <p className="text-sm text-[#5b0108] italic">
+              Para ayudarte a hacer un mejor seguimiento de tu ciclo, completa estos datos.
+            </p>
+
+            <div>
+              <label className="block text-[#300808] mb-2 font-medium">
+                Fecha de tu último periodo{" "}
+                <span className="text-red-500">*</span>
+              </label>
+              <input
+                type="date"
+                {...register("lastPeriodDate", {
+                  required: "La fecha del último periodo es obligatoria",
+                })}
+                className="w-full bg-white border border-[#300808]/20 rounded-lg py-3 px-4 text-[#5b0108]"
+              />
+              {errors.lastPeriodDate && (
+                <p className="text-red-500 text-sm mt-1">
+                  {errors.lastPeriodDate.message}
+                </p>
+              )}
+            </div>
+
+            <div>
+              <label className="block text-[#300808] mb-2 font-medium">
+                Duración de tu periodo (en días){" "}
+                <span className="text-red-500">*</span>
+              </label>
+              <input
+                type="number"
+                {...register("averagePeriodLength", {
+                  required: "La duración del periodo es obligatoria",
+                  min: {
+                    value: 1,
+                    message: "La duración debe ser al menos 1 día"
+                  },
+                  max: {
+                    value: 14,
+                    message: "La duración no puede ser mayor a 14 días"
+                  }
+                })}
+                className="w-full bg-white border border-[#300808]/20 rounded-lg py-3 px-4 text-[#5b0108]"
+                placeholder="Ej: 5"
+              />
+              {errors.averagePeriodLength && (
+                <p className="text-red-500 text-sm mt-1">
+                  {errors.averagePeriodLength.message}
+                </p>
+              )}
+            </div>
+
+            <div>
+              <label className="block text-[#300808] mb-2 font-medium">
+                Duración de tu ciclo (en días)
+              </label>
+              <input
+                type="number"
+                {...register("averageCycleLength", {
+                  min: {
+                    value: 21,
+                    message: "El ciclo debe ser al menos de 21 días"
+                  },
+                  max: {
+                    value: 35,
+                    message: "El ciclo no puede ser mayor a 35 días"
+                  }
+                })}
+                className="w-full bg-white border border-[#300808]/20 rounded-lg py-3 px-4 text-[#5b0108]"
+                placeholder="Ej: 28"
+              />
+              {!averageCycleLength && (
+                <p className="text-sm text-gray-500 mt-1">
+                  Si no lo especificas, usaremos el valor estándar de 28 días
+                </p>
+              )}
+              {errors.averageCycleLength && (
+                <p className="text-red-500 text-sm mt-1">
+                  {errors.averageCycleLength.message}
+                </p>
+              )}
+            </div>
+          </div>
         )}
 
         {stageOfLife === "transition" && (

@@ -50,14 +50,29 @@ class Onboarding
 
     #[ORM\Column(type: Types::DATE_MUTABLE, nullable: true)]
     #[Groups(['onboarding:read', 'onboarding:write', 'user:read'])]
+    #[Assert\NotNull(message: 'La fecha del último periodo es obligatoria para usuarios con ciclo menstrual activo', groups: ['menstrual'])]
     private ?\DateTimeInterface $lastPeriodDate = null;
 
     #[ORM\Column(nullable: true)]
     #[Groups(['onboarding:read', 'onboarding:write', 'user:read'])]
+    #[Assert\NotNull(message: 'La duración del ciclo es obligatoria para usuarios con ciclo menstrual activo', groups: ['menstrual'])]
+    #[Assert\Range(
+        min: 21,
+        max: 35,
+        notInRangeMessage: 'La duración del ciclo debe estar entre {{ min }} y {{ max }} días',
+        groups: ['menstrual']
+    )]
     private ?int $averageCycleLength = null;
 
     #[ORM\Column(nullable: true)]
     #[Groups(['onboarding:read', 'onboarding:write', 'user:read'])]
+    #[Assert\NotNull(message: 'La duración del periodo es obligatoria para usuarios con ciclo menstrual activo', groups: ['menstrual'])]
+    #[Assert\Range(
+        min: 1,
+        max: 14,
+        notInRangeMessage: 'La duración del periodo debe estar entre {{ min }} y {{ max }} días',
+        groups: ['menstrual']
+    )]
     private ?int $averagePeriodLength = null;
 
     #[ORM\Column(enumType: HormoneType::class, nullable: true)]
