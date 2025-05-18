@@ -57,11 +57,3 @@ services:
         tags:
             - { name: kernel.event_subscriber }
 
-    # Procesador de introspección para Monolog
-    monolog.processor.introspection:
-        class: Monolog\Processor\IntrospectionProcessor
-        arguments:
-            $level: 'DEBUG'
-            $skipClassesPartials:
-                - 'Monolog\\'
-                - 'Symfony\\'
