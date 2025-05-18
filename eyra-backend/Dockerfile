@@ -1,5 +1,9 @@
 FROM php:8.2-fpm
 
+# Argumentos de build para la conexión a la base de datos
+ARG DATABASE_URL
+ARG APP_ENV=prod
+
 # Instala dependencias del sistema
 RUN apt-get update && apt-get install -y \
     git unzip zip libpq-dev libicu-dev \
@@ -14,7 +18,13 @@ COPY php-fpm.conf /usr/local/etc/php-fpm.conf
 # Establece directorio de trabajo
 WORKDIR /var/www/html
 
-# Copia proyecto
+# Copia composer.json y composer.lock primero para aprovechar la caché de capas
+COPY composer.json composer.lock ./
+
+# Instala dependencias
+RUN composer install --no-interaction --prefer-dist --optimize-autoloader --no-dev
+
+# Copia el resto del proyecto
 COPY . .
 
 # Copia entrypoint y da permisos

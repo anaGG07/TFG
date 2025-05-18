@@ -45,6 +45,10 @@ services:
       - APP_SECRET=${APP_SECRET}
       - JWT_SECRET_KEY=/var/www/html/config/jwt/private.pem
       - JWT_PUBLIC_KEY=/var/www/html/config/jwt/public.pem
+      - INSTALL_DEPS=false
+      - SET_PERMISSIONS=false
+      - RUN_MIGRATIONS=false
+      - CLEAR_CACHE=false
     networks:
       - eyra-network
 
