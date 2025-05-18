@@ -61,7 +61,7 @@ class AuthService {
       console.error("Error al cerrar sesión:", error);
     } finally {
       tokenService.invalidateToken();
-      window.location.href = "/login";
+      window.location.href = "/";
     }
   }
 

@@ -14,7 +14,7 @@ interface ApiFetchOptions {
  */
 export const authEvents = {
   onUnauthorized: () => {
-    window.location.href = "/login";
+    window.location.href = "/";
   }
 };
 
