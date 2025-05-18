@@ -2,6 +2,7 @@ import { API_URL } from "../config/apiRoutes";
 
 interface FetchOptions extends RequestInit {
   body?: any;
+  defaultValue?: any;
 }
 
 interface ApiFetchOptions {

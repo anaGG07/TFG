@@ -17,7 +17,7 @@ import {
   Prediction,
   SymptomPattern,
 } from "../services/insightService";
-import { apiFetchParallel } from "../utils/httpClient";
+import { apiFetchParallel, apiFetch } from "../utils/httpClient";
 import tokenService from "../services/tokenService";
 
 interface AuthContextType {
@@ -101,9 +101,41 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const [summary, setSummary] = useState<CycleSummary>(DEFAULT_SUMMARY);
   const [predictions, setPredictions] = useState<Prediction>(DEFAULT_PREDICTIONS);
   const [patterns, setPatterns] = useState<SymptomPattern[]>(DEFAULT_PATTERNS);
+  const [isDataLoaded, setIsDataLoaded] = useState(false);
 
   const location = useSafeLocation();
   const initializedRef = useRef(false);
+
+  // Función para cargar datos del dashboard de forma diferida
+  const loadDashboardData = async () => {
+    if (isDataLoaded) return;
+
+    try {
+      const [
+        cyclesData,
+        currentCycleData,
+        summaryData,
+        predictionsData,
+        patternsData,
+      ] = await apiFetchParallel<Cycle[] | Cycle | null | CycleSummary | Prediction | SymptomPattern[]>([
+        { path: "cycles", defaultValue: DEFAULT_CYCLES },
+        { path: "cycles/current", defaultValue: DEFAULT_CURRENT_CYCLE },
+        { path: "insights/summary", defaultValue: DEFAULT_SUMMARY },
+        { path: "insights/predictions", defaultValue: DEFAULT_PREDICTIONS },
+        { path: "insights/patterns", defaultValue: DEFAULT_PATTERNS },
+      ]) as [Cycle[], Cycle | null, CycleSummary, Prediction, SymptomPattern[]];
+
+      if (cyclesData) setCycles(cyclesData);
+      if (currentCycleData) setCurrentCycle(currentCycleData);
+      if (summaryData) setSummary(summaryData);
+      if (predictionsData) setPredictions(predictionsData);
+      if (patternsData) setPatterns(patternsData);
+      
+      setIsDataLoaded(true);
+    } catch (error) {
+      console.error("Error al cargar datos del dashboard:", error);
+    }
+  };
 
   const loadDashboardSafely = async () => {
     // No cargar datos en páginas de login/registro
@@ -122,26 +154,15 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       if (userData) {
         setUser(userData);
         setIsAuthenticated(true);
-
-        const [
-          cyclesData,
-          currentCycleData,
-          summaryData,
-          predictionsData,
-          patternsData,
-        ] = await apiFetchParallel<Cycle[] | Cycle | null | CycleSummary | Prediction | SymptomPattern[]>([
-          { path: "cycles", defaultValue: DEFAULT_CYCLES },
-          { path: "cycles/current", defaultValue: DEFAULT_CURRENT_CYCLE },
-          { path: "insights/summary", defaultValue: DEFAULT_SUMMARY },
-          { path: "insights/predictions", defaultValue: DEFAULT_PREDICTIONS },
-          { path: "insights/patterns", defaultValue: DEFAULT_PATTERNS },
-        ]) as [Cycle[], Cycle | null, CycleSummary, Prediction, SymptomPattern[]];
-
-        if (cyclesData) setCycles(cyclesData);
+        
+        // Cargar datos esenciales inmediatamente
+        const currentCycleData = await apiFetch<Cycle | null>("cycles/current", { defaultValue: DEFAULT_CURRENT_CYCLE });
         if (currentCycleData) setCurrentCycle(currentCycleData);
-        if (summaryData) setSummary(summaryData);
-        if (predictionsData) setPredictions(predictionsData);
-        if (patternsData) setPatterns(patternsData);
+        
+        // Cargar el resto de datos de forma diferida
+        setTimeout(() => {
+          loadDashboardData();
+        }, 100);
         
         return true;
       } else {
@@ -163,11 +184,6 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   };
 
   const checkAuth = useCallback(async (): Promise<boolean> => {
-    console.log("AuthContext: Verificando estado de autenticación...", {
-      path: window.location.pathname,
-      isAuthenticated: isAuthenticated
-    });
-
     // Lista de rutas públicas
     const publicPaths = ["/", "/login", "/register"];
     
@@ -192,44 +208,22 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       setIsLoading(true);
       
       // Verificar si el token es válido
-      console.log("AuthContext: Verificando token...");
       const tokenValid = await tokenService.checkToken();
       
       if (!tokenValid) {
-        console.log("AuthContext: Token inválido, limpiando estado", {
-          path: window.location.pathname
-        });
+        console.log("AuthContext: Token inválido, limpiando estado");
         setIsAuthenticated(false);
         setUser(null);
         return false;
       }
 
-      // Si el usuario está en onboarding, NO cargar el perfil
-      if (window.location.pathname === '/onboarding') {
-        console.log("AuthContext: Usuario en onboarding, no se carga perfil");
-        return true;
-      }
-
-      // Si ya tenemos usuario y el token es válido, no necesitamos recargar el perfil
-      if (isAuthenticated && user) {
-        console.log("AuthContext: Usuario ya autenticado y con token válido");
-        return true;
-      }
-
-      // Si el token es válido, intentar cargar el perfil solo si es necesario
-      console.log("AuthContext: Token válido, cargando perfil...");
-      const result = await loadDashboardSafely();
-      console.log("AuthContext: Resultado de carga del perfil:", result);
-      return result;
+      // Si el token es válido, cargar el perfil
+      return await loadDashboardSafely();
     } catch (error) {
-      console.error("AuthContext: Error al verificar autenticación:", error, {
-        path: window.location.pathname
-      });
+      console.error("Error en verificación de autenticación:", error);
       setIsAuthenticated(false);
       setUser(null);
       return false;
-    } finally {
-      setIsLoading(false);
     }
   }, [isAuthenticated, user]);
 
