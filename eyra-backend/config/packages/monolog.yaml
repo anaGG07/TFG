@@ -1,6 +1,7 @@
 monolog:
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     channels: ["onboarding"]
     
     handlers:
@@ -31,12 +32,17 @@ monolog:
     channels:
         - deprecation # Deprecations are logged in the dedicated "deprecation" channel when it exists
 >>>>>>> 1fb28fb (Monolog)
+=======
+    channels:
+        - deprecation # Deprecations are logged in the dedicated "deprecation" channel when it exists
+>>>>>>> 1fb28fb (Monolog)
 
 when@dev:
     monolog:
         handlers:
             main:
                 type: stream
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
                 path: "php://stderr"
@@ -53,6 +59,8 @@ when@prod:
         processors:
             - { name: 'monolog.processor.introspection', args: { skipClassesPartials: ['Monolog\\', 'Symfony\\'] }}
 =======
+=======
+>>>>>>> 1fb28fb (Monolog)
 =======
 >>>>>>> 1fb28fb (Monolog)
                 path: "%kernel.logs_dir%/%kernel.environment%.log"
@@ -74,6 +82,9 @@ when@prod:
 when@test:
     monolog:
 <<<<<<< HEAD
+<<<<<<< HEAD
+>>>>>>> 1fb28fb (Monolog)
+=======
 >>>>>>> 1fb28fb (Monolog)
 =======
 >>>>>>> 1fb28fb (Monolog)
@@ -90,6 +101,7 @@ when@test:
                 level: debug
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
                 
             onboarding:
                 type: stream
@@ -97,6 +109,8 @@ when@test:
                 level: debug
                 channels: ["onboarding"]
 =======
+=======
+>>>>>>> 1fb28fb (Monolog)
 =======
 >>>>>>> 1fb28fb (Monolog)
 
@@ -124,6 +138,9 @@ when@prod:
                 path: php://stderr
                 formatter: monolog.formatter.json
 <<<<<<< HEAD
+<<<<<<< HEAD
+>>>>>>> 1fb28fb (Monolog)
+=======
 >>>>>>> 1fb28fb (Monolog)
 =======
 >>>>>>> 1fb28fb (Monolog)
