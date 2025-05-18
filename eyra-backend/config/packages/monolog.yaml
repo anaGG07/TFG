@@ -1,146 +1,80 @@
 monolog:
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-    channels: ["onboarding"]
-    
-    handlers:
-        # Log general de la aplicación
-        main:
-            type: stream
-            path: "%kernel.logs_dir%/%kernel.environment%.log"
-            level: debug
-            channels: ["!event"]
-        
-        # Log específico para onboarding con máximo detalle
-        onboarding:
-            type: stream
-            path: "%kernel.logs_dir%/onboarding.log"
-            level: debug
-            channels: ["onboarding"]
-            
-        # Log para errores críticos
-        error:
-            type: stream
-            path: "%kernel.logs_dir%/error.log"
-            level: error
-=======
-    channels:
-        - deprecation # Deprecations are logged in the dedicated "deprecation" channel when it exists
->>>>>>> 1fb28fb (Monolog)
-=======
-    channels:
-        - deprecation # Deprecations are logged in the dedicated "deprecation" channel when it exists
->>>>>>> 1fb28fb (Monolog)
-=======
-    channels:
-        - deprecation # Deprecations are logged in the dedicated "deprecation" channel when it exists
->>>>>>> 1fb28fb (Monolog)
+  channels: ["deprecation"]
+
+  handlers:
+    main:
+      type: stream
+      path: "%kernel.logs_dir%/%kernel.environment%.log"
+      level: debug
+      channels: ["!event"]
+
+    onboarding:
+      type: stream
+      path: "%kernel.logs_dir%/onboarding.log"
+      level: debug
+      channels: ["onboarding"]
+
+    error:
+      type: stream
+      path: "%kernel.logs_dir%/error.log"
+      level: error
 
 when@dev:
-    monolog:
-        handlers:
-            main:
-                type: stream
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-                path: "php://stderr"
-                level: debug
-            
-            onboarding:
-                type: stream
-                path: "php://stderr"
-                level: debug
-                channels: ["onboarding"]
-
-when@prod:
-    monolog:
-        processors:
-            - { name: 'monolog.processor.introspection', args: { skipClassesPartials: ['Monolog\\', 'Symfony\\'] }}
-=======
-=======
->>>>>>> 1fb28fb (Monolog)
-=======
->>>>>>> 1fb28fb (Monolog)
-                path: "%kernel.logs_dir%/%kernel.environment%.log"
-                level: debug
-                channels: ["!event"]
-            # uncomment to get logging in your browser
-            # you may have to allow bigger header sizes in your Web server configuration
-            #firephp:
-            #    type: firephp
-            #    level: info
-            #chromephp:
-            #    type: chromephp
-            #    level: info
-            console:
-                type: console
-                process_psr_3_messages: false
-                channels: ["!event", "!doctrine", "!console"]
+  monolog:
+    handlers:
+      main:
+        type: stream
+        path: "php://stderr"
+        level: debug
+      onboarding:
+        type: stream
+        path: "php://stderr"
+        level: debug
+        channels: ["onboarding"]
 
 when@test:
-    monolog:
-<<<<<<< HEAD
-<<<<<<< HEAD
->>>>>>> 1fb28fb (Monolog)
-=======
->>>>>>> 1fb28fb (Monolog)
-=======
->>>>>>> 1fb28fb (Monolog)
-        handlers:
-            main:
-                type: fingers_crossed
-                action_level: error
-                handler: nested
-                excluded_http_codes: [404, 405]
-                channels: ["!event"]
-            nested:
-                type: stream
-                path: "%kernel.logs_dir%/%kernel.environment%.log"
-                level: debug
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-                
-            onboarding:
-                type: stream
-                path: "%kernel.logs_dir%/onboarding.log"
-                level: debug
-                channels: ["onboarding"]
-=======
-=======
->>>>>>> 1fb28fb (Monolog)
-=======
->>>>>>> 1fb28fb (Monolog)
+  monolog:
+    handlers:
+      main:
+        type: fingers_crossed
+        action_level: error
+        handler: nested
+        excluded_http_codes: [404, 405]
+        channels: ["!event"]
+      nested:
+        type: stream
+        path: "%kernel.logs_dir%/%kernel.environment%.log"
+        level: debug
+      onboarding:
+        type: stream
+        path: "%kernel.logs_dir%/onboarding.log"
+        level: debug
+        channels: ["onboarding"]
 
 when@prod:
-    monolog:
-        handlers:
-            main:
-                type: fingers_crossed
-                action_level: error
-                handler: nested
-                excluded_http_codes: [404, 405]
-                buffer_size: 50 # How many messages should be saved? Prevent memory leaks
-            nested:
-                type: stream
-                path: php://stderr
-                level: debug
-                formatter: monolog.formatter.json
-            console:
-                type: console
-                process_psr_3_messages: false
-                channels: ["!event", "!doctrine"]
-            deprecation:
-                type: stream
-                channels: [deprecation]
-                path: php://stderr
-                formatter: monolog.formatter.json
-<<<<<<< HEAD
-<<<<<<< HEAD
->>>>>>> 1fb28fb (Monolog)
-=======
->>>>>>> 1fb28fb (Monolog)
-=======
->>>>>>> 1fb28fb (Monolog)
+  monolog:
+    processors:
+      - { name: 'monolog.processor.introspection', args: { skipClassesPartials: ['Monolog\\', 'Symfony\\'] } }
+
+    handlers:
+      main:
+        type: fingers_crossed
+        action_level: error
+        handler: nested
+        excluded_http_codes: [404, 405]
+        buffer_size: 50
+      nested:
+        type: stream
+        path: "php://stderr"
+        level: debug
+        formatter: monolog.formatter.json
+      console:
+        type: console
+        process_psr_3_messages: false
+        channels: ["!event", "!doctrine"]
+      deprecation:
+        type: stream
+        channels: [deprecation]
+        path: "php://stderr"
+        formatter: monolog.formatter.json
+a
