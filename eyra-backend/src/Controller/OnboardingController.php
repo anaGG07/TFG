@@ -140,6 +140,7 @@ class OnboardingController extends AbstractController
 
             // Marcar el onboarding como completado
             $onboarding->setCompleted(true);
+            $user->setOnboardingCompleted(true);
 
             // Validar la entidad
             $errors = $validator->validate($onboarding);
@@ -156,6 +157,7 @@ class OnboardingController extends AbstractController
 
             // Persistir los cambios
             $em->persist($onboarding);
+            $em->persist($user);
             $em->flush();
 
             // Serializar el usuario actualizado
