@@ -39,9 +39,7 @@ const LoginPage = () => {
         return;
       }
 
-      console.log("Login exitoso. Estado onboarding:", {
-        completed: user.onboardingCompleted,
-      });
+      console.log("Login exitoso. Estado onboarding:", user.onboardingCompleted);
 
       // Redirigir basado en el estado del onboarding
       if (!user.onboardingCompleted) {

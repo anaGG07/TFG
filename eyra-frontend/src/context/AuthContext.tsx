@@ -385,12 +385,10 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
       console.log('AuthContext: Sesión refrescada correctamente, enviando datos:', {
         ...onboardingData,
-        onboardingCompleted: true
       });
       
       const updatedUser = await authService.completeOnboarding({
         ...onboardingData,
-        onboardingCompleted: true,
       });
 
       if (!updatedUser) {

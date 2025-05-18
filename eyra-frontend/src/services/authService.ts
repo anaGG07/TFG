@@ -105,7 +105,6 @@ class AuthService {
 
     const completeData = {
       ...onboardingData,
-      onboardingCompleted: true,
     };
 
     try {
