@@ -228,6 +228,7 @@ class AuthController extends AbstractController
     #[Route('/profile', name: 'api_profile', methods: ['GET'])]
     public function getProfile(Request $request): JsonResponse
     {
+        $start = microtime(true);
         try {
             // Log de depuración detallado
             $this->logger->info('AuthController::getProfile - Iniciando solicitud de perfil', [
@@ -241,7 +242,6 @@ class AuthController extends AbstractController
             /** @var User|null $user */
             $user = $this->getUser(); 
             
-            // Log para depuración
             $this->logger->info('AuthController::getProfile - Estado de autenticación', [
                 'user_authenticated' => $user !== null,
                 'user_id' => $user ? $user->getId() : 'null',
@@ -250,6 +250,8 @@ class AuthController extends AbstractController
             
             if (!$user instanceof User) {
                 $this->logger->warning('AuthController::getProfile - Usuario no autenticado');
+                $elapsed = round((microtime(true) - $start) * 1000);
+                $this->logger->info('AuthController::getProfile - Tiempo total (ms): ' . $elapsed);
                 return $this->json(['message' => 'Usuario no autenticado'], 401);
             }
 
@@ -270,7 +272,7 @@ class AuthController extends AbstractController
             } else {
                 $onboardingData = [ 'completed' => false ];
             }
-            return $this->json([
+            $response = $this->json([
                 'user' => [
                     'id' => $user->getId(),
                     'email' => $user->getEmail(),
@@ -288,12 +290,16 @@ class AuthController extends AbstractController
                     'onboarding' => $onboardingData
                 ]
             ]);
+            $elapsed = round((microtime(true) - $start) * 1000);
+            $this->logger->info('AuthController::getProfile - Tiempo total (ms): ' . $elapsed);
+            return $response;
         } catch (Exception $e) {
             $this->logger->error('Error al obtener perfil: ' . $e->getMessage(), [
                 'exception' => $e->getMessage(),
                 'trace' => $e->getTraceAsString()
             ]);
-            
+            $elapsed = round((microtime(true) - $start) * 1000);
+            $this->logger->info('AuthController::getProfile - Tiempo total (ms): ' . $elapsed);
             return $this->json(['message' => 'Error al obtener perfil: ' . $e->getMessage()], 500);
         }
     }
