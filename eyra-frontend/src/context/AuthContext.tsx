@@ -143,7 +143,6 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       window.location.pathname === '/login' ||
       window.location.pathname === '/register'
     ) {
-      console.log("Omitiendo carga de datos en página de login/registro");
       setIsLoading(false);
       return false;
     }
@@ -160,9 +159,9 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         if (currentCycleData) setCurrentCycle(currentCycleData);
         
         // Cargar el resto de datos de forma diferida
-        setTimeout(() => {
+        requestIdleCallback(() => {
           loadDashboardData();
-        }, 100);
+        });
         
         return true;
       } else {
@@ -189,7 +188,6 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     
     // Si estamos en páginas públicas, no verificamos autenticación
     if (publicPaths.includes(window.location.pathname)) {
-      console.log("AuthContext: Omitiendo verificación en página pública");
       setIsLoading(false);
       return false;
     }
@@ -197,8 +195,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     // Verificar si nos acabamos de autenticar (para prevenir bucles)
     const lastAuth = localStorage.getItem('lastAuthentication');
     const now = Date.now();
-    if (lastAuth && (now - parseInt(lastAuth)) < 5000) { // 5 segundos desde la última autenticación
-      console.log("AuthContext: Autenticación reciente detectada, omitiendo verificación");
+    if (lastAuth && (now - parseInt(lastAuth)) < 5000) {
       if (isAuthenticated && user) {
         return true;
       }
@@ -211,13 +208,11 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       const tokenValid = await tokenService.checkToken();
       
       if (!tokenValid) {
-        console.log("AuthContext: Token inválido, limpiando estado");
         setIsAuthenticated(false);
         setUser(null);
         return false;
       }
 
-      // Si el token es válido, cargar el perfil
       return await loadDashboardSafely();
     } catch (error) {
       console.error("Error en verificación de autenticación:", error);
@@ -227,51 +222,26 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     }
   }, [isAuthenticated, user]);
 
-  const refreshSession = useCallback(async (): Promise<boolean> => {
-    return checkAuth();
-  }, [checkAuth]);
-
   useEffect(() => {
     const initApp = async () => {
-      // Verificar si ya inicializamos
-      if (initializedRef.current) {
-        console.log('AuthContext: Ya inicializado, omitiendo');
-        return;
-      }
-      
-      // Marcar como inicializado para evitar múltiples llamadas
+      if (initializedRef.current) return;
       initializedRef.current = true;
       
-      // Lista de rutas públicas donde no necesitamos cargar datos
       const publicPaths = ["/", "/login", "/register", "/onboarding"];
       
-      // No cargamos datos en rutas públicas
       if (!location || publicPaths.includes(location.pathname)) {
-        console.log('AuthContext: Omitiendo inicialización en ruta pública:', location?.pathname);
         setIsLoading(false);
+        if (typeof window !== "undefined" && window.appReadyEvent) {
+          window.dispatchEvent(window.appReadyEvent);
+        }
         return;
       }
       
-      // Pequeña pausa para asegurar que todo esté listo
-      console.log('AuthContext: Inicializando aplicación...');
-      await new Promise((resolve) => setTimeout(resolve, 200));
-      
-      // Cargar datos del dashboard
       await loadDashboardSafely();
-      
-      // Notificar que la app está lista
-      if (typeof window !== "undefined" && window.appReadyEvent) {
-        console.log('AuthContext: Despachando evento appReady');
-        window.dispatchEvent(window.appReadyEvent);
-      }
     };
     
-    // Ejecutar con un pequeño retraso
-    const timer = setTimeout(initApp, 50);
-    
-    // Limpieza para evitar problemas si el componente se desmonta
-    return () => clearTimeout(timer);
-  }, [location?.pathname]); // Solo depende de la ruta, nunca de isAuthenticated
+    initApp();
+  }, [location?.pathname]);
 
   const login = async (credentials: LoginRequest) => {
     setIsLoading(true);
@@ -408,6 +378,10 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       throw error;
     }
   };
+
+  const refreshSession = useCallback(async (): Promise<boolean> => {
+    return checkAuth();
+  }, [checkAuth]);
 
   const value: AuthContextType = {
     user,
