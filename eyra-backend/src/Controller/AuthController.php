@@ -255,6 +255,21 @@ class AuthController extends AbstractController
 
             $this->logger->info('AuthController::getProfile - Devolviendo perfil usuario: ' . $user->getEmail());
             
+            $onboarding = $user->getOnboarding();
+            $onboardingData = null;
+            if ($onboarding) {
+                $onboardingData = [
+                    'id' => $onboarding->getId(),
+                    'profileType' => $onboarding->getProfileType() ? $onboarding->getProfileType()->value : null,
+                    'stageOfLife' => $onboarding->getStageOfLife(),
+                    'lastPeriodDate' => $onboarding->getLastPeriodDate() ? $onboarding->getLastPeriodDate()->format('Y-m-d') : null,
+                    'averageCycleLength' => $onboarding->getAverageCycleLength(),
+                    'averagePeriodLength' => $onboarding->getAveragePeriodLength(),
+                    'completed' => $onboarding->isCompleted()
+                ];
+            } else {
+                $onboardingData = [ 'completed' => false ];
+            }
             return $this->json([
                 'user' => [
                     'id' => $user->getId(),
@@ -269,7 +284,8 @@ class AuthController extends AbstractController
                     'createdAt' => $user->getCreatedAt()->format('c'),
                     'updatedAt' => $user->getUpdatedAt() ? $user->getUpdatedAt()->format('c') : null,
                     'state' => $user->getState(),
-                    'onboardingCompleted' => $user->isOnboardingCompleted()
+                    'onboardingCompleted' => $user->isOnboardingCompleted(),
+                    'onboarding' => $onboardingData
                 ]
             ]);
         } catch (Exception $e) {

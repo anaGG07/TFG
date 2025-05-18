@@ -138,6 +138,9 @@ class OnboardingController extends AbstractController
                 $onboarding->setAverageCycleLength($data['averageCycleLength']);
             }
 
+            // Marcar el onboarding como completado
+            $onboarding->setCompleted(true);
+
             // Validar la entidad
             $errors = $validator->validate($onboarding);
             if (count($errors) > 0) {
@@ -155,15 +158,25 @@ class OnboardingController extends AbstractController
             $em->persist($onboarding);
             $em->flush();
 
+            // Serializar el usuario actualizado
+            $userData = [
+                'id' => $user->getId(),
+                'email' => $user->getEmail(),
+                'onboardingCompleted' => $onboarding->isCompleted(),
+                // Agrega aquí otros campos relevantes del usuario
+            ];
+
             return $this->json([
                 'message' => 'Onboarding completado exitosamente',
+                'user' => $userData,
                 'onboarding' => [
                     'id' => $onboarding->getId(),
                     'profileType' => $onboarding->getProfileType()->value,
                     'stageOfLife' => $onboarding->getStageOfLife(),
                     'lastPeriodDate' => $onboarding->getLastPeriodDate() ? $onboarding->getLastPeriodDate()->format('Y-m-d') : null,
                     'averageCycleLength' => $onboarding->getAverageCycleLength(),
-                    'averagePeriodLength' => $onboarding->getAveragePeriodLength()
+                    'averagePeriodLength' => $onboarding->getAveragePeriodLength(),
+                    'completed' => $onboarding->isCompleted()
                 ]
             ]);
 
