@@ -227,16 +227,21 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       if (initializedRef.current) return;
       initializedRef.current = true;
       
+      // Lista de rutas públicas donde no necesitamos cargar datos
       const publicPaths = ["/", "/login", "/register", "/onboarding"];
       
+      // Si estamos en una ruta pública, no cargamos datos y marcamos la app como lista
       if (!location || publicPaths.includes(location.pathname)) {
         setIsLoading(false);
+        setIsAuthenticated(false);
+        setUser(null);
         if (typeof window !== "undefined" && window.appReadyEvent) {
           window.dispatchEvent(window.appReadyEvent);
         }
         return;
       }
       
+      // Solo cargamos datos si no estamos en una ruta pública
       await loadDashboardSafely();
     };
     
