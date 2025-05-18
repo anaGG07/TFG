@@ -77,4 +77,7 @@ when@prod:
         channels: [deprecation]
         path: "php://stderr"
         formatter: monolog.formatter.json
+<<<<<<< HEAD
 a
+=======
+>>>>>>> 7ad5f3a (Monolog)
