@@ -11,7 +11,7 @@ class CookieTokenExtractor implements TokenExtractorInterface
     private string $cookieName;
     private LoggerInterface $logger;
 
-    public function __construct(string $cookieName = 'jwt_token', LoggerInterface $logger)
+    public function __construct(LoggerInterface $logger, string $cookieName = 'jwt_token')
     {
         $this->cookieName = $cookieName;
         $this->logger = $logger;

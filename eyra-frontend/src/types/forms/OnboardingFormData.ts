@@ -15,7 +15,7 @@ export interface OnboardingFormData {
   receiveWorkoutSuggestions: boolean;
   receiveNutritionAdvice: boolean;
   shareCycleWithPartner: boolean;
-  wantAICompanion: boolean;
+  wantAiCompanion: boolean;
   healthConcerns: string[];
   accessCode?: string;
   allowParentalMonitoring: boolean;

@@ -8,7 +8,7 @@ const Step3Preferences: React.FC<StepProps> = ({
   onNextStep,
   onPreviousStep,
 }) => {
-  const wantsAI = watch("wantAICompanion");
+  const wantsAI = watch("wantAiCompanion");
   const wantsPartner = watch("shareCycleWithPartner");
 
   return (
@@ -95,7 +95,7 @@ const Step3Preferences: React.FC<StepProps> = ({
           <label className="flex items-center">
             <input
               type="checkbox"
-              {...register("wantAICompanion")}
+              {...register("wantAiCompanion")}
               className="mr-2"
             />
             Usar asistente IA para resolver dudas y acompañar procesos

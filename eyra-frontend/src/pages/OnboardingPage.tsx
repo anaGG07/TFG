@@ -46,7 +46,7 @@ const OnboardingPage: React.FC = () => {
       receiveWorkoutSuggestions: true,
       receiveNutritionAdvice: true,
       shareCycleWithPartner: false,
-      wantAICompanion: true,
+      wantAiCompanion: true,
       healthConcerns: [],
       accessCode: "",
       allowParentalMonitoring: false,
@@ -206,6 +206,8 @@ const OnboardingPage: React.FC = () => {
         // Asegurar que estos campos requeridos estén presentes y con valores válidos
         genderIdentity: data.genderIdentity?.trim() || '',
         stageOfLife: data.stageOfLife?.trim() || '',
+        // Asegurar que lastPeriodDate no sea un string vacío
+        lastPeriodDate: data.lastPeriodDate?.trim() || undefined,
       };
 
       // Registrar datos para depuración
