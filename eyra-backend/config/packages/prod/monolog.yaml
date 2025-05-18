@@ -60,6 +60,8 @@ when@prod:
         handler: nested
         excluded_http_codes: [404, 405]
         buffer_size: 50
+        processors:
+          - monolog.processor.introspection
       nested:
         type: stream
         path: "php://stderr"
@@ -75,5 +77,3 @@ when@prod:
         path: "php://stderr"
         formatter: monolog.formatter.json
 
-    processors:
-      - monolog.processor.introspection
