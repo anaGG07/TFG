@@ -54,7 +54,7 @@ when@test:
 when@prod:
   monolog:
     processors:
-      - { name: 'monolog.processor.introspection', args: { skipClassesPartials: ['Monolog\\', 'Symfony\\'] } }
+      - monolog.processor.introspection
 
     handlers:
       main:

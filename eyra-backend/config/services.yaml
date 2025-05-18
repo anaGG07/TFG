@@ -9,6 +9,7 @@ parameters:
 services:
     Symfony\Component\Security\Core\Security:
         alias: security.helper
+
     # default configuration for services in *this* file
     _defaults:
         autowire: true      # Automatically injects dependencies in your services.
@@ -30,25 +31,24 @@ services:
             $logger: '@logger'
         tags:
             - { name: 'lexik_jwt_authentication.token_extractor', alias: 'cookie_extractor' }
-        
+
     # Handler personalizado para autenticación con cookies
     App\Security\JwtCookieSuccessHandler:
         arguments:
             $cookieSecure: '%cookie_secure%'
-            
+
     # Listener para depurar autenticación
     App\EventListener\AuthenticationDebugListener:
         tags:
             - { name: kernel.event_subscriber }
-    
+
     # Listener para convertir cookies JWT en headers de Authorization    
     App\EventListener\JwtCookieListener:
         arguments:
             $logger: '@logger'
         tags:
             - { name: kernel.event_listener, event: kernel.request, method: onKernelRequest, priority: 999 }
-    
-    
+
     # Listener para eventos de autenticación JWT
     App\EventListener\JwtAuthenticationListener:
         arguments:
@@ -56,3 +56,12 @@ services:
             $requestStack: '@request_stack'
         tags:
             - { name: kernel.event_subscriber }
+
+    # Procesador de introspección para Monolog
+    monolog.processor.introspection:
+        class: Monolog\Processor\IntrospectionProcessor
+        arguments:
+            $level: 'DEBUG'
+            $skipClassesPartials:
+                - 'Monolog\\'
+                - 'Symfony\\'
