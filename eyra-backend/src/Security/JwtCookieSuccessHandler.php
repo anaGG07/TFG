@@ -101,7 +101,8 @@ class JwtCookieSuccessHandler implements AuthenticationSuccessHandlerInterface
                 'birthDate' => $user->getBirthDate()->format('Y-m-d'),
                 'createdAt' => $user->getCreatedAt()->format('c'),
                 'updatedAt' => $user->getUpdatedAt() ? $user->getUpdatedAt()->format('c') : null,
-                'state' => $user->getState()
+                'state' => $user->getState(),
+                'onboardingCompleted' => $user->isOnboardingCompleted()
             ];
             
             // Crear una respuesta JSON con datos de usuario
