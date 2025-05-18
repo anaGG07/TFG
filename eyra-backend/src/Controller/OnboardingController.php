@@ -15,18 +15,22 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Lexik\Bundle\JWTAuthenticationBundle\Services\JWTTokenManagerInterface;
 use Lexik\Bundle\JWTAuthenticationBundle\Encoder\JWTEncoderInterface;
 use Symfony\Component\Security\Core\Exception\TokenNotFoundException;
+use Psr\Log\LoggerInterface;
 
 class OnboardingController extends AbstractController
 {
     private $jwtEncoder;
     private $jwtManager;
     private $tokenStorage;
+    private LoggerInterface $logger;
     
     public function __construct(
+        LoggerInterface $logger,
         JWTEncoderInterface $jwtEncoder = null, 
         JWTTokenManagerInterface $jwtManager = null,
         \Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface $tokenStorage = null
     ) {
+        $this->logger = $logger;
         $this->jwtEncoder = $jwtEncoder;
         $this->jwtManager = $jwtManager;
         $this->tokenStorage = $tokenStorage;
@@ -370,14 +374,16 @@ class OnboardingController extends AbstractController
         }
 
         if (isset($data['lastPeriodDate'])) {
-            if (!empty($data['lastPeriodDate'])) {
+            $dateValue = trim($data['lastPeriodDate'] ?? '');
+            if (!empty($dateValue)) {
                 try {
-                    $onboarding->setLastPeriodDate(new \DateTime($data['lastPeriodDate']));
-                    error_log("Onboarding: lastPeriodDate establecido: {$data['lastPeriodDate']}");
+                    $onboarding->setLastPeriodDate(new \DateTime($dateValue));
+                    error_log("Onboarding: lastPeriodDate establecido: {$dateValue}");
                 } catch (\Exception $e) {
-                    error_log("Onboarding: Error al convertir lastPeriodDate: {$e->getMessage()}");
+                    error_log("Onboarding: Error al convertir lastPeriodDate '{$dateValue}': {$e->getMessage()}");
                     // Si hay error, establecer explícitamente a null
                     $onboarding->setLastPeriodDate(null);
+                    error_log("Onboarding: lastPeriodDate establecido a null debido a error de conversión");
                 }
             } else {
                 // Si está vacío, establecer explícitamente a null
@@ -465,11 +471,7 @@ class OnboardingController extends AbstractController
             $onboarding->setShareCycleWithPartner($toBool($data['shareCycleWithPartner']));
         }
 
-        if (isset($data['wantAICompanion'])) {
-            // Corregir la diferencia entre wantAICompanion (frontend) y wantAiCompanion (entidad)
-            $onboarding->setWantAiCompanion($toBool($data['wantAICompanion']));
-        } else if (isset($data['wantAiCompanion'])) {
-            // Alternativa si viene con el nombre exacto de la entidad
+        if (isset($data['wantAiCompanion'])) {
             $onboarding->setWantAiCompanion($toBool($data['wantAiCompanion']));
         }
 
@@ -611,11 +613,22 @@ class OnboardingController extends AbstractController
         } catch (\Exception $e) {
             error_log('Onboarding: Error al guardar en la base de datos: ' . $e->getMessage());
             error_log('Onboarding: Stack trace: ' . $e->getTraceAsString());
+            error_log('Onboarding: Archivo: ' . $e->getFile() . ':' . $e->getLine());
+            
+            // Obtener información adicional sobre el estado de la entidad
+            error_log('Onboarding: Estado de la entidad antes del error:');
+            error_log('Onboarding: - ID: ' . ($onboarding->getId() ?? 'null'));
+            error_log('Onboarding: - profileType: ' . ($onboarding->getProfileType() ? $onboarding->getProfileType()->value : 'null'));
+            error_log('Onboarding: - genderIdentity: ' . ($onboarding->getGenderIdentity() ?? 'null'));
+            error_log('Onboarding: - stageOfLife: ' . ($onboarding->getStageOfLife() ?? 'null'));
+            error_log('Onboarding: - lastPeriodDate: ' . ($onboarding->getLastPeriodDate() ? $onboarding->getLastPeriodDate()->format('Y-m-d') : 'null'));
             
             return $this->json([
                 'message' => 'Error al guardar los datos en la base de datos',
                 'error' => $e->getMessage(),
-                'class' => get_class($e)
+                'class' => get_class($e),
+                'file' => $e->getFile(),
+                'line' => $e->getLine()
             ], 500);
         }
 
