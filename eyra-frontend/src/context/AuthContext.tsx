@@ -241,12 +241,34 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         return;
       }
       
-      // Solo cargamos datos si no estamos en una ruta pública
-      await loadDashboardSafely();
+      // Verificar autenticación al iniciar la aplicación
+      const isAuth = await checkAuth();
+      
+      // Si no está autenticado y no estamos en una ruta pública, redirigir al login
+      if (!isAuth && !publicPaths.includes(window.location.pathname)) {
+        window.location.href = '/login';
+        return;
+      }
+      
+      // Solo cargamos datos si estamos autenticados
+      if (isAuth) {
+        await loadDashboardSafely();
+      }
     };
     
     initApp();
-  }, [location?.pathname]);
+  }, [location?.pathname, checkAuth]);
+
+  // Añadir un listener para el evento popstate (navegación del navegador)
+  useEffect(() => {
+    const handlePopState = async () => {
+      // Verificar autenticación cuando se usa el botón de retroceso
+      await checkAuth();
+    };
+
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, [checkAuth]);
 
   const login = async (credentials: LoginRequest) => {
     setIsLoading(true);
