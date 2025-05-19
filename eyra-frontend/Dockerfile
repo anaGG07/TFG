@@ -7,6 +7,7 @@ WORKDIR /app
 # Copiar archivos de configuración e instalar dependencias
 COPY package*.json ./
 RUN npm install
+RUN npm install js-cookie @types/js-cookie
 
 # Copiar el resto del código fuente
 COPY . .
