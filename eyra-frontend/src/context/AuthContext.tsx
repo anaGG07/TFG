@@ -184,7 +184,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
   const checkAuth = useCallback(async (): Promise<boolean> => {
     // Lista de rutas públicas
-    const publicPaths = ["/", "/login", "/register"];
+    const publicPaths = ["/login", "/register"];
     
     // Si estamos en páginas públicas, no verificamos autenticación
     if (publicPaths.includes(window.location.pathname)) {
@@ -228,7 +228,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       initializedRef.current = true;
       
       // Lista de rutas públicas donde no necesitamos cargar datos
-      const publicPaths = ["/", "/login", "/register", "/onboarding"];
+      const publicPaths = ["/login", "/register", "/onboarding"];
       
       // Si estamos en una ruta pública, no cargamos datos y marcamos la app como lista
       if (!location || publicPaths.includes(location.pathname)) {
