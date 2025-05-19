@@ -188,64 +188,67 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const checkAuth = useCallback(async (): Promise<boolean> => {
     try {
       const token = Cookies.get("token");
-      if (!token) {
+      // Incluir '/' como ruta pública
+      const publicPaths = ["/", "/login", "/register"];
+      const currentPath = location?.pathname || window.location.pathname;
+      const isPublicPath = publicPaths.includes(currentPath);
+
+      // Solo redirigir a login si NO hay token y NO es ruta pública
+      if (!isPublicPath && !token) {
+        navigate(ROUTES.LOGIN, { replace: true });
         setUser(null);
         setIsLoading(false);
         return false;
       }
 
-      // Verificar si estamos en una ruta pública
-      const publicPaths = ["/login", "/register"];
-      const currentPath = location?.pathname || window.location.pathname;
-      const isPublicPath = publicPaths.includes(currentPath);
+      // Si hay token, comprobar si es válido antes de redirigir
+      if (token) {
+        try {
+          const response = await fetch(`${import.meta.env.VITE_API_URL}/auth/me`, {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          });
 
-      // Si no estamos en una ruta pública y no hay token, redirigir a login
-      if (!isPublicPath && !token) {
-        navigate(ROUTES.LOGIN, { replace: true });
-        return false;
-      }
-
-      // Si hay token, intentar obtener los datos del usuario
-      try {
-        const response = await fetch(`${import.meta.env.VITE_API_URL}/auth/me`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-
-        if (response.ok) {
-          const userData = await response.json();
-          setUser(userData);
-          
-          // Si estamos en una ruta pública y el usuario está autenticado, redirigir al dashboard
-          if (isPublicPath) {
-            navigate(ROUTES.DASHBOARD, { replace: true });
+          if (response.ok) {
+            const userData = await response.json();
+            setUser(userData);
+            // Si está autenticado y está en una ruta pública, redirigir al dashboard
+            if (isPublicPath && currentPath !== "/") {
+              navigate(ROUTES.DASHBOARD, { replace: true });
+            }
+            setIsLoading(false);
+            return true;
+          } else {
+            // Token inválido
+            Cookies.remove("token");
+            setUser(null);
+            if (!isPublicPath) {
+              navigate(ROUTES.LOGIN, { replace: true });
+            }
+            setIsLoading(false);
+            return false;
           }
-          return true;
-        } else {
-          // Si la respuesta no es exitosa, limpiar el token y el usuario
+        } catch (error) {
+          console.error("Error al verificar la sesión:", error);
           Cookies.remove("token");
           setUser(null);
           if (!isPublicPath) {
             navigate(ROUTES.LOGIN, { replace: true });
           }
+          setIsLoading(false);
           return false;
         }
-      } catch (error) {
-        console.error("Error al verificar la sesión:", error);
-        Cookies.remove("token");
-        setUser(null);
-        if (!isPublicPath) {
-          navigate(ROUTES.LOGIN, { replace: true });
-        }
-        return false;
       }
+
+      // Si no hay token pero es ruta pública, permitir acceso
+      setIsLoading(false);
+      return false;
     } catch (error) {
       console.error("Error al verificar la autenticación:", error);
       setUser(null);
-      return false;
-    } finally {
       setIsLoading(false);
+      return false;
     }
   }, [location?.pathname, navigate]);
 
