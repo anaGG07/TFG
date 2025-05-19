@@ -94,11 +94,11 @@ class AuthService {
     this.ensureInitialized();
     try {
       const completeData = { ...onboardingData };
-      const user = await apiFetch<User>("/api/onboarding", {
+      const response = await apiFetch<{ user: User }>("/api/onboarding", {
         method: "POST",
         body: completeData,
       });
-      return user;
+      return response.user;
     } catch (error) {
       console.error("AuthService: Error al completar onboarding:", error);
       throw error;
