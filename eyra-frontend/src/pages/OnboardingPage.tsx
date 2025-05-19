@@ -218,9 +218,7 @@ const OnboardingPage: React.FC = () => {
         console.log("OnboardingPage: Respuesta del servidor:", updatedUser);
 
         if (updatedUser?.onboardingCompleted) {
-          setTimeout(() => {
-            navigate(ROUTES.DASHBOARD, { replace: true });
-          }, 50);
+          navigate(ROUTES.DASHBOARD, { replace: true });
         } else {
           setError(
             "Tu perfil se guardó pero ocurrió un error al completar el proceso."

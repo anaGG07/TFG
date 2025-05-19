@@ -241,59 +241,10 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   };
 
   const completeOnboarding = async (onboardingData: any) => {
-    console.log('AuthContext: Iniciando completeOnboarding', {
-      hayUsuario: !!user,
-      estaAutenticado: isAuthenticated,
-      estaCargando: isLoading
-    });
-
-    if (!isAuthenticated || !user) {
-      console.error('AuthContext: Intento de completar onboarding sin autenticación');
-      throw new Error("No hay usuario autenticado");
-    }
-
-    try {
-      // Intentar refrescar la sesión antes de continuar
-      console.log('AuthContext: Intentando refrescar sesión antes del onboarding...');
-      const refreshed = await tokenService.checkToken();
-      
-      if (!refreshed) {
-        console.error('AuthContext: No se pudo refrescar la sesión');
-        setIsAuthenticated(false);
-        setUser(null);
-        throw new Error("La sesión ha expirado");
-      }
-
-      console.log('AuthContext: Sesión refrescada correctamente, enviando datos:', {
-        ...onboardingData,
-      });
-      
-      const updatedUser = await authService.completeOnboarding({
-        ...onboardingData,
-      });
-
-      if (!updatedUser) {
-        console.error('AuthContext: No se recibió respuesta del servidor');
-        throw new Error('No se pudo completar el onboarding correctamente');
-      }
-
-      console.log('AuthContext: Usuario actualizado después del onboarding:', updatedUser);
-      setUser(updatedUser);
-      setIsAuthenticated(true);
-      
-      return updatedUser;
-    } catch (error: any) {
-      console.error("AuthContext: Error al completar onboarding:", error);
-      
-      // Si el error es de autenticación, limpiamos el estado
-      if (error.message === "No hay usuario autenticado" || 
-          error.message === "La sesión ha expirado") {
-        setUser(null);
-        setIsAuthenticated(false);
-      }
-      
-      throw error;
-    }
+    const user = await authService.completeOnboarding(onboardingData);
+    setUser(user);
+    setIsAuthenticated(true);
+    return user;
   };
 
   const refreshSession = useCallback(async (): Promise<boolean> => {
