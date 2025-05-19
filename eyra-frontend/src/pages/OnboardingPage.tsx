@@ -14,7 +14,7 @@ import { StepProps } from "../types/components/StepProps";
 
 const OnboardingPage: React.FC = () => {
   const navigate = useNavigate();
-  const { user, completeOnboarding, refreshSession, isLoading, isAuthenticated, checkAuth } = useAuth();
+  const { user, completeOnboarding, isLoading, isAuthenticated, checkAuth } = useAuth();
   const [step, setStep] = useState(1);
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -180,17 +180,6 @@ const OnboardingPage: React.FC = () => {
       // Verificación adicional de autenticación
       if (!isAuthenticated || !user) {
         console.error('OnboardingPage: No hay usuario autenticado al guardar');
-        setError("Tu sesión ha expirado. Por favor, inicia sesión nuevamente.");
-        setTimeout(() => {
-          navigate(ROUTES.LOGIN, { replace: true });
-        }, 2000);
-        return;
-      }
-
-      // Intentar refrescar la sesión
-      const sessionRefreshed = await refreshSession();
-      if (!sessionRefreshed) {
-        console.error('OnboardingPage: No se pudo refrescar la sesión');
         setError("Tu sesión ha expirado. Por favor, inicia sesión nuevamente.");
         setTimeout(() => {
           navigate(ROUTES.LOGIN, { replace: true });
