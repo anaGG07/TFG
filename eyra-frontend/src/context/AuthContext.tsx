@@ -18,7 +18,6 @@ import {
   SymptomPattern,
 } from "../services/insightService";
 
-import tokenService from "../services/tokenService";
 
 import Cookies from "js-cookie";
 import { apiFetch } from "../utils/httpClient";

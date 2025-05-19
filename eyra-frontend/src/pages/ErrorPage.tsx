@@ -1,18 +1,9 @@
 import { useRouteError, useNavigate } from "react-router-dom";
-import { useAuth } from "../context/AuthContext";
 
 const ErrorPage = () => {
   const error = useRouteError() as any;
   const navigate = useNavigate();
-  const { isAuthenticated } = useAuth();
 
-  const handleGoBack = () => {
-    if (isAuthenticated) {
-      navigate('/dashboard');
-    } else {
-      navigate('/');
-    }
-  };
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-[#300808] to-[#5b0108]">
@@ -26,7 +17,7 @@ const ErrorPage = () => {
         </p>
         <div className="mt-6 flex justify-center">
           <button
-            onClick={handleGoBack}
+            onClick={() => navigate('/dashboard')}
             className="px-6 py-3 bg-[#5b0108] text-[#e7e0d5] rounded-lg font-semibold 
                      hover:bg-[#9d0d0b] transition-all duration-300 shadow-md hover:shadow-lg"
           >
