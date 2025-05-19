@@ -7,7 +7,7 @@ import {
   useRef,
   useCallback,
 } from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { User } from "../types/domain";
 import { authService } from "../services/authService";
 import { LoginRequest, RegisterRequest } from "../types/api";
@@ -19,6 +19,8 @@ import {
 } from "../services/insightService";
 import { apiFetchParallel, apiFetch } from "../utils/httpClient";
 import tokenService from "../services/tokenService";
+import { ROUTES } from "../router/paths";
+import Cookies from "js-cookie";
 
 interface AuthContextType {
   user: User | null;
@@ -104,6 +106,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const [isDataLoaded, setIsDataLoaded] = useState(false);
 
   const location = useSafeLocation();
+  const navigate = useNavigate();
   const initializedRef = useRef(false);
 
   // Función para cargar datos del dashboard de forma diferida
@@ -183,44 +186,68 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   };
 
   const checkAuth = useCallback(async (): Promise<boolean> => {
-    // Lista de rutas públicas
-    const publicPaths = ["/login", "/register"];
-    
-    // Si estamos en páginas públicas, no verificamos autenticación
-    if (publicPaths.includes(window.location.pathname)) {
-      setIsLoading(false);
-      return false;
-    }
-
-    // Verificar si nos acabamos de autenticar (para prevenir bucles)
-    const lastAuth = localStorage.getItem('lastAuthentication');
-    const now = Date.now();
-    if (lastAuth && (now - parseInt(lastAuth)) < 5000) {
-      if (isAuthenticated && user) {
-        return true;
-      }
-    }
-
     try {
-      setIsLoading(true);
-      
-      // Verificar si el token es válido
-      const tokenValid = await tokenService.checkToken();
-      
-      if (!tokenValid) {
-        setIsAuthenticated(false);
+      const token = Cookies.get("token");
+      if (!token) {
         setUser(null);
+        setIsLoading(false);
         return false;
       }
 
-      return await loadDashboardSafely();
+      // Verificar si estamos en una ruta pública
+      const publicPaths = ["/login", "/register"];
+      const currentPath = location?.pathname || window.location.pathname;
+      const isPublicPath = publicPaths.includes(currentPath);
+
+      // Si no estamos en una ruta pública y no hay token, redirigir a login
+      if (!isPublicPath && !token) {
+        navigate(ROUTES.LOGIN, { replace: true });
+        return false;
+      }
+
+      // Si hay token, intentar obtener los datos del usuario
+      try {
+        const response = await fetch(`${import.meta.env.VITE_API_URL}/auth/me`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        if (response.ok) {
+          const userData = await response.json();
+          setUser(userData);
+          
+          // Si estamos en una ruta pública y el usuario está autenticado, redirigir al dashboard
+          if (isPublicPath) {
+            navigate(ROUTES.DASHBOARD, { replace: true });
+          }
+          return true;
+        } else {
+          // Si la respuesta no es exitosa, limpiar el token y el usuario
+          Cookies.remove("token");
+          setUser(null);
+          if (!isPublicPath) {
+            navigate(ROUTES.LOGIN, { replace: true });
+          }
+          return false;
+        }
+      } catch (error) {
+        console.error("Error al verificar la sesión:", error);
+        Cookies.remove("token");
+        setUser(null);
+        if (!isPublicPath) {
+          navigate(ROUTES.LOGIN, { replace: true });
+        }
+        return false;
+      }
     } catch (error) {
-      console.error("Error en verificación de autenticación:", error);
-      setIsAuthenticated(false);
+      console.error("Error al verificar la autenticación:", error);
       setUser(null);
       return false;
+    } finally {
+      setIsLoading(false);
     }
-  }, [isAuthenticated, user]);
+  }, [location?.pathname, navigate]);
 
   useEffect(() => {
     const initApp = async () => {
