@@ -8,17 +8,16 @@ const LoginPage = () => {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [checkingSession, setCheckingSession] = useState(true);
 
-  const { login } = useAuth();
+  const { login, isAuthenticated, isLoading: authLoading } = useAuth();
   const navigate = useNavigate();
 
   // Verificar si el usuario ya tiene una sesión válida al cargar la página
   useEffect(() => {
-    // No verificamos la sesión en la página de login para evitar bucles
-    console.log("LoginPage - No verificando sesión para evitar bucles");
-    setCheckingSession(false);
-  }, []);
+    if (isAuthenticated && !authLoading) {
+      navigate(ROUTES.DASHBOARD, { replace: true });
+    }
+  }, [isAuthenticated, authLoading, navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -57,17 +56,17 @@ const LoginPage = () => {
     }
   };
 
+  // Si está cargando la autenticación, mostrar spinner
+  if (authLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[#e7e0d5]">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#5b0108]"></div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-[#e7e0d5] p-4">
-      {checkingSession && (
-        <div className="fixed inset-0 flex items-center justify-center bg-white bg-opacity-80 z-50">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#5b0108] mx-auto mb-4"></div>
-            <p className="text-[#5b0108]">Verificando sesión...</p>
-          </div>
-        </div>
-      )}
-
       <main className="bg-[#fefefe] rounded-xl border border-[#5b010820] shadow-md p-8 w-full max-w-md">
         <div className="text-center mb-8">
           <h1

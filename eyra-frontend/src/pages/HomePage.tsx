@@ -1,7 +1,29 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { ROUTES } from "../router/paths";
+import { useAuth } from "../context/AuthContext";
+import { useEffect } from "react";
 
 const HomePage = () => {
+  const { isAuthenticated, isLoading } = useAuth();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    // Si el usuario está autenticado, redirigir al dashboard
+    if (isAuthenticated && !isLoading) {
+      navigate(ROUTES.DASHBOARD, { replace: true });
+    }
+  }, [isAuthenticated, isLoading, navigate]);
+
+  // Si está cargando, mostrar un spinner
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[#e7e0d5]">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#5b0108]"></div>
+      </div>
+    );
+  }
+
+  // Si no está autenticado, mostrar la página de inicio
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-[#e7e0d5] p-4">
       {/* Header con logo y nombre */}
@@ -42,29 +64,23 @@ const HomePage = () => {
       </div>
 
       {/* Características principales */}
-      <div className="w-full max-w-5xl grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-5xl w-full mb-12">
         {[
           {
-            title: "Seguimiento del Ciclo",
-            iconPath:
-              "M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z",
-            description:
-              "Registra tu ciclo menstrual y síntomas para obtener información personalizada que te ayuda a conocer mejor tu cuerpo.",
+            title: "Seguimiento Personalizado",
+            iconPath: "M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2",
+            description: "Registra y analiza tu ciclo menstrual con precisión, adaptado a tus necesidades específicas."
           },
           {
-            title: "Análisis Inteligente",
-            iconPath:
-              "M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z",
-            description:
-              "Obtén análisis detallados de tus patrones y predicciones personalizadas para anticipar cambios y planificar con confianza.",
+            title: "Insights Inteligentes",
+            iconPath: "M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z",
+            description: "Recibe análisis detallados y predicciones basadas en tus datos para entender mejor tu ciclo."
           },
           {
-            title: "Privacidad Garantizada",
-            iconPath:
-              "M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z",
-            description:
-              "Tu información es confidencial y segura. Tú tienes el control total de tus datos en todo momento.",
-          },
+            title: "Contenido Adaptado",
+            iconPath: "M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253",
+            description: "Accede a recursos y recomendaciones personalizadas según tu fase del ciclo."
+          }
         ].map(({ title, iconPath, description }) => (
           <div
             key={title}
