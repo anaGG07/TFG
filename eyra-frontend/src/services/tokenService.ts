@@ -1,4 +1,4 @@
-import { API_URL } from "../config/apiRoutes";
+import { apiFetch } from "../utils/httpClient";
 
 /**
  * Servicio simplificado para manejar tokens JWT
@@ -41,42 +41,18 @@ class TokenService {
 
     try {
       console.log('TokenService: Verificando token...');
-      
-      // Intenta hacer una petición al endpoint de perfil para verificar el token
-      const response = await fetch(`${API_URL}/api/profile`, {
+      await apiFetch("/api/profile", {
         method: 'GET',
         credentials: 'include',
         headers: {
           'Accept': 'application/json'
         }
       });
-
-      // Examinar la respuesta
-      console.log('TokenService: Respuesta de verificación:', {
-        status: response.status,
-        ok: response.ok,
-        headers: Object.fromEntries(response.headers.entries())
-      });
-
-      this.isTokenValid = response.ok;
-      
-      if (this.isTokenValid) {
-        console.log('TokenService: Token válido');
-      } else {
-        console.log('TokenService: Token inválido, código:', response.status);
-        // Intentar obtener más información del error
-        try {
-          const errorData = await response.json();
-          console.log('TokenService: Detalles del error:', errorData);
-        } catch (e) {
-          console.log('TokenService: No se pudo obtener detalles del error');
-        }
-      }
-      
-      return this.isTokenValid;
+      this.isTokenValid = true;
+      console.log('TokenService: Token válido');
+      return true;
     } catch (error) {
       console.error('TokenService: Error al verificar token:', error);
-      // En caso de error, asumimos que el token NO es válido
       this.isTokenValid = false;
       return false;
     }

@@ -7,7 +7,7 @@ import {
   useRef,
   useCallback,
 } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import { User } from "../types/domain";
 import { authService } from "../services/authService";
 import { LoginRequest, RegisterRequest } from "../types/api";
@@ -17,10 +17,11 @@ import {
   Prediction,
   SymptomPattern,
 } from "../services/insightService";
-import { apiFetchParallel, apiFetch } from "../utils/httpClient";
+
 import tokenService from "../services/tokenService";
-import { ROUTES } from "../router/paths";
+
 import Cookies from "js-cookie";
+import { apiFetch } from "../utils/httpClient";
 
 interface AuthContextType {
   user: User | null;
@@ -103,208 +104,58 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const [summary, setSummary] = useState<CycleSummary>(DEFAULT_SUMMARY);
   const [predictions, setPredictions] = useState<Prediction>(DEFAULT_PREDICTIONS);
   const [patterns, setPatterns] = useState<SymptomPattern[]>(DEFAULT_PATTERNS);
-  const [isDataLoaded, setIsDataLoaded] = useState(false);
 
   const location = useSafeLocation();
-  const navigate = useNavigate();
   const initializedRef = useRef(false);
 
-  // Función para cargar datos del dashboard de forma diferida
-  const loadDashboardData = async () => {
-    if (isDataLoaded) return;
-
-    try {
-      const [
-        cyclesData,
-        currentCycleData,
-        summaryData,
-        predictionsData,
-        patternsData,
-      ] = await apiFetchParallel<Cycle[] | Cycle | null | CycleSummary | Prediction | SymptomPattern[]>([
-        { path: "cycles", defaultValue: DEFAULT_CYCLES },
-        { path: "cycles/current", defaultValue: DEFAULT_CURRENT_CYCLE },
-        { path: "insights/summary", defaultValue: DEFAULT_SUMMARY },
-        { path: "insights/predictions", defaultValue: DEFAULT_PREDICTIONS },
-        { path: "insights/patterns", defaultValue: DEFAULT_PATTERNS },
-      ]) as [Cycle[], Cycle | null, CycleSummary, Prediction, SymptomPattern[]];
-
-      if (cyclesData) setCycles(cyclesData);
-      if (currentCycleData) setCurrentCycle(currentCycleData);
-      if (summaryData) setSummary(summaryData);
-      if (predictionsData) setPredictions(predictionsData);
-      if (patternsData) setPatterns(patternsData);
-      
-      setIsDataLoaded(true);
-    } catch (error) {
-      console.error("Error al cargar datos del dashboard:", error);
-    }
-  };
-
-  const loadDashboardSafely = async () => {
-    // No cargar datos en páginas de login/registro
-    if (
-      window.location.pathname === '/login' ||
-      window.location.pathname === '/register'
-    ) {
-      setIsLoading(false);
-      return false;
-    }
-
-    try {
-      const userData = await authService.getProfile();
-
-      if (userData) {
-        setUser(userData);
-        setIsAuthenticated(true);
-        
-        // Cargar datos esenciales inmediatamente
-        const currentCycleData = await apiFetch<Cycle | null>("cycles/current", { defaultValue: DEFAULT_CURRENT_CYCLE });
-        if (currentCycleData) setCurrentCycle(currentCycleData);
-        
-        // Cargar el resto de datos de forma diferida
-        requestIdleCallback(() => {
-          loadDashboardData();
-        });
-        
-        return true;
-      } else {
-        setIsAuthenticated(false);
-        setUser(null);
-        return false;
-      }
-    } catch (error) {
-      console.error("Error al cargar dashboard:", error);
-      setIsAuthenticated(false);
-      setUser(null);
-      return false;
-    } finally {
-      setIsLoading(false);
-      if (typeof window !== "undefined" && window.appReadyEvent) {
-        window.dispatchEvent(window.appReadyEvent);
-      }
-    }
-  };
-
+  // Comprobación de sesión usando apiFetch
   const checkAuth = useCallback(async (): Promise<boolean> => {
     setIsLoading(true);
     try {
       const token = Cookies.get("token");
-      const publicPaths = ["/", "/login", "/register"];
-      const currentPath = location?.pathname || window.location.pathname;
-      const isPublicPath = publicPaths.includes(currentPath);
-
-      // Si no hay token y no es ruta pública, redirigir a login DESPUÉS de comprobar
       if (!token) {
         setUser(null);
         setIsAuthenticated(false);
-        if (!isPublicPath) {
-          setIsLoading(false);
-          navigate(ROUTES.LOGIN, { replace: true });
-        } else {
-          setIsLoading(false);
-        }
+        setIsLoading(false);
         return false;
       }
-
-      // Si hay token, comprobar si es válido antes de redirigir
       try {
-        const response = await fetch(`${import.meta.env.VITE_API_URL}/auth/me`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-
-        if (response.ok) {
-          const userData = await response.json();
-          setUser(userData);
-          setIsAuthenticated(true);
-          // Si está autenticado y está en una ruta pública (excepto /), redirigir al dashboard
-          if (isPublicPath && currentPath !== "/") {
-            setIsLoading(false);
-            navigate(ROUTES.DASHBOARD, { replace: true });
-          } else {
-            setIsLoading(false);
-          }
-          return true;
-        } else {
-          // Token inválido
-          Cookies.remove("token");
-          setUser(null);
-          setIsAuthenticated(false);
-          if (!isPublicPath) {
-            setIsLoading(false);
-            navigate(ROUTES.LOGIN, { replace: true });
-          } else {
-            setIsLoading(false);
-          }
-          return false;
-        }
+        const userData = await apiFetch<User>("/auth/me");
+        setUser(userData);
+        setIsAuthenticated(true);
+        setIsLoading(false);
+        return true;
       } catch (error) {
-        console.error("Error al verificar la sesión:", error);
         Cookies.remove("token");
         setUser(null);
         setIsAuthenticated(false);
-        if (!isPublicPath) {
-          setIsLoading(false);
-          navigate(ROUTES.LOGIN, { replace: true });
-        } else {
-          setIsLoading(false);
-        }
+        setIsLoading(false);
         return false;
       }
     } catch (error) {
-      console.error("Error al verificar la autenticación:", error);
       setUser(null);
       setIsAuthenticated(false);
       setIsLoading(false);
       return false;
     }
-  }, [location?.pathname, navigate]);
+  }, [location?.pathname]);
 
   useEffect(() => {
     const initApp = async () => {
       if (initializedRef.current) return;
       initializedRef.current = true;
-      
-      // Lista de rutas públicas donde no necesitamos cargar datos
-      const publicPaths = ["/login", "/register", "/onboarding"];
-      
-      // Si estamos en una ruta pública, no cargamos datos y marcamos la app como lista
-      if (!location || publicPaths.includes(location.pathname)) {
-        setIsLoading(false);
-        setIsAuthenticated(false);
-        setUser(null);
-        if (typeof window !== "undefined" && window.appReadyEvent) {
-          window.dispatchEvent(window.appReadyEvent);
-        }
-        return;
-      }
-      
-      // Verificar autenticación al iniciar la aplicación
-      const isAuth = await checkAuth();
-      
-      // Si no está autenticado y no estamos en una ruta pública, redirigir al login
-      if (!isAuth && !publicPaths.includes(window.location.pathname)) {
-        window.location.href = '/login';
-        return;
-      }
-      
-      // Solo cargamos datos si estamos autenticados
-      if (isAuth) {
-        await loadDashboardSafely();
+      await checkAuth();
+      if (typeof window !== "undefined" && window.appReadyEvent) {
+        window.dispatchEvent(window.appReadyEvent);
       }
     };
-    
     initApp();
   }, [location?.pathname, checkAuth]);
 
-  // Añadir un listener para el evento popstate (navegación del navegador)
   useEffect(() => {
     const handlePopState = async () => {
-      // Verificar autenticación cuando se usa el botón de retroceso
       await checkAuth();
     };
-
     window.addEventListener('popstate', handlePopState);
     return () => window.removeEventListener('popstate', handlePopState);
   }, [checkAuth]);
