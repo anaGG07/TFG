@@ -50,6 +50,14 @@ export default function EYRAEntrancePage({ onFinish }: EYRAEntrancePageProps) {
     );
   };
 
+  // Animación de borderRadius y rotación continua
+  const borderRadiusKeyframes = [
+    "58% 42% 47% 53% / 50% 60% 40% 45%",
+    "65% 35% 60% 40% / 70% 60% 45% 50%",
+    "60% 40% 48% 52% / 55% 65% 45% 50%",
+    "58% 42% 47% 53% / 50% 60% 40% 45%"
+  ];
+
   return (
     <motion.div
       className="w-screen h-screen bg-[#FFEDEA] overflow-hidden relative"
@@ -84,7 +92,7 @@ export default function EYRAEntrancePage({ onFinish }: EYRAEntrancePageProps) {
       <motion.div
         ref={circleRef}
         className="absolute bg-[#C62828]"
-        initial={{ scale: 1, borderRadius: "50%" }}
+        initial={{ scale: 1, borderRadius: borderRadiusKeyframes[0], rotate: 0 }}
         animate={{
           x:
             phase === "move" || phase === "idle"
@@ -98,17 +106,13 @@ export default function EYRAEntrancePage({ onFinish }: EYRAEntrancePageProps) {
             phase === "expand" || phase === "move" || phase === "idle"
               ? 5
               : 1,
-          borderRadius: [
-            "58% 42% 47% 53% / 50% 60% 40% 45%",
-            "65% 35% 60% 40% / 70% 60% 45% 50%",
-            "60% 40% 48% 52% / 55% 65% 45% 50%",
-          ],
-          rotate: phase === "idle" ? 360 : 0,
+          borderRadius: borderRadiusKeyframes,
+          rotate: [0, 360],
         }}
         transition={{
           duration: 10,
           ease: "easeInOut",
-          repeat: phase === "idle" ? Infinity : 0,
+          repeat: Infinity,
           repeatType: "loop",
         }}
         style={{
