@@ -39,8 +39,10 @@ const HomePage = () => {
     localStorage.setItem(ENTRANCE_KEY, "1");
   };
 
-  // Pasar showNavbar como prop global (puedes usar contexto si RootLayout lo requiere)
-  window.__SHOW_NAVBAR__ = showNavbar;
+  // Actualizar la visibilidad del Navbar globalmente
+  useEffect(() => {
+    window.__SHOW_NAVBAR__ = showNavbar;
+  }, [showNavbar]);
 
   if (showEntrance) {
     return <EYRAEntrancePage onFinish={handleEntranceFinish} />;

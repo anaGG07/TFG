@@ -82,7 +82,7 @@ const OvuloSVG = () => (
     viewBox="0 0 120 120"
     fill="none"
     xmlns="http://www.w3.org/2000/svg"
-    style={{ filter: "blur(1.5px)" }}
+    style={{ filter: "blur(2px)" }}
   >
     <path
       d="M60,10
@@ -90,7 +90,7 @@ const OvuloSVG = () => (
         C115,85 90,115 60,110
         C30,115 5,85 10,60
         C5,35 30,5 60,10Z"
-      fill="var(--color-primary, #5b0108)"
+      fill="#C62828"
       fillOpacity="0.22"
     />
   </svg>
@@ -106,12 +106,17 @@ export const Navbar = () => {
   // Controlar visibilidad desde window.__SHOW_NAVBAR__
   const [visible, setVisible] = useState(true);
   useEffect(() => {
-    // @ts-ignore
+    // Inicializar como visible por defecto
     setVisible(window.__SHOW_NAVBAR__ !== false);
-    const interval = setInterval(() => {
-      // @ts-ignore
+    
+    // Escuchar cambios en la visibilidad
+    const checkVisibility = () => {
       setVisible(window.__SHOW_NAVBAR__ !== false);
-    }, 200);
+    };
+    
+    // Verificar cada 100ms
+    const interval = setInterval(checkVisibility, 100);
+    
     return () => clearInterval(interval);
   }, []);
 
