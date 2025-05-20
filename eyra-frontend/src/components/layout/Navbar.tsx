@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 
@@ -78,20 +78,20 @@ const MENU_OPTIONS_AUTH = [
 
 const OvuloSVG = () => (
   <svg
-    className="absolute -top-32 -left-32 w-[420px] h-[420px] z-0 animate-ovulo-spin"
-    viewBox="0 0 600 600"
+    className="absolute -top-32 -left-32 w-[120px] h-[120px] z-0 transition-all duration-700"
+    viewBox="0 0 120 120"
     fill="none"
     xmlns="http://www.w3.org/2000/svg"
-    style={{ filter: "blur(0.5px)" }}
+    style={{ filter: "blur(1.5px)" }}
   >
     <path
-      d="M300,100
-        C400,80 520,180 500,300
-        C520,420 400,520 300,500
-        C200,520 80,420 100,300
-        C80,180 200,80 300,100Z"
+      d="M60,10
+        C90,5 115,35 110,60
+        C115,85 90,115 60,110
+        C30,115 5,85 10,60
+        C5,35 30,5 60,10Z"
       fill="var(--color-primary, #5b0108)"
-      fillOpacity="0.18"
+      fillOpacity="0.22"
     />
   </svg>
 );
@@ -102,6 +102,18 @@ export const Navbar = () => {
   const [menuIndex, setMenuIndex] = useState(0);
   const visibleOptions = 2;
   const menuOptions = isAuthenticated ? MENU_OPTIONS_AUTH : MENU_OPTIONS_PUBLIC;
+
+  // Controlar visibilidad desde window.__SHOW_NAVBAR__
+  const [visible, setVisible] = useState(true);
+  useEffect(() => {
+    // @ts-ignore
+    setVisible(window.__SHOW_NAVBAR__ !== false);
+    const interval = setInterval(() => {
+      // @ts-ignore
+      setVisible(window.__SHOW_NAVBAR__ !== false);
+    }, 200);
+    return () => clearInterval(interval);
+  }, []);
 
   // Rotar menú
   const rotateMenu = (dir: 1 | -1) => {
@@ -126,25 +138,27 @@ export const Navbar = () => {
     }
   };
 
+  if (!visible) return null;
+
   return (
-    <div className="absolute top-0 left-0 z-20 flex flex-col items-start justify-start h-[320px] w-[320px] pointer-events-none select-none">
+    <div className="absolute top-0 left-0 z-20 flex flex-col items-start justify-start h-[120px] w-[120px] pointer-events-none select-none transition-opacity duration-700 opacity-100">
       <OvuloSVG />
       <div className="relative w-full h-full flex items-center justify-center">
         {/* Flecha arriba */}
         <button
           aria-label="Anterior opción"
-          className="absolute left-1/2 -translate-x-1/2 top-8 bg-white/70 rounded-full shadow p-1 border border-primary text-primary hover:bg-primary hover:text-white transition pointer-events-auto"
+          className="absolute left-1/2 -translate-x-1/2 top-2 bg-white/70 rounded-full shadow p-1 border border-primary text-primary hover:bg-primary hover:text-white transition pointer-events-auto"
           onClick={() => rotateMenu(-1)}
           tabIndex={0}
         >
           <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><polyline points="18 15 12 9 6 15" /></svg>
         </button>
         {/* Opciones del menú */}
-        <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col gap-6 items-center">
+        <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col gap-3 items-center">
           {/* Botón EYRA (inicio) */}
           <button
             aria-label="Ir a inicio"
-            className="mb-2 text-4xl font-serif font-bold tracking-tight text-primary drop-shadow-lg bg-white/80 rounded-full px-6 py-2 border-2 border-primary hover:bg-primary hover:text-white transition pointer-events-auto"
+            className="mb-1 text-2xl font-serif font-bold tracking-tight text-primary drop-shadow-lg bg-white/80 rounded-full px-4 py-1 border-2 border-primary hover:bg-primary hover:text-white transition pointer-events-auto"
             onClick={() => navigate("/")}
             tabIndex={0}
           >
@@ -153,7 +167,7 @@ export const Navbar = () => {
           {getVisibleOptions().map((opt) => (
             <button
               key={opt.label}
-              className="flex items-center gap-3 px-4 py-2 rounded-full bg-white/80 border-2 border-primary text-primary font-semibold text-lg shadow hover:bg-primary hover:text-white transition pointer-events-auto"
+              className="flex items-center gap-2 px-3 py-1 rounded-full bg-white/80 border-2 border-primary text-primary font-semibold text-base shadow hover:bg-primary hover:text-white transition pointer-events-auto"
               tabIndex={0}
               aria-label={opt.label}
               onClick={() => handleMenuClick(opt)}
@@ -166,7 +180,7 @@ export const Navbar = () => {
         {/* Flecha abajo */}
         <button
           aria-label="Siguiente opción"
-          className="absolute left-1/2 -translate-x-1/2 bottom-8 bg-white/70 rounded-full shadow p-1 border border-primary text-primary hover:bg-primary hover:text-white transition pointer-events-auto"
+          className="absolute left-1/2 -translate-x-1/2 bottom-2 bg-white/70 rounded-full shadow p-1 border border-primary text-primary hover:bg-primary hover:text-white transition pointer-events-auto"
           onClick={() => rotateMenu(1)}
           tabIndex={0}
         >
@@ -178,13 +192,6 @@ export const Navbar = () => {
         .text-primary { color: var(--color-primary); }
         .hover\:bg-primary:hover { background-color: var(--color-primary); }
         .hover\:text-white:hover { color: #fff; }
-        .animate-ovulo-spin {
-          animation: ovulo-spin 18s linear infinite;
-        }
-        @keyframes ovulo-spin {
-          0% { transform: rotate(0deg); }
-          100% { transform: rotate(360deg); }
-        }
       `}</style>
     </div>
   );
