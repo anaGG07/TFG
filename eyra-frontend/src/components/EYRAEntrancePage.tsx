@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronUp, ChevronDown } from "lucide-react";
 
@@ -6,22 +6,22 @@ interface EYRAEntrancePageProps {
   onFinish: () => void;
 }
 
-// Utilidad para generar posiciones aleatorias dentro de la pantalla
-function getRandomPositions(count: number, radius: number) {
+const POINTS = 20;
+const CIRCLE_SIZE = 120;
+const CIRCLE_RADIUS = CIRCLE_SIZE / 2;
+const POINT_SIZE = 16;
+const CAPTURE_RADIUS = 80;
+
+// Generar posiciones aleatorias dentro del área visible
+function getRandomPositions(count: number, margin: number) {
   const positions = [];
   for (let i = 0; i < count; i++) {
-    const angle = Math.random() * 2 * Math.PI;
-    const distance = Math.random() * (window.innerWidth / 2 - radius - 40) + 80;
-    const x = window.innerWidth / 2 + Math.cos(angle) * distance - radius;
-    const y = window.innerHeight / 2 + Math.sin(angle) * distance - radius;
+    const x = Math.random() * (window.innerWidth - margin * 2 - POINT_SIZE) + margin;
+    const y = Math.random() * (window.innerHeight - margin * 2 - POINT_SIZE) + margin;
     positions.push({ x, y });
   }
   return positions;
 }
-
-const POINTS = 20;
-const CIRCLE_SIZE = 120;
-const CIRCLE_RADIUS = CIRCLE_SIZE / 2;
 
 export default function EYRAEntrancePage({ onFinish }: EYRAEntrancePageProps) {
   const [phase, setPhase] = useState<
@@ -40,24 +40,29 @@ export default function EYRAEntrancePage({ onFinish }: EYRAEntrancePageProps) {
   const [circleSize, setCircleSize] = useState(CIRCLE_SIZE);
   const [fadeOut, setFadeOut] = useState(false);
   const [rotation, setRotation] = useState(0);
-  const captureStep = useRef(0);
+  const [exploded, setExploded] = useState(false);
+  const [pointTargets, setPointTargets] = useState<{ x: number; y: number }[]>([]);
 
-  // Generar posiciones aleatorias para los puntos al inicio
+  // Generar posiciones objetivo para los puntos al inicio
   useEffect(() => {
+    setPointTargets(getRandomPositions(POINTS, 40));
     setPoints(
-      getRandomPositions(POINTS, 8).map((pos) => ({ ...pos, captured: false }))
+      Array.from({ length: POINTS }).map(() => ({
+        x: window.innerWidth / 2 - POINT_SIZE / 2,
+        y: window.innerHeight / 2 - POINT_SIZE / 2,
+        captured: false,
+      }))
     );
   }, []);
 
   // Secuencia de fases
   useEffect(() => {
     if (phase === "start") {
-      setTimeout(() => setPhase("explode"), 1200);
+      setTimeout(() => setPhase("explode"), 1000);
     } else if (phase === "explode") {
+      setExploded(true);
       setTimeout(() => setPhase("capture"), 1800);
     } else if (phase === "capture") {
-      // Iniciar captura de puntos
-      captureStep.current = 0;
       capturePoints();
     } else if (phase === "center") {
       setTimeout(() => setPhase("moveToCorner"), 1200);
@@ -80,47 +85,59 @@ export default function EYRAEntrancePage({ onFinish }: EYRAEntrancePageProps) {
     }
   }, [phase]);
 
-  // Captura de puntos: el círculo se mueve por varias posiciones, "capturando" puntos cercanos
-  function capturePoints() {
-    const steps = 6;
-    const positions = [
-      ...Array(steps).fill(0).map((_) => {
-        // Elegir un punto no capturado aleatorio
-        const uncaptured = points.filter((p) => !p.captured);
-        if (uncaptured.length === 0) return null;
-        const idx = Math.floor(Math.random() * uncaptured.length);
-        return { x: uncaptured[idx].x, y: uncaptured[idx].y };
-      }),
-      // Al final, volver al centro
-      { x: window.innerWidth / 2 - CIRCLE_RADIUS, y: window.innerHeight / 2 - CIRCLE_RADIUS },
-    ].filter(Boolean);
-
-    let i = 0;
-    function next() {
-      if (i < positions.length) {
-        setCirclePos(positions[i]!);
-        // Capturar puntos cercanos
-        setPoints((prev) =>
-          prev.map((p) => {
-            if (!p.captured) {
-              const dx = p.x - positions[i]!.x;
-              const dy = p.y - positions[i]!.y;
-              if (Math.sqrt(dx * dx + dy * dy) < 80) {
-                return { ...p, captured: true };
-              }
-            }
-            return p;
-          })
-        );
-        // Hacer crecer el círculo suavemente
-        setCircleSize((size) => Math.min(size + 18, 220));
-        i++;
-        setTimeout(next, 600);
-      } else {
-        setTimeout(() => setPhase("center"), 700);
-      }
+  // Animar puntos desde el centro hacia sus posiciones objetivo
+  useEffect(() => {
+    if (exploded && pointTargets.length === POINTS) {
+      setPoints((prev) =>
+        prev.map((p, i) => ({ ...p, x: pointTargets[i].x, y: pointTargets[i].y }))
+      );
     }
-    next();
+    // eslint-disable-next-line
+  }, [exploded, pointTargets]);
+
+  // Captura de puntos: el círculo se mueve suavemente por varias posiciones, "capturando" puntos cercanos
+  async function capturePoints() {
+    const uncapturedIndexes = () => points.map((p, i) => (!p.captured ? i : null)).filter((i) => i !== null) as number[];
+    let currentSize = circleSize;
+    for (let step = 0; step < 7; step++) {
+      const uncaptured = uncapturedIndexes();
+      if (uncaptured.length === 0) break;
+      // Elegir un punto no capturado aleatorio
+      const idx = uncaptured[Math.floor(Math.random() * uncaptured.length)];
+      const target = points[idx];
+      if (!target) continue;
+      // Mover el círculo suavemente hacia el punto
+      await new Promise((resolve) => {
+        setCirclePos({ x: target.x - CIRCLE_RADIUS, y: target.y - CIRCLE_RADIUS });
+        setTimeout(resolve, 1100);
+      });
+      // Capturar puntos cercanos
+      setPoints((prev) =>
+        prev.map((p) => {
+          if (!p.captured) {
+            const dx = p.x - (target.x);
+            const dy = p.y - (target.y);
+            if (Math.sqrt(dx * dx + dy * dy) < CAPTURE_RADIUS) {
+              return { ...p, captured: true };
+            }
+          }
+          return p;
+        })
+      );
+      // Hacer crecer el círculo suavemente
+      currentSize = Math.min(currentSize + 18, 220);
+      setCircleSize(currentSize);
+      await new Promise((resolve) => setTimeout(resolve, 300));
+    }
+    // Volver al centro
+    await new Promise((resolve) => {
+      setCirclePos({
+        x: window.innerWidth / 2 - currentSize / 2,
+        y: window.innerHeight / 2 - currentSize / 2,
+      });
+      setTimeout(resolve, 1200);
+    });
+    setTimeout(() => setPhase("center"), 400);
   }
 
   // Cuando el círculo vuelve al centro, lo hacemos esperar y luego moverse a la esquina
@@ -160,8 +177,8 @@ export default function EYRAEntrancePage({ onFinish }: EYRAEntrancePageProps) {
               key={i}
               className="absolute bg-[#C62828]"
               style={{
-                width: 16,
-                height: 16,
+                width: POINT_SIZE,
+                height: POINT_SIZE,
                 top: p.y,
                 left: p.x,
                 borderRadius: "50%",
@@ -169,8 +186,8 @@ export default function EYRAEntrancePage({ onFinish }: EYRAEntrancePageProps) {
                 zIndex: 1,
               }}
               initial={phase === "explode" ? {
-                top: window.innerHeight / 2 - 8,
-                left: window.innerWidth / 2 - 8,
+                top: window.innerHeight / 2 - POINT_SIZE / 2,
+                left: window.innerWidth / 2 - POINT_SIZE / 2,
                 opacity: 1,
               } : false}
               animate={{
