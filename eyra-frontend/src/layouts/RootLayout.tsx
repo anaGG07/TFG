@@ -9,16 +9,22 @@ const RootLayout = () => {
     <AuthProvider>
       <CycleProvider>
         <SmartRedirector />
-        <div className="min-h-screen bg-[#e7e0d5] text-[#5b0108] font-sans flex flex-col">
+        <div className="w-screen h-screen overflow-hidden bg-bg text-primary font-sans flex flex-col items-center justify-center relative" style={{ minHeight: '100vh', minWidth: '100vw' }}>
           <Navbar />
-
-          <main className="flex-1 max-w-5xl mx-auto w-full px-4 py-10">
+          <main className="flex-1 w-full h-full flex items-center justify-center z-10">
             <Outlet />
           </main>
-
-          <footer className="text-center text-sm text-[#5b0108]/60 py-6 border-t border-[#5b010820]">
+          <footer className="absolute bottom-0 left-0 w-full text-center text-sm text-primary/60 py-6 border-t border-[#5b010820] bg-bg z-30">
             &copy; {new Date().getFullYear()} EYRA — Todos los derechos reservados
           </footer>
+          <style>{`
+            :root {
+              --color-primary: #5b0108;
+              --color-bg: #e7e0d5;
+            }
+            .bg-bg { background-color: var(--color-bg); }
+            .text-primary { color: var(--color-primary); }
+          `}</style>
         </div>
       </CycleProvider>
     </AuthProvider>
