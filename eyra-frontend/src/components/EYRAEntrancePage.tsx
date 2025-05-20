@@ -1,5 +1,6 @@
 import { useEffect, useState, useRef } from "react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
+import { ChevronUp, ChevronDown } from "lucide-react";
 
 interface EYRAEntrancePageProps {
   onFinish: () => void;
@@ -7,7 +8,11 @@ interface EYRAEntrancePageProps {
 
 export default function EYRAEntrancePage({ onFinish }: EYRAEntrancePageProps) {
   const [phase, setPhase] = useState("initial");
-  const circleRef = useRef<HTMLDivElement>(null);
+  const [menuIndex, setMenuIndex] = useState(0);
+  const [fadeOut, setFadeOut] = useState(false);
+  const circleRef = useRef(null);
+
+  const menuOptions = ["Iniciar sesión", "Registro", "Acerca de"];
 
   useEffect(() => {
     const sequence = [
@@ -20,29 +25,38 @@ export default function EYRAEntrancePage({ onFinish }: EYRAEntrancePageProps) {
     sequence.forEach(({ time, phase }) => {
       setTimeout(() => setPhase(phase), time);
     });
-    // Llama a onFinish cuando termina la animación
-    const finishTimeout = setTimeout(() => {
-      onFinish();
-    }, 10500);
-    return () => clearTimeout(finishTimeout);
-  }, [onFinish]);
-
-  // Centrado dinámico
-  const [center, setCenter] = useState({ x: 0, y: 0 });
-  useEffect(() => {
-    const updateCenter = () => {
-      setCenter({
-        x: window.innerWidth / 2 - 60,
-        y: window.innerHeight / 2 - 60,
-      });
-    };
-    updateCenter();
-    window.addEventListener("resize", updateCenter);
-    return () => window.removeEventListener("resize", updateCenter);
   }, []);
 
+  // Cuando entra en fase idle, espera 1s y luego fade out
+  useEffect(() => {
+    if (phase === "idle") {
+      const timeout = setTimeout(() => setFadeOut(true), 1000);
+      const finishTimeout = setTimeout(() => onFinish(), 1800);
+      return () => {
+        clearTimeout(timeout);
+        clearTimeout(finishTimeout);
+      };
+    }
+  }, [phase, onFinish]);
+
+  const centerX = window.innerWidth / 2 - 60;
+  const centerY = window.innerHeight / 2 - 60;
+
+  const handleMenuChange = (direction: "up" | "down") => {
+    setMenuIndex((prev) =>
+      direction === "up"
+        ? (prev - 1 + menuOptions.length) % menuOptions.length
+        : (prev + 1) % menuOptions.length
+    );
+  };
+
   return (
-    <div className="w-screen h-screen bg-[#FFEDEA] overflow-hidden relative">
+    <motion.div
+      className="w-screen h-screen bg-[#FFEDEA] overflow-hidden relative"
+      initial={{ opacity: 1 }}
+      animate={{ opacity: fadeOut ? 0 : 1 }}
+      transition={{ duration: 0.8 }}
+    >
       {/* Partículas */}
       {(phase === "explode" || phase === "collect") &&
         Array.from({ length: 30 }).map((_, i) => (
@@ -50,10 +64,10 @@ export default function EYRAEntrancePage({ onFinish }: EYRAEntrancePageProps) {
             key={i}
             className="absolute w-6 h-6 bg-[#C62828]"
             style={{
-              top: center.y,
-              left: center.x,
+              top: centerY + 60,
+              left: centerX + 60,
               borderRadius: "60% 40% 50% 50% / 50% 60% 40% 50%",
-              filter: "blur(3px)",
+              filter: "blur(2px)",
               zIndex: 1,
             }}
             initial={{ x: 0, y: 0, opacity: 1 }}
@@ -86,13 +100,13 @@ export default function EYRAEntrancePage({ onFinish }: EYRAEntrancePageProps) {
               : 1,
           borderRadius: [
             "58% 42% 47% 53% / 50% 60% 40% 45%",
-            "55% 45% 60% 40% / 65% 60% 45% 50%",
+            "65% 35% 60% 40% / 70% 60% 45% 50%",
             "60% 40% 48% 52% / 55% 65% 45% 50%",
           ],
           rotate: phase === "idle" ? 360 : 0,
         }}
         transition={{
-          duration: 2,
+          duration: 10,
           ease: "easeInOut",
           repeat: phase === "idle" ? Infinity : 0,
           repeatType: "loop",
@@ -100,12 +114,53 @@ export default function EYRAEntrancePage({ onFinish }: EYRAEntrancePageProps) {
         style={{
           width: 120,
           height: 120,
-          top: center.y,
-          left: center.x,
-          filter: "blur(4px)",
+          top: centerY,
+          left: centerX,
+          filter: "blur(2px)",
           zIndex: 2,
         }}
       ></motion.div>
-    </div>
+
+      {/* Menú circular curvo ajustado al borde del círculo */}
+      <AnimatePresence>
+        {phase === "idle" && !fadeOut && (
+          <motion.div
+            className="absolute top-12 left-10 z-10 flex flex-col items-center"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 1 }}
+          >
+            <button onClick={() => handleMenuChange("up")} className="text-[#C62828] mb-2">
+              <ChevronUp size={24} />
+            </button>
+            <div className="relative w-[200px] h-[200px]">
+              {[...Array(3)].map((_, i) => {
+                const index = (menuIndex + i) % menuOptions.length;
+                const angle = (-60 + i * 60) * (Math.PI / 180);
+                const radius = 90;
+                const x = radius * Math.cos(angle);
+                const y = radius * Math.sin(angle);
+                return (
+                  <motion.div
+                    key={index}
+                    className="absolute bg-white text-[#C62828] text-sm font-serif px-4 py-1 rounded-full shadow"
+                    style={{
+                      top: `calc(50% + ${y}px - 20px)`,
+                      left: `calc(50% + ${x}px - 50px)`
+                    }}
+                  >
+                    {menuOptions[index]}
+                  </motion.div>
+                );
+              })}
+            </div>
+            <button onClick={() => handleMenuChange("down")} className="text-[#C62828] mt-2">
+              <ChevronDown size={24} />
+            </button>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </motion.div>
   );
 } 

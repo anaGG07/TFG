@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "../context/AuthContext";
 import EYRAEntrancePage from "../components/EYRAEntrancePage";
+import { motion } from "framer-motion";
 
 // Declaración global para evitar error de TypeScript con window.__SHOW_NAVBAR__
 declare global {
@@ -46,7 +47,12 @@ const HomePage = () => {
   }
 
   return (
-    <div className={`flex flex-col items-center justify-center w-full h-full transition-opacity duration-700 ${showContent ? 'opacity-100 fade-in' : 'opacity-0'}`}>
+    <motion.div
+      className="flex flex-col items-center justify-center w-full h-full"
+      initial={{ opacity: 0, filter: "blur(8px)" }}
+      animate={{ opacity: showContent ? 1 : 0, filter: showContent ? "blur(0px)" : "blur(8px)" }}
+      transition={{ duration: 1.2, ease: [0.4, 0, 0.2, 1] }}
+    >
       <h1 className="text-6xl md:text-7xl font-serif font-bold text-primary mb-6 tracking-tight drop-shadow-lg">EYRA</h1>
       <h2 className="text-3xl md:text-4xl font-serif text-primary/80 mb-8 max-w-2xl text-center leading-tight">
         Tu compañera para el seguimiento y análisis del ciclo menstrual
@@ -54,7 +60,7 @@ const HomePage = () => {
       <p className="text-xl text-primary/70 max-w-xl text-center mb-12 font-['Inter']">
         Toma el control de tu bienestar con información personalizada adaptada a tu ciclo único.
       </p>
-    </div>
+    </motion.div>
   );
 };
 
