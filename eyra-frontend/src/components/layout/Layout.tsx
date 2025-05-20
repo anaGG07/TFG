@@ -1,4 +1,4 @@
-import { ReactNode } from 'react';
+import { ReactNode, useEffect } from 'react';
 import { Navbar } from './Navbar';
 import { Footer } from './Footer';
 
@@ -7,6 +7,11 @@ interface LayoutProps {
 }
 
 export const Layout = ({ children }: LayoutProps) => {
+  // Asegurar que el Navbar esté visible por defecto
+  useEffect(() => {
+    window.__SHOW_NAVBAR__ = true;
+  }, []);
+
   return (
     <div className="flex flex-col min-h-screen">
       <Navbar />

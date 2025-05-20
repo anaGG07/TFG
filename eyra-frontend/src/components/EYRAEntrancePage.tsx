@@ -16,22 +16,21 @@ export default function EYRAEntrancePage({ onFinish }: EYRAEntrancePageProps) {
 
   useEffect(() => {
     const sequence = [
-      { time: 1000, phase: "explode" },
-      { time: 2000, phase: "collect" },
-      { time: 3000, phase: "expand" },
-      { time: 4000, phase: "move" },
-      { time: 5000, phase: "idle" },
+      { time: 800, phase: "explode" },
+      { time: 1600, phase: "collect" },
+      { time: 2400, phase: "expand" },
+      { time: 3200, phase: "move" },
+      { time: 4000, phase: "idle" },
     ];
     sequence.forEach(({ time, phase }) => {
       setTimeout(() => setPhase(phase), time);
     });
   }, []);
 
-  // Cuando entra en fase idle, espera 1s y luego fade out
   useEffect(() => {
     if (phase === "idle") {
-      const timeout = setTimeout(() => setFadeOut(true), 1000);
-      const finishTimeout = setTimeout(() => onFinish(), 1800);
+      const timeout = setTimeout(() => setFadeOut(true), 800);
+      const finishTimeout = setTimeout(() => onFinish(), 1200);
       return () => {
         clearTimeout(timeout);
         clearTimeout(finishTimeout);
@@ -63,28 +62,35 @@ export default function EYRAEntrancePage({ onFinish }: EYRAEntrancePageProps) {
       className="w-screen h-screen bg-[#FFEDEA] overflow-hidden relative"
       initial={{ opacity: 1 }}
       animate={{ opacity: fadeOut ? 0 : 1 }}
-      transition={{ duration: 0.8 }}
+      transition={{ duration: 0.4, ease: "easeInOut" }}
     >
       {/* Partículas */}
       {(phase === "explode" || phase === "collect") &&
-        Array.from({ length: 30 }).map((_, i) => (
+        Array.from({ length: 40 }).map((_, i) => (
           <motion.div
             key={i}
-            className="absolute w-6 h-6 bg-[#C62828]"
+            className="absolute bg-[#C62828]"
             style={{
+              width: Math.random() * 8 + 4, // Partículas más pequeñas: 4-12px
+              height: Math.random() * 8 + 4,
               top: centerY + 60,
               left: centerX + 60,
               borderRadius: "60% 40% 50% 50% / 50% 60% 40% 50%",
-              filter: "blur(2px)",
+              filter: "blur(1px)",
               zIndex: 1,
             }}
-            initial={{ x: 0, y: 0, opacity: 1 }}
+            initial={{ x: 0, y: 0, opacity: 1, scale: 1 }}
             animate={{
-              x: phase === "explode" ? Math.random() * 800 - 400 : 0,
-              y: phase === "explode" ? Math.random() * 800 - 400 : 0,
+              x: phase === "explode" ? Math.random() * 600 - 300 : 0,
+              y: phase === "explode" ? Math.random() * 600 - 300 : 0,
               opacity: phase === "collect" ? 0 : 1,
+              scale: phase === "collect" ? 0.5 : 1,
             }}
-            transition={{ duration: 1.5, delay: i * 0.03 }}
+            transition={{
+              duration: 0.8,
+              ease: "easeInOut",
+              delay: i * 0.02,
+            }}
           />
         ))}
 
@@ -94,23 +100,14 @@ export default function EYRAEntrancePage({ onFinish }: EYRAEntrancePageProps) {
         className="absolute bg-[#C62828]"
         initial={{ scale: 1, borderRadius: borderRadiusKeyframes[0], rotate: 0 }}
         animate={{
-          x:
-            phase === "move" || phase === "idle"
-              ? -window.innerWidth / 2 + 60
-              : 0,
-          y:
-            phase === "move" || phase === "idle"
-              ? -window.innerHeight / 2 + 60
-              : 0,
-          scale:
-            phase === "expand" || phase === "move" || phase === "idle"
-              ? 5
-              : 1,
+          x: phase === "move" || phase === "idle" ? -window.innerWidth / 2 + 60 : 0,
+          y: phase === "move" || phase === "idle" ? -window.innerHeight / 2 + 60 : 0,
+          scale: phase === "expand" || phase === "move" || phase === "idle" ? 5 : 1,
           borderRadius: borderRadiusKeyframes,
           rotate: [0, 360],
         }}
         transition={{
-          duration: 10,
+          duration: 0.8,
           ease: "easeInOut",
           repeat: Infinity,
           repeatType: "loop",
@@ -123,7 +120,7 @@ export default function EYRAEntrancePage({ onFinish }: EYRAEntrancePageProps) {
           filter: "blur(2px)",
           zIndex: 2,
         }}
-      ></motion.div>
+      />
 
       {/* Menú circular curvo ajustado al borde del círculo */}
       <AnimatePresence>
@@ -133,7 +130,7 @@ export default function EYRAEntrancePage({ onFinish }: EYRAEntrancePageProps) {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 1 }}
+            transition={{ duration: 0.4, ease: "easeInOut" }}
           >
             <button onClick={() => handleMenuChange("up")} className="text-[#C62828] mb-2">
               <ChevronUp size={24} />
@@ -153,6 +150,9 @@ export default function EYRAEntrancePage({ onFinish }: EYRAEntrancePageProps) {
                       top: `calc(50% + ${y}px - 20px)`,
                       left: `calc(50% + ${x}px - 50px)`
                     }}
+                    initial={{ opacity: 0, scale: 0.8 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ duration: 0.3, delay: i * 0.1 }}
                   >
                     {menuOptions[index]}
                   </motion.div>
