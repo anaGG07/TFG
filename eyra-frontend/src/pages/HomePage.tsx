@@ -15,7 +15,6 @@ const ENTRANCE_KEY = "eyra_entrance_shown";
 const HomePage = () => {
   const { isAuthenticated } = useAuth();
   const [showEntrance, setShowEntrance] = useState(false);
-  const [showNavbar, setShowNavbar] = useState(false);
   const [showContent, setShowContent] = useState(false);
 
   useEffect(() => {
@@ -23,26 +22,21 @@ const HomePage = () => {
     const alreadyShown = localStorage.getItem(ENTRANCE_KEY) === "1";
     if (!isAuthenticated && !alreadyShown) {
       setShowEntrance(true);
-      setShowNavbar(false);
       setShowContent(false);
+      window.__SHOW_NAVBAR__ = false; // Ocultar Navbar durante la animación
     } else {
       setShowEntrance(false);
-      setShowNavbar(true);
       setShowContent(true);
+      window.__SHOW_NAVBAR__ = true; // Mostrar Navbar en todas las demás situaciones
     }
   }, [isAuthenticated]);
 
   const handleEntranceFinish = () => {
     setShowEntrance(false);
-    setTimeout(() => setShowNavbar(true), 200); // Navbar aparece suavemente tras la animación
+    window.__SHOW_NAVBAR__ = true; // Mostrar Navbar al terminar la animación
     setTimeout(() => setShowContent(true), 400); // Contenido aparece un poco después
     localStorage.setItem(ENTRANCE_KEY, "1");
   };
-
-  // Actualizar la visibilidad del Navbar globalmente
-  useEffect(() => {
-    window.__SHOW_NAVBAR__ = showNavbar;
-  }, [showNavbar]);
 
   if (showEntrance) {
     return <EYRAEntrancePage onFinish={handleEntranceFinish} />;

@@ -16,22 +16,22 @@ export default function EYRAEntrancePage({ onFinish }: EYRAEntrancePageProps) {
 
   useEffect(() => {
     const sequence = [
-      { time: 3000, phase: "explode" },
-      { time: 6000, phase: "collect" },
-      { time: 9000, phase: "expand" },
-      { time: 12000, phase: "move" },
-      { time: 15000, phase: "idle" },
+      { time: 1000, phase: "explode" },
+      { time: 2000, phase: "collect" },
+      { time: 3000, phase: "expand" },
+      { time: 4000, phase: "move" },
+      { time: 5000, phase: "idle" },
     ];
     sequence.forEach(({ time, phase }) => {
       setTimeout(() => setPhase(phase), time);
     });
   }, []);
 
-  // Cuando entra en fase idle, espera 2s y luego fade out
+  // Cuando entra en fase idle, espera 1s y luego fade out
   useEffect(() => {
     if (phase === "idle") {
-      const timeout = setTimeout(() => setFadeOut(true), 2000);
-      const finishTimeout = setTimeout(() => onFinish(), 2800);
+      const timeout = setTimeout(() => setFadeOut(true), 1000);
+      const finishTimeout = setTimeout(() => onFinish(), 1800);
       return () => {
         clearTimeout(timeout);
         clearTimeout(finishTimeout);
