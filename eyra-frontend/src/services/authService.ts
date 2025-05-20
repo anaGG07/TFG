@@ -65,7 +65,7 @@ class AuthService {
     try {
       const response = await apiFetch<{ user: User; token: string }>(API_ROUTES.AUTH.LOGIN, {
         method: "POST",
-        body: JSON.stringify(credentials),
+        body: credentials,
       });
 
       if (!response.token || !response.user) {
