@@ -39,7 +39,7 @@ const HomePage = () => {
   };
 
   if (showEntrance) {
-    return <EYRAEntrancePage onFinish={handleEntranceFinish} />;
+    return <EYRAEntrancePage />;
   }
 
   return (
