@@ -1,0 +1,1 @@
+## 20/05/2025 18:17 -> Funciona login, registro, sesión de cookies, onboarding
