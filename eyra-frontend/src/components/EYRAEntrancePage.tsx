@@ -16,11 +16,11 @@ export default function EYRAEntrancePage({ onFinish }: EYRAEntrancePageProps) {
 
   useEffect(() => {
     const sequence = [
-      { time: 800, phase: "explode" },
-      { time: 1600, phase: "collect" },
-      { time: 2400, phase: "expand" },
-      { time: 3200, phase: "move" },
-      { time: 4000, phase: "idle" },
+      { time: 2000, phase: "explode" },
+      { time: 4000, phase: "collect" },
+      { time: 6000, phase: "expand" },
+      { time: 8000, phase: "move" },
+      { time: 10000, phase: "idle" },
     ];
     sequence.forEach(({ time, phase }) => {
       setTimeout(() => setPhase(phase), time);
@@ -29,8 +29,8 @@ export default function EYRAEntrancePage({ onFinish }: EYRAEntrancePageProps) {
 
   useEffect(() => {
     if (phase === "idle") {
-      const timeout = setTimeout(() => setFadeOut(true), 800);
-      const finishTimeout = setTimeout(() => onFinish(), 1200);
+      const timeout = setTimeout(() => setFadeOut(true), 1000);
+      const finishTimeout = setTimeout(() => onFinish(), 1800);
       return () => {
         clearTimeout(timeout);
         clearTimeout(finishTimeout);
@@ -49,48 +49,33 @@ export default function EYRAEntrancePage({ onFinish }: EYRAEntrancePageProps) {
     );
   };
 
-  // Animación de borderRadius y rotación continua
-  const borderRadiusKeyframes = [
-    "58% 42% 47% 53% / 50% 60% 40% 45%",
-    "65% 35% 60% 40% / 70% 60% 45% 50%",
-    "60% 40% 48% 52% / 55% 65% 45% 50%",
-    "58% 42% 47% 53% / 50% 60% 40% 45%"
-  ];
-
   return (
     <motion.div
       className="w-screen h-screen bg-[#FFEDEA] overflow-hidden relative"
       initial={{ opacity: 1 }}
       animate={{ opacity: fadeOut ? 0 : 1 }}
-      transition={{ duration: 0.4, ease: "easeInOut" }}
+      transition={{ duration: 0.8 }}
     >
       {/* Partículas */}
       {(phase === "explode" || phase === "collect") &&
-        Array.from({ length: 40 }).map((_, i) => (
+        Array.from({ length: 30 }).map((_, i) => (
           <motion.div
             key={i}
-            className="absolute bg-[#C62828]"
+            className="absolute w-6 h-6 bg-[#C62828]"
             style={{
-              width: Math.random() * 8 + 4, // Partículas más pequeñas: 4-12px
-              height: Math.random() * 8 + 4,
               top: centerY + 60,
               left: centerX + 60,
               borderRadius: "60% 40% 50% 50% / 50% 60% 40% 50%",
-              filter: "blur(1px)",
+              filter: "blur(2px)",
               zIndex: 1,
             }}
-            initial={{ x: 0, y: 0, opacity: 1, scale: 1 }}
+            initial={{ x: 0, y: 0, opacity: 1 }}
             animate={{
-              x: phase === "explode" ? Math.random() * 600 - 300 : 0,
-              y: phase === "explode" ? Math.random() * 600 - 300 : 0,
+              x: phase === "explode" ? Math.random() * 800 - 400 : 0,
+              y: phase === "explode" ? Math.random() * 800 - 400 : 0,
               opacity: phase === "collect" ? 0 : 1,
-              scale: phase === "collect" ? 0.5 : 1,
             }}
-            transition={{
-              duration: 0.8,
-              ease: "easeInOut",
-              delay: i * 0.02,
-            }}
+            transition={{ duration: 1.5, delay: i * 0.03 }}
           />
         ))}
 
@@ -98,18 +83,22 @@ export default function EYRAEntrancePage({ onFinish }: EYRAEntrancePageProps) {
       <motion.div
         ref={circleRef}
         className="absolute bg-[#C62828]"
-        initial={{ scale: 1, borderRadius: borderRadiusKeyframes[0], rotate: 0 }}
+        initial={{ scale: 1, borderRadius: "50%" }}
         animate={{
           x: phase === "move" || phase === "idle" ? -window.innerWidth / 2 + 60 : 0,
           y: phase === "move" || phase === "idle" ? -window.innerHeight / 2 + 60 : 0,
           scale: phase === "expand" || phase === "move" || phase === "idle" ? 5 : 1,
-          borderRadius: borderRadiusKeyframes,
-          rotate: [0, 360],
+          borderRadius: [
+            "58% 42% 47% 53% / 50% 60% 40% 45%",
+            "65% 35% 60% 40% / 70% 60% 45% 50%",
+            "60% 40% 48% 52% / 55% 65% 45% 50%",
+          ],
+          rotate: phase === "idle" ? 360 : 0,
         }}
         transition={{
-          duration: 0.8,
+          duration: 10,
           ease: "easeInOut",
-          repeat: Infinity,
+          repeat: phase === "idle" ? Infinity : 0,
           repeatType: "loop",
         }}
         style={{
@@ -130,7 +119,7 @@ export default function EYRAEntrancePage({ onFinish }: EYRAEntrancePageProps) {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.4, ease: "easeInOut" }}
+            transition={{ duration: 1 }}
           >
             <button onClick={() => handleMenuChange("up")} className="text-[#C62828] mb-2">
               <ChevronUp size={24} />
@@ -150,9 +139,6 @@ export default function EYRAEntrancePage({ onFinish }: EYRAEntrancePageProps) {
                       top: `calc(50% + ${y}px - 20px)`,
                       left: `calc(50% + ${x}px - 50px)`
                     }}
-                    initial={{ opacity: 0, scale: 0.8 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    transition={{ duration: 0.3, delay: i * 0.1 }}
                   >
                     {menuOptions[index]}
                   </motion.div>
