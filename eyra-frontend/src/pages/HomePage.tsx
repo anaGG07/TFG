@@ -4,15 +4,39 @@ import { useAuth } from "../context/AuthContext";
 import { useEffect } from "react";
 
 const HomePage = () => {
-  const { isAuthenticated, isLoading } = useAuth();
+  const { isAuthenticated, isLoading, refreshSession } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Si el usuario está autenticado, redirigir al dashboard
-    if (isAuthenticated && !isLoading) {
-      navigate(ROUTES.DASHBOARD, { replace: true });
-    }
-  }, [isAuthenticated, isLoading, navigate]);
+    // Verificar automáticamente si hay una sesión activa al cargar la página
+    const checkExistingSession = async () => {
+      // Verificar directamente si hay una cookie JWT
+      const hasJwtCookie = document.cookie.includes('jwt_token=');
+      
+      console.log('HomePage: Verificando sesión existente', { 
+        isAuthenticated, 
+        isLoading, 
+        hasJwtCookie,
+        cookies: document.cookie
+      });
+      
+      if (hasJwtCookie && !isAuthenticated && !isLoading) {
+        console.log('HomePage: Cookie JWT detectada, intentando refrescar sesión');
+        const success = await refreshSession();
+        if (success) {
+          console.log('HomePage: Sesión refrescada correctamente, redirigiendo a dashboard');
+          navigate(ROUTES.DASHBOARD, { replace: true });
+        } else {
+          console.log('HomePage: No se pudo refrescar la sesión a pesar de tener cookie');
+        }
+      } else if (isAuthenticated && !isLoading) {
+        console.log('HomePage: Usuario ya autenticado, redirigiendo a dashboard');
+        navigate(ROUTES.DASHBOARD, { replace: true });
+      }
+    };
+    
+    checkExistingSession();
+  }, [isAuthenticated, isLoading, navigate, refreshSession]);
 
   // Si está cargando, mostrar un spinner
   if (isLoading) {

@@ -15,7 +15,16 @@ interface ApiFetchOptions {
  */
 export const authEvents = {
   onUnauthorized: () => {
-    window.location.href = "/";
+    console.log('httpClient: Evento onUnauthorized, redireccionando a login');
+    
+    // Comprobar si ya está en login para evitar bucles
+    if (window.location.pathname === '/login') {
+      console.log('httpClient: Ya estamos en login, evitando bucle');
+      return;
+    }
+    
+    // Redirigir al login en lugar de la raíz
+    window.location.href = "/login";
   }
 };
 

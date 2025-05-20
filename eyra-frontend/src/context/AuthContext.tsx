@@ -111,33 +111,46 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const checkAuth = useCallback(async (): Promise<boolean> => {
     setIsLoading(true);
     try {
-      const token = Cookies.get("token");
-      if (!token) {
+      // Verificar directamente si hay una cookie JWT
+      const hasJwtCookie = document.cookie.includes('jwt_token=');
+      console.log('AuthContext: checkAuth - Verificando cookie JWT', { hasJwtCookie });
+      
+      if (!hasJwtCookie) {
+        console.log('AuthContext: checkAuth - No hay cookie JWT, imposible autenticar');
         setUser(null);
         setIsAuthenticated(false);
         setIsLoading(false);
         return false;
       }
+      
+      // Intentar obtener el perfil usando la cookie existente
       try {
-        const userData = await apiFetch<User>("/auth/me");
-        setUser(userData);
-        setIsAuthenticated(true);
-        setIsLoading(false);
-        return true;
+        const userData = await authService.getProfile();
+        if (userData) {
+          console.log('AuthContext: checkAuth - Perfil obtenido correctamente', userData);
+          setUser(userData);
+          setIsAuthenticated(true);
+          setIsLoading(false);
+          return true;
+        }
       } catch (error) {
-        Cookies.remove("token");
-        setUser(null);
-        setIsAuthenticated(false);
-        setIsLoading(false);
-        return false;
+        console.error('AuthContext: checkAuth - Error al obtener perfil:', error);
+        // Continuar con limpieza de sesión
       }
+      
+      // Si llegamos aquí, no se pudo obtener el perfil
+      setUser(null);
+      setIsAuthenticated(false);
+      setIsLoading(false);
+      return false;
     } catch (error) {
+      console.error('AuthContext: checkAuth - Error general:', error);
       setUser(null);
       setIsAuthenticated(false);
       setIsLoading(false);
       return false;
     }
-  }, [location?.pathname]);
+  }, []);
 
   useEffect(() => {
     const initApp = async () => {
@@ -256,11 +269,25 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       // Iniciar carga
       setIsLoading(true);
       
+      // Verificar si hay una cookie JWT
+      const hasJwtCookie = document.cookie.includes('jwt_token=');
+      console.log('AuthContext: Verificando cookie JWT:', { hasJwtCookie, cookies: document.cookie });
+      
+      if (!hasJwtCookie) {
+        console.log('AuthContext: No hay cookie JWT, imposible refrescar sesión');
+        setUser(null);
+        setIsAuthenticated(false);
+        setIsLoading(false);
+        return false;
+      }
+      
       try {
         // Verificar perfil directamente usando la cookie existente
+        console.log('AuthContext: Intentando obtener perfil con token existente');
         const userData = await authService.getProfile();
+        
         if (userData) {
-          console.log('AuthContext: Sesión refrescada exitosamente');
+          console.log('AuthContext: Sesión refrescada exitosamente, datos:', userData);
           setUser(userData);
           setIsAuthenticated(true);
           setIsLoading(false);
@@ -280,7 +307,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       setIsLoading(false);
       return false;
     }
-  }, [checkAuth, authService]);
+  }, [checkAuth]);
 
   const value: AuthContextType = {
     user,

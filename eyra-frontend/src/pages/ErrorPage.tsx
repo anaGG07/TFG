@@ -1,20 +1,40 @@
 import { useRouteError, useNavigate } from "react-router-dom";
-import { useAuth } from "../context/AuthContext"; // Importar el contexto de autenticación
+import { useEffect } from "react";
 
 const ErrorPage = () => {
   const error = useRouteError() as any;
   const navigate = useNavigate();
-  const { isAuthenticated } = useAuth(); // Usar el contexto de autenticación
+  
+  // Verificar si hay un token en las cookies al cargar
+  useEffect(() => {
+    // Comprobar si existe la cookie JWT
+    const hasJwtCookie = document.cookie.includes('jwt_token=');
+    console.log("ErrorPage: Verificando cookies:", {
+      hasJwtCookie,
+      cookies: document.cookie.split(';').map(c => c.trim()).filter(c => c.startsWith('jwt_token')),
+    });
+  }, []);
 
   const handleReturn = () => {
-    // Si está autenticado, navegar al dashboard preservando el estado de autenticación
-    if (isAuthenticated) {
+    // Comprobar manualmente si hay una cookie de token
+    const hasJwtCookie = document.cookie.includes('jwt_token=');
+    
+    console.log("ErrorPage: Navegando desde la página de error", {
+      hasJwtCookie,
+      cookies: document.cookie
+    });
+    
+    if (hasJwtCookie) {
+      // Si hay un token, intentar ir a dashboard y restaurar contexto
       navigate('/dashboard', { 
-        replace: true, 
-        state: { preserveAuth: true } // Flag especial para indicar que se debe preservar la autenticación
+        replace: true,
+        state: { 
+          forceRefresh: true,  // Flag especial para forzar refresco
+          timestamp: Date.now() // Añadir timestamp para evitar caché de estado
+        } 
       });
     } else {
-      // Si no está autenticado, ir a la página de inicio
+      // Si no hay token, ir a la página principal
       navigate('/', { replace: true });
     }
   };
