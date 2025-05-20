@@ -2,11 +2,13 @@ import { Outlet } from "react-router-dom";
 import { Navbar } from "../components/layout/Navbar";
 import { AuthProvider } from "../context/AuthContext";
 import { CycleProvider } from "../context/CycleContext";
+import SmartRedirector from "../router/SmartRedirector";
 
 const RootLayout = () => {
   return (
     <AuthProvider>
       <CycleProvider>
+        <SmartRedirector />
         <div className="min-h-screen bg-[#e7e0d5] text-[#5b0108] font-sans flex flex-col">
           <Navbar />
 

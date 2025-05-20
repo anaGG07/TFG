@@ -17,11 +17,25 @@ class TokenService {
   }
 
   /**
+   * Verifica directamente si hay un token JWT en las cookies
+   */
+  hasJwtCookie(): boolean {
+    return document.cookie.includes('jwt_token=');
+  }
+
+  /**
    * Verifica si hay un token JWT válido
    */
   async checkToken(): Promise<boolean> {
     // Si estamos en login o registro, no es necesario verificar
     if (this.isLoginOrRegister()) {
+      return false;
+    }
+    
+    // Verificar cookies directamente
+    if (!this.hasJwtCookie()) {
+      console.log('TokenService: No se encontró cookie JWT');
+      this.isTokenValid = false;
       return false;
     }
     
@@ -63,6 +77,8 @@ class TokenService {
    */
   invalidateToken(): void {
     this.isTokenValid = false;
+    // Eliminar limitaciones de verificación
+    localStorage.removeItem('lastTokenCheck');
   }
 }
 
