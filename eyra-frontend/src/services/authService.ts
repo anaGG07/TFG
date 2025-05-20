@@ -1,6 +1,7 @@
 import { User } from "../types/domain";
 import { LoginRequest, RegisterRequest } from "../types/api";
 import { apiFetch } from "../utils/httpClient";
+import { API_ROUTES } from "../config/apiRoutes";
 import Cookies from "js-cookie";
 
 const TOKEN_KEY = "token";
@@ -62,7 +63,7 @@ class AuthService {
 
   public async login(credentials: LoginRequest): Promise<User> {
     try {
-      const response = await apiFetch<{ user: User; token: string }>("/auth/login", {
+      const response = await apiFetch<{ user: User; token: string }>(API_ROUTES.AUTH.LOGIN, {
         method: "POST",
         body: JSON.stringify(credentials),
       });
@@ -95,7 +96,7 @@ class AuthService {
 
   public async logout(): Promise<void> {
     try {
-      await apiFetch("/auth/logout", { method: "POST" });
+      await apiFetch(API_ROUTES.AUTH.LOGOUT, { method: "POST" });
     } finally {
       this.clearAuthState();
     }
@@ -114,7 +115,7 @@ class AuthService {
     }
 
     try {
-      const user = await apiFetch<User>("/auth/me");
+      const user = await apiFetch<User>(API_ROUTES.AUTH.PROFILE);
       this.authState = {
         user,
         isAuthenticated: true,
@@ -129,14 +130,14 @@ class AuthService {
   }
 
   public async register(userData: RegisterRequest): Promise<void> {
-    await apiFetch("/auth/register", {
+    await apiFetch(API_ROUTES.AUTH.REGISTER, {
       method: "POST",
       body: JSON.stringify(userData),
     });
   }
 
   public async completeOnboarding(onboardingData: any): Promise<User> {
-    const user = await apiFetch<User>("/auth/complete-onboarding", {
+    const user = await apiFetch<User>(API_ROUTES.AUTH.ONBOARDING, {
       method: "POST",
       body: JSON.stringify(onboardingData),
     });

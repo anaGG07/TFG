@@ -22,12 +22,15 @@ export const API_ROUTES = {
     LOGOUT: createApiUrl('/logout'),
     PROFILE: createApiUrl('/profile'), // Endpoint para gestionar perfil
     ONBOARDING: createApiUrl('/onboarding'), // Endpoint específico para onboarding
-    REFRESH_TOKEN: createApiUrl('/refresh-token') // Endpoint para renovar token JWT
+    REFRESH_TOKEN: createApiUrl('/refresh-token'), // Endpoint para renovar token JWT
+    PASSWORD_RESET: createApiUrl('/password-reset'),
+    PASSWORD_CHANGE: createApiUrl('/password-change'),
   },
 
   USER: {
     PROFILE: createApiUrl('/profile'),
     UPDATE_PROFILE: createApiUrl('/profile'),
+    ACTIVE_SESSIONS: createApiUrl('/active-sessions'),
   },
 
   CYCLES: {
@@ -36,6 +39,11 @@ export const API_ROUTES = {
     CREATE: createApiUrl('/cycles'),
     UPDATE: (id: string) => createApiUrl(`/cycles/${id}`),
     DELETE: (id: string) => createApiUrl(`/cycles/${id}`),
+    TODAY: createApiUrl('/cycles/today'),
+    RECOMMENDATIONS: createApiUrl('/cycles/recommendations'),
+    CALENDAR: createApiUrl('/cycles/calendar'),
+    PREDICT: createApiUrl('/cycles/predict'),
+    START_CYCLE: createApiUrl('/cycles/start-cycle'),
   },
 
   SYMPTOMS: {
@@ -49,6 +57,31 @@ export const API_ROUTES = {
     SUMMARY: createApiUrl('/insights/summary'),
     PREDICTIONS: createApiUrl('/insights/predictions'),
     PATTERNS: createApiUrl('/insights/patterns'),
+  },
+
+  MEDIA: {
+    PLACEHOLDER: (width: number, height: number) => createApiUrl(`/placeholder/${width}/${height}`),
+  },
+
+  CONDITIONS: {
+    ALL: createApiUrl('/conditions'),
+    GET: (id: string) => createApiUrl(`/conditions/${id}`),
+    USER: {
+      ALL: createApiUrl('/conditions/user'),
+      ADD: createApiUrl('/conditions/user/add'),
+      UPDATE: (id: string) => createApiUrl(`/conditions/user/${id}`),
+      DELETE: (id: string) => createApiUrl(`/conditions/user/${id}`),
+      ACTIVE: createApiUrl('/conditions/user/active'),
+    },
+    CONTENT: (id: string) => createApiUrl(`/conditions/content/${id}`),
+  },
+
+  NOTIFICATIONS: {
+    ALL: createApiUrl('/notifications'),
+    UNREAD: createApiUrl('/notifications/unread'),
+    READ: (id: string) => createApiUrl(`/notifications/read/${id}`),
+    READ_ALL: createApiUrl('/notifications/read-all'),
+    DELETE: (id: string) => createApiUrl(`/notifications/${id}`),
   },
 };
 

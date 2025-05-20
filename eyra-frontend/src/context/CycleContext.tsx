@@ -1,8 +1,7 @@
 import React, { createContext, useContext, useState, useCallback, ReactNode } from 'react';
-import authService from '../services/authService';
-import axios from 'axios';
+import { apiFetch } from '../utils/httpClient';
 import { CycleDay, CyclePhase } from '../types/domain';
-import { useAuth } from './AuthContext';
+import { API_ROUTES } from '../config/apiRoutes';
 
 export interface CycleDayInput {
   date: string;
@@ -31,18 +30,9 @@ interface CycleContextType {
 const CycleContext = createContext<CycleContextType | undefined>(undefined);
 
 export const CycleProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const { user } = useAuth();
   const [calendarDays, setCalendarDays] = useState<CycleDay[]>([]);
   const [currentCycle, setCurrentCycle] = useState<any | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-
-  const api = axios.create({
-    baseURL: import.meta.env.VITE_API_URL,
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    withCredentials: true // Para enviar cookies en peticiones CORS
-  });
 
   // Cargar días del calendario
   const loadCalendarDays = useCallback(async (startDate: string, endDate: string) => {
@@ -50,8 +40,8 @@ export const CycleProvider: React.FC<{ children: ReactNode }> = ({ children }) =
     try {
       // En desarrollo, usamos datos simulados
       // En producción, descomentar esto y usar la API real
-      // const response = await api.get(`/cycles/calendar?start=${startDate}&end=${endDate}`);
-      // setCalendarDays(response.data);
+      // const response = await apiFetch(API_ROUTES.CYCLES.CALENDAR + `?start=${startDate}&end=${endDate}`);
+      // setCalendarDays(response);
 
       // Simulación de datos para desarrollo
       setTimeout(() => {
@@ -69,8 +59,10 @@ export const CycleProvider: React.FC<{ children: ReactNode }> = ({ children }) =
   const addCycleDay = useCallback(async (data: CycleDayInput) => {
     setIsLoading(true);
     try {
-      // En producción, descomentar esto y usar la API real
-      // await api.post('/cycles/day', data);
+       await apiFetch(API_ROUTES.CYCLES.ALL, {
+         method: 'POST',
+         body: data
+       });
       
       // Simulación para desarrollo
       setTimeout(() => {
@@ -91,18 +83,17 @@ export const CycleProvider: React.FC<{ children: ReactNode }> = ({ children }) =
               notes: data.notes ? [data.notes] : []
             };
             return updatedDays;
-          } else {
-            return [...prev, {
-              id: `temp-${Date.now()}`,
-              date: data.date,
-              dayNumber: 1, // Esto debería calcularse correctamente
-              phase: data.phase,
-              flowIntensity: data.flowIntensity,
-              mood: data.mood,
-              symptoms: data.symptoms,
-              notes: data.notes ? [data.notes] : []
-            }];
           }
+          return [...prev, {
+            id: Date.now(), // Usando número en lugar de string
+            date: data.date,
+            dayNumber: 1,
+            phase: data.phase,
+            flowIntensity: data.flowIntensity,
+            mood: data.mood,
+            symptoms: data.symptoms,
+            notes: data.notes ? [data.notes] : []
+          }];
         });
       }, 500);
     } catch (error) {
@@ -116,7 +107,10 @@ export const CycleProvider: React.FC<{ children: ReactNode }> = ({ children }) =
     setIsLoading(true);
     try {
       // En producción, descomentar esto y usar la API real
-      // await api.post('/cycles/start-cycle', data);
+      // await apiFetch(API_ROUTES.CYCLES.START_CYCLE, {
+      //   method: 'POST',
+      //   body: data
+      // });
       
       // Simulación para desarrollo
       setTimeout(() => {
@@ -125,8 +119,8 @@ export const CycleProvider: React.FC<{ children: ReactNode }> = ({ children }) =
         
         // Actualizar el estado local
         setCalendarDays(prev => {
-          const newDay = {
-            id: `temp-${Date.now()}`,
+          const newDay: CycleDay = {
+            id: Date.now(), // Usando número en lugar de string
             date: data.startDate,
             dayNumber: 1,
             phase: CyclePhase.MENSTRUAL,
@@ -136,15 +130,13 @@ export const CycleProvider: React.FC<{ children: ReactNode }> = ({ children }) =
             notes: data.notes ? [data.notes] : []
           };
           
-          // Reemplazar si ya existe un día para esa fecha
           const existingDayIndex = prev.findIndex(day => day.date === data.startDate);
           if (existingDayIndex >= 0) {
             const updatedDays = [...prev];
             updatedDays[existingDayIndex] = newDay;
             return updatedDays;
-          } else {
-            return [...prev, newDay];
           }
+          return [...prev, newDay];
         });
       }, 500);
     } catch (error) {
@@ -158,13 +150,13 @@ export const CycleProvider: React.FC<{ children: ReactNode }> = ({ children }) =
     setIsLoading(true);
     try {
       // En producción, descomentar esto y usar la API real
-      // const response = await api.get('/cycles/current');
-      // setCurrentCycle(response.data);
+      // const response = await apiFetch(API_ROUTES.CYCLES.CURRENT);
+      // setCurrentCycle(response);
       
       // Simulación para desarrollo
       setTimeout(() => {
         const simulatedCurrentCycle = {
-          id: 'current-cycle',
+          id: Date.now(),
           startDate: '2024-03-15',
           currentDay: 28,
           phase: CyclePhase.LUTEA,
@@ -182,37 +174,37 @@ export const CycleProvider: React.FC<{ children: ReactNode }> = ({ children }) =
   }, []);
 
   // Obtener recomendaciones
-  const getRecommendations = useCallback(async () => {
+  const getRecommendations = useCallback(async (): Promise<any[]> => {
     setIsLoading(true);
     try {
       // En producción, descomentar esto y usar la API real
-      // const response = await api.get('/cycles/recommendations');
-      // return response.data;
+      // const response = await apiFetch<any[]>(API_ROUTES.CYCLES.RECOMMENDATIONS);
+      // return response;
       
       // Simulación para desarrollo
       return new Promise(resolve => {
         setTimeout(() => {
           const simulatedRecommendations = [
             {
-              id: 'rec1',
+              id: 1,
               title: 'Smoothie de frutos rojos',
               description: 'Ideal para fase menstrual, rico en hierro y antioxidantes',
               type: 'recipe',
-              imageUrl: '/api/placeholder/300/200'
+              imageUrl: API_ROUTES.MEDIA.PLACEHOLDER(300, 200)
             },
             {
-              id: 'rec2',
+              id: 2,
               title: 'Yoga suave para calambres',
               description: 'Rutina de 15 minutos para aliviar el dolor menstrual',
               type: 'exercise',
-              imageUrl: '/api/placeholder/300/200'
+              imageUrl: API_ROUTES.MEDIA.PLACEHOLDER(300, 200)
             },
             {
-              id: 'rec3',
+              id: 3,
               title: 'Suplementos de hierro',
               description: 'Recomendaciones para prevenir la anemia durante la menstruación',
               type: 'article',
-              imageUrl: '/api/placeholder/300/200'
+              imageUrl: API_ROUTES.MEDIA.PLACEHOLDER(300, 200)
             }
           ];
           
@@ -228,23 +220,21 @@ export const CycleProvider: React.FC<{ children: ReactNode }> = ({ children }) =
   }, []);
 
   // Función auxiliar para generar datos simulados para el calendario
-  const generateSimulatedCalendarDays = (startDate: string, endDate: string) => {
+  const generateSimulatedCalendarDays = (startDate: string, endDate: string): CycleDay[] => {
     const start = new Date(startDate);
     const end = new Date(endDate);
     const days: CycleDay[] = [];
 
     let currentDate = new Date(start);
     let cycleDay = 1;
-    let lastPhase = CyclePhase.MENSTRUAL;
 
     while (currentDate <= end) {
-      // Determinar la fase según el día del ciclo (simplificado)
       let phase: CyclePhase;
       let flowIntensity: number | undefined;
 
       if (cycleDay <= 5) {
         phase = CyclePhase.MENSTRUAL;
-        flowIntensity = 6 - cycleDay; // 5 -> 1, 4 -> 2, 3 -> 3, 2 -> 4, 1 -> 5
+        flowIntensity = 6 - cycleDay;
       } else if (cycleDay <= 13) {
         phase = CyclePhase.FOLICULAR;
         flowIntensity = undefined;
@@ -256,11 +246,10 @@ export const CycleProvider: React.FC<{ children: ReactNode }> = ({ children }) =
         flowIntensity = undefined;
       }
 
-      // Simulamos tener información solo para algunos días
       if (Math.random() > 0.3) {
         const dateString = currentDate.toISOString().split('T')[0];
         days.push({
-          id: `sim-${dateString}`,
+          id: Date.now() + cycleDay,
           date: dateString,
           dayNumber: cycleDay,
           phase,
@@ -269,21 +258,17 @@ export const CycleProvider: React.FC<{ children: ReactNode }> = ({ children }) =
                 phase === CyclePhase.OVULACION ? ['Enérgica', 'Feliz'] : 
                 phase === CyclePhase.MENSTRUAL ? ['Cansada'] : [],
           symptoms: phase === CyclePhase.LUTEA ? ['Hinchazón', 'Dolor de cabeza'] : 
-                  phase === CyclePhase.MENSTRUAL ? ['Dolor abdominal', 'Fatiga'] : [],
+                   phase === CyclePhase.MENSTRUAL ? ['Dolor abdominal', 'Fatiga'] : [],
           notes: phase === CyclePhase.MENSTRUAL ? ['Flujo moderado'] : []
         });
       }
 
-      // Avanzar un día
       currentDate.setDate(currentDate.getDate() + 1);
       
-      // Si alcanzamos el día 28, reiniciamos el ciclo (simplificación)
       if (cycleDay === 28) {
         cycleDay = 1;
-        lastPhase = CyclePhase.MENSTRUAL;
       } else {
         cycleDay++;
-        lastPhase = phase;
       }
     }
 

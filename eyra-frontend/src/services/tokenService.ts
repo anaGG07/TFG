@@ -1,4 +1,5 @@
 import { apiFetch } from "../utils/httpClient";
+import { API_ROUTES } from "../config/apiRoutes";
 
 /**
  * Servicio simplificado para manejar tokens JWT
@@ -55,7 +56,7 @@ class TokenService {
 
     try {
       console.log('TokenService: Verificando token...');
-      await apiFetch("/api/profile", {
+      await apiFetch(API_ROUTES.USER.PROFILE, {
         method: 'GET',
         credentials: 'include',
         headers: {
