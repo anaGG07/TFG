@@ -1,110 +1,164 @@
-import { LoginRequest } from "../types/api";
-import { RegisterRequest } from "../types/api";
 import { User } from "../types/domain";
-import { tokenService } from "./tokenService";
+import { LoginRequest, RegisterRequest } from "../types/api";
 import { apiFetch } from "../utils/httpClient";
+import Cookies from "js-cookie";
 
-/**
- * Servicio de autenticación simplificado
- * Maneja el login/logout y obtención del perfil del usuario
- */
+const TOKEN_KEY = "token";
+const AUTH_STATE_KEY = "auth_state";
+
+interface AuthState {
+  user: User | null;
+  isAuthenticated: boolean;
+  lastVerified: number;
+}
+
 class AuthService {
-  private initialized = false;
+  private static instance: AuthService;
+  private authState: AuthState = {
+    user: null,
+    isAuthenticated: false,
+    lastVerified: 0
+  };
 
-  constructor() {
-    this.initialized = true;
-    console.log("AuthService inicializado correctamente");
+  private constructor() {
+    this.initializeFromStorage();
   }
 
-  private ensureInitialized() {
-    if (!this.initialized) {
-      throw new Error("AuthService no está inicializado");
+  public static getInstance(): AuthService {
+    if (!AuthService.instance) {
+      AuthService.instance = new AuthService();
+    }
+    return AuthService.instance;
+  }
+
+  private initializeFromStorage() {
+    const storedState = localStorage.getItem(AUTH_STATE_KEY);
+    if (storedState) {
+      try {
+        this.authState = JSON.parse(storedState);
+      } catch {
+        this.clearAuthState();
+      }
     }
   }
 
+  private persistAuthState() {
+    localStorage.setItem(AUTH_STATE_KEY, JSON.stringify(this.authState));
+  }
 
-  async login(credentials: LoginRequest): Promise<User> {
-    this.ensureInitialized();
+  private clearAuthState() {
+    this.authState = {
+      user: null,
+      isAuthenticated: false,
+      lastVerified: 0
+    };
+    localStorage.removeItem(AUTH_STATE_KEY);
+    Cookies.remove(TOKEN_KEY);
+  }
 
-    if (!credentials.email || !credentials.password) {
-      throw new Error("Por favor completa todos los campos");
-    }
+  public getAuthState(): AuthState {
+    return { ...this.authState };
+  }
 
+  public async login(credentials: LoginRequest): Promise<User> {
     try {
-      console.log('AuthService: Iniciando login...');
-      const data = await apiFetch<{ user: User }>("/api/login_check", {
+      const response = await apiFetch<{ user: User; token: string }>("/auth/login", {
         method: "POST",
-        body: credentials
+        body: JSON.stringify(credentials),
       });
 
-      if (!data || !data.user) {
-        throw new Error("Respuesta inválida del servidor");
+      if (!response.token || !response.user) {
+        throw new Error("Invalid response from server");
       }
 
-      console.log('AuthService: Login exitoso, usuario:', data.user);
-      return data.user;
-    } catch (error: unknown) {
-      console.error("AuthService: Error en login:", error);
-      throw new Error((error as Error)?.message || "Error al iniciar sesión");
-    }
-  }
-
-  async logout(): Promise<void> {
-    this.ensureInitialized();
-
-    try {
-      await apiFetch("/api/logout", {
-        method: "POST"
+      // Establecer el token en las cookies
+      Cookies.set(TOKEN_KEY, response.token, {
+        expires: 7, // 7 días
+        secure: true,
+        sameSite: "strict"
       });
-    } catch (error) {
-      console.error("Error al cerrar sesión:", error);
-    } finally {
-      tokenService.invalidateToken();
-      window.location.href = "/";
-    }
-  }
 
-  async getProfile(): Promise<User> {
-    this.ensureInitialized();
+      // Actualizar el estado de autenticación
+      this.authState = {
+        user: response.user,
+        isAuthenticated: true,
+        lastVerified: Date.now()
+      };
+      this.persistAuthState();
 
-    try {
-      return await apiFetch<User>("/api/profile", {
-        method: "GET"
-      });
-    } catch (error) {
-      console.error("AuthService: Error al obtener perfil:", error);
-      throw error;
-    }
-  }
-
-  async register(userData: RegisterRequest): Promise<void> {
-    this.ensureInitialized();
-    try {
-      await apiFetch("/api/register", {
-        method: "POST",
-        body: userData
-      });
-    } catch (error) {
-      console.error("Error durante el registro:", error);
-      throw error;
-    }
-  }
-
-  async completeOnboarding(onboardingData: any): Promise<User> {
-    this.ensureInitialized();
-    try {
-      const completeData = { ...onboardingData };
-      const response = await apiFetch<{ user: User }>("/api/onboarding", {
-        method: "POST",
-        body: completeData,
-      });
       return response.user;
     } catch (error) {
-      console.error("AuthService: Error al completar onboarding:", error);
+      this.clearAuthState();
       throw error;
+    }
+  }
+
+  public async logout(): Promise<void> {
+    try {
+      await apiFetch("/auth/logout", { method: "POST" });
+    } finally {
+      this.clearAuthState();
+    }
+  }
+
+  public async verifySession(): Promise<boolean> {
+    const token = Cookies.get(TOKEN_KEY);
+    if (!token) {
+      this.clearAuthState();
+      return false;
+    }
+
+    // Verificar si la última verificación fue hace menos de 5 minutos
+    if (Date.now() - this.authState.lastVerified < 5 * 60 * 1000) {
+      return this.authState.isAuthenticated;
+    }
+
+    try {
+      const user = await apiFetch<User>("/auth/me");
+      this.authState = {
+        user,
+        isAuthenticated: true,
+        lastVerified: Date.now()
+      };
+      this.persistAuthState();
+      return true;
+    } catch (error) {
+      this.clearAuthState();
+      return false;
+    }
+  }
+
+  public async register(userData: RegisterRequest): Promise<void> {
+    await apiFetch("/auth/register", {
+      method: "POST",
+      body: JSON.stringify(userData),
+    });
+  }
+
+  public async completeOnboarding(onboardingData: any): Promise<User> {
+    const user = await apiFetch<User>("/auth/complete-onboarding", {
+      method: "POST",
+      body: JSON.stringify(onboardingData),
+    });
+    
+    this.authState = {
+      ...this.authState,
+      user
+    };
+    this.persistAuthState();
+    
+    return user;
+  }
+
+  public updateUserData(userData: Partial<User>): void {
+    if (this.authState.user) {
+      this.authState = {
+        ...this.authState,
+        user: { ...this.authState.user, ...userData }
+      };
+      this.persistAuthState();
     }
   }
 }
 
-export const authService = new AuthService();
-export default authService;
+export const authService = AuthService.getInstance();

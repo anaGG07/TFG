@@ -4,7 +4,6 @@ import {
   useState,
   useEffect,
   ReactNode,
-  useRef,
   useCallback,
 } from "react";
 import { useLocation } from "react-router-dom";
@@ -17,10 +16,6 @@ import {
   Prediction,
   SymptomPattern,
 } from "../services/insightService";
-
-
-import Cookies from "js-cookie";
-import { apiFetch } from "../utils/httpClient";
 
 interface AuthContextType {
   user: User | null;
@@ -81,15 +76,6 @@ const defaultContextValue: AuthContextType = {
 const AuthContext = createContext<AuthContextType>(defaultContextValue);
 export const useAuth = () => useContext(AuthContext);
 
-// ✅ Safe useLocation to prevent errors outside <Router>
-const useSafeLocation = () => {
-  try {
-    return useLocation();
-  } catch {
-    return null;
-  }
-};
-
 interface AuthProviderProps {
   children: ReactNode;
 }
@@ -104,92 +90,53 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const [predictions, setPredictions] = useState<Prediction>(DEFAULT_PREDICTIONS);
   const [patterns, setPatterns] = useState<SymptomPattern[]>(DEFAULT_PATTERNS);
 
-  const location = useSafeLocation();
-  const initializedRef = useRef(false);
+  const location = useLocation();
 
-  // Comprobación de sesión usando apiFetch
+  // Sincronizar el estado del contexto con el servicio de autenticación
+  const syncAuthState = useCallback(() => {
+    const authState = authService.getAuthState();
+    setUser(authState.user);
+    setIsAuthenticated(authState.isAuthenticated);
+  }, []);
+
+  // Verificar la sesión
   const checkAuth = useCallback(async (): Promise<boolean> => {
     setIsLoading(true);
     try {
-      const token = Cookies.get("token");
-      if (!token) {
-        setUser(null);
-        setIsAuthenticated(false);
-        setIsLoading(false);
-        return false;
-      }
-      try {
-        const userData = await apiFetch<User>("/auth/me");
-        setUser(userData);
-        setIsAuthenticated(true);
-        setIsLoading(false);
-        return true;
-      } catch (error) {
-        Cookies.remove("token");
-        setUser(null);
-        setIsAuthenticated(false);
-        setIsLoading(false);
-        return false;
-      }
+      const isValid = await authService.verifySession();
+      syncAuthState();
+      return isValid;
     } catch (error) {
-      setUser(null);
-      setIsAuthenticated(false);
-      setIsLoading(false);
+      syncAuthState();
       return false;
+    } finally {
+      setIsLoading(false);
     }
-  }, [location?.pathname]);
+  }, [syncAuthState]);
 
+  // Efecto para verificar la sesión al montar el componente y cuando cambia la ruta
   useEffect(() => {
-    const initApp = async () => {
-      if (initializedRef.current) return;
-      initializedRef.current = true;
-      await checkAuth();
-      if (typeof window !== "undefined" && window.appReadyEvent) {
-        window.dispatchEvent(window.appReadyEvent);
-      }
-    };
-    initApp();
-  }, [location?.pathname, checkAuth]);
+    checkAuth();
+  }, [location.pathname, checkAuth]);
 
+  // Efecto para manejar cambios en el estado de autenticación
   useEffect(() => {
-    const handlePopState = async () => {
-      await checkAuth();
+    const handleStorageChange = () => {
+      syncAuthState();
     };
-    window.addEventListener('popstate', handlePopState);
-    return () => window.removeEventListener('popstate', handlePopState);
-  }, [checkAuth]);
+
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
+  }, [syncAuthState]);
 
   const login = async (credentials: LoginRequest) => {
     setIsLoading(true);
     try {
-      console.log('AuthContext: Iniciando proceso de login...');
       const loggedInUser = await authService.login(credentials);
-      
-      if (!loggedInUser) {
-        console.error('AuthContext: No se recibió usuario del servidor');
-        throw new Error("Login fallido");
-      }
-
-      console.log('AuthContext: Login exitoso, usuario:', loggedInUser);
-      setUser(loggedInUser);
-      setIsAuthenticated(true);
-
-      // Marcar que acabamos de autenticar para evitar verificaciones redundantes
-      localStorage.setItem('lastAuthentication', Date.now().toString());
-      // También guardar que el token es válido para evitar verificaciones innecesarias
-      localStorage.setItem('lastTokenCheck', Date.now().toString());
-
-      // Dar tiempo a que las cookies se establezcan correctamente
-      await new Promise(resolve => setTimeout(resolve, 200));
-
-      console.log('AuthContext: Login completado con éxito, listo para redireccionar');
+      syncAuthState();
       return loggedInUser;
-    } catch (error: any) {
-      console.error('AuthContext: Error en login:', error);
-      setUser(null);
-      setIsAuthenticated(false);
-      localStorage.removeItem('lastAuthentication');
-      localStorage.removeItem('lastTokenCheck');
+    } catch (error) {
+      syncAuthState();
       throw error;
     } finally {
       setIsLoading(false);
@@ -200,9 +147,6 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     setIsLoading(true);
     try {
       await authService.register(userData);
-    } catch (error) {
-      console.error("Error durante el registro:", error);
-      throw error;
     } finally {
       setIsLoading(false);
     }
@@ -212,75 +156,31 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     setIsLoading(true);
     try {
       await authService.logout();
-
-      // Limpiar datos de sesión del contexto
-      setUser(null);
-      setIsAuthenticated(false);
       setCycles([]);
       setCurrentCycle(null);
       setSummary(DEFAULT_SUMMARY);
       setPredictions(DEFAULT_PREDICTIONS);
       setPatterns([]);
-    } catch (error) {
-      console.error("Error durante logout:", error);
-
-      // Asegurar que se limpia el estado 
-      setUser(null);
-      setIsAuthenticated(false);
+      syncAuthState();
     } finally {
       setIsLoading(false);
     }
   };
 
   const updateUserData = (userData: Partial<User>) => {
-    if (user) {
-      const updatedUser = { ...user, ...userData };
-      setUser(updatedUser);
-    }
+    authService.updateUserData(userData);
+    syncAuthState();
   };
 
   const completeOnboarding = async (onboardingData: any) => {
     const user = await authService.completeOnboarding(onboardingData);
-    setUser(user);
-    setIsAuthenticated(true);
+    syncAuthState();
     return user;
   };
 
   const refreshSession = useCallback(async (): Promise<boolean> => {
-    try {
-      console.log('AuthContext: Intentando refrescar sesión...');
-      
-      // Limpiar la limitación de verificación de token
-      localStorage.removeItem('lastTokenCheck');
-      
-      // Iniciar carga
-      setIsLoading(true);
-      
-      try {
-        // Verificar perfil directamente usando la cookie existente
-        const userData = await authService.getProfile();
-        if (userData) {
-          console.log('AuthContext: Sesión refrescada exitosamente');
-          setUser(userData);
-          setIsAuthenticated(true);
-          setIsLoading(false);
-          return true;
-        }
-      } catch (error) {
-        console.error('AuthContext: Error al obtener perfil durante refrescado de sesión:', error);
-      }
-      
-      // Si llegamos aquí, intentamos con checkAuth como respaldo
-      console.log('AuthContext: Intentando método alternativo de refrescado');
-      return await checkAuth();
-    } catch (error) {
-      console.error('AuthContext: Error al refrescar sesión:', error);
-      setUser(null);
-      setIsAuthenticated(false);
-      setIsLoading(false);
-      return false;
-    }
-  }, [checkAuth, authService]);
+    return checkAuth();
+  }, [checkAuth]);
 
   const value: AuthContextType = {
     user,
