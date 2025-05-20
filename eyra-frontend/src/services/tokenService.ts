@@ -55,7 +55,7 @@ class TokenService {
     localStorage.setItem('lastTokenCheck', now.toString());
 
     try {
-      console.log('TokenService: Verificando token...');
+      console.log('TokenService: Verificando sesión con el backend...');
       await apiFetch(API_ROUTES.USER.PROFILE, {
         method: 'GET',
         credentials: 'include',
@@ -64,17 +64,17 @@ class TokenService {
         }
       });
       this.isTokenValid = true;
-      console.log('TokenService: Token válido');
+      console.log('TokenService: Sesión válida');
       return true;
     } catch (error) {
-      console.error('TokenService: Error al verificar token:', error);
+      console.error('TokenService: Error al verificar sesión:', error);
       this.isTokenValid = false;
       return false;
     }
   }
 
   /**
-   * Invalida el token actual
+   * Invalida la sesión actual
    */
   invalidateToken(): void {
     this.isTokenValid = false;

@@ -2,9 +2,7 @@ import { User } from "../types/domain";
 import { LoginRequest, RegisterRequest } from "../types/api";
 import { apiFetch } from "../utils/httpClient";
 import { API_ROUTES } from "../config/apiRoutes";
-import Cookies from "js-cookie";
 
-const TOKEN_KEY = "token";
 const AUTH_STATE_KEY = "auth_state";
 
 interface AuthState {
@@ -54,7 +52,6 @@ class AuthService {
       lastVerified: 0
     };
     localStorage.removeItem(AUTH_STATE_KEY);
-    Cookies.remove(TOKEN_KEY);
   }
 
   public getAuthState(): AuthState {
@@ -63,21 +60,14 @@ class AuthService {
 
   public async login(credentials: LoginRequest): Promise<User> {
     try {
-      const response = await apiFetch<{ user: User; token: string }>(API_ROUTES.AUTH.LOGIN, {
+      const response = await apiFetch<{ user: User }>(API_ROUTES.AUTH.LOGIN, {
         method: "POST",
         body: credentials,
       });
 
-      if (!response.token || !response.user) {
+      if (!response.user) {
         throw new Error("Invalid response from server");
       }
-
-      // Establecer el token en las cookies
-      Cookies.set(TOKEN_KEY, response.token, {
-        expires: 7, // 7 días
-        secure: true,
-        sameSite: "strict"
-      });
 
       // Actualizar el estado de autenticación
       this.authState = {
@@ -103,12 +93,7 @@ class AuthService {
   }
 
   public async verifySession(): Promise<boolean> {
-    const token = Cookies.get(TOKEN_KEY);
-    if (!token) {
-      this.clearAuthState();
-      return false;
-    }
-
+    // Ya no se usa el token manual, solo la cookie HttpOnly
     // Verificar si la última verificación fue hace menos de 5 minutos
     if (Date.now() - this.authState.lastVerified < 5 * 60 * 1000) {
       return this.authState.isAuthenticated;
@@ -132,14 +117,14 @@ class AuthService {
   public async register(userData: RegisterRequest): Promise<void> {
     await apiFetch(API_ROUTES.AUTH.REGISTER, {
       method: "POST",
-      body: JSON.stringify(userData),
+      body: userData,
     });
   }
 
   public async completeOnboarding(onboardingData: any): Promise<User> {
     const user = await apiFetch<User>(API_ROUTES.AUTH.ONBOARDING, {
       method: "POST",
-      body: JSON.stringify(onboardingData),
+      body: onboardingData,
     });
     
     this.authState = {
