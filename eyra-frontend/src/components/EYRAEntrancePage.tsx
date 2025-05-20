@@ -9,11 +9,9 @@ export default function EYRAEntrancePage() {
   const [targetPositions, setTargetPositions] = useState<{ x: number; y: number }[]>([]);
   const [captured, setCaptured] = useState<number[]>([]);
   const [scale, setScale] = useState(1);
-  const [centered, setCentered] = useState(false);
 
   const menuOptions = ["Iniciar sesión", "Registro", "Acerca de"];
-  const particleCount = 20;
-
+  const particleCount = 30;
   const windowW = typeof window !== 'undefined' ? window.innerWidth : 1280;
   const windowH = typeof window !== 'undefined' ? window.innerHeight : 800;
 
@@ -31,7 +29,7 @@ export default function EYRAEntrancePage() {
   useEffect(() => {
     const sequence = [
       { time: 1000, phase: "explode" },
-      { time: 3500, phase: "collect" },
+      { time: 4000, phase: "collect" },
     ];
     sequence.forEach(({ time, phase }) => {
       setTimeout(() => setPhase(phase), time);
@@ -42,35 +40,31 @@ export default function EYRAEntrancePage() {
   useEffect(() => {
     if (phase === "collect") {
       let i = 0;
-      let scaleValue = 1.2;
+      let scaleValue = 1.5;
       const interval = setInterval(() => {
         if (i < particleCount) {
           const groupSize = 4;
           const group = targetPositions.slice(i, i + groupSize);
-          if (group.length === 0) return;
-          const avgX = group.reduce((sum, p) => sum + (p?.x || 0), 0) / group.length;
-          const avgY = group.reduce((sum, p) => sum + (p?.y || 0), 0) / group.length;
-
+          const avgX = group.reduce((sum, p) => sum + p.x, 0) / group.length;
+          const avgY = group.reduce((sum, p) => sum + p.y, 0) / group.length;
           setCirclePos({ x: avgX, y: avgY });
           setCaptured((prev) => [...prev, ...group.map((_, idx) => i + idx)]);
           setScale(scaleValue);
-          scaleValue += 0.25;
+          scaleValue += 0.3;
           i += groupSize;
         } else {
           clearInterval(interval);
           setTimeout(() => {
-            setCentered(true);
             setCirclePos({ x: 0, y: 0 });
-            setTimeout(() => setPhase("move"), 1200);
-            setTimeout(() => setPhase("idle"), 3200);
-          }, 1000);
+            setTimeout(() => setPhase("move"), 2000);
+            setTimeout(() => setPhase("idle"), 5000);
+          }, 1500);
         }
-      }, 1000);
+      }, 1200);
       return () => clearInterval(interval);
     }
-  }, [phase, targetPositions, particleCount]);
+  }, [phase, targetPositions]);
 
-  // Menú
   const handleMenuChange = (direction: "up" | "down") => {
     setMenuIndex((prev) =>
       direction === "up"
@@ -78,10 +72,6 @@ export default function EYRAEntrancePage() {
         : (prev + 1) % menuOptions.length
     );
   };
-
-  // Cálculo de posición real del círculo
-  const circleCenterX = windowW / 2 - 60 + circlePos.x;
-  const circleCenterY = windowH / 2 - 60 + circlePos.y;
 
   return (
     <div className="w-screen h-screen bg-[#FFEDEA] overflow-hidden relative">
@@ -91,11 +81,10 @@ export default function EYRAEntrancePage() {
           !captured.includes(i) && (
             <motion.div
               key={i}
-              className="absolute w-4 h-4 bg-[#C62828]"
+              className="absolute w-4 h-4 bg-[#C62828] rounded-full"
               style={{
                 top: windowH / 2,
                 left: windowW / 2,
-                borderRadius: "60% 40% 50% 50% / 50% 60% 40% 50%",
                 filter: "blur(2px)",
                 zIndex: 1,
               }}
@@ -103,15 +92,16 @@ export default function EYRAEntrancePage() {
                 x: pos.x,
                 y: pos.y,
                 opacity: 1,
+                scale: [1, 1.2, 1],
               }}
-              transition={{ duration: 2, delay: i * 0.04 }}
+              transition={{ duration: 2.5, repeat: Infinity, repeatType: "reverse", delay: i * 0.05 }}
             />
           )
         ))}
 
       {/* Círculo animado principal */}
       <motion.div
-        className="absolute bg-[#C62828]"
+        className="absolute bg-[#C62828] shadow-2xl"
         animate={{
           x:
             phase === "move" || phase === "idle"
@@ -122,7 +112,7 @@ export default function EYRAEntrancePage() {
               ? -windowH / 2 + 60
               : circlePos.y,
           scale: scale,
-          rotate: 360,
+          rotate: [0, 2, -2, 0],
           borderRadius: [
             "58% 42% 47% 53% / 50% 60% 40% 45%",
             "65% 35% 60% 40% / 70% 60% 45% 50%",
@@ -130,7 +120,7 @@ export default function EYRAEntrancePage() {
           ],
         }}
         transition={{
-          duration: 3,
+          duration: 6,
           ease: "easeInOut",
           repeat: phase === "idle" ? Infinity : 0,
           repeatType: "loop",
@@ -140,7 +130,7 @@ export default function EYRAEntrancePage() {
           height: 120,
           top: windowH / 2 - 60,
           left: windowW / 2 - 60,
-          filter: "blur(2px)",
+          filter: "blur(1.5px)",
           zIndex: 2,
         }}
       ></motion.div>
