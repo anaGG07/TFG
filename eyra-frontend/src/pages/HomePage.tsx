@@ -1,11 +1,73 @@
+import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { ROUTES } from "../router/paths";
 import { useAuth } from "../context/AuthContext";
 import { useEffect } from "react";
 
+// Opciones del menú
+const MENU_OPTIONS = [
+  {
+    label: "Iniciar Sesión",
+    route: ROUTES.LOGIN,
+    icon: (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="w-7 h-7">
+        <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4" />
+        <polyline points="10 17 15 12 10 7" />
+        <line x1="15" y1="12" x2="3" y2="12" />
+      </svg>
+    ),
+  },
+  {
+    label: "Registrarse",
+    route: ROUTES.REGISTER,
+    icon: (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="w-7 h-7">
+        <circle cx="12" cy="8" r="4" />
+        <path d="M16 16v2a4 4 0 0 1-8 0v-2" />
+        <line x1="20" y1="21" x2="20" y2="17" />
+        <line x1="20" y1="17" x2="16" y2="17" />
+      </svg>
+    ),
+  },
+  {
+    label: "Acerca de",
+    route: "/about",
+    icon: (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="w-7 h-7">
+        <circle cx="12" cy="12" r="10" />
+        <line x1="12" y1="16" x2="12" y2="12" />
+        <line x1="12" y1="8" x2="12" y2="8" />
+      </svg>
+    ),
+  },
+];
+
+// SVG sólido tipo óvulo animado
+const OvuloSVG = () => (
+  <svg
+    className="absolute -top-32 -left-32 w-[420px] h-[420px] z-0 animate-ovulo-spin"
+    viewBox="0 0 600 600"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    style={{ filter: "blur(0.5px)" }}
+  >
+    <path
+      d="M300,100
+        C400,80 520,180 500,300
+        C520,420 400,520 300,500
+        C200,520 80,420 100,300
+        C80,180 200,80 300,100Z"
+      fill="var(--color-primary, #5b0108)"
+      fillOpacity="0.18"
+    />
+  </svg>
+);
+
 const HomePage = () => {
   const { isAuthenticated, isLoading, refreshSession } = useAuth();
   const navigate = useNavigate();
+  const [menuIndex, setMenuIndex] = useState(0);
+  const visibleOptions = 2;
 
   useEffect(() => {
     // Verificar automáticamente si hay una sesión activa al cargar la página
@@ -38,6 +100,20 @@ const HomePage = () => {
     checkExistingSession();
   }, [isAuthenticated, isLoading, navigate, refreshSession]);
 
+  // Rotar menú
+  const rotateMenu = (dir: 1 | -1) => {
+    setMenuIndex((prev) => (prev + dir + MENU_OPTIONS.length) % MENU_OPTIONS.length);
+  };
+
+  // Opciones visibles (simula ciclo)
+  const getVisibleOptions = () => {
+    const opts = [];
+    for (let i = 0; i < visibleOptions; i++) {
+      opts.push(MENU_OPTIONS[(menuIndex + i) % MENU_OPTIONS.length]);
+    }
+    return opts;
+  };
+
   // Si está cargando, mostrar un spinner
   if (isLoading) {
     return (
@@ -49,108 +125,97 @@ const HomePage = () => {
 
   // Si no está autenticado, mostrar la página de inicio
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-[#e7e0d5] p-4">
-      {/* Header con logo y nombre */}
-      <div className="max-w-5xl w-full text-center space-y-8 mb-12">
-        <div className="flex items-center justify-center gap-4 mb-8">
-          <h1 className="text-5xl md:text-6xl font-serif tracking-tight text-[#5b0108]">
-            EYRA
-          </h1>
-        </div>
+    <div className="w-screen h-screen overflow-hidden bg-bg flex items-center justify-center relative select-none">
+      {/* Óvulo animado de fondo */}
+      <OvuloSVG />
 
-        <h2 className="text-3xl md:text-4xl font-serif text-[#9d0d0b] max-w-3xl mx-auto leading-tight">
+      {/* Menú circular */}
+      <div className="absolute top-0 left-0 z-10 flex flex-col items-start justify-start h-[320px] w-[320px] pointer-events-none">
+        <div className="relative w-full h-full flex items-center justify-center">
+          {/* Flecha arriba */}
+          <button
+            aria-label="Anterior opción"
+            className="absolute left-1/2 -translate-x-1/2 top-8 bg-white/70 rounded-full shadow p-1 border border-primary text-primary hover:bg-primary hover:text-white transition pointer-events-auto"
+            onClick={() => rotateMenu(-1)}
+            tabIndex={0}
+          >
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><polyline points="18 15 12 9 6 15" /></svg>
+          </button>
+
+          {/* Opciones del menú */}
+          <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col gap-6 items-center">
+            {/* Botón EYRA (inicio) */}
+            <button
+              aria-label="Ir a inicio"
+              className="mb-2 text-4xl font-serif font-bold tracking-tight text-primary drop-shadow-lg bg-white/80 rounded-full px-6 py-2 border-2 border-primary hover:bg-primary hover:text-white transition pointer-events-auto"
+              onClick={() => navigate(ROUTES.HOME)}
+              tabIndex={0}
+            >
+              EYRA
+            </button>
+            {getVisibleOptions().map((opt, idx) => (
+              <Link
+                key={opt.label}
+                to={opt.route}
+                className="flex items-center gap-3 px-4 py-2 rounded-full bg-white/80 border-2 border-primary text-primary font-semibold text-lg shadow hover:bg-primary hover:text-white transition pointer-events-auto"
+                tabIndex={0}
+                aria-label={opt.label}
+              >
+                {opt.icon}
+                <span>{opt.label}</span>
+              </Link>
+            ))}
+          </div>
+
+          {/* Flecha abajo */}
+          <button
+            aria-label="Siguiente opción"
+            className="absolute left-1/2 -translate-x-1/2 bottom-8 bg-white/70 rounded-full shadow p-1 border border-primary text-primary hover:bg-primary hover:text-white transition pointer-events-auto"
+            onClick={() => rotateMenu(1)}
+            tabIndex={0}
+          >
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 12 15 18 9" /></svg>
+          </button>
+        </div>
+      </div>
+
+      {/* Contenido principal */}
+      <main className="z-20 flex flex-col items-center justify-center w-full h-full fade-in">
+        <h1 className="text-6xl md:text-7xl font-serif font-bold text-primary mb-6 tracking-tight drop-shadow-lg">EYRA</h1>
+        <h2 className="text-3xl md:text-4xl font-serif text-primary/80 mb-8 max-w-2xl text-center leading-tight">
           Tu compañera para el seguimiento y análisis del ciclo menstrual
         </h2>
-
-        <p className="text-xl text-[#300808] max-w-2xl mx-auto font-['Inter']">
-          Toma el control de tu bienestar con información personalizada adaptada
-          a tu ciclo único.
+        <p className="text-xl text-primary/70 max-w-xl text-center mb-12 font-['Inter']">
+          Toma el control de tu bienestar con información personalizada adaptada a tu ciclo único.
         </p>
+      </main>
 
-        <div className="pt-6 flex flex-col sm:flex-row gap-6 items-center justify-center">
-          <Link
-            to={ROUTES.REGISTER}
-            className="px-8 py-4 bg-[#5b0108] rounded-lg text-[#e7e0d5] font-medium 
-                     transition-all duration-300 shadow-md hover:shadow-lg 
-                     transform hover:scale-105 font-['Inter'] tracking-wide"
-          >
-            Comenzar
-          </Link>
-
-          <Link
-            to={ROUTES.LOGIN}
-            className="px-8 py-4 bg-transparent border-2 border-[#5b0108]
-                     rounded-lg text-[#5b0108] font-medium transition-all duration-300 font-['Inter'] tracking-wide hover:bg-[#5b0108]/10"
-          >
-            Iniciar sesión
-          </Link>
-        </div>
-      </div>
-
-      {/* Características principales */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-5xl w-full mb-12">
-        {[
-          {
-            title: "Seguimiento Personalizado",
-            iconPath: "M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2",
-            description: "Registra y analiza tu ciclo menstrual con precisión, adaptado a tus necesidades específicas."
-          },
-          {
-            title: "Insights Inteligentes",
-            iconPath: "M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z",
-            description: "Recibe análisis detallados y predicciones basadas en tus datos para entender mejor tu ciclo."
-          },
-          {
-            title: "Contenido Adaptado",
-            iconPath: "M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253",
-            description: "Accede a recursos y recomendaciones personalizadas según tu fase del ciclo."
-          }
-        ].map(({ title, iconPath, description }) => (
-          <div
-            key={title}
-            className="bg-white p-8 rounded-xl shadow-sm border border-[#5b0108]/10 hover:border-[#5b0108]/30 transition-all duration-300"
-          >
-            <div className="w-16 h-16 mb-6 rounded-full bg-[#5b0108]/10 flex items-center justify-center">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-8 w-8 text-[#5b0108]"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={1.5}
-                  d={iconPath}
-                />
-              </svg>
-            </div>
-            <h3 className="text-2xl font-serif text-[#9d0d0b] mb-3">{title}</h3>
-            <p className="text-[#300808] font-['Inter']">{description}</p>
-          </div>
-        ))}
-      </div>
-
-      {/* Banner inferior */}
-      <div className="w-full bg-[#5b0108] py-12 px-4 rounded-xl max-w-5xl">
-        <div className="max-w-3xl mx-auto text-center">
-          <h2 className="text-3xl font-serif text-white mb-4">
-            Comienza tu viaje hacia el bienestar
-          </h2>
-          <p className="text-white/90 mb-8 font-['Inter']">
-            Únete a miles de mujeres que han transformado su relación con su
-            ciclo menstrual.
-          </p>
-          <Link
-            to={ROUTES.REGISTER}
-            className="inline-block px-8 py-4 bg-white rounded-lg text-[#5b0108] font-medium 
-                     transition-all duration-300 shadow-md hover:shadow-lg font-['Inter'] tracking-wide"
-          >
-            Crear cuenta gratis
-          </Link>
-        </div>
-      </div>
+      {/* Animación personalizada para el óvulo */}
+      <style>{`
+        :root {
+          --color-primary: #5b0108;
+          --color-bg: #e7e0d5;
+        }
+        .bg-bg { background-color: var(--color-bg); }
+        .text-primary { color: var(--color-primary); }
+        .border-primary { border-color: var(--color-primary); }
+        .hover\:bg-primary:hover { background-color: var(--color-primary); }
+        .hover\:text-white:hover { color: #fff; }
+        .animate-ovulo-spin {
+          animation: ovulo-spin 18s linear infinite;
+        }
+        @keyframes ovulo-spin {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
+        }
+        .fade-in {
+          animation: fadeIn 1.2s cubic-bezier(.4,0,.2,1);
+        }
+        @keyframes fadeIn {
+          from { opacity: 0; transform: translateY(30px); }
+          to { opacity: 1; transform: none; }
+        }
+      `}</style>
     </div>
   );
 };
