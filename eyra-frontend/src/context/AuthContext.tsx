@@ -247,8 +247,40 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   };
 
   const refreshSession = useCallback(async (): Promise<boolean> => {
-    return checkAuth();
-  }, [checkAuth]);
+    try {
+      console.log('AuthContext: Intentando refrescar sesión...');
+      
+      // Limpiar la limitación de verificación de token
+      localStorage.removeItem('lastTokenCheck');
+      
+      // Iniciar carga
+      setIsLoading(true);
+      
+      try {
+        // Verificar perfil directamente usando la cookie existente
+        const userData = await authService.getProfile();
+        if (userData) {
+          console.log('AuthContext: Sesión refrescada exitosamente');
+          setUser(userData);
+          setIsAuthenticated(true);
+          setIsLoading(false);
+          return true;
+        }
+      } catch (error) {
+        console.error('AuthContext: Error al obtener perfil durante refrescado de sesión:', error);
+      }
+      
+      // Si llegamos aquí, intentamos con checkAuth como respaldo
+      console.log('AuthContext: Intentando método alternativo de refrescado');
+      return await checkAuth();
+    } catch (error) {
+      console.error('AuthContext: Error al refrescar sesión:', error);
+      setUser(null);
+      setIsAuthenticated(false);
+      setIsLoading(false);
+      return false;
+    }
+  }, [checkAuth, authService]);
 
   const value: AuthContextType = {
     user,
