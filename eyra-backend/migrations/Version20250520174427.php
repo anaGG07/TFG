@@ -36,16 +36,6 @@ final class Version20250520174427 extends AbstractMigration
             ALTER TABLE symptom_log ALTER COLUMN entity SET NOT NULL
         SQL);
         
-        // El resto de la migración queda igual
-        $this->addSql(<<<'SQL'
-            ALTER TABLE symptom_log ALTER state DROP DEFAULT
-        SQL);
-        $this->addSql(<<<'SQL'
-            ALTER TABLE symptom_log ADD CONSTRAINT FK_64508847A76ED395 FOREIGN KEY (user_id) REFERENCES "user" (id) NOT DEFERRABLE INITIALLY IMMEDIATE
-        SQL);
-        $this->addSql(<<<'SQL'
-            ALTER INDEX idx_symptom_log_user RENAME TO IDX_64508847A76ED395
-        SQL);
     }
 
     public function down(Schema $schema): void
