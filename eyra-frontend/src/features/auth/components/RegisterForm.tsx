@@ -18,7 +18,6 @@ export const RegisterForm = () => {
     username: '',
     name: '',
     lastName: '',
-    genderIdentity: '',
     birthDate: '',
     profileType: ProfileType.WOMEN,
   });
@@ -128,7 +127,7 @@ export const RegisterForm = () => {
     setApiError('');
 
     try {
-      // Excluir la confirmación de contraseña del envío
+      // Excluir solo confirmPassword del envío
       const { confirmPassword, ...registerData } = formData;
       
       await register(registerData);
@@ -250,17 +249,6 @@ export const RegisterForm = () => {
                 disabled={isLoading}
               />
             </div>
-
-            <TextField
-              id="genderIdentity"
-              name="genderIdentity"
-              label="Identidad de género"
-              value={formData.genderIdentity}
-              onChange={handleChange}
-              placeholder="Opcional"
-              fullWidth
-              disabled={isLoading}
-            />
 
             <TextField
               id="birthDate"
