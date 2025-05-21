@@ -2,11 +2,14 @@
 
 namespace App\Entity;
 
+use App\Enum\SymptomEntityType;
 use App\Repository\SymptomLogRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\ORM\Mapping\HasLifecycleCallbacks;
 use ApiPlatform\Metadata\ApiResource;
+
+// ! 20/05/2025 - Añadido campo entity para categorizar síntomas
 
 #[ORM\Entity(repositoryClass: SymptomLogRepository::class)]
 #[ORM\HasLifecycleCallbacks]
@@ -42,6 +45,10 @@ class SymptomLog
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
     private ?\DateTimeInterface $updatedAt = null;
+
+    // ! 20/05/2025 - Campo añadido para identificar a qué contexto pertenece el síntoma (menstrual, embarazo, etc.)
+    #[ORM\Column(length: 50)]
+    private string $entity = SymptomEntityType::MENSTRUAL_CYCLE->value;
 
     public function getId(): ?int
     {
@@ -141,6 +148,19 @@ class SymptomLog
     {
         $this->updatedAt = $updatedAt;
 
+        return $this;
+    }
+
+    // ! 20/05/2025 - Métodos getter/setter para el nuevo campo entity
+    public function getEntity(): string
+    {
+        return $this->entity;
+    }
+    
+    public function setEntity(string $entity): static
+    {
+        $this->entity = $entity;
+        
         return $this;
     }
 

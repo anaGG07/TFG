@@ -4,8 +4,13 @@ namespace App\Controller;
 
 use App\Entity\User;
 use App\Entity\Onboarding;
+use App\Entity\Condition;
+use App\Entity\UserCondition;
+use App\Entity\SymptomLog;
+use App\Entity\MenstrualCycle;
 use App\Enum\ProfileType;
 use App\Enum\HormoneType;
+use App\Service\CycleCalculatorService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -16,6 +21,7 @@ use Lexik\Bundle\JWTAuthenticationBundle\Services\JWTTokenManagerInterface;
 use Lexik\Bundle\JWTAuthenticationBundle\Encoder\JWTEncoderInterface;
 use Symfony\Component\Security\Core\Exception\TokenNotFoundException;
 use Psr\Log\LoggerInterface;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 class OnboardingController extends AbstractController
 {
@@ -23,14 +29,20 @@ class OnboardingController extends AbstractController
     private $jwtManager;
     private $tokenStorage;
     private LoggerInterface $logger;
+    private CycleCalculatorService $cycleCalculatorService;
+    // private ContainerInterface $container;
     
     public function __construct(
         LoggerInterface $logger,
+        CycleCalculatorService $cycleCalculatorService,
+        // ContainerInterface $container,
         JWTEncoderInterface $jwtEncoder = null, 
         JWTTokenManagerInterface $jwtManager = null,
         \Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface $tokenStorage = null
     ) {
         $this->logger = $logger;
+        $this->cycleCalculatorService = $cycleCalculatorService;
+        // $this->container = $container;
         $this->jwtEncoder = $jwtEncoder;
         $this->jwtManager = $jwtManager;
         $this->tokenStorage = $tokenStorage;
@@ -132,10 +144,49 @@ class OnboardingController extends AbstractController
                 $onboarding->setPronouns($data['pronouns']);
             }
             
+            // Establecer preferencias de notificaciones si se proporcionan
+            if (isset($data['receiveAlerts'])) {
+                $onboarding->setReceiveAlerts($data['receiveAlerts']);
+            }
+            
+            if (isset($data['receiveRecommendations'])) {
+                $onboarding->setReceiveRecommendations($data['receiveRecommendations']);
+            }
+            
+            if (isset($data['receiveCyclePhaseTips'])) {
+                $onboarding->setReceiveCyclePhaseTips($data['receiveCyclePhaseTips']);
+            }
+            
+            if (isset($data['receiveWorkoutSuggestions'])) {
+                $onboarding->setReceiveWorkoutSuggestions($data['receiveWorkoutSuggestions']);
+            }
+            
+            if (isset($data['receiveNutritionAdvice'])) {
+                $onboarding->setReceiveNutritionAdvice($data['receiveNutritionAdvice']);
+            }
+            
+            if (isset($data['shareCycleWithPartner'])) {
+                $onboarding->setShareCycleWithPartner($data['shareCycleWithPartner']);
+            }
+            
+            if (isset($data['wantAiCompanion'])) {
+                $onboarding->setWantAiCompanion($data['wantAiCompanion']);
+            }
+            
+            // Establecer preferencias específicas para etapa menstrual
             if ($data['stageOfLife'] === 'menstrual') {
                 $onboarding->setLastPeriodDate(new \DateTime($data['lastPeriodDate']));
                 $onboarding->setAveragePeriodLength($data['averagePeriodLength']);
                 $onboarding->setAverageCycleLength($data['averageCycleLength']);
+            }
+            
+            // Guardar los health concerns y common symptoms si se proporcionan
+            if (isset($data['healthConcerns'])) {
+                $onboarding->setHealthConcerns($data['healthConcerns']);
+            }
+            
+            if (isset($data['commonSymptoms'])) {
+                $onboarding->setCommonSymptoms($data['commonSymptoms']);
             }
 
             // Marcar el onboarding como completado
@@ -155,11 +206,101 @@ class OnboardingController extends AbstractController
                 ], 400);
             }
 
-            // Persistir los cambios
+            // Persistir los cambios de onboarding y usuario
             $em->persist($onboarding);
             $em->persist($user);
-            $em->flush();
+            
+            // ! 19-05-2025 Insertar aquí el código para crear el ciclo menstrual y registrar condiciones médicas y síntomas comunes
+            
+            // 1. Crear un ciclo menstrual si el usuario está en etapa menstrual
+            $menstrualCycleCreated = false;
+            if ($data['stageOfLife'] === 'menstrual') {
+                $lastPeriodDate = new \DateTime($data['lastPeriodDate']);
+                $this->logger->info('Onboarding: Iniciando nuevo ciclo menstrual para el usuario ' . $user->getId());
+                
+                try {
+                    // Verificar si ya existe un ciclo para este usuario
+                    $existingCycle = $em->getRepository(MenstrualCycle::class)->findOneBy(
+                        ['user' => $user],
+                        ['startDate' => 'DESC']
+                    );
+                    
+                    if (!$existingCycle) {
+                        // Crear un nuevo ciclo menstrual usando el servicio
+                        $newCycle = $this->cycleCalculatorService->startNewCycle($user, $lastPeriodDate);
+                        $menstrualCycleCreated = true;
+                        $this->logger->info('Onboarding: Ciclo menstrual creado exitosamente con ID ' . $newCycle->getId());
+                    } else {
+                        $this->logger->info('Onboarding: El usuario ya tiene un ciclo menstrual registrado con ID ' . $existingCycle->getId());
+                    }
+                } catch (\Exception $e) {
+                    $this->logger->error('Onboarding: Error al crear ciclo menstrual: ' . $e->getMessage());
+                    // No fallamos el onboarding por errores en la creación del ciclo
+                }
+            }
+            
+            // 2. Registrar condiciones médicas
+            $conditionsRegistered = [];
+            if (!empty($data['healthConcerns'])) {
+                $conditionRepository = $em->getRepository(Condition::class);
+                
+                foreach ($data['healthConcerns'] as $concernName) {
+                    // Buscar la condición por nombre
+                    $condition = $conditionRepository->findOneBy(['name' => $concernName]);
+                    
+                    if ($condition) {
+                        // Verificar si ya existe esta condición para el usuario
+                        $existingUserCondition = $em->getRepository(UserCondition::class)->findOneBy([
+                            'user' => $user,
+                            'condition' => $condition,
+                            'state' => true
+                        ]);
+                        
+                        if (!$existingUserCondition) {
+                            $userCondition = new UserCondition();
+                            $userCondition->setUser($user);
+                            $userCondition->setCondition($condition);
+                            $userCondition->setStartDate(new \DateTime());
+                            $userCondition->setNotes('Registrada durante onboarding');
+                            $userCondition->setState(true);
+                            
+                            $em->persist($userCondition);
+                            $conditionsRegistered[] = $concernName;
+                            $this->logger->info('Onboarding: Condición registrada: ' . $concernName);
+                        } else {
+                            $this->logger->info('Onboarding: La condición ya existe para el usuario: ' . $concernName);
+                        }
+                    } else {
+                        $this->logger->warning('Onboarding: Condición no encontrada en la base de datos: ' . $concernName);
+                    }
+                }
+            }
+            
+            // 3. Registrar síntomas comunes
+            $symptomsRegistered = [];
+            if (!empty($data['commonSymptoms'])) {
+                $today = new \DateTime();
+                
+                foreach ($data['commonSymptoms'] as $symptomName) {
+                    $symptomLog = new SymptomLog();
+                    $symptomLog->setUser($user);
+                    $symptomLog->setDate($today);
+                    $symptomLog->setSymptom($symptomName);
+                    $symptomLog->setIntensity(3); // Intensidad media por defecto
+                    $symptomLog->setNotes('Registrado durante onboarding');
+                    $symptomLog->setState(true);
+                    
+                    $em->persist($symptomLog);
+                    $symptomsRegistered[] = $symptomName;
+                    $this->logger->info('Onboarding: Síntoma registrado: ' . $symptomName);
+                }
+            }
 
+            // Guardar todos los cambios en una sola transacción
+            $em->flush();
+            
+            // ! 19-05-2025 Insertar aquí el código para crear el ciclo menstrual y registrar condiciones médicas y síntomas comunes        
+            
             // Serializar el usuario actualizado
             $userData = [
                 'id' => $user->getId(),
@@ -168,7 +309,7 @@ class OnboardingController extends AbstractController
                 // Agrega aquí otros campos relevantes del usuario
             ];
 
-            return $this->json([
+            $response = [
                 'message' => 'Onboarding completado exitosamente',
                 'user' => $userData,
                 'onboarding' => [
@@ -180,10 +321,28 @@ class OnboardingController extends AbstractController
                     'averagePeriodLength' => $onboarding->getAveragePeriodLength(),
                     'completed' => $onboarding->isCompleted()
                 ]
-            ]);
+            ];
+            
+            // Agregar información sobre las operaciones adicionales realizadas
+            if ($menstrualCycleCreated) {
+                $response['additionalData'] = [
+                    'menstrualCycleCreated' => true
+                ];
+            }
+            
+            if (!empty($conditionsRegistered)) {
+                $response['additionalData']['conditionsRegistered'] = $conditionsRegistered;
+            }
+            
+            if (!empty($symptomsRegistered)) {
+                $response['additionalData']['symptomsRegistered'] = $symptomsRegistered;
+            }
+
+            return $this->json($response);
 
         } catch (\Exception $e) {
             $this->logger->error('Onboarding: Error inesperado: ' . $e->getMessage());
+            $this->logger->error('Onboarding: Stacktrace: ' . $e->getTraceAsString());
             return $this->json([
                 'message' => 'Error al procesar el onboarding',
                 'error' => $e->getMessage()
