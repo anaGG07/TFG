@@ -20,9 +20,9 @@ export const API_ROUTES = {
     REGISTER: createApiUrl('/register'),
     LOGIN: createApiUrl('/login_check'),
     LOGOUT: createApiUrl('/logout'),
-    PROFILE: createApiUrl('/profile'), // Endpoint para gestionar perfil
-    ONBOARDING: createApiUrl('/onboarding'), // Endpoint específico para onboarding
-    REFRESH_TOKEN: createApiUrl('/refresh-token'), // Endpoint para renovar token JWT
+    PROFILE: createApiUrl('/profile'),
+    ONBOARDING: createApiUrl('/onboarding'),
+    REFRESH_TOKEN: createApiUrl('/refresh-token'),
     PASSWORD_RESET: createApiUrl('/password-reset'),
     PASSWORD_CHANGE: createApiUrl('/password-change'),
   },
@@ -43,7 +43,11 @@ export const API_ROUTES = {
     RECOMMENDATIONS: createApiUrl('/cycles/recommendations'),
     CALENDAR: createApiUrl('/cycles/calendar'),
     PREDICT: createApiUrl('/cycles/predict'),
+    PREDICTION_DETAILS: createApiUrl('/cycles/prediction-details'),
+    STATISTICS: createApiUrl('/cycles/statistics'),
     START_CYCLE: createApiUrl('/cycles/start-cycle'),
+    END_CYCLE: (id: string) => createApiUrl(`/cycles/end-cycle/${id}`),
+    SYNC_ALGORITHM: createApiUrl('/cycles/sync-algorithm'),
   },
 
   SYMPTOMS: {
@@ -51,6 +55,7 @@ export const API_ROUTES = {
     CREATE: createApiUrl('/symptoms'),
     UPDATE: (id: string) => createApiUrl(`/symptoms/${id}`),
     DELETE: (id: string) => createApiUrl(`/symptoms/${id}`),
+    LOGS: createApiUrl('/symptoms/logs'),
   },
 
   INSIGHTS: {

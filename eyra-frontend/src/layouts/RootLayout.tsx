@@ -12,9 +12,6 @@ const RootLayout = () => {
           <main className="flex-1 w-full h-full flex items-center justify-center z-10">
             <Outlet />
           </main>
-          <footer className="absolute bottom-0 left-0 w-full text-center text-sm text-primary/60 py-6 border-t border-[#5b010820] bg-bg z-30">
-            &copy; {new Date().getFullYear()} EYRA — Todos los derechos reservados
-          </footer>
           <style>{`
             :root {
               --color-primary: #5b0108;

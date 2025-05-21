@@ -290,7 +290,6 @@ export const CycleProvider: React.FC<{ children: ReactNode }> = ({ children }) =
     </CycleContext.Provider>
   );
 };
-
 export const useCycle = () => {
   const context = useContext(CycleContext);
   if (context === undefined) {
@@ -298,3 +297,4 @@ export const useCycle = () => {
   }
   return context;
 };
+

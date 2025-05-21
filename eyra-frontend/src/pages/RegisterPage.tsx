@@ -2,13 +2,13 @@ import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { ROUTES } from "../router/paths";
+import Blob from "../components/Blob";
 
 const RegisterPage = () => {
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [gender, setGender] = useState("woman");
   const [birthDate, setBirthDate] = useState("");
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -16,6 +16,14 @@ const RegisterPage = () => {
   const { register } = useAuth();
   const navigate = useNavigate();
   
+  // Tamaño de la ventana para el Blob
+  const [dimensions, setDimensions] = React.useState({ width: window.innerWidth, height: window.innerHeight });
+  React.useEffect(() => {
+    const handleResize = () => setDimensions({ width: window.innerWidth, height: window.innerHeight });
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -40,7 +48,6 @@ const RegisterPage = () => {
         name: username,
         lastName: "Apellido",
         profileType: "profile_women",
-        genderIdentity: gender,
         birthDate,
       };
 
@@ -54,13 +61,23 @@ const RegisterPage = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#e7e0d5] p-4 py-12 font-sans">
-      <div className="bg-white/60 backdrop-blur-md border border-[#5b010820] rounded-xl p-8 w-full max-w-md shadow-xl">
-        <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-[#5b0108] tracking-wide">
+    <div className="w-screen h-screen flex items-center justify-center bg-none p-4 relative overflow-hidden">
+      <div className="absolute inset-0 z-0">
+        <Blob
+          width={dimensions.width}
+          height={dimensions.height}
+          color="#C62328"
+          radius={dimensions.height / 2.1}
+        />
+      </div>
+      <div className="w-full max-w-md z-10 relative p-6 md:p-8 bg-none pointer-events-none flex flex-col justify-center">
+        <div className="text-center mb-6">
+          <h1 className="font-serif text-3xl md:text-5xl font-bold" style={{ color: '#E7E0D5' }}>
             Crear Cuenta
           </h1>
-          <p className="text-[#5b0108]/70 mt-2">Comienza tu camino con EYRA</p>
+          <p className="text-base md:text-lg" style={{ color: '#E7E0D5' }}>
+            Comienza tu camino con EYRA
+          </p>
         </div>
 
         {error && (
@@ -69,153 +86,88 @@ const RegisterPage = () => {
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div>
-            <label
-              htmlFor="username"
-              className="block text-[#300808] mb-2 font-medium"
-            >
-              Nombre de usuario
-            </label>
-            <input
-              id="username"
-              type="text"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              className="w-full bg-white/30 border border-[#300808]/20 rounded-lg py-3 px-4 text-[#5b0108] placeholder-[#5b0108]/40 focus:outline-none focus:ring-2 focus:ring-[#9d0d0b]/50"
-              placeholder="Tu nombre"
-              required
-            />
-          </div>
-
-          <div>
-            <label
-              htmlFor="email"
-              className="block text-[#300808] mb-2 font-medium"
-            >
-              Email
-            </label>
-            <input
-              id="email"
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="w-full bg-white/30 border border-[#300808]/20 rounded-lg py-3 px-4 text-[#5b0108] placeholder-[#5b0108]/40 focus:outline-none focus:ring-2 focus:ring-[#9d0d0b]/50"
-              placeholder="tu@email.com"
-              required
-            />
-          </div>
-
-          <div>
-            <label
-              htmlFor="birthDate"
-              className="block text-[#300808] mb-2 font-medium"
-            >
-              Fecha de Nacimiento
-            </label>
-            <input
-              id="birthDate"
-              type="date"
-              value={birthDate}
-              onChange={(e) => setBirthDate(e.target.value)}
-              className="w-full bg-white/30 border border-[#300808]/20 rounded-lg py-3 px-4 text-[#5b0108] focus:outline-none focus:ring-2 focus:ring-[#9d0d0b]/50"
-              required
-            />
-          </div>
-
-          <div>
-            <label
-              htmlFor="gender"
-              className="block text-[#300808] mb-2 font-medium"
-            >
-              Género
-            </label>
-            <select
-              id="gender"
-              value={gender}
-              onChange={(e) => setGender(e.target.value)}
-              className="w-full bg-white/30 border border-[#300808]/20 rounded-lg py-3 px-4 text-[#5b0108] focus:outline-none focus:ring-2 focus:ring-[#9d0d0b]/50"
-              required
-            >
-              <option value="woman">Mujer</option>
-              <option value="man">Trans</option>
-              <option value="non-binary">No binario</option>
-              <option value="other">Otro</option>
-            </select>
-          </div>
-
-          <div>
-            <label
-              htmlFor="password"
-              className="block text-[#300808] mb-2 font-medium"
-            >
-              Contraseña
-            </label>
-            <input
-              id="password"
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="w-full bg-white/30 border border-[#300808]/20 rounded-lg py-3 px-4 text-[#5b0108] placeholder-[#5b0108]/40 focus:outline-none focus:ring-2 focus:ring-[#9d0d0b]/50"
-              placeholder="••••••••"
-              autoComplete="new-password"
-              required
-            />
-          </div>
-
-          <div>
-            <label
-              htmlFor="confirm-password"
-              className="block text-[#300808] mb-2 font-medium"
-            >
-              Confirmar Contraseña
-            </label>
-            <input
-              id="confirm-password"
-              type="password"
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              className="w-full bg-white/30 border border-[#300808]/20 rounded-lg py-3 px-4 text-[#5b0108] placeholder-[#5b0108]/40 focus:outline-none focus:ring-2 focus:ring-[#9d0d0b]/50"
-              placeholder="••••••••"
-              autoComplete="new-password"
-              required
-            />
-          </div>
-
-          <div className="flex items-start">
+        <form onSubmit={handleSubmit} className="flex flex-col gap-7 pointer-events-auto">
+          <input
+            id="username"
+            type="text"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+            className="w-full bg-transparent border-transparent rounded-2xl shadow-[0_4px_8px_-2px_rgba(0,0,0,0.3)] text-base py-2 px-4 text-[#E7E0D5] placeholder-[#E7E0D5] focus:outline-none transition"
+            placeholder="Nombre de usuario"
+            required
+          />
+          <input
+            id="email"
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            className="w-full bg-transparent border-transparent rounded-2xl shadow-[0_4px_8px_-2px_rgba(0,0,0,0.3)] text-base py-2 px-4 text-[#E7E0D5] placeholder-[#E7E0D5] focus:outline-none transition"
+            placeholder="Email"
+            required
+          />
+          <input
+            id="birthDate"
+            type="date"
+            value={birthDate}
+            onChange={(e) => setBirthDate(e.target.value)}
+            className="w-full bg-transparent border-transparent rounded-2xl shadow-[0_4px_8px_-2px_rgba(0,0,0,0.3)] text-base py-2 px-4 text-[#E7E0D5] placeholder-[#E7E0D5] focus:outline-none transition"
+            placeholder="Fecha de nacimiento"
+            required
+          />
+          <input
+            id="password"
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            className="w-full bg-transparent border-transparent rounded-2xl shadow-[0_4px_8px_-2px_rgba(0,0,0,0.3)] text-base py-2 px-4 text-[#E7E0D5] placeholder-[#E7E0D5] focus:outline-none transition"
+            placeholder="Contraseña"
+            autoComplete="new-password"
+            required
+          />
+          <input
+            id="confirm-password"
+            type="password"
+            value={confirmPassword}
+            onChange={(e) => setConfirmPassword(e.target.value)}
+            className="w-full bg-transparent border-transparent rounded-2xl shadow-[0_4px_8px_-2px_rgba(0,0,0,0.3)] text-base py-2 px-4 text-[#E7E0D5] placeholder-[#E7E0D5] focus:outline-none transition"
+            placeholder="Confirmar contraseña"
+            autoComplete="new-password"
+            required
+          />
+          <div className="flex items-start" style={{ color: '#E7E0D5' }}>
             <input
               id="terms"
               type="checkbox"
-              className="h-4 w-4 mt-1 bg-white/30 border border-[#5b0108]/30 rounded focus:ring-[#9d0d0b]/50"
+              className="h-4 w-4 mt-1 bg-transparent border border-[#E7E0D5]/60 rounded focus:ring-[#E7E0D5]/50"
               required
             />
-            <label htmlFor="terms" className="ml-3 text-sm text-[#5b0108]/80">
-              Acepto los{" "}
-              <a href="#" className="text-[#9d0d0b] font-medium">
+            <label htmlFor="terms" className="ml-3 text-sm" style={{ color: '#E7E0D5' }}>
+              Acepto los{' '}
+              <a href="#" className="font-medium hover:underline" style={{ color: '#E7E0D5' }}>
                 Términos de Servicio
-              </a>{" "}
-              y la{" "}
-              <a href="#" className="text-[#9d0d0b] font-medium">
+              </a>{' '}
+              y la{' '}
+              <a href="#" className="font-medium hover:underline" style={{ color: '#E7E0D5' }}>
                 Política de Privacidad
               </a>
             </label>
           </div>
-
           <button
             type="submit"
             disabled={isLoading}
-            className="w-full py-3 px-4 bg-[#5b0108] text-[#e7e0d5] rounded-lg font-semibold tracking-wide transition-all hover:bg-[#9d0d0b] hover:shadow-lg disabled:opacity-60"
+            className="px-8 py-2 bg-[#E7E0D5] text-[#C62328] font-semibold text-base rounded-full shadow-md transition-all hover:bg-[#fff] hover:text-[#C62328] disabled:opacity-60 mx-auto block"
+            style={{ width: 'fit-content' }}
           >
-            {isLoading ? "Creando cuenta..." : "Crear Cuenta"}
+            {isLoading ? 'Creando cuenta...' : 'Crear Cuenta'}
           </button>
         </form>
-
-        <div className="mt-8 text-center">
-          <p className="text-[#5b0108]/70">
-            ¿Ya tienes una cuenta?{" "}
+        <div className="mt-6 text-center">
+          <p className="text-sm" style={{ color: '#E7E0D5' }}>
+            ¿Ya tienes una cuenta?{' '}
             <Link
               to={ROUTES.LOGIN}
-              className="text-[#9d0d0b] font-semibold hover:underline"
+              className="hover:underline font-medium"
+              style={{ color: '#E7E0D5', textDecorationColor: '#fff' }}
             >
               Iniciar Sesión
             </Link>

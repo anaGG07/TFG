@@ -2,6 +2,8 @@ import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { ROUTES } from "../router/paths";
+import Blob from "../components/Blob";
+import LoadingSpinner from "../components/LoadingSpinner";
 
 const LoginPage = () => {
   const [email, setEmail] = useState("");
@@ -11,6 +13,14 @@ const LoginPage = () => {
 
   const { login, isAuthenticated, isLoading: authLoading } = useAuth();
   const navigate = useNavigate();
+
+  // Tamaño de la ventana para el Blob
+  const [dimensions, setDimensions] = React.useState({ width: window.innerWidth, height: window.innerHeight });
+  React.useEffect(() => {
+    const handleResize = () => setDimensions({ width: window.innerWidth, height: window.innerHeight });
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   // Verificar si el usuario ya tiene una sesión válida al cargar la página
   useEffect(() => {
@@ -59,23 +69,34 @@ const LoginPage = () => {
   // Si está cargando la autenticación, mostrar spinner
   if (authLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#e7e0d5]">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#5b0108]"></div>
-      </div>
+      <LoadingSpinner />
     );
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#e7e0d5] p-4">
-      <main className="bg-[#fefefe] rounded-xl border border-[#5b010820] shadow-md p-8 w-full max-w-md">
-        <div className="text-center mb-8">
+    <div className="w-screen h-screen flex items-center justify-center bg-none p-4 relative overflow-hidden">
+      {/* Blob animado de fondo, cubre todo */}
+      <div className="absolute inset-0 z-0">
+        <Blob
+          width={dimensions.width}
+          height={dimensions.height}
+          color="#C62328"
+          radius={dimensions.height / 2.1}
+        />
+      </div>
+      {/* Formulario transparente y sin pointer events en el main */}
+      <main className="p-6 md:p-8 w-full max-w-md z-10 relative bg-none pointer-events-none">
+        <div className="text-center mb-6">
           <h1
-            className="text-3xl font-serif text-[#5b0108] mb-2"
+            className="font-serif text-3xl md:text-5xl font-bold"
+            style={{ color: "#E7E0D5" }}
             id="login-title"
           >
             Iniciar Sesión
           </h1>
-          <p className="text-[#5b0108]/70">Accede a tu cuenta para continuar</p>
+          <p className="text-base md:text-lg" style={{ color: "#E7E0D5" }}>
+            Accede a tu cuenta para continuar
+          </p>
         </div>
 
         {error && (
@@ -89,89 +110,80 @@ const LoginPage = () => {
 
         <form
           onSubmit={handleSubmit}
-          className="space-y-6"
+          className="flex flex-col gap-7 pointer-events-auto"
           autoComplete="on"
           aria-labelledby="login-title"
           noValidate
         >
           <div>
-            <label
-              htmlFor="email"
-              className="block text-[#300808] mb-2 font-medium"
-            >
-              Email
-            </label>
             <input
               id="email"
               type="email"
               value={email}
               autoComplete="email"
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full bg-white border border-[#300808]/30 rounded-lg py-3 px-4 text-[#5b0108] placeholder-[#5b0108]/40 focus:outline-none focus:ring-2 focus:ring-[#9d0d0b]/50"
-              placeholder="tu@email.com"
+              className="w-full bg-transparent border-transparent rounded-2xl shadow-[0_4px_8px_-2px_rgba(0,0,0,0.3)] text-base py-2 px-4 text-[#E7E0D5] placeholder-[#E7E0D5] focus:outline-none transition"
+              placeholder="Email"
               required
               aria-required="true"
             />
           </div>
-
           <div>
-            <label
-              htmlFor="password"
-              className="block text-[#300808] mb-2 font-medium"
-            >
-              Contraseña
-            </label>
             <input
               id="password"
               type="password"
               autoComplete="current-password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full bg-white border border-[#300808]/30 rounded-lg py-3 px-4 text-[#5b0108] placeholder-[#5b0108]/40 focus:outline-none focus:ring-2 focus:ring-[#9d0d0b]/50"
-              placeholder="••••••••"
+              className="w-full bg-transparent border-transparent rounded-2xl shadow-[0_4px_8px_-2px_rgba(0,0,0,0.3)] text-base py-2 px-4 text-[#E7E0D5] placeholder-[#E7E0D5] focus:outline-none transition"
+              placeholder="Contraseña"
               required
               aria-required="true"
             />
           </div>
-
-          <div className="flex items-center justify-between">
+          <div
+            className="flex items-center justify-between text-sm"
+            style={{ color: "#E7E0D5" }}
+          >
             <div className="flex items-center">
               <input
                 id="remember-me"
                 type="checkbox"
-                className="h-4 w-4 border border-[#300808] rounded text-[#5b0108] focus:ring-[#9d0d0b] focus:ring-offset-0"
+                className="h-4 w-4 border border-[#E7E0D5] rounded text-[#E7E0D5] focus:ring-[#E7E0D5] focus:ring-offset-0 bg-transparent"
               />
               <label
                 htmlFor="remember-me"
-                className="ml-2 block text-sm text-[#5b0108]/70"
+                className="ml-2"
+                style={{ color: "#E7E0D5" }}
               >
                 Recordarme
               </label>
             </div>
-
             <a
               href="#"
-              className="text-sm text-[#9d0d0b] hover:underline font-medium"
+              className="hover:underline font-medium"
+              style={{ color: "#E7E0D5" }}
             >
               ¿Olvidaste tu contraseña?
             </a>
           </div>
-
           <button
             type="submit"
             disabled={isLoading}
-            className="w-full py-3 px-4 bg-[#5b0108] rounded-lg text-[#e7e0d5] font-medium transition-all hover:bg-[#9d0d0b] hover:shadow-lg disabled:opacity-60"
+            className="pointer-cursor px-8 py-2 bg-[#E7E0D5] text-[#C62328] font-semibold text-base rounded-full shadow-md transition-all hover:bg-[#fff] hover:text-[#C62328] disabled:opacity-60 mx-auto block"
+            style={{ width: "fit-content" }}
           >
             {isLoading ? "Iniciando sesión..." : "Iniciar Sesión"}
           </button>
         </form>
 
-        <div className="mt-8 text-center">
-          <p className="text-[#5b0108]/70">
+        <div className="mt-6 text-center">
+          <p className="text-sm" style={{ color: "#E7E0D5" }}>
             ¿No tienes una cuenta?{" "}
             <Link
               to={ROUTES.REGISTER}
-              className="text-[#9d0d0b] hover:underline font-medium"
+              className="hover:underline font-medium"
+              style={{ color: "#E7E0D5", textDecorationColor: "#fff" }}
             >
               Regístrate
             </Link>
