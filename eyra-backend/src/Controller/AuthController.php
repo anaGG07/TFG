@@ -73,10 +73,7 @@ class AuthController extends AbstractController
             $hashedPassword = $this->passwordHasher->hashPassword($user, (string)$data['password']);
             $user->setPassword($hashedPassword);
             
-            // Configurar campos adicionales
-            if (isset($data['genderIdentity']) && is_string($data['genderIdentity'])) {
-                $user->setGenderIdentity($data['genderIdentity']);
-            }
+            // ! 21/05/2025 - Eliminada configuración del campo genderIdentity
             
             if (isset($data['birthDate']) && is_string($data['birthDate'])) {
                 try {
@@ -281,7 +278,7 @@ class AuthController extends AbstractController
                     'lastName' => $user->getLastName(),
                     'roles' => $user->getRoles(),
                     'profileType' => $user->getProfileType()->value,
-                    'genderIdentity' => $user->getGenderIdentity(),
+                    // ! 21/05/2025 - Eliminado campo genderIdentity del perfil
                     'birthDate' => $user->getBirthDate()->format('Y-m-d'),
                     'createdAt' => $user->getCreatedAt()->format('c'),
                     'updatedAt' => $user->getUpdatedAt() ? $user->getUpdatedAt()->format('c') : null,
@@ -333,9 +330,7 @@ class AuthController extends AbstractController
                 $user->setLastName($data['lastName']);
             }
             
-            if (isset($data['genderIdentity']) && is_string($data['genderIdentity'])) {
-                $user->setGenderIdentity($data['genderIdentity']);
-            }
+            // ! 21/05/2025 - Eliminada actualización del campo genderIdentity
             
             if (isset($data['birthDate']) && is_string($data['birthDate'])) {
                 try {

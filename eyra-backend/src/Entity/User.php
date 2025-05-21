@@ -85,9 +85,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[Groups(['user:read', 'user:write'])]
     private ?ProfileType $profileType = ProfileType::GUEST;
 
-    #[ORM\Column(length: 255)]
-    #[Groups(['user:read', 'user:write'])]
-    private ?string $genderIdentity = null;
+    // ! 21/05/2025 - Eliminado campo genderIdentity
 
     #[ORM\Column(type: Types::DATE_MUTABLE)]
     #[Groups(['user:read', 'user:write'])]
@@ -355,17 +353,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    public function getGenderIdentity(): ?string
-    {
-        return $this->genderIdentity;
-    }
-
-    public function setGenderIdentity(string $genderIdentity): static
-    {
-        $this->genderIdentity = $genderIdentity;
-
-        return $this;
-    }
+    // ! 21/05/2025 - Eliminados métodos getGenderIdentity() y setGenderIdentity()
 
     public function getBirthDate(): ?\DateTimeInterface
     {
