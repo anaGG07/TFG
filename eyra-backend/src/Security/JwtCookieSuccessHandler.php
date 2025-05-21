@@ -97,7 +97,6 @@ class JwtCookieSuccessHandler implements AuthenticationSuccessHandlerInterface
                 'lastName' => $user->getLastName(),
                 'roles' => $user->getRoles(),
                 'profileType' => $user->getProfileType()->value,
-                'genderIdentity' => $user->getGenderIdentity(),
                 'birthDate' => $user->getBirthDate()->format('Y-m-d'),
                 'createdAt' => $user->getCreatedAt()->format('c'),
                 'updatedAt' => $user->getUpdatedAt() ? $user->getUpdatedAt()->format('c') : null,
