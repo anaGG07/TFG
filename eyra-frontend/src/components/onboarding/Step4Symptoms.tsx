@@ -33,7 +33,7 @@ const Step4Symptoms: React.FC<StepProps> = ({
   };
 
   return (
-    <div className="w-full flex flex-col items-center gap-8 animate-fade-in">
+    <div className="w-full flex flex-col items-center gap-8 animate-fade-in max-w-md mx-auto">
       <h3 className="font-serif text-2xl md:text-3xl font-bold text-[#7a2323] mb-2 text-center">Síntomas y sensaciones</h3>
       <p className="text-[#3a1a1a] text-lg text-center mb-4">¿Qué síntomas o sensaciones sueles experimentar?<br/><span className="text-[#a62c2c] text-base">Conocer tu cuerpo es el primer paso para cuidarlo.</span></p>
 

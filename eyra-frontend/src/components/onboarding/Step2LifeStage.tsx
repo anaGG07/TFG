@@ -43,10 +43,9 @@ const Step2LifeStage: React.FC<StepProps> = ({
   // a través de la función onNextStep
 
   return (
-    <div className="space-y-6">
-      <p className="text-[#300808] mb-8 text-center">
-        Cuéntanos en qué etapa de tu vida estás o en qué necesitas que EYRA te
-        ayude.
+    <div className="space-y-6 w-full max-w-md mx-auto">
+      <p className="text-[#300808] mb-8 text-center text-lg">
+        Cuéntanos en qué etapa de tu vida estás o en qué necesitas que EYRA te ayude.
       </p>
 
       <div className="space-y-4">

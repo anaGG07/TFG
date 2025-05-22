@@ -179,9 +179,13 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   };
 
   const completeOnboarding = async (onboardingData: any) => {
-    const user = await authService.completeOnboarding(onboardingData);
+    await authService.completeOnboarding(onboardingData);
+    // Forzar recarga del usuario desde el backend
+    await authService.verifySession();
     syncAuthState();
-    return user;
+    const updatedUser = authService.getAuthState().user;
+    if (!updatedUser) throw new Error('No se pudo actualizar el usuario tras el onboarding');
+    return updatedUser;
   };
 
   const refreshSession = useCallback(async (): Promise<boolean> => {

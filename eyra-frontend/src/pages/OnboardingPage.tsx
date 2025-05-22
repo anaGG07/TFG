@@ -274,13 +274,10 @@ const OnboardingPage: React.FC = () => {
   };
 
   return (
-    <div className="w-screen h-screen flex items-center justify-center bg-gradient-to-br from-[#f5ede6] to-[#7a2323] relative overflow-hidden">
+    <div className="w-screen h-screen flex items-center justify-center bg-[#f5ede6] relative overflow-hidden">
       {/* Logo/ilustración artística lateral/fondo */}
-      <div className="absolute right-0 top-0 h-full w-1/3 hidden md:block pointer-events-none opacity-60 z-0 flex items-center justify-center">
-        <img src="/logo-artistico.png" alt="Logo EYRA" className="h-4/5 mx-auto object-contain" style={{maxHeight: '90vh'}} />
-      </div>
-      <div className="absolute inset-0 md:hidden opacity-10 pointer-events-none z-0 flex items-center justify-center">
-        <img src="/logo-artistico.png" alt="Logo EYRA" className="w-3/4 mx-auto object-contain" />
+      <div className="absolute right-8 top-1/2 -translate-y-1/2 h-[80%] w-[220px] hidden md:flex items-center justify-center pointer-events-none opacity-70 z-0">
+        <img src="/logo-artistico.png" alt="Logo EYRA" className="h-full object-contain" />
       </div>
       {/* Barra de progreso superior */}
       <div className="absolute top-0 left-0 w-full flex justify-center z-10 pt-8">
@@ -291,8 +288,8 @@ const OnboardingPage: React.FC = () => {
         </div>
       </div>
       {/* Contenido principal */}
-      <div className="relative z-10 w-full max-w-2xl h-[90vh] flex flex-col justify-center items-center">
-        <div className="bg-white/90 rounded-3xl shadow-2xl p-10 w-full flex flex-col items-center animate-fade-in" style={{minHeight: '600px'}}>
+      <div className="relative z-10 w-full max-w-xl h-[90vh] flex flex-col justify-center items-center">
+        <div className="bg-white rounded-3xl shadow-xl p-10 w-full flex flex-col items-center animate-fade-in border border-[#e7e0d5]" style={{minHeight: '600px'}}>
           <h2 className="font-serif text-3xl md:text-4xl font-bold text-[#7a2323] mb-2 text-center drop-shadow-sm animate-fade-in">Bienvenida a EYRA</h2>
           <p className="text-lg text-[#3a1a1a] mb-8 text-center animate-fade-in">Un espacio para ti, tu ciclo y tu bienestar. <span className="block text-base text-[#a62c2c] mt-2">Tómate tu tiempo, este espacio es solo para ti.</span></p>
           {step === 1 && (

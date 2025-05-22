@@ -43,7 +43,7 @@ const Step5HealthConcerns: React.FC<Step5HealthConcerns> = ({
   };
 
   return (
-    <div className="w-full flex flex-col items-center gap-8 animate-fade-in">
+    <div className="w-full flex flex-col items-center gap-8 animate-fade-in max-w-md mx-auto">
       <h3 className="font-serif text-2xl md:text-3xl font-bold text-[#7a2323] mb-2 text-center">Salud y bienestar</h3>
       <p className="text-[#3a1a1a] text-lg text-center mb-4">¿Hay algo de tu salud que quieras que tengamos en cuenta?<br/><span className="text-[#a62c2c] text-base">Tu bienestar es nuestra prioridad.</span></p>
 
