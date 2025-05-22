@@ -133,7 +133,13 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     setIsLoading(true);
     try {
       const loggedInUser = await authService.login(credentials);
+      // Actualizar el contexto con la respuesta del login
       syncAuthState();
+      // Hacer una petición a /api/profile para obtener el estado más actualizado
+      const updatedUser = await authService.verifySession(true);
+      if (updatedUser) {
+        syncAuthState();
+      }
       return loggedInUser;
     } catch (error) {
       syncAuthState();
