@@ -1,5 +1,4 @@
 import React from "react";
-import { StepProps, Step5Props } from "../../types/components/StepProps";
 
 const healthOptions = [
   "Síndrome de ovario poliquístico",
@@ -15,7 +14,17 @@ const healthOptions = [
   "Otro",
 ];
 
-const Step5HealthConcerns: React.FC<Step5Props> = ({
+interface Step5HealthConcerns {
+  isSubmitting: boolean;
+  watch: any;
+  setValue: any;
+  register: any;
+  errors: any;
+  onSubmit: () => void;
+  onPreviousStep?: () => void;
+}
+
+const Step5HealthConcerns: React.FC<Step5HealthConcerns> = ({
   isSubmitting,
   watch,
   setValue,
@@ -23,26 +32,20 @@ const Step5HealthConcerns: React.FC<Step5Props> = ({
   errors,
   onSubmit,
   onPreviousStep,
-  trigger, // Añadimos esta prop para cumplir con la interfaz
-  setStep, // Añadimos esta prop para cumplir con la interfaz
 }) => {
   const selected = watch("healthConcerns") || [];
 
   const toggleConcern = (item: string) => {
     const updated = selected.includes(item)
-      ? selected.filter((c) => c !== item)
+      ? selected.filter((c: string) => c !== item)
       : [...selected, item];
     setValue("healthConcerns", updated, { shouldValidate: true });
   };
 
-  // La validación se maneja a través de la función onSubmit proporcionada por el componente padre
-
   return (
-    <div className="space-y-6">
-      <p className="text-[#300808] mb-8 text-center text-lg">
-        ¿Hay alguna condición médica o preocupación de salud que quieras que
-        EYRA tenga en cuenta? Puedes seleccionar todas las que apliquen.
-      </p>
+    <div className="w-full flex flex-col items-center gap-8 animate-fade-in">
+      <h3 className="font-serif text-2xl md:text-3xl font-bold text-[#7a2323] mb-2 text-center">Salud y bienestar</h3>
+      <p className="text-[#3a1a1a] text-lg text-center mb-4">¿Hay algo de tu salud que quieras que tengamos en cuenta?<br/><span className="text-[#a62c2c] text-base">Tu bienestar es nuestra prioridad.</span></p>
 
       <div className="grid grid-cols-2 gap-4">
         {healthOptions.map((item) => {
@@ -113,6 +116,11 @@ const Step5HealthConcerns: React.FC<Step5Props> = ({
         >
           {isSubmitting ? "Enviando..." : "Finalizar"}
         </button>
+      </div>
+
+      <div className="mt-8 text-center animate-fade-in">
+        <h3 className="text-2xl font-serif text-[#C62328] font-bold mb-2">¡Onboarding completado!</h3>
+        <p className="text-[#7a2323] text-lg">Estás lista para descubrir, conectar y evolucionar con EYRA.<br/>Recuerda: <span className="font-semibold">tu ciclo, tu poder</span>.</p>
       </div>
     </div>
   );

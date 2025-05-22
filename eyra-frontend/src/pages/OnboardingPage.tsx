@@ -7,8 +7,8 @@ import { ROUTES } from "../router/paths";
 import Step1Context from "../components/onboarding/Step1Context";
 import Step2LifeStage from "../components/onboarding/Step2LifeStage";
 import Step3Preferences from "../components/onboarding/Step3Preferences";
-import Step4Symptoms from "../components/onboarding/Step4Sympoms";
-import Step5Health from "../components/onboarding/Step5HealthConcerns";
+import Step4Symptoms from "../components/onboarding/Step4Symptoms";
+import Step5HealthConcerns from "../components/onboarding/Step5HealthConcerns";
 import { OnboardingFormData } from "../types/forms/OnboardingFormData";
 import { StepProps } from "../types/components/StepProps";
 
@@ -274,39 +274,63 @@ const OnboardingPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#f8e9ea] to-[#f5dfc4] flex items-center justify-center p-4">
-      <div className="bg-white rounded-xl p-8 w-full max-w-2xl shadow-xl">
-        {step === 1 && (
-          <Step1Context 
-            {...commonStepProps} 
-          />
-        )}
-        {step === 2 && (
-          <Step2LifeStage 
-            {...commonStepProps} 
-          />
-        )}
-        {step === 3 && (
-          <Step3Preferences 
-            {...commonStepProps} 
-          />
-        )}
-        {step === 4 && (
-          <Step4Symptoms 
-            {...commonStepProps} 
-          />
-        )}
-        {step === 5 && (
-          <Step5Health
-            {...commonStepProps}
-            onSubmit={handleFinalSubmit}
-          />
-        )}
-
-        {error && (
-          <p className="text-red-500 text-sm text-center mt-4">{error}</p>
+    <div className="w-screen h-screen flex items-center justify-center bg-gradient-to-br from-[#f5ede6] to-[#7a2323] relative overflow-hidden">
+      {/* Logo/ilustración artística lateral/fondo */}
+      <div className="absolute right-0 top-0 h-full w-1/3 hidden md:block pointer-events-none opacity-60 z-0 flex items-center justify-center">
+        <img src="/logo-artistico.png" alt="Logo EYRA" className="h-4/5 mx-auto object-contain" style={{maxHeight: '90vh'}} />
+      </div>
+      <div className="absolute inset-0 md:hidden opacity-10 pointer-events-none z-0 flex items-center justify-center">
+        <img src="/logo-artistico.png" alt="Logo EYRA" className="w-3/4 mx-auto object-contain" />
+      </div>
+      {/* Barra de progreso superior */}
+      <div className="absolute top-0 left-0 w-full flex justify-center z-10 pt-8">
+        <div className="flex gap-3">
+          {[1,2,3,4,5].map(n => (
+            <div key={n} className={`h-2 w-12 rounded-full transition-all duration-500 ${step>=n ? 'bg-[#C62328]' : 'bg-[#e7e0d5]'}`}></div>
+          ))}
+        </div>
+      </div>
+      {/* Contenido principal */}
+      <div className="relative z-10 w-full max-w-2xl h-[90vh] flex flex-col justify-center items-center">
+        <div className="bg-white/90 rounded-3xl shadow-2xl p-10 w-full flex flex-col items-center animate-fade-in" style={{minHeight: '600px'}}>
+          <h2 className="font-serif text-3xl md:text-4xl font-bold text-[#7a2323] mb-2 text-center drop-shadow-sm animate-fade-in">Bienvenida a EYRA</h2>
+          <p className="text-lg text-[#3a1a1a] mb-8 text-center animate-fade-in">Un espacio para ti, tu ciclo y tu bienestar. <span className="block text-base text-[#a62c2c] mt-2">Tómate tu tiempo, este espacio es solo para ti.</span></p>
+          {step === 1 && (
+            <Step1Context {...commonStepProps} />
+          )}
+          {step === 2 && (
+            <Step2LifeStage {...commonStepProps} />
+          )}
+          {step === 3 && (
+            <Step3Preferences {...commonStepProps} />
+          )}
+          {step === 4 && (
+            <Step4Symptoms {...commonStepProps} />
+          )}
+          {step === 5 && (
+            <Step5HealthConcerns {...commonStepProps} onSubmit={handleFinalSubmit} />
+          )}
+          {error && (
+            <p className="text-red-500 text-sm text-center mt-4 animate-fade-in">{error}</p>
+          )}
+        </div>
+        {/* Frase motivadora final */}
+        {step === 5 && !isSubmitting && (
+          <div className="mt-8 text-center animate-fade-in">
+            <h3 className="text-2xl font-serif text-[#C62328] font-bold mb-2">¡Onboarding completado!</h3>
+            <p className="text-[#7a2323] text-lg">Estás lista para descubrir, conectar y evolucionar con EYRA.<br/>Recuerda: <span className="font-semibold">tu ciclo, tu poder</span>.</p>
+          </div>
         )}
       </div>
+      <style>{`
+        @keyframes fade-in {
+          from { opacity: 0; transform: translateY(24px);}
+          to { opacity: 1; transform: translateY(0);}
+        }
+        .animate-fade-in {
+          animation: fade-in 1.2s cubic-bezier(.4,0,.2,1) both;
+        }
+      `}</style>
     </div>
   );
 };

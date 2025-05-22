@@ -19,11 +19,9 @@ const Step1Context: React.FC<StepProps> = ({
   }, []);
 
   return (
-    <div className="space-y-6">
-      <p className="text-[#300808] mb-8 text-center text-lg">
-        Antes de empezar, cuéntanos un poco sobre ti para personalizar tu
-        experiencia en EYRA.
-      </p>
+    <div className="w-full flex flex-col items-center gap-8 animate-fade-in">
+      <h3 className="font-serif text-2xl md:text-3xl font-bold text-[#7a2323] mb-2 text-center">¡Comencemos tu viaje!</h3>
+      <p className="text-[#3a1a1a] text-lg text-center mb-4">Cuéntanos un poco sobre ti para personalizar tu experiencia.<br/><span className="text-[#a62c2c] text-base">Cada historia es única, como tú.</span></p>
 
       <div className="space-y-4">
         <fieldset>
@@ -106,7 +104,7 @@ const Step1Context: React.FC<StepProps> = ({
             type="text"
             {...register("pronouns")}
             className="w-full bg-white border border-[#300808]/20 rounded-lg py-3 px-4 text-[#5b0108]"
-            placeholder="Ej: ella/ella, él/él, elle..."
+            placeholder="Ej: él, ella, elle..."
           />
         </div>
       </div>

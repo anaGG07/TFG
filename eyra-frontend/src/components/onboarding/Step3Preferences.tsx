@@ -12,11 +12,9 @@ const Step3Preferences: React.FC<StepProps> = ({
   const wantsPartner = watch("shareCycleWithPartner");
 
   return (
-    <div className="space-y-6">
-      <p className="text-[#300808] mb-8 text-center text-lg">
-        ¿Cómo quieres que EYRA te acompañe durante tu experiencia? Selecciona
-        las opciones que más se ajusten a tus necesidades.
-      </p>
+    <div className="w-full flex flex-col items-center gap-8 animate-fade-in">
+      <h3 className="font-serif text-2xl md:text-3xl font-bold text-[#7a2323] mb-2 text-center">Tus preferencias</h3>
+      <p className="text-[#3a1a1a] text-lg text-center mb-4">Elige cómo quieres que EYRA te acompañe.<br/><span className="text-[#a62c2c] text-base">Tú decides el ritmo y la compañía.</span></p>
 
       <div className="space-y-6">
         <div>

@@ -26,4 +26,12 @@ export interface OnboardingFormData {
     | "profile_trans"
     | "profile_underage";
   completed: boolean;
+  pregnancyStartDate?: string | null;
+  pregnancyDueDate?: string | null;
+  pregnancyWeek?: number | null;
+  pregnancySymptoms?: string | null;
+  pregnancyFetalMovements?: string | null;
+  pregnancyUltrasoundDate?: string | null;
+  pregnancyNotes?: string | null;
+  otherSymptoms?: string | null;
 }

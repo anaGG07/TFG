@@ -62,19 +62,9 @@ const Step2LifeStage: React.FC<StepProps> = ({
           >
             <option value="">-- Elige una opción --</option>
             <option value="menstrual">Tengo ciclos menstruales activos</option>
-            <option value="transition">
-              Estoy en un proceso de transición hormonal
-            </option>
-            <option value="pregnancy">
-              Estoy embarazada o buscando embarazo
-            </option>
-            <option value="menopause">
-              Estoy en menopausia o perimenopausia
-            </option>
-            <option value="underage">Soy menor y necesito seguimiento</option>
-            <option value="trackingOthers">
-              Solo quiero acompañar a alguien más
-            </option>
+            <option value="transition">Estoy en un proceso de transición hormonal</option>
+            <option value="pregnancy">Estoy embarazada o buscando embarazo</option>
+            <option value="trackingOthers">Solo quiero acompañar a alguien más</option>
           </select>
           {errors.stageOfLife && (
             <p className="text-red-500 text-sm mt-1">
@@ -232,6 +222,82 @@ const Step2LifeStage: React.FC<StepProps> = ({
                 o deja todos vacíos.
               </p>
             )}
+          </div>
+        )}
+
+        {stageOfLife === "pregnancy" && (
+          <div className="space-y-6 mt-6 border-t pt-6 animate-fade-in">
+            <p className="text-lg text-[#5b0108] font-semibold mb-2 text-center">
+              ¡Felicidades por tu embarazo! EYRA te acompañará en cada etapa.
+            </p>
+            <p className="text-base text-[#5b0108] mb-6 text-center">
+              Para personalizar tu experiencia, necesitamos algunos datos clave. Podrás añadir síntomas, ecografías y más detalles en tu seguimiento diario.
+            </p>
+            <div className="flex flex-col gap-5">
+              <div>
+                <label className="block text-[#300808] mb-2 font-medium">
+                  Fecha de inicio del embarazo <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="date"
+                  {...register("pregnancyStartDate", {
+                    required: "La fecha de inicio es obligatoria",
+                    setValueAs: v => v || null
+                  })}
+                  className="w-full bg-[#fff8f6] border border-[#C62328]/20 rounded-2xl py-3 px-4 text-[#5b0108] shadow-[0_2px_8px_-2px_rgba(198,35,40,0.08)] focus:outline-none focus:ring-2 focus:ring-[#C62328]/30 transition"
+                />
+                {errors.pregnancyStartDate && (
+                  <p className="text-red-500 text-sm mt-1">
+                    {errors.pregnancyStartDate.message}
+                  </p>
+                )}
+              </div>
+              <div>
+                <label className="block text-[#300808] mb-2 font-medium">
+                  Fecha estimada de parto <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="date"
+                  {...register("pregnancyDueDate", {
+                    required: "La fecha estimada de parto es obligatoria",
+                    setValueAs: v => v || null
+                  })}
+                  className="w-full bg-[#fff8f6] border border-[#C62328]/20 rounded-2xl py-3 px-4 text-[#5b0108] shadow-[0_2px_8px_-2px_rgba(198,35,40,0.08)] focus:outline-none focus:ring-2 focus:ring-[#C62328]/30 transition"
+                />
+                {errors.pregnancyDueDate && (
+                  <p className="text-red-500 text-sm mt-1">
+                    {errors.pregnancyDueDate.message}
+                  </p>
+                )}
+              </div>
+              <div>
+                <label className="block text-[#300808] mb-2 font-medium">
+                  Semana actual de embarazo (opcional)
+                </label>
+                <input
+                  type="number"
+                  min={1}
+                  max={42}
+                  {...register("pregnancyWeek", {
+                    setValueAs: v => v === "" ? null : Number(v)
+                  })}
+                  className="w-full bg-[#fff8f6] border border-[#C62328]/20 rounded-2xl py-3 px-4 text-[#5b0108] shadow-[0_2px_8px_-2px_rgba(198,35,40,0.08)] focus:outline-none focus:ring-2 focus:ring-[#C62328]/30 transition"
+                  placeholder="Ej: 12"
+                />
+              </div>
+            </div>
+            <div className="mt-6 text-center text-[#C62328] text-sm italic">
+              Recuerda: podrás registrar síntomas, ecografías y otros detalles en tu día a día desde el panel de embarazo.
+            </div>
+            <style>{`
+              @keyframes fade-in {
+                from { opacity: 0; transform: translateY(24px);}
+                to { opacity: 1; transform: translateY(0);}
+              }
+              .animate-fade-in {
+                animation: fade-in 1.2s cubic-bezier(.4,0,.2,1) both;
+              }
+            `}</style>
           </div>
         )}
       </div>
