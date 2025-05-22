@@ -92,16 +92,11 @@ class AuthService {
     }
   }
 
-  public async verifySession(): Promise<boolean> {
-    // Ya no se usa el token manual, solo la cookie HttpOnly
-    // Verificar si la última verificación fue hace menos de 5 minutos
-    if (Date.now() - this.authState.lastVerified < 5 * 60 * 1000) {
-      return this.authState.isAuthenticated;
-    }
-
+  public async verifySession(silent = false): Promise<boolean> {
     try {
-      const user = await apiFetch<User>(API_ROUTES.AUTH.PROFILE);
+      const user = await apiFetch<User>(API_ROUTES.AUTH.PROFILE, {}, silent);
       this.authState = {
+        ...this.authState,
         user,
         isAuthenticated: true,
         lastVerified: Date.now()
@@ -110,6 +105,9 @@ class AuthService {
       return true;
     } catch (error) {
       this.clearAuthState();
+      if (!silent) {
+        console.error(error);
+      }
       return false;
     }
   }

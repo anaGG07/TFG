@@ -31,7 +31,7 @@ export const authEvents = {
 /**
  * Función para realizar peticiones a la API con manejo de errores básico
  */
-export async function apiFetch<T>(path: string, options: FetchOptions = {}): Promise<T> {
+export async function apiFetch<T>(path: string, options: FetchOptions = {}, silent = false): Promise<T> {
   const url = path.startsWith("http") ? path : `${API_URL}${path}`;
   
   const fetchOptions: RequestInit = {
@@ -65,10 +65,12 @@ export async function apiFetch<T>(path: string, options: FetchOptions = {}): Pro
 
     if (!response.ok) {
       if (response.status === 401) {
-        console.error(`Error 401 en petición a ${url}`, {
-          headers: Object.fromEntries(response.headers.entries()),
-          cookies: document.cookie
-        });
+        if (!silent) {
+          console.error(`Error 401 en petición a ${url}`, {
+            headers: Object.fromEntries(response.headers.entries()),
+            cookies: document.cookie
+          });
+        }
         
         // Intentar obtener más información del error
         try {

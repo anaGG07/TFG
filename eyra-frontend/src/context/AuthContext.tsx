@@ -100,10 +100,10 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   }, []);
 
   // Verificar la sesión
-  const checkAuth = useCallback(async (): Promise<boolean> => {
+  const checkAuth = useCallback(async (silent = false): Promise<boolean> => {
     setIsLoading(true);
     try {
-      const isValid = await authService.verifySession();
+      const isValid = await authService.verifySession(silent);
       syncAuthState();
       return isValid;
     } catch (error) {
@@ -116,7 +116,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
   // Efecto para verificar la sesión al montar el componente y cuando cambia la ruta
   useEffect(() => {
-    checkAuth();
+    checkAuth(true); // Primer chequeo: silencioso
   }, [location.pathname, checkAuth]);
 
   // Efecto para manejar cambios en el estado de autenticación
