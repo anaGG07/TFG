@@ -15,6 +15,7 @@ const commonSymptoms = [
   "Otro",
 ];
 
+// Comentario de control
 const Step4Symptoms: React.FC<StepProps> = ({
   isSubmitting,
   watch,
