@@ -7,12 +7,14 @@ interface AuthGuardProps {
   children: React.ReactNode;
   onlyPublic?: boolean; // Rutas públicas (login, register)
   requireOnboarding?: boolean; // Requiere onboarding completo
+  blockIfOnboarded?: boolean; // Bloquea acceso si ya completó onboarding
 }
 
 const AuthGuard: React.FC<AuthGuardProps> = ({
   children,
   onlyPublic = false,
   requireOnboarding = false,
+  blockIfOnboarded = false,
 }) => {
   const { isAuthenticated, isLoading, user } = useAuth();
   const navigate = useNavigate();
@@ -22,6 +24,11 @@ const AuthGuard: React.FC<AuthGuardProps> = ({
     if (isLoading) return;
 
     if (isAuthenticated) {
+      // Si bloqueamos acceso a usuarios con onboarding completo
+      if (blockIfOnboarded && user?.onboardingCompleted) {
+        navigate(ROUTES.DASHBOARD, { replace: true });
+        return;
+      }
       // Si estamos en una ruta pública pero ya autenticado
       if (onlyPublic) {
         navigate(
@@ -30,7 +37,6 @@ const AuthGuard: React.FC<AuthGuardProps> = ({
         );
         return;
       }
-
       // Si requiere onboarding y no lo ha completado
       if (requireOnboarding && !user?.onboardingCompleted) {
         navigate(ROUTES.ONBOARDING, { replace: true });
@@ -43,7 +49,6 @@ const AuthGuard: React.FC<AuthGuardProps> = ({
         return;
       }
     }
-
     // Todo validado, permitimos mostrar contenido
     setChecking(false);
   }, [
@@ -53,6 +58,7 @@ const AuthGuard: React.FC<AuthGuardProps> = ({
     navigate,
     onlyPublic,
     requireOnboarding,
+    blockIfOnboarded,
   ]);
 
   if (isLoading || checking) {

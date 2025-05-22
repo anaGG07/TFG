@@ -20,6 +20,7 @@ import AdminPage from "../pages/AdminPage";
 import ProtectedRoute from "./ProtectedRoute";
 import PublicOnlyRoute from "./PublicOnlyRoute";
 import RoleRoute from "./RoleRoute";
+import AuthGuard from "../components/auth/AuthGuard";
 
 
 export const router = createBrowserRouter([
@@ -52,7 +53,9 @@ export const router = createBrowserRouter([
         path: ROUTES.ONBOARDING,
         element: (
           <ProtectedRoute>
-            <OnboardingPage />
+            <AuthGuard blockIfOnboarded>
+              <OnboardingPage />
+            </AuthGuard>
           </ProtectedRoute>
         ),
       },
