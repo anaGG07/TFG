@@ -95,7 +95,19 @@ class AuthService {
   public async verifySession(silent = false, retries = 3, delay = 100): Promise<boolean> {
     for (let i = 0; i < retries; i++) {
       try {
-        const user = await apiFetch<User>(API_ROUTES.AUTH.PROFILE, {}, silent);
+        const userData = await apiFetch<{ user: User }>(API_ROUTES.AUTH.PROFILE, {}, silent);
+        
+        const user = userData.user || userData;
+        
+        if (!silent) {
+          console.log('AuthService: Datos de usuario recibidos:', {
+            id: user.id,
+            email: user.email,
+            onboardingCompleted: user.onboardingCompleted,
+            onboarding: user.onboarding
+          });
+        }
+        
         this.authState = {
           ...this.authState,
           user,
@@ -106,13 +118,12 @@ class AuthService {
         return true;
       } catch (error: any) {
         if (i < retries - 1 && error.message?.includes("401")) {
-          // Esperar antes de reintentar
           await new Promise(res => setTimeout(res, delay));
           continue;
         }
         this.clearAuthState();
         if (!silent) {
-          console.error(error);
+          console.error('AuthService: Error verificando sesión:', error);
         }
         return false;
       }
@@ -128,18 +139,45 @@ class AuthService {
   }
 
   public async completeOnboarding(onboardingData: any): Promise<User> {
-    const user = await apiFetch<User>(API_ROUTES.AUTH.ONBOARDING, {
-      method: "POST",
-      body: onboardingData,
-    });
-    
-    this.authState = {
-      ...this.authState,
-      user
-    };
-    this.persistAuthState();
-    
-    return user;
+
+    try {
+      const response = await apiFetch<{ user: User; onboarding: any }>(API_ROUTES.AUTH.ONBOARDING, {
+          method: "POST",
+          body: onboardingData,
+        });
+      
+      const user = response.user || response;
+      
+      console.log('AuthService: Respuesta completa del onboarding:', response);
+
+      const updatedUser = {
+        ...user,
+        onboardingCompleted: true,
+        onboarding: response.onboarding ? {
+          ...response.onboarding,
+          completed: true
+        } : user.onboarding
+      };
+
+      this.authState = {
+        ...this.authState,
+        user: updatedUser,
+        lastVerified: Date.now()
+      };
+      this.persistAuthState();
+
+      console.log('AuthService: Estado final tras onboarding:', {
+        onboardingCompleted: this.authState.user?.onboardingCompleted,
+        onboarding: this.authState.user?.onboarding
+      });
+
+      return updatedUser;
+
+    } catch (error) {
+      console.error('AuthService: Error completando onboarding:', error);
+      this.clearAuthState();
+      throw error;
+    }
   }
 
   public updateUserData(userData: Partial<User>): void {

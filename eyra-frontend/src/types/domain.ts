@@ -28,12 +28,20 @@ export interface User {
   lastName: string;
   profileType: ProfileType;
   roles: string[];
-  genderIdentity: string;
   birthDate: string;
   createdAt: string;
   updatedAt: string | null;
   state: boolean;
   onboardingCompleted: boolean;
+  onboarding?: {
+    id: number;
+    profileType: string;
+    stageOfLife: string;
+    lastPeriodDate: string | null;
+    averageCycleLength: number | null;
+    averagePeriodLength: number | null;
+    completed: boolean;
+  };
 }
 
 export interface MenstrualCycle {

@@ -85,8 +85,26 @@ const OnboardingPage: React.FC = () => {
   }, [isAuthenticated, user, checkAuth, navigate]);
 
   useEffect(() => {
-    if (!isLoading && user?.onboardingCompleted) {
-      navigate(ROUTES.DASHBOARD, { replace: true });
+    if (!isLoading && user) {
+      // Verificación mejorada del estado de onboarding
+      const directComplete = user.onboardingCompleted === true;
+      const nestedComplete = user.onboarding?.completed === true;
+      const isComplete =
+        directComplete && (user.onboarding ? nestedComplete : true);
+
+      console.log("OnboardingPage: Verificando estado de onboarding:", {
+        userId: user.id,
+        directComplete,
+        nestedComplete,
+        isComplete,
+      });
+
+      if (isComplete) {
+        console.log(
+          "OnboardingPage: Onboarding ya completado, redirigiendo a dashboard"
+        );
+        navigate(ROUTES.DASHBOARD, { replace: true });
+      }
     }
   }, [user, isLoading, navigate]);
 
@@ -107,7 +125,7 @@ const OnboardingPage: React.FC = () => {
     return null;
   }
 
-  // 🧩 Validación por paso
+  // Validación por paso
 
   const validateStep = async (currentStep: number): Promise<boolean> => {
     setError(null);
