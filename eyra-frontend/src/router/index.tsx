@@ -3,6 +3,7 @@ import { ROUTES } from "./paths";
 
 // Layouts
 import RootLayout from "../layouts/RootLayout";
+import AuthenticatedLayout from "../layouts/AuthenticatedLayout"; 
 
 // Pages
 import HomePage from "../pages/HomePage";
@@ -22,7 +23,6 @@ import ProtectedRoute from "./ProtectedRoute";
 import PublicOnlyRoute from "./PublicOnlyRoute";
 import RoleRoute from "./RoleRoute";
 import AuthGuard from "../components/auth/AuthGuard";
-
 
 export const router = createBrowserRouter([
   {
@@ -64,7 +64,13 @@ export const router = createBrowserRouter([
         path: ROUTES.LOGOUT,
         element: <LogoutPage />,
       },
-      // Rutas protegidas - requieren onboarding
+    ],
+  },
+
+  {
+    path: "/",
+    element: <AuthenticatedLayout />,
+    children: [
       {
         path: ROUTES.DASHBOARD,
         element: (
