@@ -4,15 +4,7 @@ import { useAuth } from "../context/AuthContext";
 import { ROUTES } from "../router/paths";
 import Blob from "./Blob";
 import { useLogout } from "../hooks/useLogout";
-import {
-  Home,
-  Calendar,
-  BarChart3,
-  User,
-  Settings,
-  LogOut,
-  Hand,
-} from "lucide-react";
+import * as LucideIcons from "lucide-react";
 
 interface NavigationItem {
   id: string;
@@ -38,42 +30,42 @@ const CircularNavigation: React.FC = () => {
     {
       id: "dashboard",
       label: "Dashboard",
-      icon: Home,
+      icon: LucideIcons.Home,
       route: ROUTES.DASHBOARD,
       color: "#C62328",
     },
     {
       id: "calendar",
       label: "Calendario",
-      icon: Calendar,
+      icon: LucideIcons.Calendar,
       route: ROUTES.CALENDAR,
       color: "#8B1538",
     },
     {
       id: "insights",
       label: "Insights",
-      icon: BarChart3,
+      icon: LucideIcons.BarChart3,
       route: ROUTES.INSIGHTS,
       color: "#A91D3A",
     },
     {
       id: "profile",
       label: "Perfil",
-      icon: User,
+      icon: LucideIcons.User,
       route: ROUTES.PROFILE,
       color: "#7A1E2D",
     },
     {
       id: "settings",
       label: "Configuración",
-      icon: Settings,
+      icon: LucideIcons.Settings,
       route: ROUTES.SETTINGS,
       color: "#6B1A28",
     },
     {
       id: "logout",
       label: "Cerrar Sesión",
-      icon: LogOut,
+      icon: LucideIcons.LogOut,
       route: "",
       color: "#E53E3E",
     },
@@ -118,7 +110,7 @@ const CircularNavigation: React.FC = () => {
 
   // Calcular posición de los elementos en el círculo
   const getItemPosition = (index: number) => {
-    const radius = 65; // Radio más pequeño del círculo de navegación
+    const radius = 75; // Radio con más margen del borde
     const centerX = 100; // Centro del blob más pequeño
     const centerY = 100;
 
@@ -195,7 +187,7 @@ const CircularNavigation: React.FC = () => {
         onClick={rotateWheel}
         title="Click para rotar el menú"
       >
-        <Hand
+        <LucideIcons.Hand
           size={14}
           className="text-gray-700 group-hover:text-gray-900 transition-colors duration-200"
         />
@@ -203,12 +195,10 @@ const CircularNavigation: React.FC = () => {
 
       {/* Indicador sutil del elemento actual */}
       {isVisible && (
-        <div className="absolute top-full left-1/2 transform -translate-x-1/2 mt-1">
-          <div className="bg-white bg-opacity-90 rounded-md px-2 py-1 shadow-md">
-            <p className="text-xs font-medium text-gray-800">
-              {navigationItems[currentIndex]?.label}
-            </p>
-          </div>
+        <div className="absolute top-full left-1/2 transform -translate-x-1/2 mt-3">
+          <p className="text-sm font-semibold text-[#C62328] drop-shadow-sm">
+            {navigationItems[currentIndex]?.label}
+          </p>
         </div>
       )}
 
