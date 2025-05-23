@@ -21,10 +21,8 @@ const CircularNavigation: React.FC = () => {
 
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isVisible, setIsVisible] = useState(false);
-  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
 
   const blobRef = useRef<HTMLDivElement>(null);
-  const containerRef = useRef<HTMLDivElement>(null);
 
   // Configuración de elementos de navegación
   const navigationItems: NavigationItem[] = [
@@ -92,17 +90,6 @@ const CircularNavigation: React.FC = () => {
     setIsVisible(false);
   };
 
-  // Actualizar posición del mouse
-  const handleMouseMove = (e: React.MouseEvent) => {
-    if (containerRef.current) {
-      const rect = containerRef.current.getBoundingClientRect();
-      setMousePosition({
-        x: e.clientX - rect.left,
-        y: e.clientY - rect.top,
-      });
-    }
-  };
-
   // Navegación hacia arriba/abajo
   const navigateUp = () => {
     const newIndex =
@@ -130,9 +117,9 @@ const CircularNavigation: React.FC = () => {
   const getItemPosition = (index: number, isVisible: boolean) => {
     if (!isVisible) return { x: 0, y: 0, opacity: 0 };
 
-    const radius = 60; // Radio del círculo de navegación
-    const centerX = 75; // Centro del blob (150px / 2)
-    const centerY = 75;
+    const radius = 90; // Radio del círculo de navegación
+    const centerX = 150; // Centro del blob
+    const centerY = 150;
     const angle =
       (index * (Math.PI * 2)) / navigationItems.length - Math.PI / 2; // Empezar desde arriba
 
@@ -145,19 +132,17 @@ const CircularNavigation: React.FC = () => {
 
   return (
     <div
-      ref={containerRef}
-      className="fixed top-4 left-4 w-[150px] h-[150px] z-50"
+      className="fixed top-4 left-4 w-[400px] h-[400px] z-50"
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
-      onMouseMove={handleMouseMove}
     >
       {/* Blob de fondo */}
       <div ref={blobRef} className="absolute inset-0">
         <Blob
-          width={150}
-          height={150}
+          width={300}
+          height={300}
           color={navigationItems[currentIndex]?.color || "#C62328"}
-          radius={60}
+          radius={120}
         />
       </div>
 

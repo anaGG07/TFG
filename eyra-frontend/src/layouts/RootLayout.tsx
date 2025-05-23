@@ -1,12 +1,35 @@
-import { Outlet } from "react-router-dom";
-import { AuthProvider } from "../context/AuthContext";
+import { Outlet, useLocation } from "react-router-dom";
+import { AuthProvider, useAuth } from "../context/AuthContext";
 import { CycleProvider } from "../context/CycleContext";
+import CircularNavigation from "../components/CircularNavigation";
 
-// ✅ Componente interno que usa el AuthContext
+// Rutas donde mostrar la navegación circular
+const AUTHENTICATED_ROUTES = [
+  "/dashboard",
+  "/calendar",
+  "/insights",
+  "/profile",
+  "/settings",
+  "/admin",
+];
+
+// Componente interno que maneja la navegación condicional
 const RootContent = () => {
+  const { isAuthenticated, user } = useAuth();
+  const location = useLocation();
 
-  // ✅ FIX: Solo mostrar loading durante operaciones específicas, no inicialización
-  // El loading de inicialización se maneja en las páginas individuales
+  // Determinar si mostrar navegación circular
+  const shouldShowNavigation =
+    isAuthenticated &&
+    user?.onboardingCompleted &&
+    AUTHENTICATED_ROUTES.some((route) => location.pathname.startsWith(route));
+
+  console.log("RootLayout: Navegación circular:", {
+    shouldShow: shouldShowNavigation,
+    path: location.pathname,
+    isAuthenticated,
+    onboardingCompleted: user?.onboardingCompleted,
+  });
 
   return (
     <CycleProvider>
@@ -14,9 +37,13 @@ const RootContent = () => {
         className="w-screen h-screen overflow-hidden bg-bg text-primary font-sans flex flex-col items-center justify-center relative"
         style={{ minHeight: "100vh", minWidth: "100vw" }}
       >
+        {/* Navegación circular solo en rutas autenticadas */}
+        {shouldShowNavigation && <CircularNavigation />}
+
         <main className="flex-1 w-full h-full flex items-center justify-center z-10">
           <Outlet />
         </main>
+
         <style>{`
           :root {
             --color-primary: #5b0108;

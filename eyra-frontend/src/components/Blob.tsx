@@ -6,19 +6,27 @@ interface BlobProps {
   color?: string;
   radius?: number;
   style?: React.CSSProperties;
+  // Nuevas props para mayor control
+  elasticity?: number;
+  friction?: number;
+  speedMultiplier?: number;
+  points?: number;
 }
 
 export default function Blob({
-  width = 300,
-  height = 300,
+  width = 400,
+  height = 400,
   color = "#C62328",
-  radius = 120,
+  radius = 200,
   style = {},
+  elasticity = 0.005,
+  friction = 0.015,
+  speedMultiplier = 8,
+  points = 32,
 }: BlobProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
-    // --- CLASES DEL BLOB ---
     class Point {
       parent: any;
       azimuth: number;
@@ -26,8 +34,8 @@ export default function Blob({
       _acceleration = 0;
       _speed = 0;
       _radialEffect = 0;
-      _elasticity = 0.001;
-      _friction = 0.0085;
+      _elasticity: number;
+      _friction: number;
 
       constructor(azimuth: number, parent: any) {
         this.parent = parent;
@@ -36,36 +44,46 @@ export default function Blob({
           x: Math.cos(this.azimuth),
           y: Math.sin(this.azimuth),
         };
-        this.acceleration = -0.3 + Math.random() * 0.6;
+        this._elasticity = elasticity;
+        this._friction = friction;
+        this.acceleration = -0.4 + Math.random() * 0.8;
       }
+
       solveWith(leftPoint: any, rightPoint: any) {
         this.acceleration =
-          (-0.3 * this.radialEffect +
+          (-0.4 * this.radialEffect +
             (leftPoint.radialEffect - this.radialEffect) +
             (rightPoint.radialEffect - this.radialEffect)) *
             this.elasticity -
           this.speed * this.friction;
       }
+
       set acceleration(value: number) {
         this._acceleration = value;
-        this.speed += this._acceleration * 2;
+        this.speed += this._acceleration * 2.5;
       }
+
       get acceleration() {
         return this._acceleration;
       }
+
       set speed(value: number) {
         this._speed = value;
-        this.radialEffect += this._speed * 5;
+        this.radialEffect += this._speed * speedMultiplier;
       }
+
       get speed() {
         return this._speed;
       }
+
       set radialEffect(value: number) {
         this._radialEffect = value;
       }
+
       get radialEffect() {
         return this._radialEffect;
       }
+
       get position() {
         return {
           x:
@@ -76,18 +94,23 @@ export default function Blob({
             this.components.y * (this.parent.radius + this.radialEffect),
         };
       }
+
       get components() {
         return this._components;
       }
+
       set elasticity(value: number) {
         this._elasticity = value;
       }
+
       get elasticity() {
         return this._elasticity;
       }
+
       set friction(value: number) {
         this._friction = value;
       }
+
       get friction() {
         return this._friction;
       }
@@ -98,7 +121,7 @@ export default function Blob({
       _color = color;
       _canvas: HTMLCanvasElement | null = null;
       ctx: CanvasRenderingContext2D | null = null;
-      _points = 32;
+      _points = points;
       _radius = radius;
       _position = { x: 0.5, y: 0.5 };
       mousePos: { x: number; y: number } | null = null;
@@ -106,15 +129,19 @@ export default function Blob({
       get numPoints() {
         return this._points;
       }
+
       get radius() {
         return this._radius;
       }
+
       get position() {
         return this._position;
       }
+
       get divisional() {
         return (Math.PI * 2) / this.numPoints;
       }
+
       get center() {
         if (!this.canvas) return { x: 0, y: 0 };
         return {
@@ -122,19 +149,24 @@ export default function Blob({
           y: this.canvas.height * this.position.y,
         };
       }
+
       set color(value: string) {
         this._color = value;
       }
+
       get color() {
         return this._color;
       }
+
       set canvas(value: HTMLCanvasElement | null) {
         this._canvas = value;
         if (value) this.ctx = value.getContext("2d");
       }
+
       get canvas() {
         return this._canvas;
       }
+
       init() {
         this.points = [];
         for (let i = 0; i < this.numPoints; i++) {
@@ -142,17 +174,18 @@ export default function Blob({
           this.push(point);
         }
       }
+
       push(item: any) {
         if (item instanceof Point) {
           this.points.push(item);
         }
       }
+
       render = () => {
         if (!this.canvas || !this.ctx) return;
         const ctx = this.ctx;
         const pointsArray = this.points;
         const points = this.numPoints;
-        const center = this.center;
 
         ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
@@ -183,14 +216,13 @@ export default function Blob({
 
         ctx.fillStyle = this.color;
         ctx.fill();
-        ctx.strokeStyle = "#00000000";
+        ctx.strokeStyle = "transparent";
         ctx.stroke();
 
         requestAnimationFrame(this.render);
       };
     }
 
-    // --- INICIALIZACIÓN ---
     const canvas = canvasRef.current;
     if (!canvas) return;
 
@@ -198,16 +230,15 @@ export default function Blob({
     blob.canvas = canvas;
     blob.init();
 
-    // Resize canvas
     const resize = () => {
       canvas.width = width;
       canvas.height = height;
     };
     resize();
 
-    // Mouse interaction
     let oldMousePoint = { x: 0, y: 0 };
     let hover = false;
+
     const mouseMove = (e: PointerEvent) => {
       const rect = canvas.getBoundingClientRect();
       let pos = blob.center;
@@ -244,23 +275,32 @@ export default function Blob({
             x: oldMousePoint.x - mouseX,
             y: oldMousePoint.y - mouseY,
           };
-          let s = Math.sqrt(strength.x * strength.x + strength.y * strength.y) * 10;
-          if (s > 100) s = 100;
-          nearestPoint.acceleration = (s / 100) * (hover ? -1 : 1);
+          let s =
+            Math.sqrt(strength.x * strength.x + strength.y * strength.y) * 12;
+          if (s > 120) s = 120;
+          nearestPoint.acceleration = (s / 100) * (hover ? -1.2 : 1.2);
         }
       }
       oldMousePoint.x = mouseX;
       oldMousePoint.y = mouseY;
     };
-    canvas.addEventListener("pointermove", mouseMove);
 
+    canvas.addEventListener("pointermove", mouseMove);
     blob.render();
 
-    // Cleanup
     return () => {
       canvas.removeEventListener("pointermove", mouseMove);
     };
-  }, [width, height, color, radius]);
+  }, [
+    width,
+    height,
+    color,
+    radius,
+    elasticity,
+    friction,
+    speedMultiplier,
+    points,
+  ]);
 
   return (
     <canvas
