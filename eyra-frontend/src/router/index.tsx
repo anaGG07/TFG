@@ -15,7 +15,7 @@ import InsightsPage from "../pages/InsightsPage";
 import ProfilePage from "../pages/ProfilePage";
 import ErrorPage from "../pages/ErrorPage";
 import AdminPage from "../pages/AdminPage";
-
+import LogoutPage from "../pages/LogoutPage";
 
 // Restricciones para rutas
 import ProtectedRoute from "./ProtectedRoute";
@@ -59,6 +59,10 @@ export const router = createBrowserRouter([
             </AuthGuard>
           </ProtectedRoute>
         ),
+      },
+      {
+        path: ROUTES.LOGOUT,
+        element: <LogoutPage />,
       },
       // Rutas protegidas - requieren onboarding
       {
