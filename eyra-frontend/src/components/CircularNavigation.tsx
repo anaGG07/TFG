@@ -97,11 +97,6 @@ const CircularNavigation: React.FC = () => {
     setCurrentIndex(newIndex);
   };
 
-  const navigateDown = () => {
-    const newIndex =
-      currentIndex < navigationItems.length - 1 ? currentIndex + 1 : 0;
-    setCurrentIndex(newIndex);
-  };
 
   // Manejar selección de item
   const selectCurrentItem = () => {
@@ -132,7 +127,7 @@ const CircularNavigation: React.FC = () => {
 
   return (
     <div
-      className="fixed top-4 left-4 w-[400px] h-[400px] z-50"
+      className="fixed top-4 left-4 w-[300px] h-[300px] z-50"
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
     >
@@ -166,8 +161,8 @@ const CircularNavigation: React.FC = () => {
               ${isActive ? "scale-110 z-30" : "scale-90 z-20"}
             `}
               style={{
-                left: `${position.x - 20}px`,
-                top: `${position.y - 20}px`,
+                left: `${position.x - 10}px`,
+                top: `${position.y - 10}px`,
                 opacity: position.opacity,
               }}
             >
@@ -216,16 +211,6 @@ const CircularNavigation: React.FC = () => {
             ↑
           </button>
 
-          {/* Flecha hacia abajo */}
-          <button
-            onClick={navigateDown}
-            className="absolute bottom-2 left-1/2 transform -translate-x-1/2 z-40
-                     w-6 h-6 rounded-full bg-white bg-opacity-20 
-                     flex items-center justify-center text-white hover:bg-opacity-30
-                     transition-all duration-200"
-          >
-            ↓
-          </button>
         </>
       )}
 
