@@ -1,69 +1,186 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 import { ROUTES } from "../router/paths";
 import Blob from "./Blob";
 import { useLogout } from "../hooks/useLogout";
-import * as LucideIcons from "lucide-react";
 
 interface NavigationItem {
   id: string;
   label: string;
-  icon: React.ComponentType<any>;
+  icon: React.ComponentType<{ className?: string }>;
   route: string;
   color?: string;
 }
 
+// Iconos SVG personalizados lineales
+const HomeIcon = ({ className }: { className?: string }) => (
+  <svg
+    className={className}
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
+    <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+    <polyline points="9,22 9,12 15,12 15,22" />
+  </svg>
+);
+
+const CalendarIcon = ({ className }: { className?: string }) => (
+  <svg
+    className={className}
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
+    <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+    <line x1="16" y1="2" x2="16" y2="6" />
+    <line x1="8" y1="2" x2="8" y2="6" />
+    <line x1="3" y1="10" x2="21" y2="10" />
+    <circle cx="8" cy="16" r="1" />
+    <circle cx="12" cy="16" r="1" />
+    <circle cx="16" cy="16" r="1" />
+  </svg>
+);
+
+const InsightsIcon = ({ className }: { className?: string }) => (
+  <svg
+    className={className}
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
+    <line x1="18" y1="20" x2="18" y2="10" />
+    <line x1="12" y1="20" x2="12" y2="4" />
+    <line x1="6" y1="20" x2="6" y2="14" />
+  </svg>
+);
+
+const ProfileIcon = ({ className }: { className?: string }) => (
+  <svg
+    className={className}
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
+    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+    <circle cx="12" cy="7" r="4" />
+  </svg>
+);
+
+const SettingsIcon = ({ className }: { className?: string }) => (
+  <svg
+    className={className}
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
+    <circle cx="12" cy="12" r="3" />
+    <path d="M12 1v6m0 6v6m11-7h-6m-6 0H1m17-4a2 2 0 1 1-4 0 2 2 0 0 1 4 0zM7 15a2 2 0 1 1-4 0 2 2 0 0 1 4 0z" />
+  </svg>
+);
+
+const LogoutIcon = ({ className }: { className?: string }) => (
+  <svg
+    className={className}
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
+    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+    <polyline points="16,17 21,12 16,7" />
+    <line x1="21" y1="12" x2="9" y2="12" />
+  </svg>
+);
+
+const HandIcon = ({ className }: { className?: string }) => (
+  <svg
+    className={className}
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
+    <path d="M18 11V6a2 2 0 0 0-4 0v5" />
+    <path d="M14 10V4a2 2 0 0 0-4 0v2" />
+    <path d="M10 10.5V6a2 2 0 0 0-4 0v8" />
+    <path d="M18 8a2 2 0 1 1 4 0v6a8 8 0 0 1-8 8h-2a8 8 0 0 1-8-8V8a2 2 0 1 1 4 0" />
+  </svg>
+);
+
 const CircularNavigation: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const { user } = useAuth();
   const handleLogout = useLogout();
 
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isVisible, setIsVisible] = useState(false);
+  const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
 
   const blobRef = useRef<HTMLDivElement>(null);
 
-  // Configuración de elementos de navegación con iconos Lucide
+  // Configuración de elementos de navegación con iconos SVG
   const navigationItems: NavigationItem[] = [
     {
       id: "dashboard",
       label: "Dashboard",
-      icon: LucideIcons.Home,
+      icon: HomeIcon,
       route: ROUTES.DASHBOARD,
       color: "#C62328",
     },
     {
       id: "calendar",
       label: "Calendario",
-      icon: LucideIcons.Calendar,
+      icon: CalendarIcon,
       route: ROUTES.CALENDAR,
       color: "#8B1538",
     },
     {
       id: "insights",
       label: "Insights",
-      icon: LucideIcons.BarChart3,
+      icon: InsightsIcon,
       route: ROUTES.INSIGHTS,
       color: "#A91D3A",
     },
     {
       id: "profile",
       label: "Perfil",
-      icon: LucideIcons.User,
+      icon: ProfileIcon,
       route: ROUTES.PROFILE,
       color: "#7A1E2D",
     },
     {
       id: "settings",
       label: "Configuración",
-      icon: LucideIcons.Settings,
+      icon: SettingsIcon,
       route: ROUTES.SETTINGS,
       color: "#6B1A28",
     },
     {
       id: "logout",
       label: "Cerrar Sesión",
-      icon: LucideIcons.LogOut,
+      icon: LogoutIcon,
       route: "",
       color: "#E53E3E",
     },
@@ -87,11 +204,17 @@ const CircularNavigation: React.FC = () => {
 
   const handleMouseLeave = () => {
     setIsVisible(false);
+    setHoveredIndex(null);
   };
 
+  // Rotar la rueda hacia adelante
+  const rotateWheel = () => {
+    const newIndex =
+      currentIndex < navigationItems.length - 1 ? currentIndex + 1 : 0;
+    setCurrentIndex(newIndex);
+  };
 
-
-  // Manejar selección de item (solo cuando se hace click en un icono)
+  // Manejar selección de item
   const selectItem = (index: number) => {
     const item = navigationItems[index];
     if (item.id === "logout") {
@@ -103,11 +226,10 @@ const CircularNavigation: React.FC = () => {
 
   // Calcular posición de los elementos en el círculo
   const getItemPosition = (index: number) => {
-    const radius = 50; // Radio con más margen del borde
-    const centerX = 100; // Centro del blob más pequeño
+    const radius = 75; // Radio con más margen del borde
+    const centerX = 100; // Centro del blob
     const centerY = 100;
 
-    // Ajustar ángulo para que los iconos estén mejor centrados respecto al eje central
     const angleOffset = -Math.PI / 2; // Comenzar desde arriba
     const angle =
       (index * (Math.PI * 2)) / navigationItems.length + angleOffset;
@@ -118,13 +240,24 @@ const CircularNavigation: React.FC = () => {
     };
   };
 
+  // Determinar qué texto mostrar
+  const getDisplayText = () => {
+    if (!isVisible) {
+      return user?.name || "Usuario";
+    }
+    if (hoveredIndex !== null) {
+      return navigationItems[hoveredIndex]?.label;
+    }
+    return navigationItems[currentIndex]?.label;
+  };
+
   return (
     <div
       className="fixed top-2 left-2 w-[200px] h-[200px] z-50"
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
     >
-      {/* Blob de fondo más pequeño */}
+      {/* Blob de fondo */}
       <div ref={blobRef} className="absolute inset-0">
         <Blob
           width={200}
@@ -134,51 +267,95 @@ const CircularNavigation: React.FC = () => {
         />
       </div>
 
-      {/* Elementos de navegación circular - TODOS VISIBLES */}
-      {navigationItems.map((item, index) => {
-        const position = getItemPosition(index);
-        const isActive = index === currentIndex;
-        const IconComponent = item.icon;
+      {/* Elementos de navegación circular - Solo visibles en hover */}
+      {isVisible &&
+        navigationItems.map((item, index) => {
+          const position = getItemPosition(index);
+          const isActive = index === currentIndex;
+          const isHovered = index === hoveredIndex;
+          const IconComponent = item.icon;
 
-        return (
-          <div
-            key={item.id}
-            className={`absolute transition-all duration-300 ease-out transform
-            ${isActive ? "scale-110 z-30" : "scale-85 z-20"}
-          `}
-            style={{
-              left: `${position.x - 18}px`,
-              top: `${position.y - 18}px`,
-              opacity: isActive ? 1 : 0.4, // Elementos no activos con opacidad
-            }}
-          >
+          return (
             <div
-              className={`w-9 h-9 rounded-full flex items-center justify-center text-white font-bold
-              ${
-                isActive
-                  ? "bg-white bg-opacity-25 shadow-lg border-2 border-white border-opacity-50"
-                  : "bg-white bg-opacity-10 border border-white border-opacity-20"
-              }
-              cursor-pointer hover:bg-opacity-40 hover:scale-105 transition-all duration-200
+              key={item.id}
+              className={`absolute transition-all duration-300 ease-out transform
+              ${isActive ? "scale-110 z-30" : "scale-85 z-20"}
+              ${isHovered ? "scale-125" : ""}
             `}
-              onClick={() => selectItem(index)}
+              style={{
+                left: `${position.x - 18}px`,
+                top: `${position.y - 18}px`,
+                opacity: isActive ? 1 : 0.4,
+              }}
+              onMouseEnter={() => setHoveredIndex(index)}
+              onMouseLeave={() => setHoveredIndex(null)}
             >
-              <IconComponent size={16} className="text-white" />
+              <div
+                className={`w-9 h-9 rounded-full flex items-center justify-center text-white font-bold
+                ${
+                  isActive || isHovered
+                    ? "bg-white bg-opacity-25 shadow-lg border-2 border-white border-opacity-50"
+                    : "bg-white bg-opacity-10 border border-white border-opacity-20"
+                }
+                cursor-pointer hover:bg-opacity-40 transition-all duration-200
+              `}
+                onClick={() => selectItem(index)}
+              >
+                <IconComponent className="w-4 h-4 text-white" />
+              </div>
             </div>
-          </div>
-        );
-      })}
+          );
+        })}
 
-      {/* Indicador sutil del elemento actual */}
+      {/* Botón central para rotar la rueda - Solo visible en hover */}
       {isVisible && (
-        <div className="absolute top-full left-1/2 transform -translate-x-1/2 mt-3">
-          <p className="text-sm font-semibold text-[#C62328] drop-shadow-sm">
-            {navigationItems[currentIndex]?.label}
-          </p>
+        <div
+          className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-40
+                     w-8 h-8 rounded-full bg-white bg-opacity-70 
+                     flex items-center justify-center cursor-pointer
+                     hover:bg-opacity-90 hover:scale-110 transition-all duration-200
+                     border-2 border-white border-opacity-60 shadow-lg
+                     group"
+          onClick={rotateWheel}
+          title="Click para rotar el menú"
+        >
+          <HandIcon className="w-3.5 h-3.5 text-gray-700 group-hover:text-gray-900 transition-colors duration-200" />
         </div>
       )}
 
-      
+      {/* Texto central dinámico */}
+      <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-30 pointer-events-none">
+        <div className="text-center">
+          <p
+            className={`text-sm font-semibold text-white drop-shadow-lg transition-all duration-300 ${
+              isVisible ? "opacity-0" : "opacity-100"
+            }`}
+          >
+            {!isVisible ? user?.name || "Usuario" : ""}
+          </p>
+        </div>
+      </div>
+
+      {/* Texto del elemento actual/hover */}
+      <div className="absolute top-full left-1/2 transform -translate-x-1/2 mt-3">
+        <p
+          className={`text-sm font-semibold text-[#C62328] drop-shadow-sm transition-all duration-300 text-center ${
+            isVisible ? "opacity-100" : "opacity-0"
+          }`}
+        >
+          {getDisplayText()}
+        </p>
+      </div>
+
+      {/* Info del usuario (más compacta) */}
+      {isVisible && user && (
+        <div className="absolute bottom-full left-0 mb-2 bg-white bg-opacity-90 rounded-md p-2 min-w-[100px] shadow-md">
+          <p className="text-xs font-medium text-gray-800 truncate">
+            {user.name}
+          </p>
+          <p className="text-xs text-gray-600 truncate">{user.email}</p>
+        </div>
+      )}
     </div>
   );
 };
