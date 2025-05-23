@@ -16,6 +16,7 @@ import ProfilePage from "../pages/ProfilePage";
 import ErrorPage from "../pages/ErrorPage";
 import AdminPage from "../pages/AdminPage";
 
+
 // Restricciones para rutas
 import ProtectedRoute from "./ProtectedRoute";
 import PublicOnlyRoute from "./PublicOnlyRoute";
