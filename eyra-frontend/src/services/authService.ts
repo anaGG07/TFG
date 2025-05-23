@@ -92,24 +92,32 @@ class AuthService {
     }
   }
 
-  public async verifySession(silent = false): Promise<boolean> {
-    try {
-      const user = await apiFetch<User>(API_ROUTES.AUTH.PROFILE, {}, silent);
-      this.authState = {
-        ...this.authState,
-        user,
-        isAuthenticated: true,
-        lastVerified: Date.now()
-      };
-      this.persistAuthState();
-      return true;
-    } catch (error) {
-      this.clearAuthState();
-      if (!silent) {
-        console.error(error);
+  public async verifySession(silent = false, retries = 3, delay = 100): Promise<boolean> {
+    for (let i = 0; i < retries; i++) {
+      try {
+        const user = await apiFetch<User>(API_ROUTES.AUTH.PROFILE, {}, silent);
+        this.authState = {
+          ...this.authState,
+          user,
+          isAuthenticated: true,
+          lastVerified: Date.now()
+        };
+        this.persistAuthState();
+        return true;
+      } catch (error: any) {
+        if (i < retries - 1 && error.message?.includes("401")) {
+          // Esperar antes de reintentar
+          await new Promise(res => setTimeout(res, delay));
+          continue;
+        }
+        this.clearAuthState();
+        if (!silent) {
+          console.error(error);
+        }
+        return false;
       }
-      return false;
     }
+    return false;
   }
 
   public async register(userData: RegisterRequest): Promise<void> {
