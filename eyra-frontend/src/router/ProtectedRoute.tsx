@@ -1,4 +1,4 @@
-import { ReactNode, useEffect, useState } from "react";
+import { ReactNode } from "react";
 import { Navigate, useLocation } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import LoadingSpinner from "../components/LoadingSpinner";
@@ -15,7 +15,6 @@ const ProtectedRoute = ({
 }: ProtectedRouteProps) => {
   const { isAuthenticated, isLoading, user } = useAuth();
   const location = useLocation();
-  const [isReady, setIsReady] = useState(false);
 
   // Función mejorada para verificar onboarding
   const isOnboardingComplete = (user: any) => {
@@ -27,14 +26,8 @@ const ProtectedRoute = ({
     return directComplete && (user.onboarding ? nestedComplete : true);
   };
 
-  // Efecto simplificado - confía en el AuthContext
-  useEffect(() => {
-    if (!isLoading) {
-      setIsReady(true);
-    }
-  }, [isLoading]);
-
-  if (isLoading || !isReady) {
+  // No más verificaciones automáticas - confía completamente en AuthContext
+  if (isLoading) {
     return <LoadingSpinner />;
   }
 

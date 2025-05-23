@@ -16,13 +16,13 @@ class AuthService {
   private authState: AuthState = {
     user: null,
     isAuthenticated: false,
-    lastVerified: 0
+    lastVerified: 0,
   };
-  
-  // Control de verificaciones concurrentes
+
+  // ✅ FIX: Control más estricto de concurrencia
   private verificationPromise: Promise<boolean> | null = null;
   private lastVerificationAttempt: number = 0;
-  private readonly VERIFICATION_COOLDOWN = 1000; // 1 segundo entre verificaciones
+  private readonly VERIFICATION_COOLDOWN = 5000; // ✅ Aumentado a 5 segundos
 
   private constructor() {
     this.initializeFromStorage();
@@ -54,7 +54,7 @@ class AuthService {
     this.authState = {
       user: null,
       isAuthenticated: false,
-      lastVerified: 0
+      lastVerified: 0,
     };
     localStorage.removeItem(AUTH_STATE_KEY);
   }
@@ -63,19 +63,9 @@ class AuthService {
     return { ...this.authState };
   }
 
-  // Verificar desde localStorage primero
-  public isLikelyAuthenticated(): boolean {
-    const now = Date.now();
-    const timeSinceLastVerification = now - this.authState.lastVerified;
-    
-    // Si fue verificado recientemente (< 30 segundos) y tenemos usuario, probablemente sigue autenticado
-    return this.authState.isAuthenticated && 
-           this.authState.user !== null && 
-           timeSinceLastVerification < 30000;
-  }
-
   public async login(credentials: LoginRequest): Promise<User> {
     try {
+      console.log("AuthService: Ejecutando login...");
       const response = await apiFetch<{ user: User }>(API_ROUTES.AUTH.LOGIN, {
         method: "POST",
         body: credentials,
@@ -88,86 +78,97 @@ class AuthService {
       this.authState = {
         user: response.user,
         isAuthenticated: true,
-        lastVerified: Date.now()
+        lastVerified: Date.now(),
       };
       this.persistAuthState();
 
+      console.log("AuthService: Login exitoso para:", response.user.email);
       return response.user;
     } catch (error) {
+      console.error("AuthService: Error en login:", error);
       this.clearAuthState();
       throw error;
     }
   }
 
   public async logout(): Promise<void> {
-  try {
-    console.log('AuthService: Iniciando logout...');
-    await apiFetch(API_ROUTES.AUTH.LOGOUT, { method: "POST" });
-    console.log('AuthService: Logout exitoso en servidor');
-  } catch (error) {
-    console.error('AuthService: Error en logout del servidor:', error);
-    // Continuar con limpieza local incluso si falla el servidor
-  } finally {
-    console.log('AuthService: Limpiando estado local...');
-    this.clearAuthState();
-    console.log('AuthService: Estado local limpiado');
+    try {
+      console.log("AuthService: Ejecutando logout...");
+      await apiFetch(API_ROUTES.AUTH.LOGOUT, { method: "POST" });
+      console.log("AuthService: Logout exitoso en servidor");
+    } catch (error) {
+      console.error("AuthService: Error en logout del servidor:", error);
+    } finally {
+      console.log("AuthService: Limpiando estado local...");
+      this.clearAuthState();
+    }
   }
-}
 
-
-  // Verificación de sesión optimizada con control de concurrencia
+  // ✅ FIX: Verificación de sesión con control de frecuencia mejorado
   public async verifySession(silent = false): Promise<boolean> {
     const now = Date.now();
-    
-    // Evitar verificaciones demasiado frecuentes
+
+    // ✅ Control de frecuencia más estricto
     if (now - this.lastVerificationAttempt < this.VERIFICATION_COOLDOWN) {
       if (!silent) {
-        console.log('AuthService: Verificación en cooldown, usando estado local');
+        console.log(
+          `AuthService: Verificación en cooldown (${Math.round(
+            (this.VERIFICATION_COOLDOWN -
+              (now - this.lastVerificationAttempt)) /
+              1000
+          )}s restantes)`
+        );
       }
       return this.authState.isAuthenticated;
     }
 
-    // Si ya hay una verificación en curso, esperar a que termine
+    // ✅ Si ya hay una verificación en curso, esperar resultado
     if (this.verificationPromise) {
       if (!silent) {
-        console.log('AuthService: Esperando verificación en curso...');
+        console.log("AuthService: Esperando verificación en curso...");
       }
       return await this.verificationPromise;
     }
 
-    // Crear nueva promesa de verificación
+    // ✅ Marcar tiempo de verificación ANTES de crear la promesa
     this.lastVerificationAttempt = now;
     this.verificationPromise = this.performVerification(silent);
 
     try {
       return await this.verificationPromise;
     } finally {
-      // Limpiar la promesa después de completar
+      // ✅ Limpiar promesa después de completar
       this.verificationPromise = null;
     }
   }
 
-  // Método privado para realizar la verificación real
   private async performVerification(silent: boolean): Promise<boolean> {
     try {
-      const userData = await apiFetch<{ user: User }>(API_ROUTES.AUTH.PROFILE, {}, silent);
-      
-      const user = userData.user || userData;
-      
       if (!silent) {
-        console.log('AuthService: Verificación exitosa para usuario:', user.email);
+        console.log("AuthService: Verificando sesión en servidor...");
       }
-      
+
+      const userData = await apiFetch<{ user: User }>(
+        API_ROUTES.AUTH.PROFILE,
+        {},
+        silent
+      );
+      const user = userData.user || userData;
+
+      if (!silent) {
+        console.log("AuthService: Sesión válida para:", user.email);
+      }
+
       this.authState = {
         user,
         isAuthenticated: true,
-        lastVerified: Date.now()
+        lastVerified: Date.now(),
       };
       this.persistAuthState();
       return true;
     } catch (error: any) {
       if (!silent) {
-        console.log('AuthService: Sesión no válida');
+        console.log("AuthService: Sesión no válida");
       }
       this.clearAuthState();
       return false;
@@ -183,33 +184,38 @@ class AuthService {
 
   public async completeOnboarding(onboardingData: any): Promise<User> {
     try {
-      const response = await apiFetch<{ user: User; onboarding: any }>(API_ROUTES.AUTH.ONBOARDING, {
-        method: "POST",
-        body: onboardingData,
-      });
-      
+      const response = await apiFetch<{ user: User; onboarding: any }>(
+        API_ROUTES.AUTH.ONBOARDING,
+        {
+          method: "POST",
+          body: onboardingData,
+        }
+      );
+
       const user = response.user || response;
-      
+
       const updatedUser = {
         ...user,
         onboardingCompleted: true,
-        onboarding: response.onboarding ? {
-          ...response.onboarding,
-          completed: true
-        } : user.onboarding
+        onboarding: response.onboarding
+          ? {
+              ...response.onboarding,
+              completed: true,
+            }
+          : user.onboarding,
       };
 
       this.authState = {
         ...this.authState,
         user: updatedUser,
         isAuthenticated: true,
-        lastVerified: Date.now()
+        lastVerified: Date.now(),
       };
       this.persistAuthState();
 
       return updatedUser;
     } catch (error) {
-      console.error('AuthService: Error completando onboarding:', error);
+      console.error("AuthService: Error completando onboarding:", error);
       this.clearAuthState();
       throw error;
     }
@@ -219,7 +225,7 @@ class AuthService {
     if (this.authState.user) {
       this.authState = {
         ...this.authState,
-        user: { ...this.authState.user, ...userData }
+        user: { ...this.authState.user, ...userData },
       };
       this.persistAuthState();
     }
