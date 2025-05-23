@@ -1,27 +1,29 @@
-import { ReactNode } from "react";
-import { Navigate } from "react-router-dom";
+import React, { ReactNode } from "react";
+import { Navigate, useLocation } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
-import LoadingSpinner from "../components/LoadingSpinner";
 import { ROUTES } from "./paths";
 
 interface PublicOnlyRouteProps {
   children: ReactNode;
-  redirectTo?: string;
 }
 
-const PublicOnlyRoute = ({
-  children,
-  redirectTo = ROUTES.DASHBOARD,
-}: PublicOnlyRouteProps) => {
-  const { isAuthenticated, isLoading } = useAuth();
+const PublicOnlyRoute: React.FC<PublicOnlyRouteProps> = ({ children }) => {
+  const { isAuthenticated, isLoading, user } = useAuth();
+  const location = useLocation();
 
-  // Mostrar spinner mientras se carga el estado de autenticación
+  // No mostrar loading durante inicialización para rutas públicas
   if (isLoading) {
-    return <LoadingSpinner text="Verificando sesión..." />;
+    // Para rutas públicas, mostrar el contenido inmediatamente
+    // El loading se maneja internamente en los componentes
+    return <>{children}</>;
   }
 
-  if (isAuthenticated) {
-    return <Navigate to={redirectTo} replace />;
+  if (isAuthenticated && user) {
+    // Si está autenticado, redirigir según el estado del onboarding
+    const redirectTo = user.onboardingCompleted
+      ? ROUTES.DASHBOARD
+      : ROUTES.ONBOARDING;
+    return <Navigate to={redirectTo} replace state={{ from: location }} />;
   }
 
   return <>{children}</>;

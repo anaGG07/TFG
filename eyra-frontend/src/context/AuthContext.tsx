@@ -7,7 +7,6 @@ import {
   useCallback,
   useRef,
 } from "react";
-
 import { User } from "../types/domain";
 import { authService } from "../services/authService";
 import { LoginRequest, RegisterRequest } from "../types/api";
@@ -37,75 +36,83 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const [isLoading, setIsLoading] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
+  const hasInitialized = useRef(false);
 
-  const initRef = useRef(false);
-  const verificationInProgress = useRef(false);
-
-  // Sincronización simple sin efectos secundarios
+  // Sincronización simple y directa
   const syncAuthState = useCallback(() => {
     const authState = authService.getAuthState();
     setUser(authState.user);
     setIsAuthenticated(authState.isAuthenticated);
+    console.log("AuthContext: Estado sincronizado:", {
+      isAuthenticated: authState.isAuthenticated,
+      hasUser: !!authState.user,
+      userEmail: authState.user?.email,
+    });
   }, []);
 
-  // Verificación controlada sin bucles
+  // Verificación simplificada
   const checkAuth = useCallback(
     async (silent = false): Promise<boolean> => {
-      // Evitar verificaciones concurrentes
-      if (verificationInProgress.current) {
-        console.log("AuthContext: Verificación ya en progreso, omitiendo...");
-        return isAuthenticated;
-      }
-
-      verificationInProgress.current = true;
       if (!silent) setIsLoading(true);
 
       try {
-        console.log("AuthContext: Iniciando verificación de sesión");
+        console.log("AuthContext: Verificando sesión...");
         const isValid = await authService.verifySession(silent);
         syncAuthState();
-        console.log(
-          "AuthContext: Verificación completada, resultado:",
-          isValid
-        );
+        console.log("AuthContext: Verificación completada:", isValid);
         return isValid;
       } catch (error) {
         console.error("AuthContext: Error en verificación:", error);
         syncAuthState();
         return false;
       } finally {
-        verificationInProgress.current = false;
-        if (!silent) setIsLoading(false);
+        if (!silent) {
+          setIsLoading(false);
+          console.log("AuthContext: Loading establecido a false");
+        }
       }
     },
-    [syncAuthState, isAuthenticated]
+    [syncAuthState]
   );
 
-  // Inicialización única y controlada
+  // Inicialización robusta con timeout
   useEffect(() => {
-    if (initRef.current) return;
-    initRef.current = true;
+    if (hasInitialized.current) return;
+    hasInitialized.current = true;
 
     const initialize = async () => {
-      console.log("AuthContext: Inicializando contexto...");
+      console.log("AuthContext: === INICIANDO INICIALIZACIÓN ===");
 
-      // Sincronizar con estado local primero
-      syncAuthState();
+      try {
+        // 1. Sincronizar estado local inmediatamente
+        syncAuthState();
 
-      // Verificar en servidor solo una vez
-      await checkAuth(true);
+        // 2. Verificar en servidor con timeout
+        const initPromise = checkAuth(true);
+        const timeoutPromise = new Promise<boolean>((resolve) => {
+          setTimeout(() => {
+            console.log("AuthContext: Timeout de inicialización alcanzado");
+            resolve(false);
+          }, 5000); // 5 segundos máximo
+        });
 
-      console.log("AuthContext: Inicialización completada");
+        await Promise.race([initPromise, timeoutPromise]);
+      } catch (error) {
+        console.error("AuthContext: Error en inicialización:", error);
+      } finally {
+        setIsLoading(false);
+        console.log("AuthContext: === INICIALIZACIÓN COMPLETADA ===");
+      }
     };
 
     initialize();
-  }, []); // Dependencias vacías = solo se ejecuta una vez
+  }, []); // Solo se ejecuta una vez
 
-  // Efecto simplificado para cambios de localStorage
+  // Solo escuchar cambios de localStorage
   useEffect(() => {
     const handleStorageChange = (e: StorageEvent) => {
       if (e.key === "auth_state") {
-        console.log("AuthContext: Cambio detectado en localStorage");
+        console.log("AuthContext: Cambio en localStorage detectado");
         syncAuthState();
       }
     };
@@ -114,17 +121,13 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     return () => window.removeEventListener("storage", handleStorageChange);
   }, [syncAuthState]);
 
-  // ELIMINAR: El efecto que causaba el bucle
-  // Este useEffect con location.pathname era la causa del bucle
-  // useEffect(() => { ... }, [location.pathname, ...]) ❌
-
   const login = async (credentials: LoginRequest) => {
     setIsLoading(true);
     try {
-      console.log("AuthContext: Iniciando login...");
+      console.log("AuthContext: Ejecutando login...");
       const loggedInUser = await authService.login(credentials);
       syncAuthState();
-      console.log("AuthContext: Login exitoso");
+      console.log("AuthContext: Login exitoso para:", loggedInUser.email);
       return loggedInUser;
     } catch (error) {
       console.error("AuthContext: Error en login:", error);
@@ -138,7 +141,12 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const register = async (userData: RegisterRequest) => {
     setIsLoading(true);
     try {
+      console.log("AuthContext: Ejecutando registro...");
       await authService.register(userData);
+      console.log("AuthContext: Registro exitoso");
+    } catch (error) {
+      console.error("AuthContext: Error en registro:", error);
+      throw error;
     } finally {
       setIsLoading(false);
     }
@@ -147,10 +155,12 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const logout = async () => {
     setIsLoading(true);
     try {
-      console.log("AuthContext: Iniciando logout...");
+      console.log("AuthContext: Ejecutando logout...");
       await authService.logout();
       syncAuthState();
       console.log("AuthContext: Logout exitoso");
+    } catch (error) {
+      console.error("AuthContext: Error en logout:", error);
     } finally {
       setIsLoading(false);
     }
@@ -173,6 +183,15 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     console.log("AuthContext: Refrescando sesión...");
     return checkAuth(false);
   }, [checkAuth]);
+
+  // Log del estado actual
+  console.log("AuthContext: Estado actual render:", {
+    isLoading,
+    isAuthenticated,
+    hasUser: !!user,
+    userEmail: user?.email,
+    hasInitialized: hasInitialized.current,
+  });
 
   const value: AuthContextType = {
     user,

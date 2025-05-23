@@ -19,10 +19,10 @@ class AuthService {
     lastVerified: 0,
   };
 
-  // ✅ FIX: Control más estricto de concurrencia
+  // Controles de concurrencia simplificados
   private verificationPromise: Promise<boolean> | null = null;
   private lastVerificationAttempt: number = 0;
-  private readonly VERIFICATION_COOLDOWN = 5000; // ✅ Aumentado a 5 segundos
+  private readonly VERIFICATION_COOLDOWN = 3000; // 3 segundos
 
   private constructor() {
     this.initializeFromStorage();
@@ -36,18 +36,27 @@ class AuthService {
   }
 
   private initializeFromStorage() {
-    const storedState = localStorage.getItem(AUTH_STATE_KEY);
-    if (storedState) {
-      try {
+    try {
+      const storedState = localStorage.getItem(AUTH_STATE_KEY);
+      if (storedState) {
         this.authState = JSON.parse(storedState);
-      } catch {
-        this.clearAuthState();
+        console.log("AuthService: Estado cargado desde localStorage:", {
+          isAuthenticated: this.authState.isAuthenticated,
+          hasUser: !!this.authState.user,
+        });
       }
+    } catch (error) {
+      console.error("AuthService: Error cargando desde localStorage:", error);
+      this.clearAuthState();
     }
   }
 
   private persistAuthState() {
-    localStorage.setItem(AUTH_STATE_KEY, JSON.stringify(this.authState));
+    try {
+      localStorage.setItem(AUTH_STATE_KEY, JSON.stringify(this.authState));
+    } catch (error) {
+      console.error("AuthService: Error guardando en localStorage:", error);
+    }
   }
 
   private clearAuthState() {
@@ -65,14 +74,14 @@ class AuthService {
 
   public async login(credentials: LoginRequest): Promise<User> {
     try {
-      console.log("AuthService: Ejecutando login...");
+      console.log("AuthService: Enviando solicitud de login...");
       const response = await apiFetch<{ user: User }>(API_ROUTES.AUTH.LOGIN, {
         method: "POST",
         body: credentials,
       });
 
       if (!response.user) {
-        throw new Error("Invalid response from server");
+        throw new Error("Respuesta inválida del servidor");
       }
 
       this.authState = {
@@ -93,36 +102,30 @@ class AuthService {
 
   public async logout(): Promise<void> {
     try {
-      console.log("AuthService: Ejecutando logout...");
+      console.log("AuthService: Enviando solicitud de logout...");
       await apiFetch(API_ROUTES.AUTH.LOGOUT, { method: "POST" });
       console.log("AuthService: Logout exitoso en servidor");
     } catch (error) {
       console.error("AuthService: Error en logout del servidor:", error);
     } finally {
-      console.log("AuthService: Limpiando estado local...");
       this.clearAuthState();
+      console.log("AuthService: Estado local limpiado");
     }
   }
 
-  // ✅ FIX: Verificación de sesión con control de frecuencia mejorado
+  // Verificación simplificada sin bucles
   public async verifySession(silent = false): Promise<boolean> {
     const now = Date.now();
 
-    // ✅ Control de frecuencia más estricto
+    // Control básico de frecuencia
     if (now - this.lastVerificationAttempt < this.VERIFICATION_COOLDOWN) {
       if (!silent) {
-        console.log(
-          `AuthService: Verificación en cooldown (${Math.round(
-            (this.VERIFICATION_COOLDOWN -
-              (now - this.lastVerificationAttempt)) /
-              1000
-          )}s restantes)`
-        );
+        console.log("AuthService: Verificación en cooldown");
       }
       return this.authState.isAuthenticated;
     }
 
-    // ✅ Si ya hay una verificación en curso, esperar resultado
+    // Si hay verificación en curso, esperar
     if (this.verificationPromise) {
       if (!silent) {
         console.log("AuthService: Esperando verificación en curso...");
@@ -130,14 +133,12 @@ class AuthService {
       return await this.verificationPromise;
     }
 
-    // ✅ Marcar tiempo de verificación ANTES de crear la promesa
     this.lastVerificationAttempt = now;
     this.verificationPromise = this.performVerification(silent);
 
     try {
       return await this.verificationPromise;
     } finally {
-      // ✅ Limpiar promesa después de completar
       this.verificationPromise = null;
     }
   }
@@ -155,20 +156,20 @@ class AuthService {
       );
       const user = userData.user || userData;
 
-      if (!silent) {
-        console.log("AuthService: Sesión válida para:", user.email);
-      }
-
       this.authState = {
         user,
         isAuthenticated: true,
         lastVerified: Date.now(),
       };
       this.persistAuthState();
+
+      if (!silent) {
+        console.log("AuthService: Sesión válida para:", user.email);
+      }
       return true;
     } catch (error: any) {
       if (!silent) {
-        console.log("AuthService: Sesión no válida");
+        console.log("AuthService: Sesión no válida o expirada");
       }
       this.clearAuthState();
       return false;
@@ -176,14 +177,17 @@ class AuthService {
   }
 
   public async register(userData: RegisterRequest): Promise<void> {
+    console.log("AuthService: Enviando solicitud de registro...");
     await apiFetch(API_ROUTES.AUTH.REGISTER, {
       method: "POST",
       body: userData,
     });
+    console.log("AuthService: Registro exitoso");
   }
 
   public async completeOnboarding(onboardingData: any): Promise<User> {
     try {
+      console.log("AuthService: Enviando datos de onboarding...");
       const response = await apiFetch<{ user: User; onboarding: any }>(
         API_ROUTES.AUTH.ONBOARDING,
         {
@@ -213,6 +217,10 @@ class AuthService {
       };
       this.persistAuthState();
 
+      console.log(
+        "AuthService: Onboarding completado para:",
+        updatedUser.email
+      );
       return updatedUser;
     } catch (error) {
       console.error("AuthService: Error completando onboarding:", error);
