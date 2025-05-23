@@ -207,13 +207,6 @@ const CircularNavigation: React.FC = () => {
     setHoveredIndex(null);
   };
 
-  // Rotar la rueda hacia adelante
-  const rotateWheel = () => {
-    const newIndex =
-      currentIndex < navigationItems.length - 1 ? currentIndex + 1 : 0;
-    setCurrentIndex(newIndex);
-  };
-
   // Manejar selección de item
   const selectItem = (index: number) => {
     const item = navigationItems[index];
@@ -226,7 +219,7 @@ const CircularNavigation: React.FC = () => {
 
   // Calcular posición de los elementos en el círculo
   const getItemPosition = (index: number) => {
-    const radius = 75; // Radio con más margen del borde
+    const radius = 50; // Radio con más margen del borde
     const centerX = 100; // Centro del blob
     const centerY = 100;
 
@@ -307,21 +300,6 @@ const CircularNavigation: React.FC = () => {
           );
         })}
 
-      {/* Botón central para rotar la rueda - Solo visible en hover */}
-      {isVisible && (
-        <div
-          className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-40
-                     w-8 h-8 rounded-full bg-white bg-opacity-70 
-                     flex items-center justify-center cursor-pointer
-                     hover:bg-opacity-90 hover:scale-110 transition-all duration-200
-                     border-2 border-white border-opacity-60 shadow-lg
-                     group"
-          onClick={rotateWheel}
-          title="Click para rotar el menú"
-        >
-          <HandIcon className="w-3.5 h-3.5 text-gray-700 group-hover:text-gray-900 transition-colors duration-200" />
-        </div>
-      )}
 
       {/* Texto central dinámico */}
       <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-30 pointer-events-none">
@@ -347,15 +325,6 @@ const CircularNavigation: React.FC = () => {
         </p>
       </div>
 
-      {/* Info del usuario (más compacta) */}
-      {isVisible && user && (
-        <div className="absolute bottom-full left-0 mb-2 bg-white bg-opacity-90 rounded-md p-2 min-w-[100px] shadow-md">
-          <p className="text-xs font-medium text-gray-800 truncate">
-            {user.name}
-          </p>
-          <p className="text-xs text-gray-600 truncate">{user.email}</p>
-        </div>
-      )}
     </div>
   );
 };
