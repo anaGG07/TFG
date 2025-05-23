@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { useAuth } from "../context/AuthContext";
 import { ROUTES } from "../router/paths";
 import Blob from "./Blob";
 import { useLogout } from "../hooks/useLogout";
@@ -16,7 +15,6 @@ interface NavigationItem {
 const CircularNavigation: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { user } = useAuth();
   const handleLogout = useLogout();
 
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -90,21 +88,20 @@ const CircularNavigation: React.FC = () => {
     setIsVisible(false);
   };
 
-  // Navegación hacia arriba/abajo
-  const navigateUp = () => {
+  // Rotar la rueda hacia adelante
+  const rotateWheel = () => {
     const newIndex =
-      currentIndex > 0 ? currentIndex - 1 : navigationItems.length - 1;
+      currentIndex < navigationItems.length - 1 ? currentIndex + 1 : 0;
     setCurrentIndex(newIndex);
   };
 
-
-  // Manejar selección de item
-  const selectCurrentItem = () => {
-    const currentItem = navigationItems[currentIndex];
-    if (currentItem.id === "logout") {
+  // Manejar selección de item (solo cuando se hace click en un icono)
+  const selectItem = (index: number) => {
+    const item = navigationItems[index];
+    if (item.id === "logout") {
       handleLogout();
-    } else if (currentItem.route) {
-      navigate(currentItem.route);
+    } else if (item.route) {
+      navigate(item.route);
     }
   };
 
@@ -115,8 +112,11 @@ const CircularNavigation: React.FC = () => {
     const radius = 90; // Radio del círculo de navegación
     const centerX = 150; // Centro del blob
     const centerY = 150;
+
+    // Ajustar ángulo para que los iconos estén mejor centrados respecto al eje central
+    const angleOffset = -Math.PI / 2; // Comenzar desde arriba
     const angle =
-      (index * (Math.PI * 2)) / navigationItems.length - Math.PI / 2; // Empezar desde arriba
+      (index * (Math.PI * 2)) / navigationItems.length + angleOffset;
 
     return {
       x: centerX + Math.cos(angle) * radius,
@@ -127,7 +127,7 @@ const CircularNavigation: React.FC = () => {
 
   return (
     <div
-      className="fixed top-4 left-4 w-[300px] h-[300px] z-50"
+      className="fixed top-2 left-2 w-[300px] h-[300px] z-50"
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
     >
@@ -161,8 +161,8 @@ const CircularNavigation: React.FC = () => {
               ${isActive ? "scale-110 z-30" : "scale-90 z-20"}
             `}
               style={{
-                left: `${position.x - 10}px`,
-                top: `${position.y - 10}px`,
+                left: `${position.x - 20}px`,
+                top: `${position.y - 20}px`,
                 opacity: position.opacity,
               }}
             >
@@ -176,58 +176,25 @@ const CircularNavigation: React.FC = () => {
                 border-2 border-white border-opacity-30
                 cursor-pointer hover:bg-opacity-30 transition-all duration-200
               `}
-                onClick={() => {
-                  setCurrentIndex(index);
-                  selectCurrentItem();
-                }}
+                onClick={() => selectItem(index)}
               >
                 <span className="text-lg">{item.icon}</span>
               </div>
-
-              {/* Etiqueta del elemento activo */}
-              {isActive && (
-                <div
-                  className="absolute top-12 left-1/2 transform -translate-x-1/2 
-                            bg-black bg-opacity-70 text-white px-2 py-1 rounded text-xs whitespace-nowrap"
-                >
-                  {item.label}
-                </div>
-              )}
             </div>
           );
         })}
 
-      {/* Controles de navegación (flechas) */}
-      {isVisible && (
-        <>
-          {/* Flecha hacia arriba */}
-          <button
-            onClick={navigateUp}
-            className="absolute top-2 left-1/2 transform -translate-x-1/2 z-40
-                     w-6 h-6 rounded-full bg-white bg-opacity-20 
-                     flex items-center justify-center text-white hover:bg-opacity-30
-                     transition-all duration-200"
-          >
-            ↑
-          </button>
-
-        </>
-      )}
-
-      {/* Indicador central */}
-      <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-30">
-        <div className="w-4 h-4 rounded-full bg-white bg-opacity-40 flex items-center justify-center">
-          <div className="w-2 h-2 rounded-full bg-white"></div>
-        </div>
+      {/* Botón central para rotar la rueda */}
+      <div
+        className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-40
+                   w-8 h-8 rounded-full bg-white bg-opacity-60 
+                   flex items-center justify-center cursor-pointer
+                   hover:bg-opacity-80 transition-all duration-200
+                   border-2 border-white border-opacity-40"
+        onClick={rotateWheel}
+      >
+        <div className="w-3 h-3 rounded-full bg-white"></div>
       </div>
-
-      {/* Info del usuario (opcional, se muestra al hacer hover) */}
-      {isVisible && user && (
-        <div className="absolute top-full left-0 mt-2 bg-white bg-opacity-90 rounded-lg p-2 min-w-[120px] shadow-lg">
-          <p className="text-xs font-medium text-gray-800">{user.name}</p>
-          <p className="text-xs text-gray-600">{user.email}</p>
-        </div>
-      )}
     </div>
   );
 };
