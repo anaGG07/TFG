@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { ROUTES } from "../router/paths";
 import Blob from "../components/Blob";
+import GlassmorphicButton from "../components/Button";
 
 const RegisterPage = () => {
   const [username, setUsername] = useState("");
@@ -10,16 +11,21 @@ const RegisterPage = () => {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [birthDate, setBirthDate] = useState("");
+  const [acceptTerms, setAcceptTerms] = useState(false);
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
   const { register } = useAuth();
   const navigate = useNavigate();
-  
+
   // Tamaño de la ventana para el Blob
-  const [dimensions, setDimensions] = React.useState({ width: window.innerWidth, height: window.innerHeight });
+  const [dimensions, setDimensions] = React.useState({
+    width: window.innerWidth,
+    height: window.innerHeight,
+  });
   React.useEffect(() => {
-    const handleResize = () => setDimensions({ width: window.innerWidth, height: window.innerHeight });
+    const handleResize = () =>
+      setDimensions({ width: window.innerWidth, height: window.innerHeight });
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
@@ -29,6 +35,11 @@ const RegisterPage = () => {
 
     if (!username || !email || !password || !confirmPassword || !birthDate) {
       setError("Por favor completa todos los campos");
+      return;
+    }
+
+    if (!acceptTerms) {
+      setError("Debes aceptar los términos y condiciones");
       return;
     }
 
@@ -70,12 +81,15 @@ const RegisterPage = () => {
           radius={dimensions.height / 2.1}
         />
       </div>
-      <div className="w-full max-w-md z-10 relative p-6 md:p-8 bg-none pointer-events-none flex flex-col justify-center">
+      <main className="w-full max-w-md z-10 relative p-6 md:p-8 bg-none pointer-events-none flex flex-col justify-center">
         <div className="text-center mb-6">
-          <h1 className="font-serif text-3xl md:text-5xl font-bold" style={{ color: '#E7E0D5' }}>
+          <h1
+            className="font-serif text-3xl md:text-5xl font-bold"
+            style={{ color: "#E7E0D5" }}
+          >
             Crear Cuenta
           </h1>
-          <p className="text-base md:text-lg" style={{ color: '#E7E0D5' }}>
+          <p className="text-base md:text-lg" style={{ color: "#E7E0D5" }}>
             Comienza tu camino con EYRA
           </p>
         </div>
@@ -86,13 +100,23 @@ const RegisterPage = () => {
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="flex flex-col gap-7 pointer-events-auto">
+        <form
+          onSubmit={handleSubmit}
+          className="flex flex-col gap-2 pointer-events-auto"
+        >
           <input
             id="username"
             type="text"
             value={username}
             onChange={(e) => setUsername(e.target.value)}
-            className="w-full bg-transparent border-transparent rounded-2xl shadow-[0_4px_8px_-2px_rgba(0,0,0,0.3)] text-base py-2 px-4 text-[#E7E0D5] placeholder-[#E7E0D5] focus:outline-none transition"
+            className="w-full text-center pt-2 px-4 text-[#E7E0D5] text-lg focus:outline-none focus:bg-none transition-all duration-300"
+            style={{
+              background: "transparent",
+              WebkitTextFillColor: "#E7E0D5",
+              WebkitBoxShadow: "0 0 0px 1000px transparent inset",
+              WebkitBackgroundClip: "text",
+              caretColor: "#E7E0D5",
+            }}
             placeholder="Nombre de usuario"
             required
           />
@@ -101,25 +125,46 @@ const RegisterPage = () => {
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="w-full bg-transparent border-transparent rounded-2xl shadow-[0_4px_8px_-2px_rgba(0,0,0,0.3)] text-base py-2 px-4 text-[#E7E0D5] placeholder-[#E7E0D5] focus:outline-none transition"
+            className="w-full text-center pt-2 px-4 text-[#E7E0D5] text-lg focus:outline-none focus:bg-none transition-all duration-300"
+            style={{
+              background: "transparent",
+              WebkitTextFillColor: "#E7E0D5",
+              WebkitBoxShadow: "0 0 0px 1000px transparent inset",
+              WebkitBackgroundClip: "text",
+              caretColor: "#E7E0D5",
+            }}
             placeholder="Email"
             required
           />
-          <input
-            id="birthDate"
-            type="date"
-            value={birthDate}
-            onChange={(e) => setBirthDate(e.target.value)}
-            className="w-full bg-transparent border-transparent rounded-2xl shadow-[0_4px_8px_-2px_rgba(0,0,0,0.3)] text-base py-2 px-4 text-[#E7E0D5] placeholder-[#E7E0D5] focus:outline-none transition"
-            placeholder="Fecha de nacimiento"
-            required
-          />
+          <div className="w-full flex justify-center">
+            <input
+              id="birthDate"
+              type="date"
+              value={birthDate}
+              onChange={(e) => setBirthDate(e.target.value)}
+              className="pt-2 pl-5 text-[#E7E0D5] text-lg focus:outline-none focus:bg-none transition-all duration-300 [color-scheme:dark]"
+              style={{
+                textAlign: "center",
+                width: "170px", // ancho fijo para centrarlo mejor
+                border: "none",
+                background: "transparent",
+              }}
+              required
+            />
+          </div>
           <input
             id="password"
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="w-full bg-transparent border-transparent rounded-2xl shadow-[0_4px_8px_-2px_rgba(0,0,0,0.3)] text-base py-2 px-4 text-[#E7E0D5] placeholder-[#E7E0D5] focus:outline-none transition"
+            className="w-full text-center pt-2 px-4 text-[#E7E0D5] text-lg focus:outline-none focus:bg-none transition-all duration-300"
+            style={{
+              background: "transparent",
+              WebkitTextFillColor: "#E7E0D5",
+              WebkitBoxShadow: "0 0 0px 1000px transparent inset",
+              WebkitBackgroundClip: "text",
+              caretColor: "#E7E0D5",
+            }}
             placeholder="Contraseña"
             autoComplete="new-password"
             required
@@ -129,51 +174,141 @@ const RegisterPage = () => {
             type="password"
             value={confirmPassword}
             onChange={(e) => setConfirmPassword(e.target.value)}
-            className="w-full bg-transparent border-transparent rounded-2xl shadow-[0_4px_8px_-2px_rgba(0,0,0,0.3)] text-base py-2 px-4 text-[#E7E0D5] placeholder-[#E7E0D5] focus:outline-none transition"
+            className="w-full text-center pt-2 mb-10 px-4 text-[#E7E0D5] text-lg focus:outline-none focus:bg-none transition-all duration-300"
+            style={{
+              background: "transparent",
+              WebkitTextFillColor: "#E7E0D5",
+              WebkitBoxShadow: "0 0 0px 1000px transparent inset",
+              WebkitBackgroundClip: "text",
+              caretColor: "#E7E0D5",
+            }}
             placeholder="Confirmar contraseña"
             autoComplete="new-password"
             required
           />
-          <div className="flex items-start" style={{ color: '#E7E0D5' }}>
-            <input
-              id="terms"
-              type="checkbox"
-              className="h-4 w-4 mt-1 bg-transparent border border-[#E7E0D5]/60 rounded focus:ring-[#E7E0D5]/50"
-              required
-            />
-            <label htmlFor="terms" className="ml-3 text-sm" style={{ color: '#E7E0D5' }}>
-              Acepto los{' '}
-              <a href="#" className="font-medium hover:underline" style={{ color: '#E7E0D5' }}>
+          <div className="flex items-center justify-center w-full mb-2">
+            <div className="w-full max-w-md h-[2px] bg-[#E7E0D5]/30 relative overflow-hidden rounded-full">
+              <span className="absolute inset-0 w-full h-full bg-gradient-to-r from-transparent via-[#E7E0D5] to-transparent animate-[shimmer_2s_infinite]"></span>
+            </div>
+          </div>
+          {/* Checkbox personalizado */}
+          <div className="flex items-start gap-3">
+            <div
+              className={`w-5 h-5 mt-0.5 rounded-full border-2 border-[#E7E0D5] cursor-pointer transition-all duration-200 flex items-center justify-center flex-shrink-0 ${
+                acceptTerms ? "bg-[#E7E0D5] border-[#E7E0D5]" : "bg-transparent"
+              }`}
+              onClick={() => setAcceptTerms(!acceptTerms)}
+            >
+              {acceptTerms && (
+                <svg
+                  className="w-3 h-3 text-[#C62328]"
+                  fill="currentColor"
+                  viewBox="0 0 20 20"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+              )}
+            </div>
+            <label
+              className="text-sm cursor-pointer leading-relaxed"
+              style={{ color: "#E7E0D5" }}
+              onClick={() => setAcceptTerms(!acceptTerms)}
+            >
+              Acepto los{" "}
+              <a
+                href="#"
+                className="font-medium hover:underline transition-all duration-200 hover:text-white"
+                style={{ color: "#E7E0D5" }}
+                onClick={(e) => e.stopPropagation()}
+              >
                 Términos de Servicio
-              </a>{' '}
-              y la{' '}
-              <a href="#" className="font-medium hover:underline" style={{ color: '#E7E0D5' }}>
+              </a>{" "}
+              y la{" "}
+              <a
+                href="#"
+                className="font-medium hover:underline transition-all duration-200 hover:text-white"
+                style={{ color: "#E7E0D5" }}
+                onClick={(e) => e.stopPropagation()}
+              >
                 Política de Privacidad
               </a>
             </label>
           </div>
-          <button
-            type="submit"
-            disabled={isLoading}
-            className="px-8 py-2 bg-[#E7E0D5] text-[#C62328] font-semibold text-base rounded-full shadow-md transition-all hover:bg-[#fff] hover:text-[#C62328] disabled:opacity-60 mx-auto block"
-            style={{ width: 'fit-content' }}
-          >
-            {isLoading ? 'Creando cuenta...' : 'Crear Cuenta'}
-          </button>
+          {/* Botón con diseño moderno */}
+          <div className="flex justify-center mt-4">
+            <button
+              type="submit"
+              disabled={isLoading}
+              className=" shadow-[0_8px_10px_0_#00000079] hover:shadow-[0_4px_24px_0_#E7E0D540] text-[#E7E0D5]  cursor-pointer group relative px-12 py-3 font-semibold text-base rounded-full overflow-hidden transition-all duration-300 transform hover:scale-105 active:scale-95 disabled:opacity-60 disabled:cursor-not-allowed disabled:transform-none"
+            >
+              {/* Contenido del botón */}
+              <span className="relative z-10 flex items-center justify-center gap-2">
+                {isLoading ? (
+                  <>
+                    <svg
+                      className="animate-spin w-4 h-4"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                    >
+                      <circle
+                        className="opacity-25"
+                        cx="12"
+                        cy="12"
+                        r="10"
+                        stroke="currentColor"
+                        strokeWidth="4"
+                      />
+                      <path
+                        className="opacity-75"
+                        fill="currentColor"
+                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                      />
+                    </svg>
+                    Creando cuenta...
+                  </>
+                ) : (
+                  <>
+                    Crear cuenta
+                    <svg
+                      className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M9 5l7 7-7 7"
+                      />
+                    </svg>
+                  </>
+                )}
+              </span>
+
+              {/* Sombra interna */}
+              <div className="absolute inset-0 rounded-full" />
+            </button>
+          </div>
         </form>
-        <div className="mt-6 text-center">
-          <p className="text-sm" style={{ color: '#E7E0D5' }}>
-            ¿Ya tienes una cuenta?{' '}
+
+        <div className="mt-6 text-center pointer-events-auto">
+          <p className="text-sm" style={{ color: "#E7E0D5" }}>
+            ¿Ya tienes una cuenta?{" "}
             <Link
               to={ROUTES.LOGIN}
-              className="hover:underline font-medium"
-              style={{ color: '#E7E0D5', textDecorationColor: '#fff' }}
+              className="hover:underline font-medium transition-all duration-200 hover:text-white pointer-events-auto"
+              style={{ color: "#E7E0D5", textDecorationColor: "#fff" }}
             >
               Iniciar Sesión
             </Link>
           </p>
         </div>
-      </div>
+      </main>
     </div>
   );
 };

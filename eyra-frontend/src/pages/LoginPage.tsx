@@ -149,7 +149,7 @@ const LoginPage = () => {
                 <span className="absolute inset-0 w-full h-full bg-gradient-to-r from-transparent via-[#E7E0D5] to-transparent animate-[shimmer_2s_infinite]"></span>
               </div>
             </div>
-           
+
             <div
               className="flex items-center justify-between text-sm"
               style={{ color: "#E7E0D5" }}
@@ -200,16 +200,8 @@ const LoginPage = () => {
               <button
                 type="submit"
                 disabled={isLoading}
-                className="cursor-pointer group relative px-12 py-3 font-semibold text-base rounded-full overflow-hidden transition-all duration-300 transform hover:scale-105 active:scale-95 disabled:opacity-60 disabled:cursor-not-allowed disabled:transform-none"
-                style={{
-                  color: "#E7E0D5",
-                  boxShadow:
-                    "0 0px 20px rgba(231, 224, 213, 0.3), inset 0 0px 0 rgba(255, 255, 255, 0.6)",
-                }}
+                className=" shadow-[0_5px_10px_0_#00000079] hover:shadow-[0_4px_24px_0_#E7E0D540] text-[#E7E0D5]  cursor-pointer group relative px-12 py-3 font-semibold text-base rounded-full overflow-hidden transition-all duration-300 transform hover:scale-105 active:scale-95 disabled:opacity-60 disabled:cursor-not-allowed disabled:transform-none"
               >
-                {/* Efecto de hover */}
-                <div className=" absolute inset-0 opacity-0 shadow-[0_0_30px_5px_rgba(231,224,213,1)] group-hover:opacity-100 transition-opacity duration-300 rounded-full pointer-events-none" />
-
                 {/* Contenido del botón */}
                 <span className="relative z-10 flex items-center justify-center gap-2">
                   {isLoading ? (
@@ -237,7 +229,7 @@ const LoginPage = () => {
                     </>
                   ) : (
                     <>
-                      Iniciar Sesión
+                      Iniciar sesión
                       <svg
                         className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1"
                         fill="none"
