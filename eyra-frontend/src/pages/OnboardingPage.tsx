@@ -110,7 +110,7 @@ const OnboardingPage: React.FC = () => {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-[#f8e9ea] to-[#f5dfc4] flex items-center justify-center p-4">
+      <div className="min-h-screen bg-gradient-to-br from-[#f8e9ea] to-[#e7e0d5] flex items-center justify-center p-4">
         <div className="bg-white rounded-xl p-8 shadow-xl text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#5b0108] mx-auto"></div>
           <p className="mt-4 text-[#5b0108]">Verificando sesión...</p>
