@@ -34,63 +34,74 @@ const Step4Symptoms: React.FC<StepProps> = ({
   };
 
   return (
-    <div className="w-full flex flex-col items-center gap-8 animate-fade-in max-w-md mx-auto">
-      <h3 className="font-serif text-2xl md:text-3xl font-bold text-[#7a2323] mb-2 text-center">Síntomas y sensaciones</h3>
-      <p className="text-[#3a1a1a] text-lg text-center mb-4">¿Qué síntomas o sensaciones sueles experimentar?<br/><span className="text-[#a62c2c] text-base">Conocer tu cuerpo es el primer paso para cuidarlo.</span></p>
+    <div className="w-full flex flex-col items-center gap-8 animate-fade-in max-w-4xl mx-auto">
+      <h3 className="font-serif text-2xl md:text-3xl font-bold text-[#7a2323] mb-2 text-center">Síntomas y seguimiento</h3>
+      <p className="text-[#3a1a1a] text-lg text-center mb-4">Cuéntanos qué síntomas sueles experimentar.<br/><span className="text-[#a62c2c] text-base">Esto nos ayudará a personalizar tu experiencia.</span></p>
 
-      <div className="grid grid-cols-2 gap-4 w-full">
-        {commonSymptoms.map((item) => {
-          const isChecked = selected.includes(item);
-          return (
-            <label
-              key={item}
-              className={`flex items-center justify-between p-4 border rounded-xl cursor-pointer transition-all duration-300 ${
-                isChecked
-                  ? "bg-[#fceced] border-[#5b0108]/60 shadow-sm"
-                  : "hover:bg-[#5b010810] hover:border-[#5b0108]/30"
-              }`}
-              onClick={() => toggleSymptom(item)}
-            >
-              <div className="flex items-center">
+      <div className="grid grid-cols-2 gap-8 w-full">
+        <div className="p-6 rounded-2xl" style={{
+          background: '#e7e0d5',
+          boxShadow: `
+            inset 4px 4px 8px rgba(91, 1, 8, 0.1),
+            inset -4px -4px 8px rgba(255, 255, 255, 0.8)
+          `,
+        }}>
+          <h3 className="text-sm text-[#300808] font-medium mb-4">
+            Síntomas físicos
+          </h3>
+
+          <div className="space-y-4">
+            {commonSymptoms.map((symptom) => (
+              <label key={symptom} className="flex items-center p-3 rounded-lg hover:bg-white/50 transition-colors">
                 <input
                   type="checkbox"
-                  checked={isChecked}
-                  readOnly
-                  className="mr-3 w-5 h-5 accent-[#5b0108]"
+                  {...register("commonSymptoms")}
+                  value={symptom}
+                  checked={selected.includes(symptom)}
+                  onChange={() => toggleSymptom(symptom)}
+                  className="mr-3 w-5 h-5 accent-[#C62328] rounded"
                 />
-                <span className="text-[#3a1a1a]">{item}</span>
-              </div>
-              {isChecked && (
-                <span className="text-[#5b0108] text-lg font-medium">✓</span>
-              )}
-            </label>
-          );
-        })}
+                <span className="text-[#300808]">{symptom}</span>
+              </label>
+            ))}
+          </div>
+        </div>
+
+        <div className="p-6 rounded-2xl" style={{
+          background: '#e7e0d5',
+          boxShadow: `
+            inset 4px 4px 8px rgba(91, 1, 8, 0.1),
+            inset -4px -4px 8px rgba(255, 255, 255, 0.8)
+          `,
+        }}>
+          <h3 className="text-sm text-[#300808] font-medium mb-4">
+            Otros síntomas o condiciones
+          </h3>
+
+          <textarea
+            {...register("otherSymptoms")}
+            placeholder="Cuéntanos si hay algo más que quieras que sepamos..."
+            className="w-full p-4 rounded-lg bg-white/50 border border-[#5b0108]/20 focus:border-[#5b0108] focus:ring-1 focus:ring-[#5b0108] outline-none transition-all"
+            rows={4}
+          />
+        </div>
       </div>
 
-      {selected.length === 0 && (
-        <p className="text-sm text-[#5b0108] mt-4 text-center italic">
-          No hay problema si no experimentas ninguno de estos síntomas. Cada cuerpo es único.
-        </p>
-      )}
-
-      <div className="mt-6 w-full">
-        <label className="block text-[#300808] mb-2 font-medium">
-          ¿Quieres añadir algún otro síntoma o sensación? (opcional)
-        </label>
-        <textarea
-          {...register("otherSymptoms")}
-          className="w-full bg-white border border-[#300808]/20 rounded-xl py-3 px-4 text-[#5b0108] focus:ring-2 focus:ring-[#5b0108]/20 focus:border-[#5b0108] transition-all"
-          rows={3}
-          placeholder="Describe cualquier otro síntoma o sensación que experimentes..."
-        />
-      </div>
+      <p className="text-sm text-[#5b0108] text-center mt-4">
+        Puedes actualizar esta información en cualquier momento desde tu perfil.
+      </p>
 
       <div className="flex justify-between mt-8 w-full">
         <button
           type="button"
           onClick={onPreviousStep}
-          className="px-6 py-3 bg-gray-200 text-[#300808] rounded-xl font-medium hover:bg-gray-300 transition-all"
+          className="px-6 py-3 bg-gray-300 text-[#300808] rounded-lg font-medium hover:bg-gray-400"
+          style={{
+            boxShadow: `
+              4px 4px 8px rgba(91, 1, 8, 0.1),
+              -4px -4px 8px rgba(255, 255, 255, 0.1)
+            `,
+          }}
         >
           Atrás
         </button>
@@ -99,7 +110,13 @@ const Step4Symptoms: React.FC<StepProps> = ({
           type="button"
           onClick={onNextStep}
           disabled={isSubmitting}
-          className="px-8 py-3 bg-[#5b0108] text-white rounded-xl font-medium transition-all hover:bg-[#9d0d0b] disabled:opacity-50 disabled:cursor-not-allowed"
+          className="px-8 py-3 bg-[#5b0108] text-white rounded-lg font-medium transition-all hover:bg-[#9d0d0b] disabled:opacity-50 disabled:cursor-not-allowed"
+          style={{
+            boxShadow: `
+              4px 4px 8px rgba(91, 1, 8, 0.2),
+              -4px -4px 8px rgba(255, 255, 255, 0.1)
+            `,
+          }}
         >
           {isSubmitting ? "Guardando..." : "Siguiente"}
         </button>

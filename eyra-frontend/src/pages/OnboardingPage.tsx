@@ -306,28 +306,38 @@ const OnboardingPage: React.FC = () => {
         </div>
       </div>
       {/* Contenido principal */}
-      <div className="relative z-10 w-full max-w-xl h-[90vh] flex flex-col justify-center items-center">
-        <div className="bg-white rounded-3xl shadow-xl p-10 w-full flex flex-col items-center animate-fade-in border border-[#e7e0d5]" style={{minHeight: '600px'}}>
+      <div className="relative z-10 w-full max-w-6xl h-[90vh] flex flex-col justify-center items-center px-8">
+        <div className="bg-white rounded-3xl shadow-xl p-8 w-full flex flex-col items-center animate-fade-in border border-[#e7e0d5]" style={{
+          minHeight: '600px',
+          background: '#e7e0d5',
+          boxShadow: `
+            20px 20px 40px rgba(91, 1, 8, 0.08),
+            -20px -20px 40px rgba(255, 255, 255, 0.25),
+            inset 0 1px 0 rgba(255, 255, 255, 0.15)
+          `,
+        }}>
           <h2 className="font-serif text-3xl md:text-4xl font-bold text-[#7a2323] mb-2 text-center drop-shadow-sm animate-fade-in">Bienvenida a EYRA</h2>
           <p className="text-lg text-[#3a1a1a] mb-8 text-center animate-fade-in">Un espacio para ti, tu ciclo y tu bienestar. <span className="block text-base text-[#a62c2c] mt-2">Tómate tu tiempo, este espacio es solo para ti.</span></p>
-          {step === 1 && (
-            <Step1Context {...commonStepProps} />
-          )}
-          {step === 2 && (
-            <Step2LifeStage {...commonStepProps} />
-          )}
-          {step === 3 && (
-            <Step3Preferences {...commonStepProps} />
-          )}
-          {step === 4 && (
-            <Step4Symptoms {...commonStepProps} />
-          )}
-          {step === 5 && (
-            <Step5HealthConcerns {...commonStepProps} onSubmit={handleFinalSubmit} />
-          )}
-          {error && (
-            <p className="text-red-500 text-sm text-center mt-4 animate-fade-in">{error}</p>
-          )}
+          <div className="w-full max-h-[calc(90vh-200px)] overflow-y-auto pr-4 custom-scrollbar">
+            {step === 1 && (
+              <Step1Context {...commonStepProps} />
+            )}
+            {step === 2 && (
+              <Step2LifeStage {...commonStepProps} />
+            )}
+            {step === 3 && (
+              <Step3Preferences {...commonStepProps} />
+            )}
+            {step === 4 && (
+              <Step4Symptoms {...commonStepProps} />
+            )}
+            {step === 5 && (
+              <Step5HealthConcerns {...commonStepProps} onSubmit={handleFinalSubmit} />
+            )}
+            {error && (
+              <p className="text-red-500 text-sm text-center mt-4 animate-fade-in">{error}</p>
+            )}
+          </div>
         </div>
         {/* Frase motivadora final */}
         {step === 5 && !isSubmitting && (
@@ -344,6 +354,20 @@ const OnboardingPage: React.FC = () => {
         }
         .animate-fade-in {
           animation: fade-in 1.2s cubic-bezier(.4,0,.2,1) both;
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+          width: 8px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+          background: rgba(91, 1, 8, 0.05);
+          border-radius: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+          background: rgba(91, 1, 8, 0.2);
+          border-radius: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+          background: rgba(91, 1, 8, 0.3);
         }
       `}</style>
     </div>

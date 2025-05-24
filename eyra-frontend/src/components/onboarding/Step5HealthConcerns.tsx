@@ -43,67 +43,112 @@ const Step5HealthConcerns: React.FC<Step5HealthConcerns> = ({
   };
 
   return (
-    <div className="w-full flex flex-col items-center gap-8 animate-fade-in max-w-md mx-auto">
-      <h3 className="font-serif text-2xl md:text-3xl font-bold text-[#7a2323] mb-2 text-center">Salud y bienestar</h3>
-      <p className="text-[#3a1a1a] text-lg text-center mb-4">¿Hay algo de tu salud que quieras que tengamos en cuenta?<br/><span className="text-[#a62c2c] text-base">Tu bienestar es nuestra prioridad.</span></p>
+    <div className="w-full flex flex-col items-center gap-8 animate-fade-in max-w-4xl mx-auto">
+      <h3 className="font-serif text-2xl md:text-3xl font-bold text-[#7a2323] mb-2 text-center">Preocupaciones de salud</h3>
+      <p className="text-[#3a1a1a] text-lg text-center mb-4">¿Hay algún aspecto de tu salud que te preocupe?<br/><span className="text-[#a62c2c] text-base">Esta información nos ayudará a brindarte un mejor acompañamiento.</span></p>
 
-      <div className="grid grid-cols-2 gap-4">
-        {healthOptions.map((item) => {
-          const isChecked = selected.includes(item);
-          return (
-            <label
-              key={item}
-              className={`flex items-center justify-between p-3 border rounded-lg cursor-pointer transition-all ${
-                isChecked
-                  ? "bg-[#fceced] border-[#5b0108]/60"
-                  : "hover:bg-[#5b010810] hover:border-[#5b0108]/30"
-              }`}
-              onClick={() => toggleConcern(item)}
-            >
-              <div className="flex items-center">
+      <div className="grid grid-cols-2 gap-8 w-full">
+        <div className="p-6 rounded-2xl" style={{
+          background: '#e7e0d5',
+          boxShadow: `
+            inset 4px 4px 8px rgba(91, 1, 8, 0.1),
+            inset -4px -4px 8px rgba(255, 255, 255, 0.8)
+          `,
+        }}>
+          <h3 className="text-sm text-[#300808] font-medium mb-4">
+            Condiciones médicas
+          </h3>
+
+          <div className="space-y-4">
+            {healthOptions.map((item) => (
+              <label key={item} className="flex items-center p-3 rounded-lg hover:bg-white/50 transition-colors">
                 <input
                   type="checkbox"
-                  checked={isChecked}
-                  readOnly
-                  className="mr-3"
+                  {...register("healthConcerns")}
+                  value={item}
+                  checked={selected.includes(item)}
+                  onChange={() => toggleConcern(item)}
+                  className="mr-3 w-5 h-5 accent-[#C62328] rounded"
                 />
-                <span>{item}</span>
-              </div>
-              {isChecked && <span className="text-[#5b0108] text-lg">✓</span>}
-            </label>
-          );
-        })}
+                <span className="text-[#300808]">{item}</span>
+              </label>
+            ))}
+          </div>
+        </div>
+
+        <div className="p-6 rounded-2xl" style={{
+          background: '#e7e0d5',
+          boxShadow: `
+            inset 4px 4px 8px rgba(91, 1, 8, 0.1),
+            inset -4px -4px 8px rgba(255, 255, 255, 0.8)
+          `,
+        }}>
+          <h3 className="text-sm text-[#300808] font-medium mb-4">
+            Medicamentos y tratamientos
+          </h3>
+
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <label className="block text-[#300808] text-sm">
+                ¿Tomas algún medicamento regularmente?
+              </label>
+              <textarea
+                {...register("medications")}
+                placeholder="Lista los medicamentos que tomas..."
+                className="w-full p-4 rounded-lg bg-white/50 border border-[#5b0108]/20 focus:border-[#5b0108] focus:ring-1 focus:ring-[#5b0108] outline-none transition-all"
+                rows={3}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <label className="block text-[#300808] text-sm">
+                ¿Sigues algún tratamiento específico?
+              </label>
+              <textarea
+                {...register("treatments")}
+                placeholder="Describe los tratamientos que sigues..."
+                className="w-full p-4 rounded-lg bg-white/50 border border-[#5b0108]/20 focus:border-[#5b0108] focus:ring-1 focus:ring-[#5b0108] outline-none transition-all"
+                rows={3}
+              />
+            </div>
+          </div>
+        </div>
       </div>
 
-      {selected.length === 0 && (
-        <p className="text-sm text-[#5b0108] mt-4 text-center">
-          Este paso es completamente opcional. Si no aplican estas condiciones,
-          puedes continuar sin seleccionar nada.
-        </p>
-      )}
+      <div className="w-full p-6 rounded-2xl" style={{
+        background: '#e7e0d5',
+        boxShadow: `
+          inset 4px 4px 8px rgba(91, 1, 8, 0.1),
+          inset -4px -4px 8px rgba(255, 255, 255, 0.8)
+        `,
+      }}>
+        <h3 className="text-sm text-[#300808] font-medium mb-4">
+          Otras preocupaciones o información relevante
+        </h3>
 
-      <div className="mt-6">
-        <label className="block text-[#300808] mb-2 font-medium">
-          ¿Quieres añadir algún otro detalle o contexto? (opcional)
-        </label>
         <textarea
-          {...register("accessCode")}
-          className="w-full bg-white border border-[#300808]/20 rounded-lg py-2 px-3 text-[#5b0108]"
-          rows={3}
-          placeholder="Especifica cualquier otra cosa que creas importante..."
+          {...register("otherConcerns")}
+          placeholder="Cuéntanos si hay algo más que quieras que sepamos..."
+          className="w-full p-4 rounded-lg bg-white/50 border border-[#5b0108]/20 focus:border-[#5b0108] focus:ring-1 focus:ring-[#5b0108] outline-none transition-all"
+          rows={4}
         />
-        {errors.accessCode && (
-          <p className="text-red-500 text-sm mt-1">
-            {errors.accessCode.message}
-          </p>
-        )}
       </div>
 
-      <div className="flex justify-between mt-8">
+      <p className="text-sm text-[#5b0108] text-center mt-4">
+        Esta información es confidencial y solo se utilizará para mejorar tu experiencia con EYRA.
+      </p>
+
+      <div className="flex justify-between mt-8 w-full">
         <button
           type="button"
           onClick={onPreviousStep}
           className="px-6 py-3 bg-gray-300 text-[#300808] rounded-lg font-medium hover:bg-gray-400"
+          style={{
+            boxShadow: `
+              4px 4px 8px rgba(91, 1, 8, 0.1),
+              -4px -4px 8px rgba(255, 255, 255, 0.1)
+            `,
+          }}
         >
           Atrás
         </button>
@@ -113,14 +158,15 @@ const Step5HealthConcerns: React.FC<Step5HealthConcerns> = ({
           onClick={onSubmit}
           disabled={isSubmitting}
           className="px-8 py-3 bg-[#5b0108] text-white rounded-lg font-medium transition-all hover:bg-[#9d0d0b] disabled:opacity-50 disabled:cursor-not-allowed"
+          style={{
+            boxShadow: `
+              4px 4px 8px rgba(91, 1, 8, 0.2),
+              -4px -4px 8px rgba(255, 255, 255, 0.1)
+            `,
+          }}
         >
-          {isSubmitting ? "Enviando..." : "Finalizar"}
+          {isSubmitting ? "Guardando..." : "Siguiente"}
         </button>
-      </div>
-
-      <div className="mt-8 text-center animate-fade-in">
-        <h3 className="text-2xl font-serif text-[#C62328] font-bold mb-2">¡Onboarding completado!</h3>
-        <p className="text-[#7a2323] text-lg">Estás lista para descubrir, conectar y evolucionar con EYRA.<br/>Recuerda: <span className="font-semibold">tu ciclo, tu poder</span>.</p>
       </div>
     </div>
   );
