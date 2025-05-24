@@ -125,7 +125,14 @@ const LoginPage = () => {
                 value={email}
                 autoComplete="email"
                 onChange={(e) => setEmail(e.target.value)}
-                className="text-center w-full py-3 px-4 text-xl text-[#E7E0D5] placeholder-[#E7E0D5] bg-none active:bg-none focus:outline-none focus:bg-none transition-all duration-300 "
+                className="text-center w-full py-3 px-4 text-xl text-[#E7E0D5] placeholder-[#E7E0D5] bg-none active:bg-none focus:outline-none focus:bg-none transition-all duration-300"
+                style={{
+                  background: "transparent",
+                  WebkitTextFillColor: "#E7E0D5",
+                  WebkitBoxShadow: "0 0 0px 1000px transparent inset",
+                  WebkitBackgroundClip: "text",
+                  caretColor: "#E7E0D5",
+                }}
                 placeholder="Email"
                 required
                 aria-required="true"
@@ -138,7 +145,14 @@ const LoginPage = () => {
                 autoComplete="current-password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="text-center w-full  py-3 px-4 text-xl text-[#E7E0D5] placeholder-[#E7E0D5] active:bg-none focus:outline-none focus:bg-none transition-all duration-300 "
+                className="text-center w-full py-3 px-4 text-xl text-[#E7E0D5] placeholder-[#E7E0D5] active:bg-none focus:outline-none focus:bg-none transition-all duration-300"
+                style={{
+                  background: "transparent",
+                  WebkitTextFillColor: "#E7E0D5",
+                  WebkitBoxShadow: "0 0 0px 1000px transparent inset",
+                  WebkitBackgroundClip: "text",
+                  caretColor: "#E7E0D5",
+                }}
                 placeholder="Contraseña"
                 required
                 aria-required="true"

@@ -33,26 +33,41 @@ const RootContent = () => {
 
   return (
     <CycleProvider>
-      <div
-        className="w-screen h-screen overflow-hidden bg-bg text-primary font-sans flex flex-col items-center justify-center relative"
-        style={{ minHeight: "100vh", minWidth: "100vw" }}
-      >
-        {/* Navegación circular solo en rutas autenticadas */}
-        {shouldShowNavigation && <CircularNavigation />}
+      {true ? (
+        // Layout con dos columnas para páginas autenticadas
+        <div className="w-screen h-screen overflow-hidden bg-bg text-primary font-sans flex">
+          {/* Columna izquierda - Navegación fija */}
+          <div className="w-[300px] h-full flex-shrink-0 relative">
+            <CircularNavigation />
+          </div>
 
-        <main className="flex-1 w-full h-full flex items-center justify-center z-10">
-          <Outlet />
-        </main>
+          {/* Columna derecha - Contenido principal */}
+          <div className="flex-1 h-full overflow-auto">
+            <main className="w-full h-full">
+              <Outlet />
+            </main>
+          </div>
+        </div>
+      ) : (
+        // Layout original para páginas no autenticadas
+        <div
+          className="w-screen h-screen overflow-hidden bg-bg text-primary font-sans flex flex-col items-center justify-center relative"
+          style={{ minHeight: "100vh", minWidth: "100vw" }}
+        >
+          <main className="flex-1 w-full h-full flex items-center justify-center z-10">
+            <Outlet />
+          </main>
+        </div>
+      )}
 
-        <style>{`
-          :root {
-            --color-primary: #5b0108;
-            --color-bg: #e7e0d5;
-          }
-          .bg-bg { background-color: var(--color-bg); }
-          .text-primary { color: var(--color-primary); }
-        `}</style>
-      </div>
+      <style>{`
+        :root {
+          --color-primary: #5b0108;
+          --color-bg: #e7e0d5;
+        }
+        .bg-bg { background-color: var(--color-bg); }
+        .text-primary { color: var(--color-primary); }
+      `}</style>
     </CycleProvider>
   );
 };

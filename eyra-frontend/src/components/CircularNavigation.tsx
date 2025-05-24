@@ -287,7 +287,7 @@ const CircularNavigation: React.FC = () => {
       <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-30 pointer-events-none">
         <div className="text-center">
           <p
-            className={`text-3xl font-semibold text-white drop-shadow-lg transition-all duration-300 ${
+            className={`capitalize text-3xl font-semibold text-white drop-shadow-lg transition-all duration-300 ${
               isVisible ? "opacity-0" : "opacity-100"
             }`}
           >

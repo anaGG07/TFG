@@ -192,6 +192,8 @@ const RegisterPage = () => {
             </div>
           </div>
           {/* Checkbox personalizado */}
+          
+          {/* Checkbox personalizado */}
           <div className="flex items-start gap-3">
             <div
               className={`w-5 h-5 mt-0.5 rounded-full border-2 border-[#E7E0D5] cursor-pointer transition-all duration-200 flex items-center justify-center flex-shrink-0 ${
@@ -238,12 +240,19 @@ const RegisterPage = () => {
               </a>
             </label>
           </div>
-          {/* Botón con diseño moderno */}
+          {/* Botón con diseño moderno y control de términos */}
           <div className="flex justify-center mt-4">
             <button
               type="submit"
-              disabled={isLoading}
-              className=" shadow-[0_8px_10px_0_#00000079] hover:shadow-[0_4px_24px_0_#E7E0D540] text-[#E7E0D5]  cursor-pointer group relative px-12 py-3 font-semibold text-base rounded-full overflow-hidden transition-all duration-300 transform hover:scale-105 active:scale-95 disabled:opacity-60 disabled:cursor-not-allowed disabled:transform-none"
+              disabled={isLoading || !acceptTerms}
+              className={`cursor-pointer group relative px-12 py-3 font-semibold text-base rounded-full overflow-hidden transition-all duration-300 transform active:scale-95 ${
+                acceptTerms && !isLoading
+                  ? "hover:scale-105 shadow-[0_5px_10px_0_#00000079] hover:shadow-[0_4px_24px_0_#E7E0D540]"
+                  : "opacity-50 cursor-not-allowed transform-none hover:transform-none"
+              }`}
+              style={{
+                color: "#E7E0D5",
+              }}
             >
               {/* Contenido del botón */}
               <span className="relative z-10 flex items-center justify-center gap-2">
@@ -274,7 +283,11 @@ const RegisterPage = () => {
                   <>
                     Crear cuenta
                     <svg
-                      className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1"
+                      className={`w-4 h-4 transition-transform duration-300 ${
+                        acceptTerms && !isLoading
+                          ? "group-hover:translate-x-1"
+                          : ""
+                      }`}
                       fill="none"
                       stroke="currentColor"
                       viewBox="0 0 24 24"
