@@ -44,24 +44,38 @@ const Step5HealthConcerns: React.FC<Step5HealthConcerns> = ({
 
   return (
     <div className="w-full flex flex-col items-center gap-8 animate-fade-in max-w-4xl mx-auto">
-      <h3 className="font-serif text-2xl md:text-3xl font-bold text-[#7a2323] mb-2 text-center">Preocupaciones de salud</h3>
-      <p className="text-[#3a1a1a] text-lg text-center mb-4">¿Hay algún aspecto de tu salud que te preocupe?<br/><span className="text-[#a62c2c] text-base">Esta información nos ayudará a brindarte un mejor acompañamiento.</span></p>
+      <h2 className="font-serif text-3xl md:text-4xl font-bold text-[#7a2323] mb-2 text-center drop-shadow-sm animate-fade-in">
+        Bienvenida a EYRA
+      </h2>
+      <p className="text-lg text-[#3a1a1a] mb-8 text-center animate-fade-in">
+        ¿Hay algún aspecto de tu salud que te preocupe?{" "}
+        <span className="block text-base text-[#a62c2c] mt-2">
+          Esta información nos ayudará a brindarte un mejor acompañamiento.
+        </span>
+      </p>
+      
 
       <div className="grid grid-cols-2 gap-8 w-full">
-        <div className="p-6 rounded-2xl" style={{
-          background: '#e7e0d5',
-          boxShadow: `
+        <div
+          className="p-6 rounded-2xl"
+          style={{
+            background: "#e7e0d5",
+            boxShadow: `
             inset 4px 4px 8px rgba(91, 1, 8, 0.1),
             inset -4px -4px 8px rgba(255, 255, 255, 0.8)
           `,
-        }}>
+          }}
+        >
           <h3 className="text-sm text-[#300808] font-medium mb-4">
             Condiciones médicas
           </h3>
 
           <div className="space-y-4">
             {healthOptions.map((item) => (
-              <label key={item} className="flex items-center p-3 rounded-lg hover:bg-white/50 transition-colors">
+              <label
+                key={item}
+                className="flex items-center p-3 rounded-lg hover:bg-white/50 transition-colors"
+              >
                 <input
                   type="checkbox"
                   {...register("healthConcerns")}
@@ -76,13 +90,16 @@ const Step5HealthConcerns: React.FC<Step5HealthConcerns> = ({
           </div>
         </div>
 
-        <div className="p-6 rounded-2xl" style={{
-          background: '#e7e0d5',
-          boxShadow: `
+        <div
+          className="p-6 rounded-2xl"
+          style={{
+            background: "#e7e0d5",
+            boxShadow: `
             inset 4px 4px 8px rgba(91, 1, 8, 0.1),
             inset -4px -4px 8px rgba(255, 255, 255, 0.8)
           `,
-        }}>
+          }}
+        >
           <h3 className="text-sm text-[#300808] font-medium mb-4">
             Medicamentos y tratamientos
           </h3>
@@ -115,13 +132,16 @@ const Step5HealthConcerns: React.FC<Step5HealthConcerns> = ({
         </div>
       </div>
 
-      <div className="w-full p-6 rounded-2xl" style={{
-        background: '#e7e0d5',
-        boxShadow: `
+      <div
+        className="w-full p-6 rounded-2xl"
+        style={{
+          background: "#e7e0d5",
+          boxShadow: `
           inset 4px 4px 8px rgba(91, 1, 8, 0.1),
           inset -4px -4px 8px rgba(255, 255, 255, 0.8)
         `,
-      }}>
+        }}
+      >
         <h3 className="text-sm text-[#300808] font-medium mb-4">
           Otras preocupaciones o información relevante
         </h3>
@@ -135,7 +155,8 @@ const Step5HealthConcerns: React.FC<Step5HealthConcerns> = ({
       </div>
 
       <p className="text-sm text-[#5b0108] text-center mt-4">
-        Esta información es confidencial y solo se utilizará para mejorar tu experiencia con EYRA.
+        Esta información es confidencial y solo se utilizará para mejorar tu
+        experiencia con EYRA.
       </p>
 
       <div className="flex justify-between mt-8 w-full">

@@ -44,19 +44,28 @@ const Step2LifeStage: React.FC<StepProps> = ({
 
   return (
     <div className="space-y-6 w-full max-w-4xl mx-auto">
-      <p className="text-[#300808] mb-8 text-center text-lg">
-        Cuéntanos en qué etapa de tu vida estás o en qué necesitas que EYRA te ayude.
+      <h2 className="font-serif text-3xl md:text-4xl font-bold text-[#7a2323] mb-2 text-center drop-shadow-sm animate-fade-in">
+        Bienvenida a EYRA
+      </h2>
+      <p className="text-lg text-[#3a1a1a] mb-8 text-center animate-fade-in">
+        Un espacio para ti, tu ciclo y tu bienestar.{" "}
+        <span className="block text-base text-[#a62c2c] mt-2">
+          Cuéntanos en qué etapa de tu vida estás o en qué necesitas que EYRA te
+          ayude.
+        </span>
       </p>
-
       <div className="grid grid-cols-2 gap-8">
         <div className="space-y-4">
-          <div className="p-6 rounded-2xl" style={{
-            background: '#e7e0d5',
-            boxShadow: `
+          <div
+            className="p-6 rounded-2xl"
+            style={{
+              background: "#e7e0d5",
+              boxShadow: `
               inset 4px 4px 8px rgba(91, 1, 8, 0.1),
               inset -4px -4px 8px rgba(255, 255, 255, 0.8)
             `,
-          }}>
+            }}
+          >
             <label className="block text-[#300808] mb-4 font-medium">
               Selecciona tu situación actual:
             </label>
@@ -67,10 +76,18 @@ const Step2LifeStage: React.FC<StepProps> = ({
               className="w-full bg-white border border-[#300808]/20 rounded-lg py-3 px-4 text-[#5b0108]"
             >
               <option value="">-- Elige una opción --</option>
-              <option value="menstrual">Tengo ciclos menstruales activos</option>
-              <option value="transition">Estoy en un proceso de transición hormonal</option>
-              <option value="pregnancy">Estoy embarazada o buscando embarazo</option>
-              <option value="trackingOthers">Solo quiero acompañar a alguien más</option>
+              <option value="menstrual">
+                Tengo ciclos menstruales activos
+              </option>
+              <option value="transition">
+                Estoy en un proceso de transición hormonal
+              </option>
+              <option value="pregnancy">
+                Estoy embarazada o buscando embarazo
+              </option>
+              <option value="trackingOthers">
+                Solo quiero acompañar a alguien más
+              </option>
             </select>
             {errors.stageOfLife && (
               <p className="text-red-500 text-sm mt-1">
@@ -80,13 +97,16 @@ const Step2LifeStage: React.FC<StepProps> = ({
           </div>
 
           {stageOfLife && (
-            <div className="p-6 rounded-2xl" style={{
-              background: '#e7e0d5',
-              boxShadow: `
+            <div
+              className="p-6 rounded-2xl"
+              style={{
+                background: "#e7e0d5",
+                boxShadow: `
                 inset 4px 4px 8px rgba(91, 1, 8, 0.1),
                 inset -4px -4px 8px rgba(255, 255, 255, 0.8)
               `,
-            }}>
+              }}
+            >
               <p className="text-sm text-[#300808]">
                 {getStageDescription(stageOfLife)}
               </p>
@@ -96,15 +116,19 @@ const Step2LifeStage: React.FC<StepProps> = ({
 
         <div className="space-y-4">
           {stageOfLife === "menstrual" && (
-            <div className="p-6 rounded-2xl space-y-4" style={{
-              background: '#e7e0d5',
-              boxShadow: `
+            <div
+              className="p-6 rounded-2xl space-y-4"
+              style={{
+                background: "#e7e0d5",
+                boxShadow: `
                 inset 4px 4px 8px rgba(91, 1, 8, 0.1),
                 inset -4px -4px 8px rgba(255, 255, 255, 0.8)
               `,
-            }}>
+              }}
+            >
               <p className="text-sm text-[#5b0108] italic">
-                Para ayudarte a hacer un mejor seguimiento de tu ciclo, completa estos datos.
+                Para ayudarte a hacer un mejor seguimiento de tu ciclo, completa
+                estos datos.
               </p>
 
               <div>
@@ -137,12 +161,12 @@ const Step2LifeStage: React.FC<StepProps> = ({
                     required: "La duración del periodo es obligatoria",
                     min: {
                       value: 1,
-                      message: "La duración debe ser al menos 1 día"
+                      message: "La duración debe ser al menos 1 día",
                     },
                     max: {
                       value: 14,
-                      message: "La duración no puede ser mayor a 14 días"
-                    }
+                      message: "La duración no puede ser mayor a 14 días",
+                    },
                   })}
                   className="w-full bg-white border border-[#300808]/20 rounded-lg py-3 px-4 text-[#5b0108]"
                   placeholder="Ej: 5"
@@ -163,12 +187,12 @@ const Step2LifeStage: React.FC<StepProps> = ({
                   {...register("averageCycleLength", {
                     min: {
                       value: 21,
-                      message: "El ciclo debe ser al menos de 21 días"
+                      message: "El ciclo debe ser al menos de 21 días",
                     },
                     max: {
                       value: 35,
-                      message: "El ciclo no puede ser mayor a 35 días"
-                    }
+                      message: "El ciclo no puede ser mayor a 35 días",
+                    },
                   })}
                   className="w-full bg-white border border-[#300808]/20 rounded-lg py-3 px-4 text-[#5b0108]"
                   placeholder="Ej: 28"
@@ -188,15 +212,19 @@ const Step2LifeStage: React.FC<StepProps> = ({
           )}
 
           {stageOfLife === "transition" && (
-            <div className="p-6 rounded-2xl space-y-4" style={{
-              background: '#e7e0d5',
-              boxShadow: `
+            <div
+              className="p-6 rounded-2xl space-y-4"
+              style={{
+                background: "#e7e0d5",
+                boxShadow: `
                 inset 4px 4px 8px rgba(91, 1, 8, 0.1),
                 inset -4px -4px 8px rgba(255, 255, 255, 0.8)
               `,
-            }}>
+              }}
+            >
               <p className="text-sm text-[#5b0108] italic">
-                Para adaptar EYRA a tu transición hormonal, puedes completar estos datos.
+                Para adaptar EYRA a tu transición hormonal, puedes completar
+                estos datos.
               </p>
 
               <div>
@@ -245,36 +273,42 @@ const Step2LifeStage: React.FC<StepProps> = ({
 
               {hormoneIncomplete && (
                 <p className="text-red-500 text-sm mt-2">
-                  Para registrar tu tratamiento hormonal, completa los tres campos o deja todos vacíos.
+                  Para registrar tu tratamiento hormonal, completa los tres
+                  campos o deja todos vacíos.
                 </p>
               )}
             </div>
           )}
 
           {stageOfLife === "pregnancy" && (
-            <div className="p-6 rounded-2xl space-y-6" style={{
-              background: '#e7e0d5',
-              boxShadow: `
+            <div
+              className="p-6 rounded-2xl space-y-6"
+              style={{
+                background: "#e7e0d5",
+                boxShadow: `
                 inset 4px 4px 8px rgba(91, 1, 8, 0.1),
                 inset -4px -4px 8px rgba(255, 255, 255, 0.8)
               `,
-            }}>
+              }}
+            >
               <p className="text-lg text-[#5b0108] font-semibold mb-2 text-center">
                 ¡Felicidades por tu embarazo! EYRA te acompañará en cada etapa.
               </p>
               <p className="text-base text-[#5b0108] mb-6 text-center">
-                Para personalizar tu experiencia, necesitamos algunos datos clave.
+                Para personalizar tu experiencia, necesitamos algunos datos
+                clave.
               </p>
               <div className="flex flex-col gap-5">
                 <div>
                   <label className="block text-[#300808] mb-2 font-medium">
-                    Fecha de inicio del embarazo <span className="text-red-500">*</span>
+                    Fecha de inicio del embarazo{" "}
+                    <span className="text-red-500">*</span>
                   </label>
                   <input
                     type="date"
                     {...register("pregnancyStartDate", {
                       required: "La fecha de inicio es obligatoria",
-                      setValueAs: v => v || null
+                      setValueAs: (v) => v || null,
                     })}
                     className="w-full bg-white border border-[#300808]/20 rounded-lg py-3 px-4 text-[#5b0108]"
                   />
@@ -286,13 +320,14 @@ const Step2LifeStage: React.FC<StepProps> = ({
                 </div>
                 <div>
                   <label className="block text-[#300808] mb-2 font-medium">
-                    Fecha estimada de parto <span className="text-red-500">*</span>
+                    Fecha estimada de parto{" "}
+                    <span className="text-red-500">*</span>
                   </label>
                   <input
                     type="date"
                     {...register("pregnancyDueDate", {
                       required: "La fecha estimada de parto es obligatoria",
-                      setValueAs: v => v || null
+                      setValueAs: (v) => v || null,
                     })}
                     className="w-full bg-white border border-[#300808]/20 rounded-lg py-3 px-4 text-[#5b0108]"
                   />
@@ -311,7 +346,7 @@ const Step2LifeStage: React.FC<StepProps> = ({
                     min={1}
                     max={42}
                     {...register("pregnancyWeek", {
-                      setValueAs: v => v === "" ? null : Number(v)
+                      setValueAs: (v) => (v === "" ? null : Number(v)),
                     })}
                     className="w-full bg-white border border-[#300808]/20 rounded-lg py-3 px-4 text-[#5b0108]"
                     placeholder="Ej: 12"

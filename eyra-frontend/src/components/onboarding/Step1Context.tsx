@@ -20,18 +20,28 @@ const Step1Context: React.FC<StepProps> = ({
 
   return (
     <div className="w-full flex flex-col items-center gap-8 animate-fade-in">
-      <h3 className="font-serif text-2xl md:text-3xl font-bold text-[#7a2323] mb-2 text-center">¡Comencemos tu viaje!</h3>
-      <p className="text-[#3a1a1a] text-lg text-center mb-4">Cuéntanos un poco sobre ti para personalizar tu experiencia.<br/><span className="text-[#a62c2c] text-base">Cada historia es única, como tú.</span></p>
+      <h2 className="font-serif text-3xl md:text-4xl font-bold text-[#7a2323] mb-2 text-center drop-shadow-sm animate-fade-in">
+        Bienvenida a EYRA
+      </h2>
+      <p className="text-lg text-[#3a1a1a] mb-8 text-center animate-fade-in">
+        Un espacio para ti, tu ciclo y tu bienestar.{" "}
+        <span className="block text-base text-[#a62c2c] mt-2">
+          Tómate tu tiempo, este espacio es solo para ti.
+        </span>
+      </p>
 
       <div className="grid grid-cols-2 gap-8 w-full max-w-4xl">
         <div className="space-y-6">
-          <fieldset className="p-6 rounded-2xl" style={{
-            background: '#e7e0d5',
-            boxShadow: `
+          <fieldset
+            className="p-6 rounded-2xl"
+            style={{
+              background: "#e7e0d5",
+              boxShadow: `
               inset 4px 4px 8px rgba(91, 1, 8, 0.1),
               inset -4px -4px 8px rgba(255, 255, 255, 0.8)
             `,
-          }}>
+            }}
+          >
             <legend className="block text-[#300808] mb-4 font-medium px-2">
               ¿Usarás EYRA para ti o para acompañar a alguien?
             </legend>
@@ -70,13 +80,16 @@ const Step1Context: React.FC<StepProps> = ({
         </div>
 
         <div className="space-y-6">
-          <div className="p-6 rounded-2xl" style={{
-            background: '#e7e0d5',
-            boxShadow: `
+          <div
+            className="p-6 rounded-2xl"
+            style={{
+              background: "#e7e0d5",
+              boxShadow: `
               inset 4px 4px 8px rgba(91, 1, 8, 0.1),
               inset -4px -4px 8px rgba(255, 255, 255, 0.8)
             `,
-          }}>
+            }}
+          >
             <label className="block text-[#300808] mb-4 font-medium">
               ¿Cómo te identificas?
             </label>
@@ -89,7 +102,9 @@ const Step1Context: React.FC<StepProps> = ({
               name="genderIdentity"
               onChange={register("genderIdentity").onChange}
               onBlur={register("genderIdentity").onBlur}
-              className={`w-full bg-white border ${errors.genderIdentity ? "border-red-500" : "border-[#C62328]/30"} rounded-xl py-3 px-4 text-[#5b0108] shadow-sm focus:ring-2 focus:ring-[#C62328]/20 focus:border-[#C62328] transition-all text-base`}
+              className={`w-full bg-white border ${
+                errors.genderIdentity ? "border-red-500" : "border-[#C62328]/30"
+              } rounded-xl py-3 px-4 text-[#5b0108] shadow-sm focus:ring-2 focus:ring-[#C62328]/20 focus:border-[#C62328] transition-all text-base`}
               placeholder="Ej: Mujer cis, Persona trans, No binaria..."
             />
             {errors.genderIdentity && (
@@ -98,17 +113,21 @@ const Step1Context: React.FC<StepProps> = ({
               </p>
             )}
             <p className="text-xs text-gray-500 mt-1">
-              Puedes escribir lo que tú prefieras. Este dato es obligatorio para continuar.
+              Puedes escribir lo que tú prefieras. Este dato es obligatorio para
+              continuar.
             </p>
           </div>
 
-          <div className="p-6 rounded-2xl" style={{
-            background: '#e7e0d5',
-            boxShadow: `
+          <div
+            className="p-6 rounded-2xl"
+            style={{
+              background: "#e7e0d5",
+              boxShadow: `
               inset 4px 4px 8px rgba(91, 1, 8, 0.1),
               inset -4px -4px 8px rgba(255, 255, 255, 0.8)
             `,
-          }}>
+            }}
+          >
             <label className="block text-[#300808] mb-4 font-medium">
               Pronombres (opcional)
             </label>

@@ -35,24 +35,38 @@ const Step4Symptoms: React.FC<StepProps> = ({
 
   return (
     <div className="w-full flex flex-col items-center gap-8 animate-fade-in max-w-4xl mx-auto">
-      <h3 className="font-serif text-2xl md:text-3xl font-bold text-[#7a2323] mb-2 text-center">Síntomas y seguimiento</h3>
-      <p className="text-[#3a1a1a] text-lg text-center mb-4">Cuéntanos qué síntomas sueles experimentar.<br/><span className="text-[#a62c2c] text-base">Esto nos ayudará a personalizar tu experiencia.</span></p>
+      <h2 className="font-serif text-3xl md:text-4xl font-bold text-[#7a2323] mb-2 text-center drop-shadow-sm animate-fade-in">
+        Bienvenida a EYRA
+      </h2>
+      <p className="text-lg text-[#3a1a1a] mb-8 text-center animate-fade-in">
+        Cuéntanos qué síntomas sueles experimentar.{" "}
+        <span className="block text-base text-[#a62c2c] mt-2">
+          Esto nos ayudará a personalizar tu experiencia.
+        </span>
+      </p>
+      
 
       <div className="grid grid-cols-2 gap-8 w-full">
-        <div className="p-6 rounded-2xl" style={{
-          background: '#e7e0d5',
-          boxShadow: `
+        <div
+          className="p-6 rounded-2xl"
+          style={{
+            background: "#e7e0d5",
+            boxShadow: `
             inset 4px 4px 8px rgba(91, 1, 8, 0.1),
             inset -4px -4px 8px rgba(255, 255, 255, 0.8)
           `,
-        }}>
+          }}
+        >
           <h3 className="text-sm text-[#300808] font-medium mb-4">
             Síntomas físicos
           </h3>
 
           <div className="space-y-4">
             {commonSymptoms.map((symptom) => (
-              <label key={symptom} className="flex items-center p-3 rounded-lg hover:bg-white/50 transition-colors">
+              <label
+                key={symptom}
+                className="flex items-center p-3 rounded-lg hover:bg-white/50 transition-colors"
+              >
                 <input
                   type="checkbox"
                   {...register("commonSymptoms")}
@@ -67,13 +81,16 @@ const Step4Symptoms: React.FC<StepProps> = ({
           </div>
         </div>
 
-        <div className="p-6 rounded-2xl" style={{
-          background: '#e7e0d5',
-          boxShadow: `
+        <div
+          className="p-6 rounded-2xl"
+          style={{
+            background: "#e7e0d5",
+            boxShadow: `
             inset 4px 4px 8px rgba(91, 1, 8, 0.1),
             inset -4px -4px 8px rgba(255, 255, 255, 0.8)
           `,
-        }}>
+          }}
+        >
           <h3 className="text-sm text-[#300808] font-medium mb-4">
             Otros síntomas o condiciones
           </h3>

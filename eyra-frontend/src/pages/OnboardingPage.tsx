@@ -316,8 +316,6 @@ const OnboardingPage: React.FC = () => {
             inset 0 1px 0 rgba(255, 255, 255, 0.15)
           `,
         }}>
-          <h2 className="font-serif text-3xl md:text-4xl font-bold text-[#7a2323] mb-2 text-center drop-shadow-sm animate-fade-in">Bienvenida a EYRA</h2>
-          <p className="text-lg text-[#3a1a1a] mb-8 text-center animate-fade-in">Un espacio para ti, tu ciclo y tu bienestar. <span className="block text-base text-[#a62c2c] mt-2">Tómate tu tiempo, este espacio es solo para ti.</span></p>
           <div className="w-full max-h-[calc(90vh-200px)] overflow-y-auto pr-4 custom-scrollbar">
             {step === 1 && (
               <Step1Context {...commonStepProps} />
