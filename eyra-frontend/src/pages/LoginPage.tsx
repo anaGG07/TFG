@@ -102,10 +102,9 @@ const LoginPage = () => {
               Accede a tu cuenta para continuar
             </p>
           </div>
-
           {error && (
             <div
-              className="bg-[#9d0d0b]/10 border border-[#9d0d0b]/40 text-[#9d0d0b] rounded-lg p-3 mb-6 text-sm"
+              className="shadow-md text-[#E7E0D5] text-center rounded-lg p-3 mb-6 text-md"
               role="alert"
             >
               {error}
@@ -114,7 +113,7 @@ const LoginPage = () => {
 
           <form
             onSubmit={handleSubmit}
-            className="flex flex-col gap-7 pointer-events-auto"
+            className="flex flex-col gap-5 pointer-events-auto"
             autoComplete="on"
             aria-labelledby="login-title"
             noValidate
@@ -126,7 +125,7 @@ const LoginPage = () => {
                 value={email}
                 autoComplete="email"
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full bg-transparent border-transparent rounded-2xl shadow-[0_4px_8px_-2px_rgba(0,0,0,0.3)] text-base py-2 px-4 text-[#E7E0D5] placeholder-[#E7E0D5] focus:outline-none transition"
+                className="text-center w-full py-3 px-4 text-xl text-[#E7E0D5] placeholder-[#E7E0D5] bg-none active:bg-none focus:outline-none focus:bg-none transition-all duration-300 "
                 placeholder="Email"
                 required
                 aria-required="true"
@@ -139,12 +138,18 @@ const LoginPage = () => {
                 autoComplete="current-password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full bg-transparent border-transparent rounded-2xl shadow-[0_4px_8px_-2px_rgba(0,0,0,0.3)] text-base py-2 px-4 text-[#E7E0D5] placeholder-[#E7E0D5] focus:outline-none transition"
+                className="text-center w-full  py-3 px-4 text-xl text-[#E7E0D5] placeholder-[#E7E0D5] active:bg-none focus:outline-none focus:bg-none transition-all duration-300 "
                 placeholder="Contraseña"
                 required
                 aria-required="true"
               />
             </div>
+            <div className="flex items-center justify-center w-full pt-4">
+              <div className="w-full max-w-md h-[2px] bg-[#E7E0D5]/30 relative overflow-hidden rounded-full">
+                <span className="absolute inset-0 w-full h-full bg-gradient-to-r from-transparent via-[#E7E0D5] to-transparent animate-[shimmer_2s_infinite]"></span>
+              </div>
+            </div>
+           
             <div
               className="flex items-center justify-between text-sm"
               style={{ color: "#E7E0D5" }}
@@ -153,14 +158,14 @@ const LoginPage = () => {
                 <div
                   className={`w-4 h-4 rounded-full border-2 border-[#E7E0D5] cursor-pointer transition-all duration-200 flex items-center justify-center ${
                     isRememberMe
-                      ? "bg-[#C62328] border-[#C62328]"
+                      ? "bg-[#E7E0D5] border-[#E7E0D5]"
                       : "bg-transparent"
                   }`}
                   onClick={() => setIsRememberMe(!isRememberMe)}
                 >
                   {isRememberMe && (
                     <svg
-                      className="w-2 h-2 text-[#E7E0D5]"
+                      className="w-2 h-2 text-[#C62328]"
                       fill="currentColor"
                       viewBox="0 0 20 20"
                     >
@@ -183,28 +188,84 @@ const LoginPage = () => {
               <button
                 type="button"
                 onClick={() => setShowPasswordResetModal(true)}
-                className="hover:underline font-medium"
+                className="cursor-pointer hover:underline font-medium transition-all duration-200 hover:text-white"
                 style={{ color: "#E7E0D5" }}
               >
                 ¿Olvidaste tu contraseña?
               </button>
             </div>
-            <button
-              type="submit"
-              disabled={isLoading}
-              className="pointer-cursor px-8 py-2 bg-[#E7E0D5] text-[#C62328] font-semibold text-base rounded-full shadow-md transition-all hover:bg-[#fff] hover:text-[#C62328] disabled:opacity-60 mx-auto block"
-              style={{ width: "fit-content" }}
-            >
-              {isLoading ? "Iniciando sesión..." : "Iniciar Sesión"}
-            </button>
-          </form>
 
-          <div className="mt-6 text-center">
+            {/* Botón con diseño moderno */}
+            <div className="flex justify-center mt-2">
+              <button
+                type="submit"
+                disabled={isLoading}
+                className="cursor-pointer group relative px-12 py-3 font-semibold text-base rounded-full overflow-hidden transition-all duration-300 transform hover:scale-105 active:scale-95 disabled:opacity-60 disabled:cursor-not-allowed disabled:transform-none"
+                style={{
+                  color: "#E7E0D5",
+                  boxShadow:
+                    "0 0px 20px rgba(231, 224, 213, 0.3), inset 0 0px 0 rgba(255, 255, 255, 0.6)",
+                }}
+              >
+                {/* Efecto de hover */}
+                <div className=" absolute inset-0 opacity-0 shadow-[0_0_30px_5px_rgba(231,224,213,1)] group-hover:opacity-100 transition-opacity duration-300 rounded-full pointer-events-none" />
+
+                {/* Contenido del botón */}
+                <span className="relative z-10 flex items-center justify-center gap-2">
+                  {isLoading ? (
+                    <>
+                      <svg
+                        className="animate-spin w-4 h-4"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                      >
+                        <circle
+                          className="opacity-25"
+                          cx="12"
+                          cy="12"
+                          r="10"
+                          stroke="currentColor"
+                          strokeWidth="4"
+                        />
+                        <path
+                          className="opacity-75"
+                          fill="currentColor"
+                          d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                        />
+                      </svg>
+                      Iniciando sesión...
+                    </>
+                  ) : (
+                    <>
+                      Iniciar Sesión
+                      <svg
+                        className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M9 5l7 7-7 7"
+                        />
+                      </svg>
+                    </>
+                  )}
+                </span>
+
+                {/* Sombra interna */}
+                <div className="absolute inset-0 rounded-full" />
+              </button>
+            </div>
+          </form>
+          <div className="mt-6 text-center pointer-events-auto">
             <p className="text-sm" style={{ color: "#E7E0D5" }}>
               ¿No tienes una cuenta?{" "}
               <Link
                 to={ROUTES.REGISTER}
-                className="hover:underline font-medium"
+                className="hover:underline font-medium pointer-events-auto"
                 style={{ color: "#E7E0D5", textDecorationColor: "#fff" }}
               >
                 Regístrate

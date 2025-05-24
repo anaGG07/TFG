@@ -11,14 +11,36 @@ interface BlobProps {
 export default function Blob({
   width = 300,
   height = 300,
-  color = "#C62328",
+  color = "transparent",
   radius = 120,
   style = {},
 }: BlobProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
+  // Funciones auxiliares para interpolación de color
+  function hexToRgb(hex: string) {
+    const match = hex.replace("#", "").match(/.{1,2}/g);
+    if (!match) return null;
+    return {
+      r: parseInt(match[0], 16),
+      g: parseInt(match[1], 16),
+      b: parseInt(match[2], 16),
+    };
+  }
+
+  function interpolateColor(
+    color1: { r: number; g: number; b: number },
+    color2: { r: number; g: number; b: number },
+    factor: number
+  ) {
+    return {
+      r: Math.round(color1.r + (color2.r - color1.r) * factor),
+      g: Math.round(color1.g + (color2.g - color1.g) * factor),
+      b: Math.round(color1.b + (color2.b - color1.b) * factor),
+    };
+  }
+
   useEffect(() => {
-    // --- CLASES DEL BLOB ---
     class Point {
       parent: any;
       azimuth: number;
@@ -26,8 +48,8 @@ export default function Blob({
       _acceleration = 0;
       _speed = 0;
       _radialEffect = 0;
-      _elasticity = 0.001; // Valor original
-      _friction = 0.0085; // Valor original
+      _elasticity = 0.001;
+      _friction = 0.0085;
 
       constructor(azimuth: number, parent: any) {
         this.parent = parent;
@@ -36,8 +58,9 @@ export default function Blob({
           x: Math.cos(this.azimuth),
           y: Math.sin(this.azimuth),
         };
-        this.acceleration = -0.3 + Math.random() * 0.6; // Valor original
+        this.acceleration = -0.3 + Math.random() * 0.6;
       }
+
       solveWith(leftPoint: any, rightPoint: any) {
         this.acceleration =
           (-0.3 * this.radialEffect +
@@ -46,26 +69,33 @@ export default function Blob({
             this.elasticity -
           this.speed * this.friction;
       }
+
       set acceleration(value: number) {
         this._acceleration = value;
-        this.speed += this._acceleration * 2; // Valor original
+        this.speed += this._acceleration * 2;
       }
+
       get acceleration() {
         return this._acceleration;
       }
+
       set speed(value: number) {
         this._speed = value;
-        this.radialEffect += this._speed * 5; // Valor original
+        this.radialEffect += this._speed * 5;
       }
+
       get speed() {
         return this._speed;
       }
+
       set radialEffect(value: number) {
         this._radialEffect = value;
       }
+
       get radialEffect() {
         return this._radialEffect;
       }
+
       get position() {
         return {
           x:
@@ -76,18 +106,23 @@ export default function Blob({
             this.components.y * (this.parent.radius + this.radialEffect),
         };
       }
+
       get components() {
         return this._components;
       }
+
       set elasticity(value: number) {
         this._elasticity = value;
       }
+
       get elasticity() {
         return this._elasticity;
       }
+
       set friction(value: number) {
         this._friction = value;
       }
+
       get friction() {
         return this._friction;
       }
@@ -106,15 +141,19 @@ export default function Blob({
       get numPoints() {
         return this._points;
       }
+
       get radius() {
         return this._radius;
       }
+
       get position() {
         return this._position;
       }
+
       get divisional() {
         return (Math.PI * 2) / this.numPoints;
       }
+
       get center() {
         if (!this.canvas) return { x: 0, y: 0 };
         return {
@@ -122,31 +161,38 @@ export default function Blob({
           y: this.canvas.height * this.position.y,
         };
       }
+
       set color(value: string) {
         this._color = value;
       }
+
       get color() {
         return this._color;
       }
+
       set canvas(value: HTMLCanvasElement | null) {
         this._canvas = value;
         if (value) this.ctx = value.getContext("2d");
       }
+
       get canvas() {
         return this._canvas;
       }
+
       init() {
         this.points = [];
         for (let i = 0; i < this.numPoints; i++) {
-          let point = new Point(this.divisional * (i + 1), this);
+          const point = new Point(this.divisional * (i + 1), this);
           this.push(point);
         }
       }
+
       push(item: any) {
         if (item instanceof Point) {
           this.points.push(item);
         }
       }
+
       render = () => {
         if (!this.canvas || !this.ctx) return;
         const ctx = this.ctx;
@@ -154,7 +200,6 @@ export default function Blob({
         const points = this.numPoints;
 
         ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-
         pointsArray[0].solveWith(pointsArray[points - 1], pointsArray[1]);
 
         let p0 = pointsArray[points - 1].position;
@@ -169,15 +214,15 @@ export default function Blob({
             pointsArray[i - 1],
             pointsArray[i + 1] || pointsArray[0]
           );
-          let p2 = pointsArray[i].position;
-          var xc = (p1.x + p2.x) / 2;
-          var yc = (p1.y + p2.y) / 2;
+          const p2 = pointsArray[i].position;
+          const xc = (p1.x + p2.x) / 2;
+          const yc = (p1.y + p2.y) / 2;
           ctx.quadraticCurveTo(p1.x, p1.y, xc, yc);
           p1 = p2;
         }
 
-        var xc = (p1.x + _p2.x) / 2;
-        var yc = (p1.y + _p2.y) / 2;
+        const xc = (p1.x + _p2.x) / 2;
+        const yc = (p1.y + _p2.y) / 2;
         ctx.quadraticCurveTo(p1.x, p1.y, xc, yc);
 
         ctx.fillStyle = this.color;
@@ -189,47 +234,45 @@ export default function Blob({
       };
     }
 
-    // --- INICIALIZACIÓN ---
     const canvas = canvasRef.current;
     if (!canvas) return;
 
-    let blob = new Blob();
+    const blob = new Blob();
     blob.canvas = canvas;
     blob.init();
 
-    // Resize canvas
     const resize = () => {
       canvas.width = width;
       canvas.height = height;
     };
     resize();
 
-    // Mouse interaction - EXACTAMENTE IGUAL AL ORIGINAL
+    // Interacción con el ratón (opcional)
     let oldMousePoint = { x: 0, y: 0 };
     let hover = false;
     const mouseMove = (e: PointerEvent) => {
       const rect = canvas.getBoundingClientRect();
-      let pos = blob.center;
-      let mouseX = e.clientX - rect.left;
-      let mouseY = e.clientY - rect.top;
-      let diff = { x: mouseX - pos.x, y: mouseY - pos.y };
-      let dist = Math.sqrt(diff.x * diff.x + diff.y * diff.y);
+      const pos = blob.center;
+      const mouseX = e.clientX - rect.left;
+      const mouseY = e.clientY - rect.top;
+      const diff = { x: mouseX - pos.x, y: mouseY - pos.y };
+      const dist = Math.sqrt(diff.x * diff.x + diff.y * diff.y);
       let angle: number | null = null;
 
       blob.mousePos = { x: pos.x - mouseX, y: pos.y - mouseY };
 
       if (dist < blob.radius && hover === false) {
-        let vector = { x: mouseX - pos.x, y: mouseY - pos.y };
+        const vector = { x: mouseX - pos.x, y: mouseY - pos.y };
         angle = Math.atan2(vector.y, vector.x);
         hover = true;
       } else if (dist > blob.radius && hover === true) {
-        let vector = { x: mouseX - pos.x, y: mouseY - pos.y };
+        const vector = { x: mouseX - pos.x, y: mouseY - pos.y };
         angle = Math.atan2(vector.y, vector.x);
         hover = false;
         blob.color = color;
       }
 
-      if (typeof angle == "number") {
+      if (typeof angle === "number") {
         let nearestPoint: any = null;
         let distanceFromPoint = 100;
         blob.points.forEach((point: any) => {
@@ -239,14 +282,14 @@ export default function Blob({
           }
         });
         if (nearestPoint) {
-          let strength = {
+          const strength = {
             x: oldMousePoint.x - mouseX,
             y: oldMousePoint.y - mouseY,
           };
           let s =
-            Math.sqrt(strength.x * strength.x + strength.y * strength.y) * 10; // Valor original
-          if (s > 100) s = 100; // Valor original
-          nearestPoint.acceleration = (s / 100) * (hover ? -1 : 1); // Valor original
+            Math.sqrt(strength.x * strength.x + strength.y * strength.y) * 10;
+          if (s > 100) s = 100;
+          nearestPoint.acceleration = (s / 100) * (hover ? -1 : 1);
         }
       }
       oldMousePoint.x = mouseX;
@@ -256,7 +299,42 @@ export default function Blob({
 
     blob.render();
 
-    // Cleanup
+    // Animación del color del fondo
+    const colors = [
+      "#C62328",
+      "#B30E13",
+      "#880004",
+      "#730003",
+      "#470002",
+      "#360001",
+    ];
+    let colorIndex = 0;
+    let currentRGB = hexToRgb(colors[colorIndex]);
+    let nextRGB = hexToRgb(colors[(colorIndex + 1) % colors.length]);
+    let colorStep = 0;
+    const colorTransitionSpeed = 0.0009;
+
+    const animateColor = () => {
+      if (!currentRGB || !nextRGB) return;
+
+      colorStep += colorTransitionSpeed;
+      if (colorStep >= 1) {
+        colorStep = 0;
+        colorIndex = (colorIndex + 1) % colors.length;
+        currentRGB = nextRGB;
+        nextRGB = hexToRgb(colors[(colorIndex + 1) % colors.length]);
+      }
+
+      if (currentRGB && nextRGB) {
+        const interpolated = interpolateColor(currentRGB, nextRGB, colorStep);
+        blob.color = `rgb(${interpolated.r}, ${interpolated.g}, ${interpolated.b})`;
+      }
+      
+
+      requestAnimationFrame(animateColor);
+    };
+    animateColor();
+
     return () => {
       canvas.removeEventListener("pointermove", mouseMove);
     };

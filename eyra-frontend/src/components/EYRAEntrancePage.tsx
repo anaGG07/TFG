@@ -79,7 +79,7 @@ const EYRAEntrancePage = () => {
         <Link
           to="/about"
           className="text-base underline hover:opacity-80 pointer-events-auto"
-          style={{ color: "#E7E0D5", textShadow: "0 1px 8px #C62328" }}
+          style={{ color: "#E7E0D5" }}
         >
           Sobre EYRA
         </Link>

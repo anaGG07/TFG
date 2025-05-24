@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import Blob from "../components/Blob";
 import { Link } from "react-router-dom";
 
@@ -40,13 +40,12 @@ const EYRAEntrancePage = () => {
           EYRA
         </h1>
         {/* Separador decorativo */}
-        <div className="w-16 h-1 rounded-full bg-[#E7E0D5]/60 mb-4 animate-grow" />
+        <div className="w-16 h-1 rounded-full bg-[#E7E0D5] mb-6 animate-grow" />
         {/* Subtítulo inspirador */}
         <p
-          className="text-xl md:text-2xl font-light mb-10 animate-fade-in"
+          className="text-xl md:text-2xl font-light mb-15 animate-fade-in"
           style={{
             color: "#E7E0D5",
-            textShadow: "0 1px 8px #C62328",
             letterSpacing: "0.01em",
           }}
         >
@@ -56,9 +55,8 @@ const EYRAEntrancePage = () => {
         <div className="flex gap-5 mb-8 w-full">
           <Link
             to="/login"
-            className="px-8 py-3 bg-none  border-transparent rounded-2xl shadow-[0_4px_8px_-2px_rgba(0,0,0,0.3)]  text-[#E7E0D5] font-bold text-lg transition-all  mx-auto pointer-events-auto"
+            className="px-8 py-3 mb-10  text-[#E7E0D5] font-bold text-lg rounded-full shadow-lg transition-all  hover:shadow-[0_4px_24px_0_#E7E0D540] mx-auto pointer-events-auto"
             style={{
-              boxShadow: "0 4px 24px 0 #C6232840",
               letterSpacing: "0.02em",
             }}
           >
@@ -66,9 +64,8 @@ const EYRAEntrancePage = () => {
           </Link>
           <Link
             to="/register"
-            className="px-8 py-3  border border-[#E7E0D5]/10 text-[#E7E0D5] font-bold text-lg rounded-full shadow-lg transition-all  hover:shadow-[0_0_24px_#C62328] mx-auto pointer-events-auto"
+            className="px-10 py-3 mb-10  text-[#E7E0D5] font-bold text-lg rounded-full shadow-lg transition-all  hover:shadow-[0_4px_24px_0_#E7E0D540] mx-auto pointer-events-auto"
             style={{
-              boxShadow: "0 4px 24px 0 #E7E0D540",
               letterSpacing: "0.02em",
             }}
           >
@@ -78,11 +75,12 @@ const EYRAEntrancePage = () => {
         {/* Enlace About */}
         <Link
           to="/about"
-          className="text-base underline hover:opacity-80 pointer-events-auto"
-          style={{ color: "#E7E0D5", textShadow: "0 1px 8px #C62328" }}
+          className="text-base hover:text-xl pointer-events-auto transition-all duration-600 ease-in-out"
+          style={{ color: "#E7E0D5" }}
         >
           Sobre EYRA
         </Link>
+
         {/* Animaciones keyframes */}
         <style>
           {`
