@@ -14,7 +14,8 @@ import { StepProps } from "../types/components/StepProps";
 
 const OnboardingPage: React.FC = () => {
   const navigate = useNavigate();
-  const { user, completeOnboarding, isLoading, isAuthenticated, checkAuth } = useAuth();
+  const { user, completeOnboarding, isLoading, isAuthenticated, checkAuth } =
+    useAuth();
   const [step, setStep] = useState(1);
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -29,7 +30,7 @@ const OnboardingPage: React.FC = () => {
     trigger,
     formState: { errors },
   } = useForm<OnboardingFormData>({
-    mode: "onSubmit", // Validamos solo al enviar
+    mode: "onSubmit",
     reValidateMode: "onChange",
     defaultValues: {
       isPersonal: true,
@@ -64,10 +65,8 @@ const OnboardingPage: React.FC = () => {
     if (stage === "underage") return "profile_underage";
     return "profile_women";
   };
-  
 
   useEffect(() => {
-    // Solo verifica la sesión si no está autenticado o no hay usuario
     if (!isAuthenticated || !user) {
       const verifyAuth = async () => {
         try {
@@ -81,28 +80,16 @@ const OnboardingPage: React.FC = () => {
       };
       verifyAuth();
     }
-    // Si ya está autenticado y hay usuario, no hace falta verificar nada
   }, [isAuthenticated, user, checkAuth, navigate]);
 
   useEffect(() => {
     if (!isLoading && user) {
-      // Verificación mejorada del estado de onboarding
       const directComplete = user.onboardingCompleted === true;
       const nestedComplete = user.onboarding?.completed === true;
       const isComplete =
         directComplete && (user.onboarding ? nestedComplete : true);
 
-      console.log("OnboardingPage: Verificando estado de onboarding:", {
-        userId: user.id,
-        directComplete,
-        nestedComplete,
-        isComplete,
-      });
-
       if (isComplete) {
-        console.log(
-          "OnboardingPage: Onboarding ya completado, redirigiendo a dashboard"
-        );
         navigate(ROUTES.DASHBOARD, { replace: true });
       }
     }
@@ -110,30 +97,36 @@ const OnboardingPage: React.FC = () => {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-[#f8e9ea] to-[#e7e0d5] flex items-center justify-center p-4">
-        <div className="bg-white rounded-xl p-8 shadow-xl text-center">
+      <div className="min-h-screen bg-[#e7e0d5] flex items-center justify-center p-4">
+        <div
+          className="rounded-2xl p-8 text-center"
+          style={{
+            background: "linear-gradient(145deg, #f0e8dc, #ddd5c9)",
+            boxShadow: `
+              20px 20px 40px rgba(91, 1, 8, 0.08),
+              -20px -20px 40px rgba(255, 255, 255, 0.25)
+            `,
+          }}
+        >
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#5b0108] mx-auto"></div>
-          <p className="mt-4 text-[#5b0108]">Verificando sesión...</p>
+          <p className="mt-4 text-[#5b0108] font-medium">
+            Verificando sesión...
+          </p>
         </div>
       </div>
     );
   }
 
   if (!isAuthenticated || !user) {
-    console.error('OnboardingPage: No hay usuario autenticado');
     navigate(ROUTES.LOGIN, { replace: true });
     return null;
   }
-
-  // Validación por paso
 
   const validateStep = async (currentStep: number): Promise<boolean> => {
     setError(null);
 
     if (currentStep === 1) {
       const genderValue = getValues("genderIdentity");
-      console.log("El valor de genderValue es: ", genderValue);            
-
       if (genderValue && genderValue.trim() !== "") {
         return true;
       } else {
@@ -141,7 +134,6 @@ const OnboardingPage: React.FC = () => {
         return false;
       }
     } else if (currentStep === 2) {
-      // Paso 2: Validar stageOfLife y campos de transición hormonal si aplica
       let isValid = await trigger("stageOfLife");
 
       if (isValid) {
@@ -150,7 +142,6 @@ const OnboardingPage: React.FC = () => {
         const hormoneStartDate = watch("hormoneStartDate");
         const hormoneFrequencyDays = watch("hormoneFrequencyDays");
 
-        // Si es transición y al menos un campo está completo, entonces los tres deben estarlo
         if (
           stage === "transition" &&
           (hormoneType || hormoneStartDate || hormoneFrequencyDays) &&
@@ -162,23 +153,17 @@ const OnboardingPage: React.FC = () => {
           isValid = false;
         }
       }
-
       return isValid;
     }
-    
-    // Para otros pasos, simplemente permitimos avanzar
     return true;
   };
 
   const handleNextStep = async () => {
     try {
-      // Validamos el paso actual
       if (await validateStep(step)) {
-        // Si pasa la validación, avanzamos al siguiente paso
         setStep((prev) => prev + 1);
       }
     } catch (err) {
-      console.error("Error en la validación:", err);
       setError("Ha ocurrido un error al validar el formulario.");
     }
   };
@@ -188,16 +173,13 @@ const OnboardingPage: React.FC = () => {
       setStep((prev) => prev - 1);
     }
   };
-  
 
   const saveOnboarding: SubmitHandler<OnboardingFormData> = async (data) => {
     setIsSubmitting(true);
     setError(null);
 
     try {
-      // Verificación adicional de autenticación
       if (!isAuthenticated || !user) {
-        console.error('OnboardingPage: No hay usuario autenticado al guardar');
         setError("Tu sesión ha expirado. Por favor, inicia sesión nuevamente.");
         setTimeout(() => {
           navigate(ROUTES.LOGIN, { replace: true });
@@ -209,21 +191,14 @@ const OnboardingPage: React.FC = () => {
       const finalData: OnboardingFormData = {
         ...data,
         profileType,
-        completed: true, 
-        // Asegurar que estos campos requeridos estén presentes y con valores válidos
-        genderIdentity: data.genderIdentity?.trim() || '',
-        stageOfLife: data.stageOfLife?.trim() || '',
-        // Asegurar que lastPeriodDate no sea un string vacío
+        completed: true,
+        genderIdentity: data.genderIdentity?.trim() || "",
+        stageOfLife: data.stageOfLife?.trim() || "",
         lastPeriodDate: data.lastPeriodDate?.trim() || undefined,
       };
 
-      // Registrar datos para depuración
-      console.log("OnboardingPage: Enviando datos al backend:", JSON.stringify(finalData, null, 2));
-
       try {
         const updatedUser = await completeOnboarding(finalData);
-        console.log("OnboardingPage: Respuesta del servidor:", updatedUser);
-
         if (updatedUser?.onboardingCompleted) {
           navigate(ROUTES.DASHBOARD, { replace: true });
         } else {
@@ -232,25 +207,24 @@ const OnboardingPage: React.FC = () => {
           );
         }
       } catch (error: any) {
-        console.error("OnboardingPage: Error al completar onboarding:", error);
-        if (error.message === "No hay usuario autenticado" || error.message === "La sesión ha expirado") {
-          setError("Tu sesión ha expirado. Por favor, inicia sesión nuevamente.");
+        if (
+          error.message === "No hay usuario autenticado" ||
+          error.message === "La sesión ha expirado"
+        ) {
+          setError(
+            "Tu sesión ha expirado. Por favor, inicia sesión nuevamente."
+          );
           setTimeout(() => {
             navigate(ROUTES.LOGIN, { replace: true });
           }, 2000);
-        } else if (error.message && error.message.includes("500")) {
-          // Si es un error 500, mostrar un mensaje más específico
-          setError(
-            "Ha ocurrido un error en el servidor. Nuestro equipo técnico ha sido notificado. Por favor, intenta nuevamente más tarde."
-          );
         } else {
           setError(
-            error.message || "Ocurrió un error al guardar tus datos. Intenta de nuevo."
+            error.message ||
+              "Ocurrió un error al guardar tus datos. Intenta de nuevo."
           );
         }
       }
     } catch (err) {
-      console.error("OnboardingPage: Error general:", err);
       setError("Ocurrió un error al guardar tus datos. Intenta de nuevo.");
     } finally {
       setIsSubmitting(false);
@@ -261,21 +235,15 @@ const OnboardingPage: React.FC = () => {
     try {
       const valid = await validateStep(step);
       if (valid) {
-        // Si la validación es exitosa, enviamos el formulario
         handleSubmit(saveOnboarding)();
       }
     } catch (err) {
-      console.error("Error en la validación final:", err);
       setError("Ha ocurrido un error al validar el formulario.");
     }
   };
 
-  // Función para manejar el evento onBlur del campo gender
-  const handleGenderBlur = () => {
-    // No hacemos nada especial, simplemente dejamos que React Hook Form maneje la validación
-  };
+  const handleGenderBlur = () => {};
 
-  // Props comunes para todos los componentes Step
   const commonStepProps: StepProps = {
     isSubmitting,
     error,
@@ -287,65 +255,133 @@ const OnboardingPage: React.FC = () => {
     trigger,
     onNextStep: handleNextStep,
     onPreviousStep: handlePreviousStep,
-    setStep, // Props legacy para compatibilidad
-    onGenderBlur: handleGenderBlur, // Función para limpiar espacios
+    setStep,
+    onGenderBlur: handleGenderBlur,
   };
 
   return (
-    <div className="w-screen h-screen flex items-center justify-center bg-[#f5ede6] relative overflow-hidden">
-      {/* Logo/ilustración artística lateral/fondo */}
-      <div className="absolute right-8 top-1/2 -translate-y-1/2 h-[80%] w-[220px] hidden md:flex items-center justify-center pointer-events-none opacity-70 z-0">
-        <img src="/logo-artistico.png" alt="Logo EYRA" className="h-full object-contain" />
-      </div>
-      {/* Barra de progreso superior */}
-      <div className="absolute top-0 left-0 w-full flex justify-center z-10 pt-8">
-        <div className="flex gap-3">
-          {[1,2,3,4,5].map(n => (
-            <div key={n} className={`h-2 w-12 rounded-full transition-all duration-500 ${step>=n ? 'bg-[#C62328]' : 'bg-[#e7e0d5]'}`}></div>
-          ))}
+    <div className="min-h-screen bg-[#e7e0d5] flex items-center justify-center p-4">
+      <div className="w-full max-w-2xl">
+        {/* Barra de progreso neomorphic */}
+        <div className="mb-8 flex justify-center">
+          <div
+            className="flex gap-4 p-4 rounded-2xl"
+            style={{
+              background: "linear-gradient(145deg, #f0e8dc, #ddd5c9)",
+              boxShadow: `
+                inset 8px 8px 16px rgba(91, 1, 8, 0.05),
+                inset -8px -8px 16px rgba(255, 255, 255, 0.3)
+              `,
+            }}
+          >
+            {[1, 2, 3, 4, 5].map((n) => (
+              <div
+                key={n}
+                className="h-3 w-16 rounded-full transition-all duration-500"
+                style={{
+                  background:
+                    step >= n
+                      ? "linear-gradient(135deg, #C62328, #9d0d0b)"
+                      : "linear-gradient(145deg, #ddd5c9, #f0e8dc)",
+                  boxShadow:
+                    step >= n
+                      ? `inset 2px 2px 4px rgba(91, 1, 8, 0.3), inset -2px -2px 4px rgba(255, 108, 92, 0.2)`
+                      : `inset 2px 2px 4px rgba(91, 1, 8, 0.05), inset -2px -2px 4px rgba(255, 255, 255, 0.8)`,
+                }}
+              ></div>
+            ))}
+          </div>
         </div>
-      </div>
-      {/* Contenido principal */}
-      <div className="relative z-10 w-full max-w-xl h-[90vh] flex flex-col justify-center items-center">
-        <div className="bg-white rounded-3xl shadow-xl p-10 w-full flex flex-col items-center animate-fade-in border border-[#e7e0d5]" style={{minHeight: '600px'}}>
-          <h2 className="font-serif text-3xl md:text-4xl font-bold text-[#7a2323] mb-2 text-center drop-shadow-sm animate-fade-in">Bienvenida a EYRA</h2>
-          <p className="text-lg text-[#3a1a1a] mb-8 text-center animate-fade-in">Un espacio para ti, tu ciclo y tu bienestar. <span className="block text-base text-[#a62c2c] mt-2">Tómate tu tiempo, este espacio es solo para ti.</span></p>
-          {step === 1 && (
-            <Step1Context {...commonStepProps} />
-          )}
-          {step === 2 && (
-            <Step2LifeStage {...commonStepProps} />
-          )}
-          {step === 3 && (
-            <Step3Preferences {...commonStepProps} />
-          )}
-          {step === 4 && (
-            <Step4Symptoms {...commonStepProps} />
-          )}
-          {step === 5 && (
-            <Step5HealthConcerns {...commonStepProps} onSubmit={handleFinalSubmit} />
-          )}
-          {error && (
-            <p className="text-red-500 text-sm text-center mt-4 animate-fade-in">{error}</p>
-          )}
+
+        {/* Contenedor principal neomorphic */}
+        <div
+          className="rounded-3xl p-8 relative overflow-hidden"
+          style={{
+            background: "linear-gradient(145deg, #f0e8dc, #ddd5c9)",
+            boxShadow: `
+              25px 25px 50px rgba(91, 1, 8, 0.08),
+              -25px -25px 50px rgba(255, 255, 255, 0.25),
+              inset 0 1px 0 rgba(255, 255, 255, 0.15)
+            `,
+            minHeight: "600px",
+          }}
+        >
+          {/* Header */}
+          <div className="text-center mb-8">
+            <h1 className="font-serif text-3xl md:text-4xl font-light text-[#5b0108] mb-3">
+              Bienvenida a EYRA
+            </h1>
+            <p className="text-lg text-[#300808] leading-relaxed">
+              Un espacio para ti, tu ciclo y tu bienestar.
+            </p>
+            <p className="text-sm text-[#9d0d0b] mt-2 italic">
+              Tómate tu tiempo, este espacio es solo para ti.
+            </p>
+          </div>
+
+          {/* Contenido del paso */}
+          <div
+            className="flex flex-col justify-between"
+            style={{ minHeight: "400px" }}
+          >
+            <div className="flex-1">
+              {step === 1 && <Step1Context {...commonStepProps} />}
+              {step === 2 && <Step2LifeStage {...commonStepProps} />}
+              {step === 3 && <Step3Preferences {...commonStepProps} />}
+              {step === 4 && <Step4Symptoms {...commonStepProps} />}
+              {step === 5 && (
+                <Step5HealthConcerns
+                  {...commonStepProps}
+                  onSubmit={handleFinalSubmit}
+                />
+              )}
+            </div>
+
+            {/* Error message */}
+            {error && (
+              <div
+                className="mt-6 p-4 rounded-xl text-center"
+                style={{
+                  background:
+                    "linear-gradient(135deg, rgba(220, 38, 127, 0.05), rgba(239, 68, 68, 0.03))",
+                  border: "1px solid rgba(239, 68, 68, 0.15)",
+                  boxShadow: `
+                    inset 2px 2px 4px rgba(239, 68, 68, 0.05),
+                    inset -2px -2px 4px rgba(255, 255, 255, 0.8)
+                  `,
+                }}
+              >
+                <p className="text-red-600 text-sm font-medium">{error}</p>
+              </div>
+            )}
+          </div>
         </div>
-        {/* Frase motivadora final */}
+
+        {/* Mensaje final */}
         {step === 5 && !isSubmitting && (
-          <div className="mt-8 text-center animate-fade-in">
-            <h3 className="text-2xl font-serif text-[#C62328] font-bold mb-2">¡Onboarding completado!</h3>
-            <p className="text-[#7a2323] text-lg">Estás lista para descubrir, conectar y evolucionar con EYRA.<br/>Recuerda: <span className="font-semibold">tu ciclo, tu poder</span>.</p>
+          <div className="mt-8 text-center">
+            <div
+              className="p-6 rounded-2xl"
+              style={{
+                background: "linear-gradient(145deg, #f0e8dc, #ddd5c9)",
+                boxShadow: `
+                  15px 15px 30px rgba(91, 1, 8, 0.08),
+                  -15px -15px 30px rgba(255, 255, 255, 0.25)
+                `,
+              }}
+            >
+              <h3 className="text-2xl font-serif text-[#C62328] font-light mb-2">
+                ¡Onboarding completado!
+              </h3>
+              <p className="text-[#5b0108] text-lg leading-relaxed">
+                Estás lista para descubrir, conectar y evolucionar con EYRA.
+                <br />
+                <span className="font-semibold">Tu ciclo, tu poder</span>.
+              </p>
+            </div>
           </div>
         )}
       </div>
-      <style>{`
-        @keyframes fade-in {
-          from { opacity: 0; transform: translateY(24px);}
-          to { opacity: 1; transform: translateY(0);}
-        }
-        .animate-fade-in {
-          animation: fade-in 1.2s cubic-bezier(.4,0,.2,1) both;
-        }
-      `}</style>
     </div>
   );
 };
