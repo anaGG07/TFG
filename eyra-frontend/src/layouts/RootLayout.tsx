@@ -38,7 +38,7 @@ const RootContent = () => {
         style={{ minHeight: "100vh", minWidth: "100vw" }}
       >
         {/* Navegación circular solo en rutas autenticadas */}
-        { <CircularNavigation />}
+        {shouldShowNavigation && <CircularNavigation />}
 
         <main className="flex-1 w-full h-full flex items-center justify-center z-10">
           <Outlet />
