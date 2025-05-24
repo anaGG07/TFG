@@ -19,8 +19,8 @@ const HomeIcon = ({ className }: { className?: string }) => (
     className={className}
     viewBox="0 0 24 24"
     fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
+    stroke="white"
+    strokeWidth="3"
     strokeLinecap="round"
     strokeLinejoin="round"
   >
@@ -34,7 +34,7 @@ const CalendarIcon = ({ className }: { className?: string }) => (
     className={className}
     viewBox="0 0 24 24"
     fill="none"
-    stroke="currentColor"
+    stroke="white"
     strokeWidth="2"
     strokeLinecap="round"
     strokeLinejoin="round"
@@ -54,7 +54,7 @@ const InsightsIcon = ({ className }: { className?: string }) => (
     className={className}
     viewBox="0 0 24 24"
     fill="none"
-    stroke="currentColor"
+    stroke="white"
     strokeWidth="2"
     strokeLinecap="round"
     strokeLinejoin="round"
@@ -70,7 +70,7 @@ const ProfileIcon = ({ className }: { className?: string }) => (
     className={className}
     viewBox="0 0 24 24"
     fill="none"
-    stroke="currentColor"
+    stroke="white"
     strokeWidth="2"
     strokeLinecap="round"
     strokeLinejoin="round"
@@ -85,7 +85,7 @@ const SettingsIcon = ({ className }: { className?: string }) => (
     className={className}
     viewBox="0 0 24 24"
     fill="none"
-    stroke="currentColor"
+    stroke="white"
     strokeWidth="2"
     strokeLinecap="round"
     strokeLinejoin="round"
@@ -100,7 +100,7 @@ const LogoutIcon = ({ className }: { className?: string }) => (
     className={className}
     viewBox="0 0 24 24"
     fill="none"
-    stroke="currentColor"
+    stroke="white"
     strokeWidth="2"
     strokeLinecap="round"
     strokeLinejoin="round"
@@ -250,8 +250,6 @@ const CircularNavigation: React.FC = () => {
           const position = getItemPosition(index);
           const isActive = index === currentIndex;
           const isHovered = index === hoveredIndex;
-          const IconComponent = item.icon;
-
           return (
             <div
               key={item.id}
@@ -271,14 +269,14 @@ const CircularNavigation: React.FC = () => {
                 className={`w-12 h-12 rounded-full flex items-center justify-center text-white font-bold
                 ${
                   isActive || isHovered
-                    ? "bg-white bg-opacity-25 shadow-lg border-2 border-white border-opacity-50"
-                    : "bg-white bg-opacity-10 border border-white border-opacity-20"
+                    ? " bg-opacity-25"
+                    : " bg-opacity-10  "
                 }
                 cursor-pointer hover:bg-opacity-40 transition-all duration-200
               `}
                 onClick={() => selectItem(index)}
               >
-                <IconComponent className="w-4 h-4 text-white" />
+                <item.icon className="w-10 h-10 text-white" />
               </div>
             </div>
           );
