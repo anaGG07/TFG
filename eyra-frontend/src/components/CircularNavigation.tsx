@@ -111,22 +111,6 @@ const LogoutIcon = ({ className }: { className?: string }) => (
   </svg>
 );
 
-const HandIcon = ({ className }: { className?: string }) => (
-  <svg
-    className={className}
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-  >
-    <path d="M18 11V6a2 2 0 0 0-4 0v5" />
-    <path d="M14 10V4a2 2 0 0 0-4 0v2" />
-    <path d="M10 10.5V6a2 2 0 0 0-4 0v8" />
-    <path d="M18 8a2 2 0 1 1 4 0v6a8 8 0 0 1-8 8h-2a8 8 0 0 1-8-8V8a2 2 0 1 1 4 0" />
-  </svg>
-);
 
 const CircularNavigation: React.FC = () => {
   const navigate = useNavigate();
@@ -154,35 +138,35 @@ const CircularNavigation: React.FC = () => {
       label: "Calendario",
       icon: CalendarIcon,
       route: ROUTES.CALENDAR,
-      color: "#8B1538",
+      color: "#B30E13",
     },
     {
       id: "insights",
       label: "Insights",
       icon: InsightsIcon,
       route: ROUTES.INSIGHTS,
-      color: "#A91D3A",
+      color: "#880004",
     },
     {
       id: "profile",
       label: "Perfil",
       icon: ProfileIcon,
       route: ROUTES.PROFILE,
-      color: "#7A1E2D",
+      color: "#730003",
     },
     {
       id: "settings",
       label: "Configuración",
       icon: SettingsIcon,
       route: ROUTES.SETTINGS,
-      color: "#6B1A28",
+      color: "#470002",
     },
     {
       id: "logout",
       label: "Cerrar Sesión",
       icon: LogoutIcon,
       route: "",
-      color: "#E53E3E",
+      color: "#360001",
     },
   ];
 
@@ -219,9 +203,9 @@ const CircularNavigation: React.FC = () => {
 
   // Calcular posición de los elementos en el círculo
   const getItemPosition = (index: number) => {
-    const radius = 50; // Radio con más margen del borde
-    const centerX = 100; // Centro del blob
-    const centerY = 100;
+    const radius = 60; // Radio con más margen del borde
+    const centerX = 119; // Centro del blob
+    const centerY = 119;
 
     const angleOffset = -Math.PI / 2; // Comenzar desde arriba
     const angle =
@@ -246,17 +230,17 @@ const CircularNavigation: React.FC = () => {
 
   return (
     <div
-      className="fixed top-2 left-2 w-[200px] h-[200px] z-50"
+      className="fixed top-2 left-2 w-[250px] h-[250px] z-50"
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
     >
       {/* Blob de fondo */}
       <div ref={blobRef} className="absolute inset-0">
         <Blob
-          width={200}
-          height={200}
+          width={250}
+          height={250}
           color={navigationItems[currentIndex]?.color || "#C62328"}
-          radius={80}
+          radius={110}
         />
       </div>
 
@@ -284,7 +268,7 @@ const CircularNavigation: React.FC = () => {
               onMouseLeave={() => setHoveredIndex(null)}
             >
               <div
-                className={`w-9 h-9 rounded-full flex items-center justify-center text-white font-bold
+                className={`w-12 h-12 rounded-full flex items-center justify-center text-white font-bold
                 ${
                   isActive || isHovered
                     ? "bg-white bg-opacity-25 shadow-lg border-2 border-white border-opacity-50"
@@ -305,7 +289,7 @@ const CircularNavigation: React.FC = () => {
       <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-30 pointer-events-none">
         <div className="text-center">
           <p
-            className={`text-sm font-semibold text-white drop-shadow-lg transition-all duration-300 ${
+            className={`text-3xl font-semibold text-white drop-shadow-lg transition-all duration-300 ${
               isVisible ? "opacity-0" : "opacity-100"
             }`}
           >
@@ -315,9 +299,9 @@ const CircularNavigation: React.FC = () => {
       </div>
 
       {/* Texto del elemento actual/hover */}
-      <div className="absolute top-full left-1/2 transform -translate-x-1/2 mt-3">
+      <div className="absolute top-60 left-1/2 transform -translate-x-1/2 mt-3">
         <p
-          className={`text-sm font-semibold text-[#C62328] drop-shadow-sm transition-all duration-300 text-center ${
+          className={`text-xl font-semibold text-[#C62328] capitalize drop-shadow-sm transition-all duration-300 text-center ${
             isVisible ? "opacity-100" : "opacity-0"
           }`}
         >
