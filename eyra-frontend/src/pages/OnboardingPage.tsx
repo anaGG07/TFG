@@ -292,11 +292,7 @@ const OnboardingPage: React.FC = () => {
   };
 
   return (
-    <div className="w-screen h-screen flex items-center justify-center bg-[#f5ede6] relative overflow-hidden">
-      {/* Logo/ilustración artística lateral/fondo */}
-      <div className="absolute right-8 top-1/2 -translate-y-1/2 h-[80%] w-[220px] hidden md:flex items-center justify-center pointer-events-none opacity-70 z-0">
-        <img src="/logo-artistico.png" alt="Logo EYRA" className="h-full object-contain" />
-      </div>
+    <div className="w-screen min-h-screen flex items-center justify-center bg-[#f5ede6] relative overflow-hidden">
       {/* Barra de progreso superior */}
       <div className="absolute top-0 left-0 w-full flex justify-center z-10 pt-8">
         <div className="flex gap-3">
@@ -306,9 +302,8 @@ const OnboardingPage: React.FC = () => {
         </div>
       </div>
       {/* Contenido principal */}
-      <div className="relative z-10 w-full max-w-6xl h-[90vh] flex flex-col justify-center items-center px-8">
-        <div className="bg-white rounded-3xl shadow-xl p-8 w-full flex flex-col items-center animate-fade-in border border-[#e7e0d5]" style={{
-          minHeight: '600px',
+      <div className="relative z-10 w-full max-w-5xl flex flex-col justify-center items-center px-4 py-8">
+        <div className="bg-white rounded-3xl shadow-xl p-6 w-full flex flex-col items-center animate-fade-in border border-[#e7e0d5]" style={{
           background: '#e7e0d5',
           boxShadow: `
             20px 20px 40px rgba(91, 1, 8, 0.08),
@@ -316,7 +311,7 @@ const OnboardingPage: React.FC = () => {
             inset 0 1px 0 rgba(255, 255, 255, 0.15)
           `,
         }}>
-          <div className="w-full max-h-[calc(90vh-200px)] overflow-y-auto pr-4 custom-scrollbar">
+          <div className="w-full">
             {step === 1 && (
               <Step1Context {...commonStepProps} />
             )}

@@ -43,7 +43,7 @@ const Step2LifeStage: React.FC<StepProps> = ({
   // a través de la función onNextStep
 
   return (
-    <div className="space-y-6 w-full max-w-4xl mx-auto">
+    <div className="space-y-6 w-full max-w-3xl mx-auto py-4 flex flex-col items-center">
       <h2 className="font-serif text-3xl md:text-4xl font-bold text-[#7a2323] mb-2 text-center drop-shadow-sm animate-fade-in">
         Bienvenida a EYRA
       </h2>
@@ -54,7 +54,7 @@ const Step2LifeStage: React.FC<StepProps> = ({
           ayude.
         </span>
       </p>
-      <div className="grid grid-cols-2 gap-8">
+      <div className="grid grid-cols-2 gap-8 w-full justify-items-center">
         <div className="space-y-4">
           <div
             className="p-6 rounded-2xl"
@@ -358,7 +358,7 @@ const Step2LifeStage: React.FC<StepProps> = ({
         </div>
       </div>
 
-      <div className="flex justify-between mt-8">
+      <div className="flex justify-between mt-6 w-full max-w-md mx-auto">
         <button
           type="button"
           onClick={onPreviousStep}

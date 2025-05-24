@@ -13,7 +13,7 @@ const Step3Preferences: React.FC<StepProps> = ({
   const wantsPartner = watch("shareCycleWithPartner");
 
   return (
-    <div className="w-full flex flex-col items-center gap-8 animate-fade-in max-w-4xl mx-auto">
+    <div className="w-full flex flex-col items-center gap-6 animate-fade-in max-w-3xl mx-auto py-4">
       <h2 className="font-serif text-3xl md:text-4xl font-bold text-[#7a2323] mb-2 text-center drop-shadow-sm animate-fade-in">
         Bienvenida a EYRA
       </h2>
@@ -24,7 +24,7 @@ const Step3Preferences: React.FC<StepProps> = ({
         </span>
       </p>
 
-      <div className="grid grid-cols-2 gap-8 w-full">
+      <div className={`grid ${wantsAI || wantsPartner ? 'grid-cols-2' : 'grid-cols-1'} gap-8 w-full justify-items-center`}>
         <div
           className="p-6 rounded-2xl"
           style={{
@@ -174,12 +174,12 @@ const Step3Preferences: React.FC<StepProps> = ({
         </div>
       </div>
 
-      <p className="text-sm text-[#5b0108] text-center mt-4">
+      <p className="text-sm text-[#5b0108] text-center mt-2">
         Todas estas preferencias son opcionales y podrás cambiarlas más
         adelante.
       </p>
 
-      <div className="flex justify-between mt-8 w-full">
+      <div className="flex justify-between mt-6 w-full max-w-md mx-auto">
         <button
           type="button"
           onClick={onPreviousStep}

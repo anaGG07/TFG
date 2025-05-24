@@ -19,7 +19,7 @@ const Step1Context: React.FC<StepProps> = ({
   }, []);
 
   return (
-    <div className="w-full flex flex-col items-center gap-8 animate-fade-in">
+    <div className="w-full flex flex-col items-center gap-6 animate-fade-in max-w-3xl mx-auto py-4">
       <h2 className="font-serif text-3xl md:text-4xl font-bold text-[#7a2323] mb-2 text-center drop-shadow-sm animate-fade-in">
         Bienvenida a EYRA
       </h2>
@@ -30,7 +30,7 @@ const Step1Context: React.FC<StepProps> = ({
         </span>
       </p>
 
-      <div className="grid grid-cols-2 gap-8 w-full max-w-4xl">
+      <div className="grid grid-cols-2 gap-8 w-full justify-items-center">
         <div className="space-y-6">
           <fieldset
             className="p-6 rounded-2xl"
@@ -141,7 +141,7 @@ const Step1Context: React.FC<StepProps> = ({
         </div>
       </div>
 
-      <div className="flex justify-end mt-10 w-full max-w-4xl">
+      <div className="flex justify-end mt-6 w-full max-w-md mx-auto">
         <button
           type="button"
           onClick={onNextStep}
