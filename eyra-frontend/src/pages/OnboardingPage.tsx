@@ -261,23 +261,33 @@ const OnboardingPage: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-[#e7e0d5] flex items-center justify-center p-4">
-      <div className="w-full max-w-2xl">
-        {/* Barra de progreso neomorphic */}
-        <div className="mb-8 flex justify-center">
+      <div className="w-full max-w-lg">
+        {/* Header compacto */}
+        <div className="text-center mb-6">
+          <h1 className="font-serif text-2xl font-light text-[#5b0108] mb-2">
+            Bienvenida a EYRA
+          </h1>
+          <p className="text-sm text-[#300808] leading-relaxed">
+            Un espacio para ti, tu ciclo y tu bienestar.
+          </p>
+        </div>
+
+        {/* Barra de progreso compacta */}
+        <div className="mb-6 flex justify-center">
           <div
-            className="flex gap-4 p-4 rounded-2xl"
+            className="flex gap-2 p-3 rounded-xl"
             style={{
               background: "linear-gradient(145deg, #f0e8dc, #ddd5c9)",
               boxShadow: `
-                inset 8px 8px 16px rgba(91, 1, 8, 0.05),
-                inset -8px -8px 16px rgba(255, 255, 255, 0.3)
+                inset 6px 6px 12px rgba(91, 1, 8, 0.05),
+                inset -6px -6px 12px rgba(255, 255, 255, 0.3)
               `,
             }}
           >
             {[1, 2, 3, 4, 5].map((n) => (
               <div
                 key={n}
-                className="h-3 w-16 rounded-full transition-all duration-500"
+                className="h-2 w-12 rounded-full transition-all duration-500"
                 style={{
                   background:
                     step >= n
@@ -285,97 +295,78 @@ const OnboardingPage: React.FC = () => {
                       : "linear-gradient(145deg, #ddd5c9, #f0e8dc)",
                   boxShadow:
                     step >= n
-                      ? `inset 2px 2px 4px rgba(91, 1, 8, 0.3), inset -2px -2px 4px rgba(255, 108, 92, 0.2)`
-                      : `inset 2px 2px 4px rgba(91, 1, 8, 0.05), inset -2px -2px 4px rgba(255, 255, 255, 0.8)`,
+                      ? `inset 1px 1px 2px rgba(91, 1, 8, 0.3), inset -1px -1px 2px rgba(255, 108, 92, 0.2)`
+                      : `inset 1px 1px 2px rgba(91, 1, 8, 0.05), inset -1px -1px 2px rgba(255, 255, 255, 0.8)`,
                 }}
               ></div>
             ))}
           </div>
         </div>
 
-        {/* Contenedor principal neomorphic */}
+        {/* Contenedor principal compacto */}
         <div
-          className="rounded-3xl p-8 relative overflow-hidden"
+          className="rounded-2xl p-6 relative overflow-hidden"
           style={{
             background: "linear-gradient(145deg, #f0e8dc, #ddd5c9)",
             boxShadow: `
-              25px 25px 50px rgba(91, 1, 8, 0.08),
-              -25px -25px 50px rgba(255, 255, 255, 0.25),
+              20px 20px 40px rgba(91, 1, 8, 0.08),
+              -20px -20px 40px rgba(255, 255, 255, 0.25),
               inset 0 1px 0 rgba(255, 255, 255, 0.15)
             `,
-            minHeight: "600px",
+            minHeight: "400px",
+            maxHeight: "70vh",
           }}
         >
-          {/* Header */}
-          <div className="text-center mb-8">
-            <h1 className="font-serif text-3xl md:text-4xl font-light text-[#5b0108] mb-3">
-              Bienvenida a EYRA
-            </h1>
-            <p className="text-lg text-[#300808] leading-relaxed">
-              Un espacio para ti, tu ciclo y tu bienestar.
-            </p>
-            <p className="text-sm text-[#9d0d0b] mt-2 italic">
-              Tómate tu tiempo, este espacio es solo para ti.
-            </p>
-          </div>
-
-          {/* Contenido del paso */}
-          <div
-            className="flex flex-col justify-between"
-            style={{ minHeight: "400px" }}
-          >
-            <div className="flex-1">
-              {step === 1 && <Step1Context {...commonStepProps} />}
-              {step === 2 && <Step2LifeStage {...commonStepProps} />}
-              {step === 3 && <Step3Preferences {...commonStepProps} />}
-              {step === 4 && <Step4Symptoms {...commonStepProps} />}
-              {step === 5 && (
-                <Step5HealthConcerns
-                  {...commonStepProps}
-                  onSubmit={handleFinalSubmit}
-                />
-              )}
-            </div>
-
-            {/* Error message */}
-            {error && (
-              <div
-                className="mt-6 p-4 rounded-xl text-center"
-                style={{
-                  background:
-                    "linear-gradient(135deg, rgba(220, 38, 127, 0.05), rgba(239, 68, 68, 0.03))",
-                  border: "1px solid rgba(239, 68, 68, 0.15)",
-                  boxShadow: `
-                    inset 2px 2px 4px rgba(239, 68, 68, 0.05),
-                    inset -2px -2px 4px rgba(255, 255, 255, 0.8)
-                  `,
-                }}
-              >
-                <p className="text-red-600 text-sm font-medium">{error}</p>
-              </div>
+          {/* Contenido del paso con scroll si es necesario */}
+          <div className="h-full overflow-y-auto">
+            {step === 1 && <Step1Context {...commonStepProps} />}
+            {step === 2 && <Step2LifeStage {...commonStepProps} />}
+            {step === 3 && <Step3Preferences {...commonStepProps} />}
+            {step === 4 && <Step4Symptoms {...commonStepProps} />}
+            {step === 5 && (
+              <Step5HealthConcerns
+                {...commonStepProps}
+                onSubmit={handleFinalSubmit}
+              />
             )}
           </div>
-        </div>
 
-        {/* Mensaje final */}
-        {step === 5 && !isSubmitting && (
-          <div className="mt-8 text-center">
+          {/* Error message fijo en la parte inferior */}
+          {error && (
             <div
-              className="p-6 rounded-2xl"
+              className="absolute bottom-4 left-4 right-4 p-3 rounded-xl text-center"
               style={{
-                background: "linear-gradient(145deg, #f0e8dc, #ddd5c9)",
+                background:
+                  "linear-gradient(135deg, rgba(220, 38, 127, 0.05), rgba(239, 68, 68, 0.03))",
+                border: "1px solid rgba(239, 68, 68, 0.15)",
                 boxShadow: `
-                  15px 15px 30px rgba(91, 1, 8, 0.08),
-                  -15px -15px 30px rgba(255, 255, 255, 0.25)
+                  inset 2px 2px 4px rgba(239, 68, 68, 0.05),
+                  inset -2px -2px 4px rgba(255, 255, 255, 0.8)
                 `,
               }}
             >
-              <h3 className="text-2xl font-serif text-[#C62328] font-light mb-2">
-                ¡Onboarding completado!
+              <p className="text-red-600 text-sm font-medium">{error}</p>
+            </div>
+          )}
+        </div>
+
+        {/* Mensaje final solo para Step 5 */}
+        {step === 5 && !isSubmitting && (
+          <div className="mt-4 text-center">
+            <div
+              className="p-4 rounded-xl"
+              style={{
+                background: "linear-gradient(145deg, #f0e8dc, #ddd5c9)",
+                boxShadow: `
+                  10px 10px 20px rgba(91, 1, 8, 0.08),
+                  -10px -10px 20px rgba(255, 255, 255, 0.25)
+                `,
+              }}
+            >
+              <h3 className="text-lg font-serif text-[#C62328] font-light mb-1">
+                ¡Casi listo!
               </h3>
-              <p className="text-[#5b0108] text-lg leading-relaxed">
-                Estás lista para descubrir, conectar y evolucionar con EYRA.
-                <br />
+              <p className="text-[#5b0108] text-sm">
                 <span className="font-semibold">Tu ciclo, tu poder</span>.
               </p>
             </div>
