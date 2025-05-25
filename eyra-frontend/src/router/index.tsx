@@ -11,7 +11,6 @@ import RegisterPage from "../pages/RegisterPage";
 import OnboardingPage from "../pages/OnboardingPage";
 import DashboardPage from "../pages/DashboardPage";
 import CalendarPage from "../pages/CalendarPage";
-import InsightsPage from "../pages/InsightsPage";
 import ProfilePage from "../pages/ProfilePage";
 import ErrorPage from "../pages/ErrorPage";
 import AdminPage from "../pages/AdminPage";

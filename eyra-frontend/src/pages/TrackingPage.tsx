@@ -1,6 +1,7 @@
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import { motion } from "framer-motion";
 import CircularNavigation from "../components/CircularNavigation";
+import DraggableGrid from "../components/DraggableGrid";
 
 // Interfaces
 interface Companion {
@@ -20,7 +21,14 @@ interface Invitation {
   expiresAt: string;
 }
 
-// Iconos SVG
+interface TrackingGridItem {
+  id: string;
+  title: string;
+  component: React.ReactNode;
+  isExpanded?: boolean;
+}
+
+// Iconos SVG reutilizados
 const CompanionsIcon = ({ className }: { className?: string }) => (
   <svg
     className={className}
@@ -114,7 +122,7 @@ const ActivityIcon = ({ className }: { className?: string }) => (
 );
 
 const TrackingPage: React.FC = () => {
-  // Estados mockup
+  // Estados mockup (mantener la misma lógica de datos)
   const [companions] = useState<Companion[]>([
     {
       id: "1",
@@ -131,45 +139,6 @@ const TrackingPage: React.FC = () => {
   const [messages] = useState(0);
   const [recentActivity] = useState(3);
 
-  // Variantes de animación
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.1,
-        delayChildren: 0.2,
-      },
-    },
-  };
-
-  const cardVariants = {
-    hidden: {
-      opacity: 0,
-      y: 20,
-      scale: 0.95,
-    },
-    visible: {
-      opacity: 1,
-      y: 0,
-      scale: 1,
-      transition: {
-        duration: 0.6,
-        ease: [0.25, 0.46, 0.45, 0.94],
-      },
-    },
-  };
-
-  const hoverVariants = {
-    hover: {
-      scale: 1.02,
-      transition: {
-        duration: 0.2,
-        ease: "easeInOut",
-      },
-    },
-  };
-
   // Función para obtener el rol en español
   const getRoleInSpanish = (role: string) => {
     switch (role) {
@@ -184,395 +153,367 @@ const TrackingPage: React.FC = () => {
     }
   };
 
+  // Crear componentes individuales para cada card
+  const CompanionsCard = () => (
+    <div className="flex flex-col items-center justify-center text-center h-full">
+      <motion.div
+        className="w-16 h-16 rounded-full flex items-center justify-center mb-4"
+        style={{
+          background: "#f5ede6",
+          boxShadow: `
+            inset 2px 2px 4px rgba(91, 1, 8, 0.1),
+            inset -2px -2px 4px rgba(255, 255, 255, 0.8)
+          `,
+        }}
+        whileHover={{ scale: 1.1 }}
+        transition={{ duration: 0.2 }}
+      >
+        <CompanionsIcon className="w-6 h-6" />
+      </motion.div>
+
+      <h3 className="text-lg font-serif font-bold text-[#7a2323] mb-3">
+        Mis Acompañantes
+      </h3>
+      <p className="text-sm text-[#5b0108] mb-4">
+        Personas que siguen tu ciclo y te acompañan
+      </p>
+
+      <div className="w-full">
+        {companions.length > 0 ? (
+          <div className="space-y-3">
+            {companions.map((companion) => (
+              <div
+                key={companion.id}
+                className="bg-white/50 rounded-xl p-3 flex items-center justify-between"
+              >
+                <div>
+                  <p className="font-semibold text-[#5b0108] text-sm">
+                    {companion.name}
+                  </p>
+                  <p className="text-xs text-[#a62c2c]">
+                    {getRoleInSpanish(companion.role)}
+                  </p>
+                </div>
+                <div className="text-right">
+                  <span
+                    className={`inline-block w-2 h-2 rounded-full ${
+                      companion.status === "active"
+                        ? "bg-green-500"
+                        : "bg-gray-400"
+                    }`}
+                  ></span>
+                  <p className="text-xs text-gray-500 mt-1">
+                    {companion.lastActivity}
+                  </p>
+                </div>
+              </div>
+            ))}
+            <div className="pt-3 border-t border-[#C62328]/20">
+              <p className="text-xs text-[#C62328] font-medium">
+                🔴 {companions.length}{" "}
+                {companions.length === 1
+                  ? "persona conectada"
+                  : "personas conectadas"}
+              </p>
+            </div>
+          </div>
+        ) : (
+          <div className="text-center">
+            <p className="text-xs text-[#C62328] font-medium">
+              🔴 Ningún acompañante aún
+            </p>
+            <button className="mt-3 px-4 py-2 bg-[#C62328] text-white rounded-lg text-xs hover:bg-[#9d0d0b] transition-colors">
+              Invitar primera persona
+            </button>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+
+  const FollowingCard = () => (
+    <div className="flex flex-col items-center justify-center text-center h-full">
+      <motion.div
+        className="w-16 h-16 rounded-full flex items-center justify-center mb-4"
+        style={{
+          background: "#f5ede6",
+          boxShadow: `
+            inset 2px 2px 4px rgba(91, 1, 8, 0.1),
+            inset -2px -2px 4px rgba(255, 255, 255, 0.8)
+          `,
+        }}
+        whileHover={{ scale: 1.1 }}
+        transition={{ duration: 0.2 }}
+      >
+        <FollowingIcon className="w-6 h-6" />
+      </motion.div>
+
+      <h3 className="text-lg font-serif font-bold text-[#7a2323] mb-3">
+        Personas que Sigo
+      </h3>
+      <p className="text-sm text-[#5b0108] mb-4">
+        Cuando acompañas a alguien más
+      </p>
+
+      <div className="w-full">
+        {following.length > 0 ? (
+          <div className="space-y-3">
+            {following.map((person) => (
+              <div key={person.id} className="bg-white/50 rounded-xl p-3">
+                <p className="font-semibold text-[#5b0108] text-sm">
+                  {person.name}
+                </p>
+                <p className="text-xs text-[#a62c2c]">
+                  Última actualización: {person.lastActivity}
+                </p>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="text-center">
+            <p className="text-xs text-[#C62328] font-medium">
+              🔴 No sigues a nadie actualmente
+            </p>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+
+  const PrivacyCard = () => (
+    <div className="flex flex-col items-center justify-center text-center h-full">
+      <motion.div
+        className="w-16 h-16 rounded-full flex items-center justify-center mb-4"
+        style={{
+          background: "#f5ede6",
+          boxShadow: `
+            inset 2px 2px 4px rgba(91, 1, 8, 0.1),
+            inset -2px -2px 4px rgba(255, 255, 255, 0.8)
+          `,
+        }}
+        whileHover={{ scale: 1.1 }}
+        transition={{ duration: 0.2 }}
+      >
+        <PrivacyIcon className="w-6 h-6" />
+      </motion.div>
+
+      <h3 className="text-lg font-serif font-bold text-[#7a2323] mb-3">
+        Privacidad
+      </h3>
+      <p className="text-sm text-[#5b0108] mb-4">
+        Controla qué información compartes
+      </p>
+
+      <div className="w-full space-y-2">
+        <div className="bg-white/50 rounded-xl p-2">
+          <p className="text-xs font-medium text-[#5b0108]">
+            Información del ciclo
+          </p>
+          <p className="text-xs text-[#a62c2c]">Fechas y predicciones</p>
+        </div>
+        <div className="bg-white/50 rounded-xl p-2">
+          <p className="text-xs font-medium text-[#5b0108]">
+            Síntomas y estado
+          </p>
+          <p className="text-xs text-[#a62c2c]">Registro de bienestar</p>
+        </div>
+        <div className="bg-white/50 rounded-xl p-2">
+          <p className="text-xs font-medium text-[#5b0108]">
+            Alertas y recordatorios
+          </p>
+          <p className="text-xs text-[#a62c2c]">Notificaciones compartidas</p>
+        </div>
+
+        <div className="pt-2 border-t border-[#C62328]/20">
+          <p className="text-xs text-[#C62328] font-medium">
+            🔴 Configurar permisos detallados
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+
+  const InvitationsCard = () => (
+    <div className="flex flex-col items-center justify-center text-center h-full">
+      <motion.div
+        className="w-16 h-16 rounded-full flex items-center justify-center mb-4"
+        style={{
+          background: "#f5ede6",
+          boxShadow: `
+            inset 2px 2px 4px rgba(91, 1, 8, 0.1),
+            inset -2px -2px 4px rgba(255, 255, 255, 0.8)
+          `,
+        }}
+        whileHover={{ scale: 1.1 }}
+        transition={{ duration: 0.2 }}
+      >
+        <InvitationsIcon className="w-6 h-6" />
+      </motion.div>
+
+      <h3 className="text-lg font-serif font-bold text-[#7a2323] mb-3">
+        Invitaciones
+      </h3>
+      <p className="text-sm text-[#5b0108] mb-4">
+        Códigos de invitación y solicitudes
+      </p>
+
+      <div className="w-full">
+        {invitations.length > 0 ? (
+          <div className="space-y-3">
+            {invitations.map((invitation) => (
+              <div key={invitation.id} className="bg-white/50 rounded-xl p-3">
+                <p className="font-mono text-xs text-[#5b0108]">
+                  {invitation.code}
+                </p>
+                <p className="text-xs text-[#a62c2c]">
+                  {getRoleInSpanish(invitation.type)}
+                </p>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="text-center">
+            <p className="text-xs text-[#C62328] font-medium">
+              🔴 No hay invitaciones pendientes
+            </p>
+            <button className="mt-3 px-4 py-2 bg-[#C62328] text-white rounded-lg text-xs hover:bg-[#9d0d0b] transition-colors">
+              Crear invitación
+            </button>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+
+  const CommunicationCard = () => (
+    <div className="flex flex-col items-center justify-center text-center h-full">
+      <motion.div
+        className="w-16 h-16 rounded-full flex items-center justify-center mb-4 relative"
+        style={{
+          background: "#f5ede6",
+          boxShadow: `
+            inset 2px 2px 4px rgba(91, 1, 8, 0.1),
+            inset -2px -2px 4px rgba(255, 255, 255, 0.8)
+          `,
+        }}
+        whileHover={{ scale: 1.1 }}
+        transition={{ duration: 0.2 }}
+      >
+        <CommunicationIcon className="w-6 h-6" />
+        {messages > 0 && (
+          <span className="absolute -top-2 -right-2 bg-[#C62328] text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+            {messages}
+          </span>
+        )}
+      </motion.div>
+
+      <h3 className="text-lg font-serif font-bold text-[#7a2323] mb-3">
+        Comunicación
+      </h3>
+      <p className="text-sm text-[#5b0108] mb-4">
+        Mensajes y notificaciones del círculo
+      </p>
+
+      <div className="w-full text-center">
+        <p className="text-xs text-[#C62328] font-medium">
+          🔴{" "}
+          {messages > 0 ? `${messages} mensajes nuevos` : "Sin mensajes nuevos"}
+        </p>
+      </div>
+    </div>
+  );
+
+  const ActivityCard = () => (
+    <div className="flex flex-col items-center justify-center text-center h-full">
+      <motion.div
+        className="w-16 h-16 rounded-full flex items-center justify-center mb-4"
+        style={{
+          background: "#f5ede6",
+          boxShadow: `
+            inset 2px 2px 4px rgba(91, 1, 8, 0.1),
+            inset -2px -2px 4px rgba(255, 255, 255, 0.8)
+          `,
+        }}
+        whileHover={{ scale: 1.1 }}
+        transition={{ duration: 0.2 }}
+      >
+        <ActivityIcon className="w-6 h-6" />
+      </motion.div>
+
+      <h3 className="text-lg font-serif font-bold text-[#7a2323] mb-3">
+        Actividad Reciente
+      </h3>
+      <p className="text-sm text-[#5b0108] mb-4">
+        Timeline de interacciones y cambios
+      </p>
+
+      <div className="w-full text-center">
+        <p className="text-xs text-[#C62328] font-medium">
+          🔴{" "}
+          {recentActivity > 0
+            ? `${recentActivity} interacciones recientes`
+            : "Sin actividad reciente"}
+        </p>
+      </div>
+    </div>
+  );
+
+  // Configurar los items para DraggableGrid
+  const gridItems = useMemo(
+    () => [
+      {
+        id: "companions",
+        title: "Mis Acompañantes",
+        component: <CompanionsCard />,
+      },
+      {
+        id: "following",
+        title: "Personas que Sigo",
+        component: <FollowingCard />,
+      },
+      {
+        id: "privacy",
+        title: "Privacidad",
+        component: <PrivacyCard />,
+      },
+      {
+        id: "invitations",
+        title: "Invitaciones",
+        component: <InvitationsCard />,
+      },
+      {
+        id: "communication",
+        title: "Comunicación",
+        component: <CommunicationCard />,
+      },
+      {
+        id: "activity",
+        title: "Actividad Reciente",
+        component: <ActivityCard />,
+      },
+    ],
+    [companions, following, invitations, messages, recentActivity]
+  );
+
+  // Handler para cambios en el grid (opcional: persistir orden)
+  const handleGridItemsChange = (newItems: TrackingGridItem[]) => {
+    // Aquí podrías persistir el nuevo orden en localStorage o backend
+    console.log(
+      "Nuevo orden de elementos:",
+      newItems.map((item) => item.id)
+    );
+  };
+
   return (
     <div className="min-h-screen bg-[#f5ede6] relative overflow-hidden">
       <CircularNavigation />
 
-      <motion.div
-        className="pl-72 pr-8 py-8 h-screen"
-        variants={containerVariants}
-        initial="hidden"
-        animate="visible"
-      >
-        <div className="grid grid-cols-3 grid-rows-2 gap-8 h-full max-w-7xl mx-auto">
-          {/* Mis Acompañantes */}
-          <motion.div
-            variants={cardVariants}
-            whileHover="hover"
-            className="rounded-3xl p-8 flex flex-col items-center justify-center text-center cursor-pointer"
-            style={{
-              background: "#e7e0d5",
-              boxShadow: `
-                inset 4px 4px 8px rgba(91, 1, 8, 0.1),
-                inset -4px -4px 8px rgba(255, 255, 255, 0.8),
-                4px 4px 16px rgba(91, 1, 8, 0.05)
-              `,
-            }}
-          >
-            <motion.div
-              className="w-20 h-20 rounded-full flex items-center justify-center mb-6"
-              style={{
-                background: "#f5ede6",
-                boxShadow: `
-                  inset 2px 2px 4px rgba(91, 1, 8, 0.1),
-                  inset -2px -2px 4px rgba(255, 255, 255, 0.8)
-                `,
-              }}
-              whileHover={{ scale: 1.1 }}
-              transition={{ duration: 0.2 }}
-            >
-              <CompanionsIcon className="w-8 h-8" />
-            </motion.div>
-
-            <h3 className="text-2xl font-serif font-bold text-[#7a2323] mb-4">
-              Mis Acompañantes
-            </h3>
-            <p className="text-base text-[#5b0108] mb-6">
-              Personas que siguen tu ciclo y te acompañan
-            </p>
-
-            <div className="w-full">
-              {companions.length > 0 ? (
-                <div className="space-y-4">
-                  {companions.map((companion) => (
-                    <div
-                      key={companion.id}
-                      className="bg-white/50 rounded-xl p-4 flex items-center justify-between"
-                    >
-                      <div>
-                        <p className="font-semibold text-[#5b0108]">
-                          {companion.name}
-                        </p>
-                        <p className="text-sm text-[#a62c2c]">
-                          {getRoleInSpanish(companion.role)}
-                        </p>
-                      </div>
-                      <div className="text-right">
-                        <span
-                          className={`inline-block w-3 h-3 rounded-full ${
-                            companion.status === "active"
-                              ? "bg-green-500"
-                              : "bg-gray-400"
-                          }`}
-                        ></span>
-                        <p className="text-xs text-gray-500 mt-1">
-                          {companion.lastActivity}
-                        </p>
-                      </div>
-                    </div>
-                  ))}
-                  <div className="pt-4 border-t border-[#C62328]/20">
-                    <p className="text-sm text-[#C62328] font-medium">
-                      🔴 {companions.length}{" "}
-                      {companions.length === 1
-                        ? "persona conectada"
-                        : "personas conectadas"}
-                    </p>
-                  </div>
-                </div>
-              ) : (
-                <div className="text-center">
-                  <p className="text-sm text-[#C62328] font-medium">
-                    🔴 Ningún acompañante aún
-                  </p>
-                  <button className="mt-4 px-6 py-2 bg-[#C62328] text-white rounded-lg text-sm hover:bg-[#9d0d0b] transition-colors">
-                    Invitar primera persona
-                  </button>
-                </div>
-              )}
-            </div>
-          </motion.div>
-
-          {/* Personas que Sigo */}
-          <motion.div
-            variants={cardVariants}
-            whileHover="hover"
-            className="rounded-3xl p-8 flex flex-col items-center justify-center text-center cursor-pointer"
-            style={{
-              background: "#e7e0d5",
-              boxShadow: `
-                inset 4px 4px 8px rgba(91, 1, 8, 0.1),
-                inset -4px -4px 8px rgba(255, 255, 255, 0.8),
-                4px 4px 16px rgba(91, 1, 8, 0.05)
-              `,
-            }}
-          >
-            <motion.div
-              className="w-20 h-20 rounded-full flex items-center justify-center mb-6"
-              style={{
-                background: "#f5ede6",
-                boxShadow: `
-                  inset 2px 2px 4px rgba(91, 1, 8, 0.1),
-                  inset -2px -2px 4px rgba(255, 255, 255, 0.8)
-                `,
-              }}
-              whileHover={{ scale: 1.1 }}
-              transition={{ duration: 0.2 }}
-            >
-              <FollowingIcon className="w-8 h-8" />
-            </motion.div>
-
-            <h3 className="text-2xl font-serif font-bold text-[#7a2323] mb-4">
-              Personas que Sigo
-            </h3>
-            <p className="text-base text-[#5b0108] mb-6">
-              Cuando acompañas a alguien más
-            </p>
-
-            <div className="w-full">
-              {following.length > 0 ? (
-                <div className="space-y-3">
-                  {following.map((person) => (
-                    <div key={person.id} className="bg-white/50 rounded-xl p-4">
-                      <p className="font-semibold text-[#5b0108]">
-                        {person.name}
-                      </p>
-                      <p className="text-sm text-[#a62c2c]">
-                        Última actualización: {person.lastActivity}
-                      </p>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="text-center">
-                  <p className="text-sm text-[#C62328] font-medium">
-                    🔴 No sigues a nadie actualmente
-                  </p>
-                </div>
-              )}
-            </div>
-          </motion.div>
-
-          {/* Configuración de Privacidad */}
-          <motion.div
-            variants={cardVariants}
-            whileHover="hover"
-            className="rounded-3xl p-8 flex flex-col items-center justify-center text-center cursor-pointer"
-            style={{
-              background: "#e7e0d5",
-              boxShadow: `
-                inset 4px 4px 8px rgba(91, 1, 8, 0.1),
-                inset -4px -4px 8px rgba(255, 255, 255, 0.8),
-                4px 4px 16px rgba(91, 1, 8, 0.05)
-              `,
-            }}
-          >
-            <motion.div
-              className="w-20 h-20 rounded-full flex items-center justify-center mb-6"
-              style={{
-                background: "#f5ede6",
-                boxShadow: `
-                  inset 2px 2px 4px rgba(91, 1, 8, 0.1),
-                  inset -2px -2px 4px rgba(255, 255, 255, 0.8)
-                `,
-              }}
-              whileHover={{ scale: 1.1 }}
-              transition={{ duration: 0.2 }}
-            >
-              <PrivacyIcon className="w-8 h-8" />
-            </motion.div>
-
-            <h3 className="text-2xl font-serif font-bold text-[#7a2323] mb-4">
-              Privacidad
-            </h3>
-            <p className="text-base text-[#5b0108] mb-6">
-              Controla qué información compartes
-            </p>
-
-            <div className="w-full space-y-3">
-              <div className="bg-white/50 rounded-xl p-3">
-                <p className="text-sm font-medium text-[#5b0108]">
-                  Información del ciclo
-                </p>
-                <p className="text-xs text-[#a62c2c]">Fechas y predicciones</p>
-              </div>
-              <div className="bg-white/50 rounded-xl p-3">
-                <p className="text-sm font-medium text-[#5b0108]">
-                  Síntomas y estado
-                </p>
-                <p className="text-xs text-[#a62c2c]">Registro de bienestar</p>
-              </div>
-              <div className="bg-white/50 rounded-xl p-3">
-                <p className="text-sm font-medium text-[#5b0108]">
-                  Alertas y recordatorios
-                </p>
-                <p className="text-xs text-[#a62c2c]">
-                  Notificaciones compartidas
-                </p>
-              </div>
-
-              <div className="pt-3 border-t border-[#C62328]/20">
-                <p className="text-sm text-[#C62328] font-medium">
-                  🔴 Configurar permisos detallados
-                </p>
-              </div>
-            </div>
-          </motion.div>
-
-          {/* Invitaciones */}
-          <motion.div
-            variants={cardVariants}
-            whileHover="hover"
-            className="rounded-3xl p-8 flex flex-col items-center justify-center text-center cursor-pointer"
-            style={{
-              background: "#e7e0d5",
-              boxShadow: `
-                inset 4px 4px 8px rgba(91, 1, 8, 0.1),
-                inset -4px -4px 8px rgba(255, 255, 255, 0.8),
-                4px 4px 16px rgba(91, 1, 8, 0.05)
-              `,
-            }}
-          >
-            <motion.div
-              className="w-20 h-20 rounded-full flex items-center justify-center mb-6"
-              style={{
-                background: "#f5ede6",
-                boxShadow: `
-                  inset 2px 2px 4px rgba(91, 1, 8, 0.1),
-                  inset -2px -2px 4px rgba(255, 255, 255, 0.8)
-                `,
-              }}
-              whileHover={{ scale: 1.1 }}
-              transition={{ duration: 0.2 }}
-            >
-              <InvitationsIcon className="w-8 h-8" />
-            </motion.div>
-
-            <h3 className="text-2xl font-serif font-bold text-[#7a2323] mb-4">
-              Invitaciones
-            </h3>
-            <p className="text-base text-[#5b0108] mb-6">
-              Códigos de invitación y solicitudes
-            </p>
-
-            <div className="w-full">
-              {invitations.length > 0 ? (
-                <div className="space-y-3">
-                  {invitations.map((invitation) => (
-                    <div
-                      key={invitation.id}
-                      className="bg-white/50 rounded-xl p-4"
-                    >
-                      <p className="font-mono text-sm text-[#5b0108]">
-                        {invitation.code}
-                      </p>
-                      <p className="text-xs text-[#a62c2c]">
-                        {getRoleInSpanish(invitation.type)}
-                      </p>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="text-center">
-                  <p className="text-sm text-[#C62328] font-medium">
-                    🔴 No hay invitaciones pendientes
-                  </p>
-                  <button className="mt-4 px-6 py-2 bg-[#C62328] text-white rounded-lg text-sm hover:bg-[#9d0d0b] transition-colors">
-                    Crear invitación
-                  </button>
-                </div>
-              )}
-            </div>
-          </motion.div>
-
-          {/* Comunicación */}
-          <motion.div
-            variants={cardVariants}
-            whileHover="hover"
-            className="rounded-3xl p-8 flex flex-col items-center justify-center text-center cursor-pointer"
-            style={{
-              background: "#e7e0d5",
-              boxShadow: `
-                inset 4px 4px 8px rgba(91, 1, 8, 0.1),
-                inset -4px -4px 8px rgba(255, 255, 255, 0.8),
-                4px 4px 16px rgba(91, 1, 8, 0.05)
-              `,
-            }}
-          >
-            <motion.div
-              className="w-20 h-20 rounded-full flex items-center justify-center mb-6 relative"
-              style={{
-                background: "#f5ede6",
-                boxShadow: `
-                  inset 2px 2px 4px rgba(91, 1, 8, 0.1),
-                  inset -2px -2px 4px rgba(255, 255, 255, 0.8)
-                `,
-              }}
-              whileHover={{ scale: 1.1 }}
-              transition={{ duration: 0.2 }}
-            >
-              <CommunicationIcon className="w-8 h-8" />
-              {messages > 0 && (
-                <span className="absolute -top-2 -right-2 bg-[#C62328] text-white text-xs rounded-full w-6 h-6 flex items-center justify-center">
-                  {messages}
-                </span>
-              )}
-            </motion.div>
-
-            <h3 className="text-2xl font-serif font-bold text-[#7a2323] mb-4">
-              Comunicación
-            </h3>
-            <p className="text-base text-[#5b0108] mb-6">
-              Mensajes y notificaciones del círculo
-            </p>
-
-            <div className="w-full text-center">
-              <p className="text-sm text-[#C62328] font-medium">
-                🔴{" "}
-                {messages > 0
-                  ? `${messages} mensajes nuevos`
-                  : "Sin mensajes nuevos"}
-              </p>
-            </div>
-          </motion.div>
-
-          {/* Actividad Reciente */}
-          <motion.div
-            variants={cardVariants}
-            whileHover="hover"
-            className="rounded-3xl p-8 flex flex-col items-center justify-center text-center cursor-pointer"
-            style={{
-              background: "#e7e0d5",
-              boxShadow: `
-                inset 4px 4px 8px rgba(91, 1, 8, 0.1),
-                inset -4px -4px 8px rgba(255, 255, 255, 0.8),
-                4px 4px 16px rgba(91, 1, 8, 0.05)
-              `,
-            }}
-          >
-            <motion.div
-              className="w-20 h-20 rounded-full flex items-center justify-center mb-6"
-              style={{
-                background: "#f5ede6",
-                boxShadow: `
-                  inset 2px 2px 4px rgba(91, 1, 8, 0.1),
-                  inset -2px -2px 4px rgba(255, 255, 255, 0.8)
-                `,
-              }}
-              whileHover={{ scale: 1.1 }}
-              transition={{ duration: 0.2 }}
-            >
-              <ActivityIcon className="w-8 h-8" />
-            </motion.div>
-
-            <h3 className="text-2xl font-serif font-bold text-[#7a2323] mb-4">
-              Actividad Reciente
-            </h3>
-            <p className="text-base text-[#5b0108] mb-6">
-              Timeline de interacciones y cambios
-            </p>
-
-            <div className="w-full text-center">
-              <p className="text-sm text-[#C62328] font-medium">
-                🔴{" "}
-                {recentActivity > 0
-                  ? `${recentActivity} interacciones recientes`
-                  : "Sin actividad reciente"}
-              </p>
-            </div>
-          </motion.div>
-        </div>
-      </motion.div>
+      <div className="pl-72 h-screen">
+        <DraggableGrid
+          items={gridItems}
+          onItemsChange={handleGridItemsChange}
+        />
+      </div>
     </div>
   );
 };
