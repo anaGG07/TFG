@@ -164,6 +164,22 @@ const OnboardingPage: React.FC = () => {
   const handleNextStep = async () => {
     try {
       if (await validateStep(step)) {
+        const stage = watch("stageOfLife");
+        const accessCode = watch("accessCode");
+
+        // Si es acompañante con código válido, terminar onboarding
+        if (step === 2 && stage === "trackingOthers" && accessCode?.trim()) {
+          return handleFinalSubmit();
+        }
+
+        // Si es acompañante sin código, no avanzar
+        if (step === 2 && stage === "trackingOthers" && !accessCode?.trim()) {
+          setError(
+            "Necesitas introducir el código de invitado para continuar."
+          );
+          return;
+        }
+
         setStep((prev) => prev + 1);
       }
     } catch (err) {
@@ -276,56 +292,69 @@ const OnboardingPage: React.FC = () => {
       {/* Barra de progreso superior optimizada */}
       <div className="absolute top-0 left-0 w-full flex justify-center z-10 pt-4">
         <div className="flex gap-2">
-          {[1,2,3,4,5].map(n => (
-            <div key={n} className={`h-1.5 w-8 rounded-full transition-all duration-500 ${step>=n ? 'bg-[#C62328]' : 'bg-[#e7e0d5]'}`}></div>
+          {[1, 2, 3, 4, 5].map((n) => (
+            <div
+              key={n}
+              className={`h-1.5 w-8 rounded-full transition-all duration-500 ${
+                step >= n ? "bg-[#C62328]" : "bg-[#e7e0d5]"
+              }`}
+            ></div>
           ))}
         </div>
       </div>
 
       {/* Contenido principal con altura optimizada */}
       <div className="flex-1 flex items-center justify-center px-4 pt-8 pb-4">
-        <div 
+        <div
           className="bg-white rounded-3xl shadow-xl w-full h-full max-w-6xl flex flex-col animate-fade-in border border-[#e7e0d5] overflow-hidden"
           style={{
-            background: '#e7e0d5',
+            background: "#e7e0d5",
             boxShadow: `
               20px 20px 40px rgba(91, 1, 8, 0.08),
               -20px -20px 40px rgba(255, 255, 255, 0.25),
               inset 0 1px 0 rgba(255, 255, 255, 0.15)
             `,
-            maxHeight: 'calc(100vh - 80px)'
+            maxHeight: "calc(100vh - 80px)",
           }}
         >
           {/* Contenido de steps con scroll interno si es necesario */}
           <div className="flex-1 overflow-y-auto custom-scrollbar p-6">
-            {step === 1 && (
-              <Step1Context {...commonStepProps} />
-            )}
-            {step === 2 && (
-              <Step2LifeStage {...commonStepProps} />
-            )}
-            {step === 3 && (
+            {step === 1 && <Step1Context {...commonStepProps} />}
+            {step === 2 && <Step2LifeStage {...commonStepProps} />}
+            {step === 3 && watch("stageOfLife") !== "trackingOthers" && (
               <Step3Preferences {...commonStepProps} />
             )}
-            {step === 4 && (
+            {step === 4 && watch("stageOfLife") !== "trackingOthers" && (
               <Step4Symptoms {...commonStepProps} />
             )}
-            {step === 5 && (
-              <Step5HealthConcerns {...commonStepProps} onSubmit={handleFinalSubmit} />
+            {step === 5 && watch("stageOfLife") !== "trackingOthers" && (
+              <Step5HealthConcerns
+                {...commonStepProps}
+                onSubmit={handleFinalSubmit}
+              />
             )}
           </div>
 
           {/* Error y mensaje final optimizados */}
           {error && (
             <div className="px-6 pb-2">
-              <p className="text-red-500 text-sm text-center animate-fade-in">{error}</p>
+              <p className="text-red-500 text-sm text-center animate-fade-in">
+                {error}
+              </p>
             </div>
           )}
 
           {step === 5 && !isSubmitting && (
             <div className="px-6 pb-4 text-center animate-fade-in">
-              <h3 className="text-xl font-serif text-[#C62328] font-bold mb-1">¡Onboarding completado!</h3>
-              <p className="text-[#7a2323] text-sm">Estás lista para descubrir, conectar y evolucionar con EYRA.<br/>Recuerda: <span className="font-semibold">tu ciclo, tu poder</span>.</p>
+              <h3 className="text-xl font-serif text-[#C62328] font-bold mb-1">
+                ¡Onboarding completado!
+              </h3>
+              <p className="text-[#7a2323] text-sm">
+                Estás lista para descubrir, conectar y evolucionar con EYRA.
+                <br />
+                Recuerda:{" "}
+                <span className="font-semibold">tu ciclo, tu poder</span>.
+              </p>
             </div>
           )}
         </div>
