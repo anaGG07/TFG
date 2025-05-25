@@ -72,6 +72,9 @@ const Step2LifeStage: React.FC<StepProps> = ({
     }
   }, [isPersonal, stageOfLife, setValue]);
 
+  // Debug para verificar el estado
+  console.log("Step2 Debug:", { isPersonal, stageOfLife });
+
   return (
     <div className="h-full flex items-center justify-center">
       <div className="w-full max-w-5xl mx-auto flex flex-col items-center">
@@ -125,8 +128,8 @@ const Step2LifeStage: React.FC<StepProps> = ({
               >
                 <option value="">-- Elige una opción --</option>
                 
-                {/* Si es para uso personal, mostrar todas las opciones */}
-                {isPersonal && (
+                {isPersonal ? (
+                  // Si eligió "Para mí" - mostrar todas las opciones
                   <>
                     <option value="menstrual">
                       Tengo ciclos menstruales activos
@@ -137,18 +140,12 @@ const Step2LifeStage: React.FC<StepProps> = ({
                     <option value="pregnancy">
                       Estoy embarazada o buscando embarazo
                     </option>
+                    <option value="trackingOthers">
+                      Solo quiero acompañar a alguien más
+                    </option>
                   </>
-                )}
-                
-                {/* Si es para acompañar, solo mostrar la opción de acompañante */}
-                {!isPersonal && (
-                  <option value="trackingOthers">
-                    Solo quiero acompañar a alguien más
-                  </option>
-                )}
-                
-                {/* Si es para uso personal, también incluir la opción de acompañar */}
-                {isPersonal && (
+                ) : (
+                  // Si eligió "Para acompañar" - solo mostrar opción de acompañante
                   <option value="trackingOthers">
                     Solo quiero acompañar a alguien más
                   </option>
