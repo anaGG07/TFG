@@ -444,6 +444,8 @@ const ActivityCard = () => (
 );
 
 const TrackingPage: React.FC = () => {
+  console.log('TrackingPage: Renderizando página de seguimiento - SIN CircularNavigation');
+  
   // Define los items igual que en DashboardPage
   const trackingItems = useMemo(
     () => [

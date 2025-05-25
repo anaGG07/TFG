@@ -14,6 +14,14 @@ const AUTHENTICATED_ROUTES = [
   "/tracking",
 ];
 
+// Verificar si la ruta actual necesita navegación
+const needsNavigation = (pathname: string) => {
+  return AUTHENTICATED_ROUTES.some((route) => {
+    // Exact match or starts with route followed by / or end of string
+    return pathname === route || pathname.startsWith(route + "/");
+  });
+};
+
 // Componente interno que maneja la navegación condicional
 const RootContent = () => {
   const { isAuthenticated, user } = useAuth();
@@ -23,13 +31,16 @@ const RootContent = () => {
   const shouldShowNavigation =
     isAuthenticated &&
     user?.onboardingCompleted &&
-    AUTHENTICATED_ROUTES.some((route) => location.pathname.startsWith(route));
+    needsNavigation(location.pathname);
 
   console.log("RootLayout: Navegación circular:", {
     shouldShow: shouldShowNavigation,
     path: location.pathname,
     isAuthenticated,
     onboardingCompleted: user?.onboardingCompleted,
+    userObject: user,
+    routeMatches: AUTHENTICATED_ROUTES.map(route => ({ route, matches: location.pathname.startsWith(route) })),
+    needsNavigationResult: needsNavigation(location.pathname),
   });
 
   return (
