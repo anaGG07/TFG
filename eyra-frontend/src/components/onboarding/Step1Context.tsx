@@ -16,6 +16,10 @@ const Step1Context: React.FC<StepProps> = ({
     genderInputRef.current?.focus();
   }, []);
 
+  useEffect(() => {
+    register("isPersonal", { value: true });
+  }, [register]);
+
   return (
     <div className="h-full flex items-center justify-center">
       <div className="w-full flex flex-col items-center gap-6 animate-fade-in max-w-4xl mx-auto">
@@ -47,10 +51,13 @@ const Step1Context: React.FC<StepProps> = ({
               <label className="flex items-center cursor-pointer text-base">
                 <input
                   type="radio"
-                  {...register("isPersonal")}
+                  name="isPersonal"
                   value="true"
                   checked={isPersonal === true}
-                  onChange={() => setValue("isPersonal", true)}
+                  onChange={() => {
+                    setValue("isPersonal", true, { shouldValidate: true });
+                    setValue("stageOfLife", "", { shouldValidate: true });
+                  }}
                   className="mr-3 w-5 h-5 text-[#C62328] border-2 border-[#C62328]/40 focus:ring-2 focus:ring-[#C62328]/30 focus:ring-offset-0 rounded-full"
                   style={{
                     accentColor: "#C62328",
@@ -62,10 +69,13 @@ const Step1Context: React.FC<StepProps> = ({
               <label className="flex items-center cursor-pointer text-base">
                 <input
                   type="radio"
-                  {...register("isPersonal")}
+                  name="isPersonal"
                   value="false"
                   checked={isPersonal === false}
-                  onChange={() => setValue("isPersonal", false)}
+                  onChange={() => {
+                    setValue("isPersonal", false, { shouldValidate: true });
+                    setValue("stageOfLife", "", { shouldValidate: true });
+                  }}
                   className="mr-3 w-5 h-5 text-[#C62328] border-2 border-[#C62328]/40 focus:ring-2 focus:ring-[#C62328]/30 focus:ring-offset-0 rounded-full"
                   style={{
                     accentColor: "#C62328",

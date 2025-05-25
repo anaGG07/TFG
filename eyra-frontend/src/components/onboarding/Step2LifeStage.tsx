@@ -65,15 +65,26 @@ const Step2LifeStage: React.FC<StepProps> = ({
 
   // Auto-seleccionar opción si es acompañante
   useEffect(() => {
-    if (!isPersonal && !stageOfLife) {
-      // Si eligió "Para acompañar" en Step1 y no hay nada seleccionado,
-      // auto-seleccionar la opción de acompañante
-      setValue("stageOfLife", "trackingOthers");
+    console.log("Step2 useEffect triggered:", { 
+      isPersonal, 
+      stageOfLife, 
+      typeof_isPersonal: typeof isPersonal 
+    });
+    
+    if (isPersonal === false && !stageOfLife) {
+      console.log("Auto-selecting trackingOthers for companion");
+      setValue("stageOfLife", "trackingOthers", { shouldValidate: true });
     }
   }, [isPersonal, stageOfLife, setValue]);
 
-  // Debug para verificar el estado
-  console.log("Step2 Debug:", { isPersonal, stageOfLife });
+  // Debug en el render
+  console.log("Step2 Render Debug:", { 
+    isPersonal, 
+    stageOfLife,
+    typeof_isPersonal: typeof isPersonal,
+    isPersonal_strict_false: isPersonal === false,
+    isPersonal_loose_false: isPersonal == false
+  });
 
   return (
     <div className="h-full flex items-center justify-center">
@@ -128,7 +139,10 @@ const Step2LifeStage: React.FC<StepProps> = ({
               >
                 <option value="">-- Elige una opción --</option>
                 
-                {isPersonal ? (
+                {/* Debug: Mostrar valor actual de isPersonal */}
+                {/* isPersonal actual: {JSON.stringify(isPersonal)} */}
+                
+                {(isPersonal === true) ? (
                   // Si eligió "Para mí" - mostrar todas las opciones
                   <>
                     <option value="menstrual">
@@ -144,11 +158,27 @@ const Step2LifeStage: React.FC<StepProps> = ({
                       Solo quiero acompañar a alguien más
                     </option>
                   </>
-                ) : (
+                ) : (isPersonal === false) ? (
                   // Si eligió "Para acompañar" - solo mostrar opción de acompañante
                   <option value="trackingOthers">
                     Solo quiero acompañar a alguien más
                   </option>
+                ) : (
+                  // Fallback si isPersonal es undefined
+                  <>
+                    <option value="menstrual">
+                      Tengo ciclos menstruales activos
+                    </option>
+                    <option value="transition">
+                      Estoy en un proceso de transición hormonal
+                    </option>
+                    <option value="pregnancy">
+                      Estoy embarazada o buscando embarazo
+                    </option>
+                    <option value="trackingOthers">
+                      Solo quiero acompañar a alguien más
+                    </option>
+                  </>
                 )}
               </select>
               {errors.stageOfLife && (
@@ -420,3 +450,4 @@ const Step2LifeStage: React.FC<StepProps> = ({
 };
 
 export default Step2LifeStage;
+
