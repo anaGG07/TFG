@@ -49,7 +49,8 @@ const CalendarIcon = ({ className }: { className?: string }) => (
   </svg>
 );
 
-const InsightsIcon = ({ className }: { className?: string }) => (
+// Nuevo icono de Biblioteca (diseño original siguiendo el estilo)
+const LibraryIcon = ({ className }: { className?: string }) => (
   <svg
     className={className}
     viewBox="0 0 24 24"
@@ -59,9 +60,11 @@ const InsightsIcon = ({ className }: { className?: string }) => (
     strokeLinecap="round"
     strokeLinejoin="round"
   >
-    <line x1="18" y1="20" x2="18" y2="10" />
-    <line x1="12" y1="20" x2="12" y2="4" />
-    <line x1="6" y1="20" x2="6" y2="14" />
+    <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
+    <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
+    <path d="M8 7h8" />
+    <path d="M8 11h6" />
+    <path d="M8 15h4" />
   </svg>
 );
 
@@ -80,7 +83,8 @@ const ProfileIcon = ({ className }: { className?: string }) => (
   </svg>
 );
 
-const SettingsIcon = ({ className }: { className?: string }) => (
+// Nuevo icono de Seguimiento/Compartidos (diseño original siguiendo el estilo)
+const TrackingIcon = ({ className }: { className?: string }) => (
   <svg
     className={className}
     viewBox="0 0 24 24"
@@ -90,8 +94,32 @@ const SettingsIcon = ({ className }: { className?: string }) => (
     strokeLinecap="round"
     strokeLinejoin="round"
   >
+    <circle cx="12" cy="12" r="10" />
+    <line x1="12" y1="8" x2="12" y2="16" />
+    <line x1="8" y1="12" x2="16" y2="12" />
+  </svg>
+);
+
+// Nuevo icono central de IA (diseño original siguiendo el estilo)
+const AIIcon = ({ className }: { className?: string }) => (
+  <svg
+    className={className}
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="white"
+    strokeWidth="2.5"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
     <circle cx="12" cy="12" r="3" />
-    <path d="M12 1v6m0 6v6m11-7h-6m-6 0H1m17-4a2 2 0 1 1-4 0 2 2 0 0 1 4 0zM7 15a2 2 0 1 1-4 0 2 2 0 0 1 4 0z" />
+    <path d="M12 1v6" />
+    <path d="M12 17v6" />
+    <path d="M4.22 4.22l4.24 4.24" />
+    <path d="M15.54 15.54l4.24 4.24" />
+    <path d="M1 12h6" />
+    <path d="M17 12h6" />
+    <path d="M4.22 19.78l4.24-4.24" />
+    <path d="M15.54 8.46l4.24-4.24" />
   </svg>
 );
 
@@ -111,7 +139,6 @@ const LogoutIcon = ({ className }: { className?: string }) => (
   </svg>
 );
 
-
 const CircularNavigation: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -124,7 +151,7 @@ const CircularNavigation: React.FC = () => {
 
   const blobRef = useRef<HTMLDivElement>(null);
 
-  // Configuración de elementos de navegación con iconos SVG
+  // Configuración de elementos de navegación con iconos SVG actualizados
   const navigationItems: NavigationItem[] = [
     {
       id: "dashboard",
@@ -141,10 +168,10 @@ const CircularNavigation: React.FC = () => {
       color: "#B30E13",
     },
     {
-      id: "insights",
-      label: "Insights",
-      icon: InsightsIcon,
-      route: ROUTES.INSIGHTS,
+      id: "library",
+      label: "Biblioteca",
+      icon: LibraryIcon,
+      route: "/library",
       color: "#880004",
     },
     {
@@ -155,10 +182,17 @@ const CircularNavigation: React.FC = () => {
       color: "#730003",
     },
     {
-      id: "settings",
-      label: "Configuración",
-      icon: SettingsIcon,
-      route: ROUTES.SETTINGS,
+      id: "tracking",
+      label: "Seguimiento",
+      icon: TrackingIcon,
+      route: "/tracking",
+      color: "#470002",
+    },
+    {
+      id: "ai-assistant",
+      label: "Asistente IA",
+      icon: AIIcon,
+      route: "/ai-assistant",
       color: "#470002",
     },
     {
@@ -202,14 +236,32 @@ const CircularNavigation: React.FC = () => {
   };
 
   // Calcular posición de los elementos en el círculo
-  const getItemPosition = (index: number) => {
-    const radius = 60; // Radio con más margen del borde
-    const centerX = 119; // Centro del blob
+  const getItemPosition = (index: number, itemId: string) => {
+    // Si es el asistente IA, posición central
+    if (itemId === "ai-assistant") {
+      return {
+        x: 119, // Centro del blob
+        y: 119,
+      };
+    }
+
+    // Para los demás elementos, calcular posición circular excluyendo la IA
+    const circularItems = navigationItems.filter(
+      (item) => item.id !== "ai-assistant"
+    );
+    const circularIndex = circularItems.findIndex(
+      (item) => item.id === navigationItems[index].id
+    );
+
+    if (circularIndex === -1) return { x: 119, y: 119 };
+
+    const radius = 60;
+    const centerX = 119;
     const centerY = 119;
 
     const angleOffset = -Math.PI / 2; // Comenzar desde arriba
     const angle =
-      (index * (Math.PI * 2)) / navigationItems.length + angleOffset;
+      (circularIndex * (Math.PI * 2)) / circularItems.length + angleOffset;
 
     return {
       x: centerX + Math.cos(angle) * radius,
@@ -247,16 +299,18 @@ const CircularNavigation: React.FC = () => {
       {/* Elementos de navegación circular - Solo visibles en hover */}
       {isVisible &&
         navigationItems.map((item, index) => {
-          const position = getItemPosition(index);
+          const position = getItemPosition(index, item.id);
           const isActive = index === currentIndex;
           const isHovered = index === hoveredIndex;
+          const isAI = item.id === "ai-assistant";
+
           return (
             <div
               key={item.id}
               className={`absolute transition-all duration-300 ease-out transform
               ${isActive ? "scale-110 z-30" : "scale-85 z-20"}
               ${isHovered ? "scale-125" : ""}
-            `}
+              ${isAI ? "z-40" : ""}`}
               style={{
                 left: `${position.x - 18}px`,
                 top: `${position.y - 18}px`,
@@ -267,11 +321,7 @@ const CircularNavigation: React.FC = () => {
             >
               <div
                 className={`w-12 h-12 rounded-full flex items-center justify-center text-white font-bold
-                ${
-                  isActive || isHovered
-                    ? " bg-opacity-25"
-                    : " bg-opacity-10  "
-                }
+                ${isActive || isHovered ? " bg-opacity-25" : " bg-opacity-10  "}
                 cursor-pointer hover:bg-opacity-40 transition-all duration-200
               `}
                 onClick={() => selectItem(index)}
@@ -282,8 +332,7 @@ const CircularNavigation: React.FC = () => {
           );
         })}
 
-
-      {/* Texto central dinámico */}
+      {/* Texto central dinámico - Solo cuando NO está visible el menú */}
       <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-30 pointer-events-none">
         <div className="text-center">
           <p
@@ -306,7 +355,6 @@ const CircularNavigation: React.FC = () => {
           {getDisplayText()}
         </p>
       </div>
-
     </div>
   );
 };
