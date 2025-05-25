@@ -18,6 +18,7 @@ const OnboardingPage: React.FC = () => {
   const [step, setStep] = useState(1);
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showCompletedMessage, setShowCompletedMessage] = useState(false);
 
   const {
     register,
@@ -243,7 +244,11 @@ const OnboardingPage: React.FC = () => {
         console.log("OnboardingPage: Respuesta del servidor:", updatedUser);
 
         if (updatedUser?.onboardingCompleted) {
-          // Mostrar mensaje de éxito brevemente antes de redirigir
+          // Mostrar mensaje de éxito
+          setShowCompletedMessage(true);
+          setIsSubmitting(false);
+          
+          // Redirigir después de 2 segundos
           setTimeout(() => {
             navigate(ROUTES.DASHBOARD, { replace: true });
           }, 2000);
@@ -251,9 +256,11 @@ const OnboardingPage: React.FC = () => {
           setError(
             "Tu perfil se guardó pero ocurrió un error al completar el proceso."
           );
+          setIsSubmitting(false);
         }
       } catch (error: any) {
         console.error("OnboardingPage: Error al completar onboarding:", error);
+        setIsSubmitting(false);
         if (error.message === "No hay usuario autenticado" || error.message === "La sesión ha expirado") {
           setError("Tu sesión ha expirado. Por favor, inicia sesión nuevamente.");
           setTimeout(() => {
@@ -272,7 +279,6 @@ const OnboardingPage: React.FC = () => {
     } catch (err) {
       console.error("OnboardingPage: Error general:", err);
       setError("Ocurrió un error al guardar tus datos. Intenta de nuevo.");
-    } finally {
       setIsSubmitting(false);
     }
   };
@@ -360,13 +366,12 @@ const OnboardingPage: React.FC = () => {
           {/* Error y mensaje final optimizados */}
           {error && (
             <div className="px-6 pb-2">
-              <p className="text-red-500 text-sm text-center animate-fade-in">
-                {error}
-              </p>
+              <p className="text-red-500 text-sm text-center animate-fade-in">{error}</p>
             </div>
           )}
 
-          {step === 5 && !isSubmitting && watch("stageOfLife") !== "trackingOthers" && (
+          {/* Mensaje de completado SOLO cuando showCompletedMessage es true */}
+          {showCompletedMessage && (
             <div className="px-6 pb-4 text-center animate-fade-in">
               <h3 className="text-2xl font-serif text-[#C62328] font-bold mb-2">¡Onboarding completado!</h3>
               <p className="text-[#7a2323] text-base">Estás lista para descubrir, conectar y evolucionar con EYRA.<br/>Recuerda: <span className="font-semibold">tu ciclo, tu poder</span>.</p>

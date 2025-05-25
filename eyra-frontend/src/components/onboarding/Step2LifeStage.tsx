@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { StepProps } from "../../types/components/StepProps";
 
@@ -9,14 +9,16 @@ const Step2LifeStage: React.FC<StepProps> = ({
   watch,
   onNextStep,
   onPreviousStep,
+  setValue,
 }) => {
   const stageOfLife = watch("stageOfLife");
   const accessCode = watch("accessCode");
   const averageCycleLength = watch("averageCycleLength");
   const lastPeriodDate = watch("lastPeriodDate");
+  const isPersonal = watch("isPersonal");
 
   // Validación de fecha - límite de 1 año hacia atrás
-  const validatePeriodDate = (date: string) => {
+  const validatePeriodDate = (date: string | undefined) => {
     if (!date) return true;
     
     const selectedDate = new Date(date);
@@ -59,7 +61,16 @@ const Step2LifeStage: React.FC<StepProps> = ({
     stageOfLife === "transition" ||
     stageOfLife === "pregnancy" ||
     (stageOfLife === "trackingOthers" && !accessCode?.trim()) ||
-    (stageOfLife === "menstrual" && hasDateError);
+    (stageOfLife === "menstrual" && (!lastPeriodDate || hasDateError));
+
+  // Auto-seleccionar opción si es acompañante
+  useEffect(() => {
+    if (!isPersonal && !stageOfLife) {
+      // Si eligió "Para acompañar" en Step1 y no hay nada seleccionado,
+      // auto-seleccionar la opción de acompañante
+      setValue("stageOfLife", "trackingOthers");
+    }
+  }, [isPersonal, stageOfLife, setValue]);
 
   return (
     <div className="h-full flex items-center justify-center">
@@ -113,18 +124,35 @@ const Step2LifeStage: React.FC<StepProps> = ({
                 }}
               >
                 <option value="">-- Elige una opción --</option>
-                <option value="menstrual">
-                  Tengo ciclos menstruales activos
-                </option>
-                <option value="transition">
-                  Estoy en un proceso de transición hormonal
-                </option>
-                <option value="pregnancy">
-                  Estoy embarazada o buscando embarazo
-                </option>
-                <option value="trackingOthers">
-                  Solo quiero acompañar a alguien más
-                </option>
+                
+                {/* Si es para uso personal, mostrar todas las opciones */}
+                {isPersonal && (
+                  <>
+                    <option value="menstrual">
+                      Tengo ciclos menstruales activos
+                    </option>
+                    <option value="transition">
+                      Estoy en un proceso de transición hormonal
+                    </option>
+                    <option value="pregnancy">
+                      Estoy embarazada o buscando embarazo
+                    </option>
+                  </>
+                )}
+                
+                {/* Si es para acompañar, solo mostrar la opción de acompañante */}
+                {!isPersonal && (
+                  <option value="trackingOthers">
+                    Solo quiero acompañar a alguien más
+                  </option>
+                )}
+                
+                {/* Si es para uso personal, también incluir la opción de acompañar */}
+                {isPersonal && (
+                  <option value="trackingOthers">
+                    Solo quiero acompañar a alguien más
+                  </option>
+                )}
               </select>
               {errors.stageOfLife && (
                 <p className="text-red-500 text-sm mt-2">
@@ -188,14 +216,19 @@ const Step2LifeStage: React.FC<StepProps> = ({
                       type="date"
                       {...register("lastPeriodDate", {
                         required: "La fecha del último período es obligatoria",
+                        validate: validatePeriodDate
                       })}
                       max={new Date().toISOString().split('T')[0]}
-                      className="w-full border-0 bg-transparent rounded-lg py-3 px-4 text-[#5b0108] text-base focus:ring-2 focus:ring-[#C62328]/20"
+                      min={(() => {
+                        const oneYearAgo = new Date();
+                        oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);
+                        return oneYearAgo.toISOString().split('T')[0];
+                      })()}
+                      className="w-full border-0 bg-transparent rounded-lg py-3 px-4 text-[#5b0108] text-base focus:ring-2 focus:ring-[#C62328]/20 outline-none"
                       style={{
                         background: "transparent",
                         boxShadow:
                           "inset 4px 4px 8px rgba(91, 1, 8, 0.1), inset -4px -4px 8px rgba(255, 255, 255, 0.8)",
-                        outline: "none",
                       }}
                     />
                     {errors.lastPeriodDate && (

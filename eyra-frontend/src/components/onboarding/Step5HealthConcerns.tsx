@@ -44,20 +44,20 @@ const Step5HealthConcerns: React.FC<Step5HealthConcerns> = ({
 
   return (
     <div className="h-full flex items-center justify-center">
-      <div className="w-full flex flex-col items-center gap-6 animate-fade-in max-w-4xl mx-auto">
-        <h2 className="font-serif text-3xl md:text-4xl font-bold text-[#7a2323] mb-2 text-center drop-shadow-sm animate-fade-in">
+      <div className="w-full flex flex-col items-center gap-4 animate-fade-in max-w-4xl mx-auto">
+        <h2 className="font-serif text-3xl md:text-4xl font-bold text-[#7a2323] mb-1 text-center drop-shadow-sm animate-fade-in">
           Bienvenida a EYRA
         </h2>
-        <p className="text-lg text-[#3a1a1a] mb-6 text-center animate-fade-in">
+        <p className="text-lg text-[#3a1a1a] mb-4 text-center animate-fade-in">
           ¿Hay algún aspecto de tu salud que te preocupe?{" "}
-          <span className="block text-base text-[#a62c2c] mt-2">
+          <span className="block text-base text-[#a62c2c] mt-1">
             Esta información nos ayudará a brindarte un mejor acompañamiento.
           </span>
         </p>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 w-full">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 w-full flex-1">
           <div
-            className="p-6 rounded-2xl"
+            className="p-4 rounded-2xl flex flex-col"
             style={{
               background: "#e7e0d5",
               boxShadow: `
@@ -66,11 +66,11 @@ const Step5HealthConcerns: React.FC<Step5HealthConcerns> = ({
               `,
             }}
           >
-            <h3 className="text-lg text-[#300808] font-medium mb-4">
+            <h3 className="text-lg text-[#300808] font-medium mb-3">
               Condiciones médicas
             </h3>
 
-            <div className="space-y-2 max-h-48 overflow-y-auto custom-scrollbar">
+            <div className="flex-1 overflow-y-auto custom-scrollbar space-y-1 min-h-0">
               {healthOptions.map((item) => (
                 <label
                   key={item}
@@ -90,14 +90,16 @@ const Step5HealthConcerns: React.FC<Step5HealthConcerns> = ({
                       minHeight: "20px",
                     }}
                   />
-                  <span className="text-[#300808] text-base">{item}</span>
+                  <span className="text-[#300808] text-sm leading-tight">
+                    {item}
+                  </span>
                 </label>
               ))}
             </div>
           </div>
 
           <div
-            className="p-6 rounded-2xl"
+            className="p-4 rounded-2xl flex flex-col"
             style={{
               background: "#e7e0d5",
               boxShadow: `
@@ -106,54 +108,52 @@ const Step5HealthConcerns: React.FC<Step5HealthConcerns> = ({
               `,
             }}
           >
-            <h3 className="text-lg text-[#300808] font-medium mb-4">
+            <h3 className="text-lg text-[#300808] font-medium mb-3">
               Medicamentos y tratamientos
             </h3>
 
-            <div className="space-y-4">
-              <div>
-                <label className="block text-[#300808] text-base mb-2">
+            <div className="flex-1 flex flex-col space-y-3 min-h-0">
+              <div className="flex-1 flex flex-col">
+                <label className="block text-[#300808] text-sm mb-2">
                   ¿Tomas algún medicamento regularmente?
                 </label>
                 <textarea
                   {...register("medications")}
                   placeholder="Lista los medicamentos que tomas..."
-                  className="w-full p-3 rounded-lg border-0 bg-transparent focus:ring-2 focus:ring-[#C62328]/20 outline-none transition-all text-base resize-none"
+                  className="flex-1 p-3 rounded-lg border-0 bg-transparent focus:ring-2 focus:ring-[#C62328]/20 outline-none transition-all text-sm resize-none min-h-[60px]"
                   style={{
                     background: "transparent",
                     boxShadow:
                       "inset 4px 4px 8px rgba(91, 1, 8, 0.1), inset -4px -4px 8px rgba(255, 255, 255, 0.8)",
                   }}
-                  rows={4}
                 />
               </div>
 
-              <div>
-                <label className="block text-[#300808] text-base mb-2">
+              <div className="flex-1 flex flex-col">
+                <label className="block text-[#300808] text-sm mb-2">
                   ¿Sigues algún tratamiento específico?
                 </label>
                 <textarea
                   {...register("treatments")}
                   placeholder="Describe los tratamientos que sigues..."
-                  className="w-full p-3 rounded-lg border-0 bg-transparent focus:ring-2 focus:ring-[#C62328]/20 outline-none transition-all text-base resize-none"
+                  className="flex-1 p-3 rounded-lg border-0 bg-transparent focus:ring-2 focus:ring-[#C62328]/20 outline-none transition-all text-sm resize-none min-h-[60px]"
                   style={{
                     background: "transparent",
                     boxShadow:
                       "inset 4px 4px 8px rgba(91, 1, 8, 0.1), inset -4px -4px 8px rgba(255, 255, 255, 0.8)",
                   }}
-                  rows={4}
                 />
               </div>
             </div>
           </div>
         </div>
 
-        <p className="text-sm text-[#5b0108] text-center mt-4">
+        <p className="text-xs text-[#5b0108] text-center mt-2">
           Esta información es confidencial y solo se utilizará para mejorar tu
           experiencia con EYRA.
         </p>
 
-        <div className="flex justify-between mt-6 w-full max-w-sm">
+        <div className="flex justify-between mt-3 w-full max-w-sm">
           <button
             type="button"
             onClick={onPreviousStep}

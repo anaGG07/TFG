@@ -218,11 +218,11 @@ const Step3Preferences: React.FC<StepProps> = ({
           <button
             type="button"
             onClick={onPreviousStep}
-            className="px-6 py-3 bg-gray-300 text-[#300808] rounded-lg font-medium hover:bg-gray-400 text-base"
+            className="px-6 py-3 bg-[#C62328]/20 text-[#5b0108] rounded-lg font-medium hover:bg-[#C62328]/30 text-base border border-[#C62328]/30"
             style={{
               boxShadow: `
                 4px 4px 8px rgba(91, 1, 8, 0.1),
-                -4px -4px 8px rgba(255, 255, 255, 0.1)
+                -4px -4px 8px rgba(255, 255, 255, 0.3)
               `,
             }}
           >
