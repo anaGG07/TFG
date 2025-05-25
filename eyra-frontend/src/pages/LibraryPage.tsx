@@ -19,6 +19,7 @@ interface CategoryData {
   newCount: number;
 }
 
+// Comentario de control
 // Iconos SVG especializados para cada categoría
 const HistoryIcon = ({ className }: { className?: string }) => (
   <svg
