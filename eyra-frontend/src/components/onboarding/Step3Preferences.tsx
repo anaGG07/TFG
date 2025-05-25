@@ -9,7 +9,7 @@ const Step3Preferences: React.FC<StepProps> = ({
   onPreviousStep,
   setValue,
 }) => {
-  const wantsAI = watch("wantAiCompanion");
+
   const wantsPartner = watch("shareCycleWithPartner");
 
   return (
@@ -180,31 +180,24 @@ const Step3Preferences: React.FC<StepProps> = ({
                 </p>
               )}
 
-              <label className="flex items-start p-3 rounded-lg hover:bg-white/50 transition-colors">
-                <input
-                  type="checkbox"
-                  {...register("wantAiCompanion")}
-                  checked={watch("wantAiCompanion")}
-                  onChange={(e) => setValue("wantAiCompanion", e.target.checked)}
-                  className="mr-3 w-5 h-5 text-[#C62328] border-2 border-[#C62328]/40 focus:ring-2 focus:ring-[#C62328]/30 focus:ring-offset-0 rounded flex-shrink-0 mt-0.5"
-                  style={{
-                    accentColor: '#C62328',
-                    filter: 'drop-shadow(2px 2px 4px rgba(91, 1, 8, 0.1))',
-                    minWidth: '20px',
-                    minHeight: '20px'
-                  }}
-                />
-                <span className="text-[#300808] text-base">
-                  Usar asistente IA para resolver dudas y acompañar procesos
-                </span>
+              <label className="flex items-start p-3 rounded-lg bg-gray-100/50 transition-colors opacity-60">
+                <div className="mr-3 w-5 h-5 mt-0.5 flex items-center justify-center">
+                  <div className="w-5 h-5 border-2 border-gray-400 rounded bg-gray-200"></div>
+                </div>
+                <div className="flex-1">
+                  <span className="text-[#300808] text-base line-through">
+                    Usar asistente IA para resolver dudas y acompañar procesos
+                  </span>
+                  <div className="mt-1">
+                    <span className="text-xs bg-[#C62328]/20 text-[#5b0108] px-2 py-1 rounded-full font-medium">
+                      🚧 Disponible próximamente
+                    </span>
+                    <p className="text-xs text-[#5b0108] mt-1">
+                      Esta funcionalidad se encuentra actualmente en desarrollo y estará disponible en futuras actualizaciones.
+                    </p>
+                  </div>
+                </div>
               </label>
-
-              {wantsAI && (
-                <p className="text-sm text-[#5b0108] ml-8 bg-white/50 p-3 rounded-lg">
-                  EYRA incluirá un asistente de IA con respaldo científico para
-                  ayudarte en el día a día.
-                </p>
-              )}
             </div>
           </div>
         </div>

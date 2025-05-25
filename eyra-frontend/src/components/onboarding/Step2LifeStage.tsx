@@ -129,53 +129,52 @@ const Step2LifeStage: React.FC<StepProps> = ({
                 {...register("stageOfLife", {
                   required: "Selecciona una opción para continuar",
                 })}
-                className="w-full border-0 bg-transparent rounded-lg py-3 px-4 text-[#5b0108] text-base focus:ring-2 focus:ring-[#C62328]/20"
+                className="w-full border-0 bg-transparent rounded-lg py-3 px-4 text-[#5b0108] text-base focus:ring-2 focus:ring-[#C62328]/20 outline-none"
                 style={{
                   background: "transparent",
                   boxShadow:
                     "inset 4px 4px 8px rgba(91, 1, 8, 0.1), inset -4px -4px 8px rgba(255, 255, 255, 0.8)",
-                  outline: "none",
+                  appearance: "none",
+                  backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%23300808' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e")`,
+                  backgroundPosition: "right 0.5rem center",
+                  backgroundRepeat: "no-repeat",
+                  backgroundSize: "1.5em 1.5em",
+                  paddingRight: "2.5rem"
                 }}
               >
-                <option value="">-- Elige una opción --</option>
-                
-                {/* Debug: Mostrar valor actual de isPersonal */}
-                {/* isPersonal actual: {JSON.stringify(isPersonal)} */}
+                <option value="" style={{ backgroundColor: '#e7e0d5', color: '#300808' }}>-- Elige una opción --</option>
                 
                 {(isPersonal === true) ? (
-                  // Si eligió "Para mí" - mostrar todas las opciones
+                  // Si eligió "Para mí" - solo opciones de uso personal
                   <>
-                    <option value="menstrual">
+                    <option value="menstrual" style={{ backgroundColor: '#e7e0d5', color: '#300808' }}>
                       Tengo ciclos menstruales activos
                     </option>
-                    <option value="transition">
+                    <option value="transition" style={{ backgroundColor: '#e7e0d5', color: '#300808' }}>
                       Estoy en un proceso de transición hormonal
                     </option>
-                    <option value="pregnancy">
+                    <option value="pregnancy" style={{ backgroundColor: '#e7e0d5', color: '#300808' }}>
                       Estoy embarazada o buscando embarazo
-                    </option>
-                    <option value="trackingOthers">
-                      Solo quiero acompañar a alguien más
                     </option>
                   </>
                 ) : (isPersonal === false) ? (
                   // Si eligió "Para acompañar" - solo mostrar opción de acompañante
-                  <option value="trackingOthers">
+                  <option value="trackingOthers" style={{ backgroundColor: '#e7e0d5', color: '#300808' }}>
                     Solo quiero acompañar a alguien más
                   </option>
                 ) : (
-                  // Fallback si isPersonal es undefined
+                  // Fallback si isPersonal es undefined - todas las opciones
                   <>
-                    <option value="menstrual">
+                    <option value="menstrual" style={{ backgroundColor: '#e7e0d5', color: '#300808' }}>
                       Tengo ciclos menstruales activos
                     </option>
-                    <option value="transition">
+                    <option value="transition" style={{ backgroundColor: '#e7e0d5', color: '#300808' }}>
                       Estoy en un proceso de transición hormonal
                     </option>
-                    <option value="pregnancy">
+                    <option value="pregnancy" style={{ backgroundColor: '#e7e0d5', color: '#300808' }}>
                       Estoy embarazada o buscando embarazo
                     </option>
-                    <option value="trackingOthers">
+                    <option value="trackingOthers" style={{ backgroundColor: '#e7e0d5', color: '#300808' }}>
                       Solo quiero acompañar a alguien más
                     </option>
                   </>

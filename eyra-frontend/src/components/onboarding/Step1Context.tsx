@@ -171,7 +171,7 @@ const Step1Context: React.FC<StepProps> = ({
             type="button"
             onClick={onNextStep}
             disabled={isSubmitting}
-            className="px-10 py-3 bg-[#C62328] text-white rounded-xl font-semibold text-lg shadow-md transition-all hover:bg-[#9d0d0b] disabled:opacity-50 disabled:cursor-not-allowed"
+            className="px-8 py-3 bg-[#5b0108] text-white rounded-lg font-medium transition-all hover:bg-[#9d0d0b] disabled:opacity-50 disabled:cursor-not-allowed text-base"
             style={{
               boxShadow: `
                 4px 4px 8px rgba(91, 1, 8, 0.2),

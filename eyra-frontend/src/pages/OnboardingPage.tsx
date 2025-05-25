@@ -47,7 +47,7 @@ const OnboardingPage: React.FC = () => {
       receiveWorkoutSuggestions: true,
       receiveNutritionAdvice: true,
       shareCycleWithPartner: false,
-      wantAiCompanion: true,
+      wantAiCompanion: false,
       healthConcerns: [],
       accessCode: "",
       allowParentalMonitoring: false,
