@@ -33,7 +33,7 @@ const RootContent = () => {
 
   return (
     <CycleProvider>
-      {true ? (
+      {shouldShowNavigation ? (
         // Layout con dos columnas para páginas autenticadas
         <div className="w-screen h-screen overflow-hidden bg-bg text-primary font-sans flex">
           {/* Columna izquierda - Navegación fija */}
