@@ -16,6 +16,7 @@ import ErrorPage from "../pages/ErrorPage";
 import AdminPage from "../pages/AdminPage";
 import LogoutPage from "../pages/LogoutPage";
 import SettingsPage from "../pages/SettingsPage";
+import LibraryPage from "../pages/LibraryPage";
 
 // Restricciones para rutas
 import ProtectedRoute from "./ProtectedRoute";
@@ -91,6 +92,14 @@ export const router = createBrowserRouter([
         element: (
           <ProtectedRoute requireOnboarding={true}>
             <TrackingPage />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: "/library",
+        element: (
+          <ProtectedRoute requireOnboarding={true}>
+            <LibraryPage />
           </ProtectedRoute>
         ),
       },

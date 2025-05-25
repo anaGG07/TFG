@@ -12,6 +12,7 @@ const AUTHENTICATED_ROUTES = [
   "/settings",
   "/admin",
   "/tracking",
+  "/library",
 ];
 
 // Verificar si la ruta actual necesita navegación
