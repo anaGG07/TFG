@@ -11,6 +11,7 @@ const AUTHENTICATED_ROUTES = [
   "/profile",
   "/settings",
   "/admin",
+  "/tracking",
 ];
 
 // Componente interno que maneja la navegación condicional

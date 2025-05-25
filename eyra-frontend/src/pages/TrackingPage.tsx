@@ -1,6 +1,5 @@
 import React, { useMemo } from "react";
 import { motion } from "framer-motion";
-import CircularNavigation from "../components/CircularNavigation";
 import DraggableGrid from "../components/DraggableGrid";
 
 // Interfaces
@@ -484,7 +483,6 @@ const TrackingPage: React.FC = () => {
 
   return (
     <div className="w-full h-full bg-[#e7e0d5] overflow-hidden">
-      <CircularNavigation />
       <DraggableGrid
         items={trackingItems}
         onItemsChange={() => {}}
