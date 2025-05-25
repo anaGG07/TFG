@@ -1,4 +1,5 @@
 import React from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { StepProps } from "../../types/components/StepProps";
 
 const Step2LifeStage: React.FC<StepProps> = ({
@@ -12,6 +13,30 @@ const Step2LifeStage: React.FC<StepProps> = ({
   const stageOfLife = watch("stageOfLife");
   const accessCode = watch("accessCode");
   const averageCycleLength = watch("averageCycleLength");
+  const lastPeriodDate = watch("lastPeriodDate");
+
+  // Validación de fecha - límite de 1 año hacia atrás
+  const validatePeriodDate = (date: string) => {
+    if (!date) return true;
+    
+    const selectedDate = new Date(date);
+    const today = new Date();
+    const oneYearAgo = new Date();
+    oneYearAgo.setFullYear(today.getFullYear() - 1);
+    
+    if (selectedDate > today) {
+      return "La fecha no puede ser posterior a hoy";
+    }
+    
+    if (selectedDate < oneYearAgo) {
+      return "La fecha no puede ser anterior a un año";
+    }
+    
+    return true;
+  };
+
+  // Verificar si hay error de fecha
+  const hasDateError = lastPeriodDate && validatePeriodDate(lastPeriodDate) !== true;
 
   const getStageDescription = (stage: string) => {
     switch (stage) {
@@ -33,7 +58,8 @@ const Step2LifeStage: React.FC<StepProps> = ({
     !stageOfLife ||
     stageOfLife === "transition" ||
     stageOfLife === "pregnancy" ||
-    (stageOfLife === "trackingOthers" && !accessCode?.trim());
+    (stageOfLife === "trackingOthers" && !accessCode?.trim()) ||
+    (stageOfLife === "menstrual" && hasDateError);
 
   return (
     <div className="h-full flex items-center justify-center">
@@ -49,16 +75,26 @@ const Step2LifeStage: React.FC<StepProps> = ({
           </span>
         </p>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 w-full">
-          <div className="space-y-4">
+        <div
+          className={`grid transition-all duration-500 ease-in-out w-full ${
+            stageOfLife
+              ? "lg:grid-cols-2 gap-8"
+              : "grid-cols-1 place-items-center"
+          }`}
+        >
+          <motion.div
+            className="space-y-4"
+            layout
+            transition={{ duration: 0.5, ease: "easeInOut" }}
+          >
             <div
               className="p-6 rounded-2xl"
               style={{
                 background: "#e7e0d5",
                 boxShadow: `
-                  inset 4px 4px 8px rgba(91, 1, 8, 0.1),
-                  inset -4px -4px 8px rgba(255, 255, 255, 0.8)
-                `,
+          inset 4px 4px 8px rgba(91, 1, 8, 0.1),
+          inset -4px -4px 8px rgba(255, 255, 255, 0.8)
+        `,
               }}
             >
               <label className="block text-[#300808] mb-4 font-medium text-base">
@@ -97,23 +133,33 @@ const Step2LifeStage: React.FC<StepProps> = ({
               )}
             </div>
 
-            {stageOfLife && (
-              <div
-                className="p-6 rounded-2xl"
-                style={{
-                  background: "#e7e0d5",
-                  boxShadow: `
-                    inset 4px 4px 8px rgba(91, 1, 8, 0.1),
-                    inset -4px -4px 8px rgba(255, 255, 255, 0.8)
-                  `,
-                }}
-              >
-                <p className="text-sm text-[#300808]">
-                  {getStageDescription(stageOfLife)}
-                </p>
-              </div>
-            )}
-          </div>
+            <AnimatePresence>
+              {stageOfLife && (
+                <motion.div
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: "auto" }}
+                  exit={{ opacity: 0, height: 0 }}
+                  transition={{ duration: 0.3 }}
+                  className="overflow-hidden"
+                >
+                  <div
+                    className="p-6 rounded-2xl"
+                    style={{
+                      background: "#e7e0d5",
+                      boxShadow: `
+                inset 4px 4px 8px rgba(91, 1, 8, 0.1),
+                inset -4px -4px 8px rgba(255, 255, 255, 0.8)
+              `,
+                    }}
+                  >
+                    <p className="text-sm text-[#300808]">
+                      {getStageDescription(stageOfLife)}
+                    </p>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </motion.div>
 
           <div className="space-y-4">
             {stageOfLife === "menstrual" && (
@@ -143,6 +189,7 @@ const Step2LifeStage: React.FC<StepProps> = ({
                       {...register("lastPeriodDate", {
                         required: "La fecha del último período es obligatoria",
                       })}
+                      max={new Date().toISOString().split('T')[0]}
                       className="w-full border-0 bg-transparent rounded-lg py-3 px-4 text-[#5b0108] text-base focus:ring-2 focus:ring-[#C62328]/20"
                       style={{
                         background: "transparent",
@@ -154,6 +201,11 @@ const Step2LifeStage: React.FC<StepProps> = ({
                     {errors.lastPeriodDate && (
                       <p className="text-red-500 text-sm mt-1">
                         {errors.lastPeriodDate.message}
+                      </p>
+                    )}
+                    {hasDateError && (
+                      <p className="text-amber-600 text-sm mt-1">
+                        ⚠️ Verifica que la fecha esté en un rango válido (máximo 1 año atrás)
                       </p>
                     )}
                   </div>
@@ -170,7 +222,10 @@ const Step2LifeStage: React.FC<StepProps> = ({
                           required: "Campo obligatorio",
                           min: { value: 1, message: "Mínimo 1 día" },
                           max: { value: 14, message: "Máximo 14 días" },
+                          valueAsNumber: true
                         })}
+                        min="1"
+                        max="14"
                         className="w-full border-0 bg-transparent rounded-lg py-3 px-4 text-[#5b0108] text-base focus:ring-2 focus:ring-[#C62328]/20"
                         style={{
                           background: "transparent",
@@ -196,7 +251,10 @@ const Step2LifeStage: React.FC<StepProps> = ({
                         {...register("averageCycleLength", {
                           min: { value: 21, message: "Mínimo 21 días" },
                           max: { value: 35, message: "Máximo 35 días" },
+                          valueAsNumber: true
                         })}
+                        min="21"
+                        max="35"
                         className="w-full border-0 bg-transparent rounded-lg py-3 px-4 text-[#5b0108] text-base focus:ring-2 focus:ring-[#C62328]/20"
                         style={{
                           background: "transparent",
@@ -300,11 +358,11 @@ const Step2LifeStage: React.FC<StepProps> = ({
           <button
             type="button"
             onClick={onPreviousStep}
-            className="px-6 py-3 bg-gray-300 text-[#300808] rounded-lg font-medium hover:bg-gray-400 text-base"
+            className="px-6 py-3 bg-[#C62328]/20 text-[#5b0108] rounded-lg font-medium hover:bg-[#C62328]/30 text-base border border-[#C62328]/30"
             style={{
               boxShadow: `
                 4px 4px 8px rgba(91, 1, 8, 0.1),
-                -4px -4px 8px rgba(255, 255, 255, 0.1)
+                -4px -4px 8px rgba(255, 255, 255, 0.3)
               `,
             }}
           >
@@ -314,7 +372,7 @@ const Step2LifeStage: React.FC<StepProps> = ({
           <button
             type="button"
             onClick={onNextStep}
-            disabled={isSubmitting || isNextDisabled}
+            disabled={Boolean(isSubmitting || isNextDisabled)}
             className="px-8 py-3 bg-[#5b0108] text-white rounded-lg font-medium transition-all hover:bg-[#9d0d0b] disabled:opacity-50 disabled:cursor-not-allowed text-base"
             style={{
               boxShadow: `

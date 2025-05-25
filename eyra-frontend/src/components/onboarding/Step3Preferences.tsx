@@ -47,10 +47,12 @@ const Step3Preferences: React.FC<StepProps> = ({
                   {...register("receiveAlerts")}
                   checked={watch("receiveAlerts")}
                   onChange={(e) => setValue("receiveAlerts", e.target.checked)}
-                  className="mr-3 w-5 h-5 text-[#C62328] border-2 border-[#C62328]/40 focus:ring-2 focus:ring-[#C62328]/30 focus:ring-offset-0 rounded"
+                  className="mr-3 w-5 h-5 text-[#C62328] border-2 border-[#C62328]/40 focus:ring-2 focus:ring-[#C62328]/30 focus:ring-offset-0 rounded flex-shrink-0"
                   style={{
-                    accentColor: "#C62328",
-                    filter: "drop-shadow(2px 2px 4px rgba(91, 1, 8, 0.1))",
+                    accentColor: '#C62328',
+                    filter: 'drop-shadow(2px 2px 4px rgba(91, 1, 8, 0.1))',
+                    minWidth: '20px',
+                    minHeight: '20px'
                   }}
                 />
                 <span className="text-[#300808] text-base">
@@ -63,13 +65,13 @@ const Step3Preferences: React.FC<StepProps> = ({
                   type="checkbox"
                   {...register("receiveRecommendations")}
                   checked={watch("receiveRecommendations")}
-                  onChange={(e) =>
-                    setValue("receiveRecommendations", e.target.checked)
-                  }
-                  className="mr-3 w-5 h-5 text-[#C62328] border-2 border-[#C62328]/40 focus:ring-2 focus:ring-[#C62328]/30 focus:ring-offset-0 rounded"
+                  onChange={(e) => setValue("receiveRecommendations", e.target.checked)}
+                  className="mr-3 w-5 h-5 text-[#C62328] border-2 border-[#C62328]/40 focus:ring-2 focus:ring-[#C62328]/30 focus:ring-offset-0 rounded flex-shrink-0"
                   style={{
-                    accentColor: "#C62328",
-                    filter: "drop-shadow(2px 2px 4px rgba(91, 1, 8, 0.1))",
+                    accentColor: '#C62328',
+                    filter: 'drop-shadow(2px 2px 4px rgba(91, 1, 8, 0.1))',
+                    minWidth: '20px',
+                    minHeight: '20px'
                   }}
                 />
                 <span className="text-[#300808] text-base">
@@ -82,13 +84,13 @@ const Step3Preferences: React.FC<StepProps> = ({
                   type="checkbox"
                   {...register("receiveCyclePhaseTips")}
                   checked={watch("receiveCyclePhaseTips")}
-                  onChange={(e) =>
-                    setValue("receiveCyclePhaseTips", e.target.checked)
-                  }
-                  className="mr-3 w-5 h-5 text-[#C62328] border-2 border-[#C62328]/40 focus:ring-2 focus:ring-[#C62328]/30 focus:ring-offset-0 rounded"
+                  onChange={(e) => setValue("receiveCyclePhaseTips", e.target.checked)}
+                  className="mr-3 w-5 h-5 text-[#C62328] border-2 border-[#C62328]/40 focus:ring-2 focus:ring-[#C62328]/30 focus:ring-offset-0 rounded flex-shrink-0"
                   style={{
-                    accentColor: "#C62328",
-                    filter: "drop-shadow(2px 2px 4px rgba(91, 1, 8, 0.1))",
+                    accentColor: '#C62328',
+                    filter: 'drop-shadow(2px 2px 4px rgba(91, 1, 8, 0.1))',
+                    minWidth: '20px',
+                    minHeight: '20px'
                   }}
                 />
                 <span className="text-[#300808] text-base">
@@ -101,13 +103,13 @@ const Step3Preferences: React.FC<StepProps> = ({
                   type="checkbox"
                   {...register("receiveWorkoutSuggestions")}
                   checked={watch("receiveWorkoutSuggestions")}
-                  onChange={(e) =>
-                    setValue("receiveWorkoutSuggestions", e.target.checked)
-                  }
-                  className="mr-3 w-5 h-5 text-[#C62328] border-2 border-[#C62328]/40 focus:ring-2 focus:ring-[#C62328]/30 focus:ring-offset-0 rounded"
+                  onChange={(e) => setValue("receiveWorkoutSuggestions", e.target.checked)}
+                  className="mr-3 w-5 h-5 text-[#C62328] border-2 border-[#C62328]/40 focus:ring-2 focus:ring-[#C62328]/30 focus:ring-offset-0 rounded flex-shrink-0"
                   style={{
-                    accentColor: "#C62328",
-                    filter: "drop-shadow(2px 2px 4px rgba(91, 1, 8, 0.1))",
+                    accentColor: '#C62328',
+                    filter: 'drop-shadow(2px 2px 4px rgba(91, 1, 8, 0.1))',
+                    minWidth: '20px',
+                    minHeight: '20px'
                   }}
                 />
                 <span className="text-[#300808] text-base">
@@ -120,13 +122,13 @@ const Step3Preferences: React.FC<StepProps> = ({
                   type="checkbox"
                   {...register("receiveNutritionAdvice")}
                   checked={watch("receiveNutritionAdvice")}
-                  onChange={(e) =>
-                    setValue("receiveNutritionAdvice", e.target.checked)
-                  }
-                  className="mr-3 w-5 h-5 text-[#C62328] border-2 border-[#C62328]/40 focus:ring-2 focus:ring-[#C62328]/30 focus:ring-offset-0 rounded"
+                  onChange={(e) => setValue("receiveNutritionAdvice", e.target.checked)}
+                  className="mr-3 w-5 h-5 text-[#C62328] border-2 border-[#C62328]/40 focus:ring-2 focus:ring-[#C62328]/30 focus:ring-offset-0 rounded flex-shrink-0"
                   style={{
-                    accentColor: "#C62328",
-                    filter: "drop-shadow(2px 2px 4px rgba(91, 1, 8, 0.1))",
+                    accentColor: '#C62328',
+                    filter: 'drop-shadow(2px 2px 4px rgba(91, 1, 8, 0.1))',
+                    minWidth: '20px',
+                    minHeight: '20px'
                   }}
                 />
                 <span className="text-[#300808] text-base">
@@ -156,13 +158,13 @@ const Step3Preferences: React.FC<StepProps> = ({
                   type="checkbox"
                   {...register("shareCycleWithPartner")}
                   checked={watch("shareCycleWithPartner")}
-                  onChange={(e) =>
-                    setValue("shareCycleWithPartner", e.target.checked)
-                  }
-                  className="mr-3 w-5 h-5 text-[#C62328] border-2 border-[#C62328]/40 focus:ring-2 focus:ring-[#C62328]/30 focus:ring-offset-0 rounded mt-0.5"
+                  onChange={(e) => setValue("shareCycleWithPartner", e.target.checked)}
+                  className="mr-3 w-5 h-5 text-[#C62328] border-2 border-[#C62328]/40 focus:ring-2 focus:ring-[#C62328]/30 focus:ring-offset-0 rounded flex-shrink-0 mt-0.5"
                   style={{
-                    accentColor: "#C62328",
-                    filter: "drop-shadow(2px 2px 4px rgba(91, 1, 8, 0.1))",
+                    accentColor: '#C62328',
+                    filter: 'drop-shadow(2px 2px 4px rgba(91, 1, 8, 0.1))',
+                    minWidth: '20px',
+                    minHeight: '20px'
                   }}
                 />
                 <span className="text-[#300808] text-base">
@@ -183,13 +185,13 @@ const Step3Preferences: React.FC<StepProps> = ({
                   type="checkbox"
                   {...register("wantAiCompanion")}
                   checked={watch("wantAiCompanion")}
-                  onChange={(e) =>
-                    setValue("wantAiCompanion", e.target.checked)
-                  }
-                  className="mr-3 w-5 h-5 text-[#C62328] border-2 border-[#C62328]/40 focus:ring-2 focus:ring-[#C62328]/30 focus:ring-offset-0 rounded mt-0.5"
+                  onChange={(e) => setValue("wantAiCompanion", e.target.checked)}
+                  className="mr-3 w-5 h-5 text-[#C62328] border-2 border-[#C62328]/40 focus:ring-2 focus:ring-[#C62328]/30 focus:ring-offset-0 rounded flex-shrink-0 mt-0.5"
                   style={{
-                    accentColor: "#C62328",
-                    filter: "drop-shadow(2px 2px 4px rgba(91, 1, 8, 0.1))",
+                    accentColor: '#C62328',
+                    filter: 'drop-shadow(2px 2px 4px rgba(91, 1, 8, 0.1))',
+                    minWidth: '20px',
+                    minHeight: '20px'
                   }}
                 />
                 <span className="text-[#300808] text-base">

@@ -107,16 +107,16 @@ const Step1Context: React.FC<StepProps> = ({
                 name="genderIdentity"
                 onChange={register("genderIdentity").onChange}
                 onBlur={register("genderIdentity").onBlur}
-                className={`w-full border-0 bg-transparent rounded-xl py-3 px-4 text-[#5b0108] focus:ring-2 focus:ring-[#C62328]/20 transition-all text-base ${
+                className={`w-full border-0 bg-transparent rounded-xl py-3 px-4 text-[#5b0108] focus:ring-2 focus:ring-[#C62328]/20 transition-all text-base outline-none autofill:bg-transparent autofill:text-[#5b0108] autofill:shadow-[inset_4px_4px_8px_rgba(91,1,8,0.1),inset_-4px_-4px_8px_rgba(255,255,255,0.8)] ${
                   errors.genderIdentity ? "focus:ring-red-500/20" : ""
                 }`}
                 style={{
                   background: "transparent",
                   boxShadow:
                     "inset 4px 4px 8px rgba(91, 1, 8, 0.1), inset -4px -4px 8px rgba(255, 255, 255, 0.8)",
-                  outline: "none",
                 }}
                 placeholder="Ej: Mujer cis, Persona trans, No binaria..."
+                autoComplete="off"
               />
               {errors.genderIdentity && (
                 <p className="text-red-500 text-sm mt-2 font-medium">
@@ -144,12 +144,11 @@ const Step1Context: React.FC<StepProps> = ({
               <input
                 type="text"
                 {...register("pronouns")}
-                className="w-full border-0 bg-transparent rounded-xl py-3 px-4 text-[#5b0108] focus:ring-2 focus:ring-[#C62328]/20 transition-all text-base"
+                className="w-full border-0 bg-transparent rounded-xl py-3 px-4 text-[#5b0108] focus:ring-2 focus:ring-[#C62328]/20 transition-all text-base outline-none autofill:bg-transparent autofill:text-[#5b0108] autofill:shadow-[inset_4px_4px_8px_rgba(91,1,8,0.1),inset_-4px_-4px_8px_rgba(255,255,255,0.8)]"
                 style={{
                   background: "transparent",
                   boxShadow:
                     "inset 4px 4px 8px rgba(91, 1, 8, 0.1), inset -4px -4px 8px rgba(255, 255, 255, 0.8)",
-                  outline: "none",
                 }}
                 placeholder="Ej: él, ella, elle..."
               />

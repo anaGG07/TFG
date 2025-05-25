@@ -142,7 +142,9 @@ const OnboardingPage: React.FC = () => {
         const hormoneType = watch("hormoneType");
         const hormoneStartDate = watch("hormoneStartDate");
         const hormoneFrequencyDays = watch("hormoneFrequencyDays");
+        const lastPeriodDate = watch("lastPeriodDate");
 
+        // Validación para transición hormonal
         if (
           stage === "transition" &&
           (hormoneType || hormoneStartDate || hormoneFrequencyDays) &&
@@ -152,6 +154,24 @@ const OnboardingPage: React.FC = () => {
             "Si estás en transición hormonal, debes completar los tres campos o dejarlos vacíos."
           );
           isValid = false;
+        }
+
+        // Validación para fechas de período menstrual
+        if (stage === "menstrual" && lastPeriodDate) {
+          const selectedDate = new Date(lastPeriodDate);
+          const today = new Date();
+          const oneYearAgo = new Date();
+          oneYearAgo.setFullYear(today.getFullYear() - 1);
+          
+          if (selectedDate > today) {
+            setError("La fecha del último período no puede ser posterior a hoy");
+            isValid = false;
+          }
+          
+          if (selectedDate < oneYearAgo) {
+            setError("La fecha del último período no puede ser anterior a un año");
+            isValid = false;
+          }
         }
       }
 
@@ -166,20 +186,18 @@ const OnboardingPage: React.FC = () => {
       if (await validateStep(step)) {
         const stage = watch("stageOfLife");
         const accessCode = watch("accessCode");
-
+        
         // Si es acompañante con código válido, terminar onboarding
         if (step === 2 && stage === "trackingOthers" && accessCode?.trim()) {
           return handleFinalSubmit();
         }
-
+        
         // Si es acompañante sin código, no avanzar
         if (step === 2 && stage === "trackingOthers" && !accessCode?.trim()) {
-          setError(
-            "Necesitas introducir el código de invitado para continuar."
-          );
+          setError("Necesitas introducir el código de invitado para continuar.");
           return;
         }
-
+        
         setStep((prev) => prev + 1);
       }
     } catch (err) {
@@ -225,7 +243,10 @@ const OnboardingPage: React.FC = () => {
         console.log("OnboardingPage: Respuesta del servidor:", updatedUser);
 
         if (updatedUser?.onboardingCompleted) {
-          navigate(ROUTES.DASHBOARD, { replace: true });
+          // Mostrar mensaje de éxito brevemente antes de redirigir
+          setTimeout(() => {
+            navigate(ROUTES.DASHBOARD, { replace: true });
+          }, 2000);
         } else {
           setError(
             "Tu perfil se guardó pero ocurrió un error al completar el proceso."
@@ -319,8 +340,12 @@ const OnboardingPage: React.FC = () => {
         >
           {/* Contenido de steps con scroll interno si es necesario */}
           <div className="flex-1 overflow-y-auto custom-scrollbar p-6">
-            {step === 1 && <Step1Context {...commonStepProps} />}
-            {step === 2 && <Step2LifeStage {...commonStepProps} />}
+            {step === 1 && (
+              <Step1Context {...commonStepProps} />
+            )}
+            {step === 2 && (
+              <Step2LifeStage {...commonStepProps} />
+            )}
             {step === 3 && watch("stageOfLife") !== "trackingOthers" && (
               <Step3Preferences {...commonStepProps} />
             )}
@@ -328,10 +353,7 @@ const OnboardingPage: React.FC = () => {
               <Step4Symptoms {...commonStepProps} />
             )}
             {step === 5 && watch("stageOfLife") !== "trackingOthers" && (
-              <Step5HealthConcerns
-                {...commonStepProps}
-                onSubmit={handleFinalSubmit}
-              />
+              <Step5HealthConcerns {...commonStepProps} onSubmit={handleFinalSubmit} />
             )}
           </div>
 
@@ -344,17 +366,18 @@ const OnboardingPage: React.FC = () => {
             </div>
           )}
 
-          {step === 5 && !isSubmitting && (
+          {step === 5 && !isSubmitting && watch("stageOfLife") !== "trackingOthers" && (
             <div className="px-6 pb-4 text-center animate-fade-in">
-              <h3 className="text-xl font-serif text-[#C62328] font-bold mb-1">
-                ¡Onboarding completado!
-              </h3>
-              <p className="text-[#7a2323] text-sm">
-                Estás lista para descubrir, conectar y evolucionar con EYRA.
-                <br />
-                Recuerda:{" "}
-                <span className="font-semibold">tu ciclo, tu poder</span>.
-              </p>
+              <h3 className="text-2xl font-serif text-[#C62328] font-bold mb-2">¡Onboarding completado!</h3>
+              <p className="text-[#7a2323] text-base">Estás lista para descubrir, conectar y evolucionar con EYRA.<br/>Recuerda: <span className="font-semibold">tu ciclo, tu poder</span>.</p>
+            </div>
+          )}
+
+          {/* Si es acompañante y se está enviando el formulario */}
+          {isSubmitting && watch("stageOfLife") === "trackingOthers" && (
+            <div className="px-6 pb-4 text-center animate-fade-in">
+              <h3 className="text-2xl font-serif text-[#C62328] font-bold mb-2">¡Registro completado!</h3>
+              <p className="text-[#7a2323] text-base">Te hemos vinculado como acompañante.<br/>Redirigiendo al dashboard...</p>
             </div>
           )}
         </div>
