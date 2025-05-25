@@ -29,7 +29,7 @@ const OnboardingPage: React.FC = () => {
     trigger,
     formState: { errors },
   } = useForm<OnboardingFormData>({
-    mode: "onSubmit", // Validamos solo al enviar
+    mode: "onSubmit",
     reValidateMode: "onChange",
     defaultValues: {
       isPersonal: true,
@@ -65,9 +65,7 @@ const OnboardingPage: React.FC = () => {
     return "profile_women";
   };
   
-
   useEffect(() => {
-    // Solo verifica la sesión si no está autenticado o no hay usuario
     if (!isAuthenticated || !user) {
       const verifyAuth = async () => {
         try {
@@ -81,12 +79,10 @@ const OnboardingPage: React.FC = () => {
       };
       verifyAuth();
     }
-    // Si ya está autenticado y hay usuario, no hace falta verificar nada
   }, [isAuthenticated, user, checkAuth, navigate]);
 
   useEffect(() => {
     if (!isLoading && user) {
-      // Verificación mejorada del estado de onboarding
       const directComplete = user.onboardingCompleted === true;
       const nestedComplete = user.onboarding?.completed === true;
       const isComplete =
@@ -110,7 +106,7 @@ const OnboardingPage: React.FC = () => {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-[#f8e9ea] to-[#e7e0d5] flex items-center justify-center p-4">
+      <div className="h-screen bg-gradient-to-br from-[#f8e9ea] to-[#e7e0d5] flex items-center justify-center p-4">
         <div className="bg-white rounded-xl p-8 shadow-xl text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#5b0108] mx-auto"></div>
           <p className="mt-4 text-[#5b0108]">Verificando sesión...</p>
@@ -124,8 +120,6 @@ const OnboardingPage: React.FC = () => {
     navigate(ROUTES.LOGIN, { replace: true });
     return null;
   }
-
-  // Validación por paso
 
   const validateStep = async (currentStep: number): Promise<boolean> => {
     setError(null);
@@ -141,7 +135,6 @@ const OnboardingPage: React.FC = () => {
         return false;
       }
     } else if (currentStep === 2) {
-      // Paso 2: Validar stageOfLife y campos de transición hormonal si aplica
       let isValid = await trigger("stageOfLife");
 
       if (isValid) {
@@ -150,7 +143,6 @@ const OnboardingPage: React.FC = () => {
         const hormoneStartDate = watch("hormoneStartDate");
         const hormoneFrequencyDays = watch("hormoneFrequencyDays");
 
-        // Si es transición y al menos un campo está completo, entonces los tres deben estarlo
         if (
           stage === "transition" &&
           (hormoneType || hormoneStartDate || hormoneFrequencyDays) &&
@@ -166,15 +158,12 @@ const OnboardingPage: React.FC = () => {
       return isValid;
     }
     
-    // Para otros pasos, simplemente permitimos avanzar
     return true;
   };
 
   const handleNextStep = async () => {
     try {
-      // Validamos el paso actual
       if (await validateStep(step)) {
-        // Si pasa la validación, avanzamos al siguiente paso
         setStep((prev) => prev + 1);
       }
     } catch (err) {
@@ -189,13 +178,11 @@ const OnboardingPage: React.FC = () => {
     }
   };
   
-
   const saveOnboarding: SubmitHandler<OnboardingFormData> = async (data) => {
     setIsSubmitting(true);
     setError(null);
 
     try {
-      // Verificación adicional de autenticación
       if (!isAuthenticated || !user) {
         console.error('OnboardingPage: No hay usuario autenticado al guardar');
         setError("Tu sesión ha expirado. Por favor, inicia sesión nuevamente.");
@@ -210,14 +197,11 @@ const OnboardingPage: React.FC = () => {
         ...data,
         profileType,
         completed: true, 
-        // Asegurar que estos campos requeridos estén presentes y con valores válidos
         genderIdentity: data.genderIdentity?.trim() || '',
         stageOfLife: data.stageOfLife?.trim() || '',
-        // Asegurar que lastPeriodDate no sea un string vacío
         lastPeriodDate: data.lastPeriodDate?.trim() || undefined,
       };
 
-      // Registrar datos para depuración
       console.log("OnboardingPage: Enviando datos al backend:", JSON.stringify(finalData, null, 2));
 
       try {
@@ -239,7 +223,6 @@ const OnboardingPage: React.FC = () => {
             navigate(ROUTES.LOGIN, { replace: true });
           }, 2000);
         } else if (error.message && error.message.includes("500")) {
-          // Si es un error 500, mostrar un mensaje más específico
           setError(
             "Ha ocurrido un error en el servidor. Nuestro equipo técnico ha sido notificado. Por favor, intenta nuevamente más tarde."
           );
@@ -261,7 +244,6 @@ const OnboardingPage: React.FC = () => {
     try {
       const valid = await validateStep(step);
       if (valid) {
-        // Si la validación es exitosa, enviamos el formulario
         handleSubmit(saveOnboarding)();
       }
     } catch (err) {
@@ -270,12 +252,10 @@ const OnboardingPage: React.FC = () => {
     }
   };
 
-  // Función para manejar el evento onBlur del campo gender
   const handleGenderBlur = () => {
-    // No hacemos nada especial, simplemente dejamos que React Hook Form maneje la validación
+    // Funcionalidad legacy para compatibilidad
   };
 
-  // Props comunes para todos los componentes Step
   const commonStepProps: StepProps = {
     isSubmitting,
     error,
@@ -287,31 +267,37 @@ const OnboardingPage: React.FC = () => {
     trigger,
     onNextStep: handleNextStep,
     onPreviousStep: handlePreviousStep,
-    setStep, // Props legacy para compatibilidad
-    onGenderBlur: handleGenderBlur, // Función para limpiar espacios
+    setStep,
+    onGenderBlur: handleGenderBlur,
   };
 
   return (
-    <div className="w-screen min-h-screen flex items-center justify-center bg-[#f5ede6] relative overflow-hidden">
-      {/* Barra de progreso superior */}
-      <div className="absolute top-0 left-0 w-full flex justify-center z-10 pt-8">
-        <div className="flex gap-3">
+    <div className="w-screen h-screen flex flex-col bg-[#f5ede6] relative overflow-hidden">
+      {/* Barra de progreso superior optimizada */}
+      <div className="absolute top-0 left-0 w-full flex justify-center z-10 pt-4">
+        <div className="flex gap-2">
           {[1,2,3,4,5].map(n => (
-            <div key={n} className={`h-2 w-12 rounded-full transition-all duration-500 ${step>=n ? 'bg-[#C62328]' : 'bg-[#e7e0d5]'}`}></div>
+            <div key={n} className={`h-1.5 w-8 rounded-full transition-all duration-500 ${step>=n ? 'bg-[#C62328]' : 'bg-[#e7e0d5]'}`}></div>
           ))}
         </div>
       </div>
-      {/* Contenido principal */}
-      <div className="relative z-10 w-full max-w-5xl flex flex-col justify-center items-center px-4 py-8">
-        <div className="bg-white rounded-3xl shadow-xl p-6 w-full flex flex-col items-center animate-fade-in border border-[#e7e0d5]" style={{
-          background: '#e7e0d5',
-          boxShadow: `
-            20px 20px 40px rgba(91, 1, 8, 0.08),
-            -20px -20px 40px rgba(255, 255, 255, 0.25),
-            inset 0 1px 0 rgba(255, 255, 255, 0.15)
-          `,
-        }}>
-          <div className="w-full">
+
+      {/* Contenido principal con altura optimizada */}
+      <div className="flex-1 flex items-center justify-center px-4 pt-8 pb-4">
+        <div 
+          className="bg-white rounded-3xl shadow-xl w-full h-full max-w-6xl flex flex-col animate-fade-in border border-[#e7e0d5] overflow-hidden"
+          style={{
+            background: '#e7e0d5',
+            boxShadow: `
+              20px 20px 40px rgba(91, 1, 8, 0.08),
+              -20px -20px 40px rgba(255, 255, 255, 0.25),
+              inset 0 1px 0 rgba(255, 255, 255, 0.15)
+            `,
+            maxHeight: 'calc(100vh - 80px)'
+          }}
+        >
+          {/* Contenido de steps con scroll interno si es necesario */}
+          <div className="flex-1 overflow-y-auto custom-scrollbar p-6">
             {step === 1 && (
               <Step1Context {...commonStepProps} />
             )}
@@ -327,19 +313,24 @@ const OnboardingPage: React.FC = () => {
             {step === 5 && (
               <Step5HealthConcerns {...commonStepProps} onSubmit={handleFinalSubmit} />
             )}
-            {error && (
-              <p className="text-red-500 text-sm text-center mt-4 animate-fade-in">{error}</p>
-            )}
           </div>
+
+          {/* Error y mensaje final optimizados */}
+          {error && (
+            <div className="px-6 pb-2">
+              <p className="text-red-500 text-sm text-center animate-fade-in">{error}</p>
+            </div>
+          )}
+
+          {step === 5 && !isSubmitting && (
+            <div className="px-6 pb-4 text-center animate-fade-in">
+              <h3 className="text-xl font-serif text-[#C62328] font-bold mb-1">¡Onboarding completado!</h3>
+              <p className="text-[#7a2323] text-sm">Estás lista para descubrir, conectar y evolucionar con EYRA.<br/>Recuerda: <span className="font-semibold">tu ciclo, tu poder</span>.</p>
+            </div>
+          )}
         </div>
-        {/* Frase motivadora final */}
-        {step === 5 && !isSubmitting && (
-          <div className="mt-8 text-center animate-fade-in">
-            <h3 className="text-2xl font-serif text-[#C62328] font-bold mb-2">¡Onboarding completado!</h3>
-            <p className="text-[#7a2323] text-lg">Estás lista para descubrir, conectar y evolucionar con EYRA.<br/>Recuerda: <span className="font-semibold">tu ciclo, tu poder</span>.</p>
-          </div>
-        )}
       </div>
+
       <style>{`
         @keyframes fade-in {
           from { opacity: 0; transform: translateY(24px);}
@@ -349,15 +340,15 @@ const OnboardingPage: React.FC = () => {
           animation: fade-in 1.2s cubic-bezier(.4,0,.2,1) both;
         }
         .custom-scrollbar::-webkit-scrollbar {
-          width: 8px;
+          width: 6px;
         }
         .custom-scrollbar::-webkit-scrollbar-track {
           background: rgba(91, 1, 8, 0.05);
-          border-radius: 4px;
+          border-radius: 3px;
         }
         .custom-scrollbar::-webkit-scrollbar-thumb {
           background: rgba(91, 1, 8, 0.2);
-          border-radius: 4px;
+          border-radius: 3px;
         }
         .custom-scrollbar::-webkit-scrollbar-thumb:hover {
           background: rgba(91, 1, 8, 0.3);
