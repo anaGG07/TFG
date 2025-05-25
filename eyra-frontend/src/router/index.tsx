@@ -23,6 +23,7 @@ import ProtectedRoute from "./ProtectedRoute";
 import PublicOnlyRoute from "./PublicOnlyRoute";
 import RoleRoute from "./RoleRoute";
 import AuthGuard from "../components/auth/AuthGuard";
+import TrackingPage from "../pages/TrackingPage";
 
 // Router simplificado sin layouts duplicados
 export const router = createBrowserRouter([
@@ -87,10 +88,10 @@ export const router = createBrowserRouter([
         ),
       },
       {
-        path: ROUTES.INSIGHTS,
+        path: ROUTES.TRACKING,
         element: (
           <ProtectedRoute requireOnboarding={true}>
-            <InsightsPage />
+            <TrackingPage />
           </ProtectedRoute>
         ),
       },
