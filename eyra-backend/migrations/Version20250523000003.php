@@ -10,7 +10,7 @@ use Doctrine\Migrations\AbstractMigration;
 /**
  * 23/05/2025 - Migración para eliminar campos obsoletos tras implementar el nuevo modelo basado en fases
  */
-final class Version20250523000001 extends AbstractMigration
+final class Version20250523000003 extends AbstractMigration
 {
     public function getDescription(): string
     {
