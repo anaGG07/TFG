@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import React, { useMemo, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import DraggableGrid from "../components/DraggableGrid";
 
@@ -19,105 +19,6 @@ interface CategoryData {
   newCount: number;
 }
 
-// Comentario de control
-// Iconos SVG especializados para cada categoría
-const HistoryIcon = ({ className }: { className?: string }) => (
-  <svg
-    className={className}
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="#C62328"
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-  >
-    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"/>
-    <path d="M12 6v6l4 2"/>
-    <path d="M8 2v4"/>
-    <path d="M16 2v4"/>
-  </svg>
-);
-
-const ScienceIcon = ({ className }: { className?: string }) => (
-  <svg
-    className={className}
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="#C62328"
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-  >
-    <path d="M9 11a3 3 0 0 1 6 0l-6 0z"/>
-    <path d="M6 21h12l-6-9-6 9z"/>
-    <circle cx="12" cy="7" r="1"/>
-  </svg>
-);
-
-const PhasesIcon = ({ className }: { className?: string }) => (
-  <svg
-    className={className}
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="#C62328"
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-  >
-    <circle cx="12" cy="12" r="10"/>
-    <path d="M12 2a10 10 0 0 0 0 20"/>
-    <path d="M12 2a10 10 0 0 1 0 20"/>
-  </svg>
-);
-
-const InclusivityIcon = ({ className }: { className?: string }) => (
-  <svg
-    className={className}
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="#C62328"
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-  >
-    <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
-    <circle cx="9" cy="7" r="4"/>
-    <path d="M22 21v-2a4 4 0 0 0-3-3.87"/>
-    <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
-  </svg>
-);
-
-const MaternityIcon = ({ className }: { className?: string }) => (
-  <svg
-    className={className}
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="#C62328"
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-  >
-    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
-    <circle cx="12" cy="10" r="3"/>
-  </svg>
-);
-
-const WisdomIcon = ({ className }: { className?: string }) => (
-  <svg
-    className={className}
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="#C62328"
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-  >
-    <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
-    <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
-    <path d="M12 7v14"/>
-  </svg>
-);
-
 // Datos de contenido simulado
 const libraryData: Record<string, CategoryData> = {
   history: {
@@ -125,16 +26,18 @@ const libraryData: Record<string, CategoryData> = {
       {
         id: "h1",
         title: "Las Campañas Rojas: Reclamando el Poder Menstrual",
-        summary: "Historia del movimiento que transformó la percepción social de la menstruación",
+        summary:
+          "Historia del movimiento que transformó la percepción social de la menstruación",
         type: "historical",
         readTime: "8 min",
         tags: ["historia", "activismo", "sociedad"],
         isNew: true,
       },
       {
-        id: "h2", 
+        id: "h2",
         title: "Rituales Ancestrales: La Menstruación en Culturas Antiguas",
-        summary: "Explorando cómo las civilizaciones honraban los ciclos femeninos",
+        summary:
+          "Explorando cómo las civilizaciones honraban los ciclos femeninos",
         type: "historical",
         readTime: "12 min",
         tags: ["cultura", "rituales", "ancestral"],
@@ -268,126 +171,253 @@ const ArticlePreview = ({ article }: { article: LibraryContent }) => (
   </motion.div>
 );
 
-// Componente genérico para todas las categorías
-const CategoryCard = ({ 
-  categoryId, 
-  isExpanded 
-}: { 
-  categoryId: string; 
-  isExpanded: boolean; 
+// Componente de tienda de campaña interactiva para cada categoría
+const TentButton = ({
+  categoryId,
+  onClick,
+}: {
+  categoryId: string;
+  onClick: () => void;
 }) => {
-  const data = libraryData[categoryId];
-  
+  const [isHovered, setIsHovered] = useState(false);
+  const [isClicked, setIsClicked] = useState(false);
+
+  const handleClick = () => {
+    setIsClicked(true);
+    setTimeout(() => setIsClicked(false), 300);
+    onClick();
+  };
+
   const getCategoryConfig = (id: string) => {
     switch (id) {
       case "history":
         return {
-          icon: HistoryIcon,
           title: "Historia Menstrual",
           description: "Explorando el pasado para entender el presente",
-          unitLabel: "artículos",
-          details: "🔴 Campañas rojas, rituales ancestrales y más"
+          icon: "🕰️",
         };
       case "science":
         return {
-          icon: ScienceIcon,
           title: "Ciencia & Investigación",
           description: "Evidencia científica y estudios contrastados",
-          unitLabel: "estudios",
-          details: "🔴 Papers científicos y investigaciones"
+          icon: "🔬",
         };
       case "phases":
         return {
-          icon: PhasesIcon,
           title: "Fases del Ciclo",
           description: "Comprende cada etapa de tu ciclo",
-          unitLabel: "guías",
-          details: "🔴 Folicular, ovulación, lútea y menstrual"
+          icon: "🌙",
         };
       case "inclusivity":
         return {
-          icon: InclusivityIcon,
           title: "Inclusividad & Género",
           description: "Apoyo para todas las identidades",
-          unitLabel: "recursos",
-          details: "🔴 Transición, hormonización y apoyo"
+          icon: "👥",
         };
       case "maternity":
         return {
-          icon: MaternityIcon,
           title: "Maternidad & Fertilidad",
           description: "Acompañándote en cada etapa",
-          unitLabel: "artículos",
-          details: "🔴 Fertilidad, embarazo y postparto"
+          icon: "❤️",
         };
       case "wisdom":
         return {
-          icon: WisdomIcon,
           title: "Sabiduría & Longevidad",
           description: "Acompañándote a lo largo de la vida",
-          unitLabel: "artículos",
-          details: "🔴 Menopausia, longevidad y bienestar"
+          icon: "📚",
         };
       default:
         return {
-          icon: WisdomIcon,
-          title: "Categoría",
-          description: "Descripción",
-          unitLabel: "artículos",
-          details: "🔴 Contenido variado"
+          title: "Refugio",
+          description: "Tu espacio seguro",
+          icon: "🏕️",
         };
     }
   };
 
   const config = getCategoryConfig(categoryId);
-  const IconComponent = config.icon;
+  const data = libraryData[categoryId];
 
   return (
-    <div className="flex flex-col h-full">
+    <div className="flex flex-col items-center space-y-4 h-full justify-center">
+      <h3 className="text-lg font-serif font-bold text-[#7a2323] text-center">
+        {config.title}
+      </h3>
+      <p className="text-sm text-[#5b0108] text-center max-w-xs font-light">
+        {config.description}
+      </p>
+
+      <button
+        onClick={handleClick}
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
+        className="relative focus:outline-none group"
+        aria-label={`Acceder a ${config.title}`}
+      >
+        <svg
+          width="160"
+          height="140"
+          viewBox="0 0 200 180"
+          className={`transition-all duration-300 ${
+            isClicked ? "scale-95" : "scale-100"
+          }`}
+        >
+          {/* Lado izquierdo de la tienda */}
+          <path
+            d={
+              isHovered
+                ? "M 100 20 L 15 140 L 75 140 Z"
+                : "M 100 20 L 30 140 L 100 140 Z"
+            }
+            fill="none"
+            stroke={isHovered ? "#f43f5e" : "#C62328"}
+            strokeWidth="2"
+            className="transition-all duration-500 ease-in-out"
+          />
+
+          {/* Lado derecho de la tienda */}
+          <path
+            d={
+              isHovered
+                ? "M 100 20 L 125 140 L 185 140 Z"
+                : "M 100 20 L 100 140 L 170 140 Z"
+            }
+            fill="none"
+            stroke={isHovered ? "#f43f5e" : "#C62328"}
+            strokeWidth="2"
+            className="transition-all duration-500 ease-in-out"
+          />
+
+          {/* Interior cuando se abre */}
+          {isHovered && (
+            <path
+              d="M 100 20 L 75 140 L 125 140 Z"
+              fill="#fce7f3"
+              opacity="0.4"
+              className="transition-all duration-500"
+            />
+          )}
+
+          {/* Icono de categoría dentro */}
+          {isHovered && (
+            <text
+              x="100"
+              y="100"
+              textAnchor="middle"
+              fontSize="24"
+              opacity="0.8"
+              className="transition-all duration-300"
+            >
+              {config.icon}
+            </text>
+          )}
+        </svg>
+
+        {/* Base de la tienda */}
+        <div
+          className={`absolute bottom-0 left-1/2 transform -translate-x-1/2 h-px bg-[#C62328] transition-all duration-300 ${
+            isHovered ? "w-40" : "w-32"
+          }`}
+        />
+      </button>
+
+      {/* Información de la categoría */}
+      <div className="text-center space-y-2">
+        <div className="flex justify-center items-center gap-2">
+          <span className="text-xs text-[#C62328] font-semibold">
+            {data?.totalCount || 0} recursos
+          </span>
+          {data?.newCount > 0 && (
+            <span className="bg-[#C62328] text-white text-xs px-2 py-1 rounded-full">
+              {data.newCount} nuevos
+            </span>
+          )}
+        </div>
+        <p className="text-xs text-[#7a2323] font-light">
+          {isClicked ? "Accediendo a tu refugio..." : "Haz clic para explorar"}
+        </p>
+      </div>
+    </div>
+  );
+};
+
+// Componente genérico para todas las categorías
+const CategoryCard = ({
+  categoryId,
+  isExpanded,
+  onToggle,
+}: {
+  categoryId: string;
+  isExpanded: boolean;
+  onToggle?: () => void;
+}) => {
+  const data = libraryData[categoryId];
+
+  const getCategoryConfig = (id: string) => {
+    switch (id) {
+      case "history":
+        return {
+          title: "Historia Menstrual",
+          description: "Explorando el pasado para entender el presente",
+          unitLabel: "artículos",
+          details: "Campañas rojas, rituales ancestrales y más",
+        };
+      case "science":
+        return {
+          title: "Ciencia & Investigación",
+          description: "Evidencia científica y estudios contrastados",
+          unitLabel: "estudios",
+          details: "Papers científicos y investigaciones",
+        };
+      case "phases":
+        return {
+          title: "Fases del Ciclo",
+          description: "Comprende cada etapa de tu ciclo",
+          unitLabel: "guías",
+          details: "Folicular, ovulación, lútea y menstrual",
+        };
+      case "inclusivity":
+        return {
+          title: "Inclusividad & Género",
+          description: "Apoyo para todas las identidades",
+          unitLabel: "recursos",
+          details: "Transición, hormonización y apoyo",
+        };
+      case "maternity":
+        return {
+          title: "Maternidad & Fertilidad",
+          description: "Acompañándote en cada etapa",
+          unitLabel: "artículos",
+          details: "Fertilidad, embarazo y postparto",
+        };
+      case "wisdom":
+        return {
+          title: "Sabiduría & Longevidad",
+          description: "Acompañándote a lo largo de la vida",
+          unitLabel: "artículos",
+          details: "Menopausia, longevidad y bienestar",
+        };
+      default:
+        return {
+          title: "Categoría",
+          description: "Descripción",
+          unitLabel: "artículos",
+          details: "Contenido variado",
+        };
+    }
+  };
+
+  const config = getCategoryConfig(categoryId);
+
+  return (
+    <div className="flex flex-col h-full p-4">
       {!isExpanded ? (
-        // Vista compacta
-        <>
-          <motion.div
-            className="w-16 h-16 rounded-full flex items-center justify-center mb-4 mx-auto"
-            style={{
-              background: "#f5ede6",
-              boxShadow: `
-                inset 2px 2px 4px rgba(91, 1, 8, 0.1),
-                inset -2px -2px 4px rgba(255, 255, 255, 0.8)
-              `,
-            }}
-            whileHover={{ scale: 1.1 }}
-            transition={{ duration: 0.2 }}
-          >
-            <IconComponent className="w-6 h-6" />
-          </motion.div>
-          <h3 className="text-lg font-serif font-bold text-[#7a2323] mb-3 text-center">
-            {config.title}
-          </h3>
-          <p className="text-sm text-[#5b0108] mb-4 text-center">
-            {config.description}
-          </p>
-          <div className="mt-auto text-center">
-            <div className="flex justify-center items-center gap-2 mb-2">
-              <span className="text-xs text-[#C62328] font-semibold">
-                {data.totalCount} {config.unitLabel}
-              </span>
-              {data.newCount > 0 && (
-                <span className="bg-[#C62328] text-white text-xs px-2 py-1 rounded-full">
-                  {data.newCount} nuevos
-                </span>
-              )}
-            </div>
-            <p className="text-xs text-[#a62c2c]">
-              {config.details}
-            </p>
-          </div>
-        </>
+        // Vista compacta - botón de tienda
+        <TentButton categoryId={categoryId} onClick={onToggle || (() => {})} />
       ) : (
-        // Vista expandida
+        // Vista expandida - contenido completo
         <div className="h-full flex flex-col">
-          <div className="flex items-center gap-3 mb-6">
-            <IconComponent className="w-8 h-8" />
+          <div className="flex items-center justify-between mb-6">
             <div>
               <h3 className="text-xl font-serif font-bold text-[#7a2323]">
                 {config.title}
@@ -396,8 +426,14 @@ const CategoryCard = ({
                 {data.totalCount} {config.unitLabel} • {data.newCount} nuevos
               </p>
             </div>
+            <button
+              onClick={onToggle}
+              className="text-[#C62328] hover:text-[#9d0d0b] transition-colors"
+            >
+              ✕
+            </button>
           </div>
-          
+
           <div className="flex-1 overflow-auto space-y-4">
             <AnimatePresence>
               {data.articles.map((article, index) => (
@@ -411,7 +447,7 @@ const CategoryCard = ({
                 </motion.div>
               ))}
             </AnimatePresence>
-            
+
             <motion.button
               className="w-full py-3 bg-[#C62328] text-white rounded-xl font-medium hover:bg-[#9d0d0b] transition-colors"
               whileHover={{ scale: 1.02 }}
@@ -427,73 +463,88 @@ const CategoryCard = ({
 };
 
 const LibraryPage: React.FC = () => {
-  console.log('LibraryPage: Renderizando RED TENT - Salud Femenina');
+  console.log("LibraryPage: Renderizando RED TENT - Salud Femenina");
 
   // Configurar items del grid de la biblioteca
-  const libraryItems = useMemo(() => [
-    {
-      id: "history",
-      title: "Historia Menstrual",
-      component: <CategoryCard categoryId="history" isExpanded={false} />,
-      isExpanded: false,
-    },
-    {
-      id: "science", 
-      title: "Ciencia & Investigación",
-      component: <CategoryCard categoryId="science" isExpanded={false} />,
-      isExpanded: false,
-    },
-    {
-      id: "phases",
-      title: "Fases del Ciclo", 
-      component: <CategoryCard categoryId="phases" isExpanded={false} />,
-      isExpanded: false,
-    },
-    {
-      id: "inclusivity",
-      title: "Inclusividad & Género",
-      component: <CategoryCard categoryId="inclusivity" isExpanded={false} />,
-      isExpanded: false,
-    },
-    {
-      id: "maternity",
-      title: "Maternidad & Fertilidad",
-      component: <CategoryCard categoryId="maternity" isExpanded={false} />,
-      isExpanded: false,
-    },
-    {
-      id: "wisdom",
-      title: "Sabiduría & Longevidad", 
-      component: <CategoryCard categoryId="wisdom" isExpanded={false} />,
-      isExpanded: false,
-    },
-  ], []);
+  const libraryItems = useMemo(
+    () => [
+      {
+        id: "history",
+        title: "Historia Menstrual",
+        component: <CategoryCard categoryId="history" isExpanded={false} />,
+        isExpanded: false,
+      },
+      {
+        id: "science",
+        title: "Ciencia & Investigación",
+        component: <CategoryCard categoryId="science" isExpanded={false} />,
+        isExpanded: false,
+      },
+      {
+        id: "phases",
+        title: "Fases del Ciclo",
+        component: <CategoryCard categoryId="phases" isExpanded={false} />,
+        isExpanded: false,
+      },
+      {
+        id: "inclusivity",
+        title: "Inclusividad & Género",
+        component: <CategoryCard categoryId="inclusivity" isExpanded={false} />,
+        isExpanded: false,
+      },
+      {
+        id: "maternity",
+        title: "Maternidad & Fertilidad",
+        component: <CategoryCard categoryId="maternity" isExpanded={false} />,
+        isExpanded: false,
+      },
+      {
+        id: "wisdom",
+        title: "Sabiduría & Longevidad",
+        component: <CategoryCard categoryId="wisdom" isExpanded={false} />,
+        isExpanded: false,
+      },
+    ],
+    []
+  );
 
   // Manejar expansión de categorías
   const handleItemsChange = (newItems: any[]) => {
     // Actualizar componentes con estado de expansión
-    const updatedItems = newItems.map(item => {
+    const updatedItems = newItems.map((item) => {
       const isExpanded = item.isExpanded || false;
-      const component = <CategoryCard categoryId={item.id} isExpanded={isExpanded} />;
-      
+      const component = (
+        <CategoryCard
+          categoryId={item.id}
+          isExpanded={isExpanded}
+          onToggle={() => {
+            // Aquí manejarías el toggle, pero DraggableGrid debería exponer esta funcionalidad
+            console.log(`Toggle ${item.id}`);
+          }}
+        />
+      );
+
       return {
         ...item,
         component,
       };
     });
-    
-    console.log("LibraryPage: Categorías actualizadas:", updatedItems.map(i => ({ id: i.id, expanded: i.isExpanded })));
+
+    console.log(
+      "LibraryPage: Categorías actualizadas:",
+      updatedItems.map((i) => ({ id: i.id, expanded: i.isExpanded }))
+    );
   };
 
   return (
-    <motion.div 
+    <motion.div
       className="w-full h-full bg-[#e7e0d5] overflow-hidden"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.5 }}
     >
       {/* Header sutil de la biblioteca */}
-      <motion.div 
+      <motion.div
         className="absolute top-0 left-0 right-0 z-10 p-6"
         initial={{ y: -20, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
@@ -512,7 +563,6 @@ const LibraryPage: React.FC = () => {
             whileHover={{ scale: 1.02 }}
             transition={{ duration: 0.2 }}
           >
-            <WisdomIcon className="w-6 h-6" />
             <div className="text-center">
               <h1 className="text-lg font-serif font-bold text-[#7a2323] leading-none">
                 RED TENT
@@ -532,10 +582,7 @@ const LibraryPage: React.FC = () => {
         animate={{ y: 0, opacity: 1 }}
         transition={{ delay: 0.4, duration: 0.6 }}
       >
-        <DraggableGrid
-          items={libraryItems}
-          onItemsChange={handleItemsChange}
-        />
+        <DraggableGrid items={libraryItems} onItemsChange={handleItemsChange} />
       </motion.div>
 
       {/* Partículas flotantes de fondo para efecto mágico */}
