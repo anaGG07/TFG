@@ -57,10 +57,10 @@ services:
         tags:
             - { name: kernel.event_subscriber }
 
-# --- Ciclo menstrual: Inyección explícita de dependencias ---
-App\Service\CycleCalculatorService:
-    arguments:
-        $cycleRepository: '@App\Repository\MenstrualCycleRepository'
-        $onboardingRepository: '@App\Repository\OnboardingRepository'
-        $entityManager: '@doctrine.orm.entity_manager'
+    # --- Ciclo menstrual: Inyección explícita de dependencias ---
+    App\Service\CycleCalculatorService:
+        arguments:
+            $cycleRepository: '@App\Repository\MenstrualCycleRepository'
+            $onboardingRepository: '@App\Repository\OnboardingRepository'
+            $entityManager: '@doctrine.orm.entity_manager'
 
