@@ -171,8 +171,8 @@ const ArticlePreview = ({ article }: { article: LibraryContent }) => (
   </motion.div>
 );
 
-// Componente de tienda de campaña interactiva para cada categoría
-const TentButton = ({
+// Componente de tienda de campaña que ocupa toda la caja
+const TentCard = ({
   categoryId,
   onClick,
 }: {
@@ -239,105 +239,154 @@ const TentButton = ({
   const data = libraryData[categoryId];
 
   return (
-    <div className="flex flex-col items-center space-y-4 h-full justify-center">
-      <h3 className="text-lg font-serif font-bold text-[#7a2323] text-center">
-        {config.title}
-      </h3>
-      <p className="text-sm text-[#5b0108] text-center max-w-xs font-light">
-        {config.description}
-      </p>
-
-      <button
-        onClick={handleClick}
-        onMouseEnter={() => setIsHovered(true)}
-        onMouseLeave={() => setIsHovered(false)}
-        className="relative focus:outline-none group"
-        aria-label={`Acceder a ${config.title}`}
+    <button
+      onClick={handleClick}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+      className="w-full h-full relative focus:outline-none group cursor-pointer"
+      aria-label={`Acceder a ${config.title}`}
+    >
+      {/* SVG que ocupa toda la caja */}
+      <svg
+        className={`w-full h-full transition-all duration-300 ${
+          isClicked ? "scale-95" : "scale-100"
+        }`}
+        viewBox="0 0 300 250"
+        preserveAspectRatio="none"
       >
-        <svg
-          width="160"
-          height="140"
-          viewBox="0 0 200 180"
-          className={`transition-all duration-300 ${
-            isClicked ? "scale-95" : "scale-100"
-          }`}
-        >
-          {/* Lado izquierdo de la tienda */}
-          <path
-            d={
-              isHovered
-                ? "M 100 20 L 15 140 L 75 140 Z"
-                : "M 100 20 L 30 140 L 100 140 Z"
-            }
-            fill="none"
-            stroke={isHovered ? "#f43f5e" : "#C62328"}
-            strokeWidth="2"
-            className="transition-all duration-500 ease-in-out"
-          />
-
-          {/* Lado derecho de la tienda */}
-          <path
-            d={
-              isHovered
-                ? "M 100 20 L 125 140 L 185 140 Z"
-                : "M 100 20 L 100 140 L 170 140 Z"
-            }
-            fill="none"
-            stroke={isHovered ? "#f43f5e" : "#C62328"}
-            strokeWidth="2"
-            className="transition-all duration-500 ease-in-out"
-          />
-
-          {/* Interior cuando se abre */}
-          {isHovered && (
-            <path
-              d="M 100 20 L 75 140 L 125 140 Z"
-              fill="#fce7f3"
-              opacity="0.4"
-              className="transition-all duration-500"
-            />
-          )}
-
-          {/* Icono de categoría dentro */}
-          {isHovered && (
-            <text
-              x="100"
-              y="100"
-              textAnchor="middle"
-              fontSize="24"
-              opacity="0.8"
-              className="transition-all duration-300"
-            >
-              {config.icon}
-            </text>
-          )}
-        </svg>
-
-        {/* Base de la tienda */}
-        <div
-          className={`absolute bottom-0 left-1/2 transform -translate-x-1/2 h-px bg-[#C62328] transition-all duration-300 ${
-            isHovered ? "w-40" : "w-32"
-          }`}
+        {/* Lado izquierdo de la tienda */}
+        <path
+          d={
+            isHovered
+              ? "M 150 20 L 20 220 L 120 220 Z"
+              : "M 150 20 L 40 220 L 150 220 Z"
+          }
+          fill="none"
+          stroke={isHovered ? "#f43f5e" : "#C62328"}
+          strokeWidth="3"
+          className="transition-all duration-500 ease-in-out"
         />
-      </button>
 
-      {/* Información de la categoría */}
-      <div className="text-center space-y-2">
-        <div className="flex justify-center items-center gap-2">
-          <span className="text-xs text-[#C62328] font-semibold">
-            {data?.totalCount || 0} recursos
-          </span>
-          {data?.newCount > 0 && (
-            <span className="bg-[#C62328] text-white text-xs px-2 py-1 rounded-full">
+        {/* Lado derecho de la tienda */}
+        <path
+          d={
+            isHovered
+              ? "M 150 20 L 180 220 L 280 220 Z"
+              : "M 150 20 L 150 220 L 260 220 Z"
+          }
+          fill="none"
+          stroke={isHovered ? "#f43f5e" : "#C62328"}
+          strokeWidth="3"
+          className="transition-all duration-500 ease-in-out"
+        />
+
+        {/* Interior rosado cuando se abre */}
+        {isHovered && (
+          <path
+            d="M 150 20 L 120 220 L 180 220 Z"
+            fill="#fce7f3"
+            opacity="0.3"
+            className="transition-all duration-500"
+          />
+        )}
+
+        {/* Base de la tienda - línea horizontal */}
+        <line
+          x1={isHovered ? "20" : "40"}
+          y1="220"
+          x2={isHovered ? "280" : "260"}
+          y2="220"
+          stroke="#C62328"
+          strokeWidth="2"
+          className="transition-all duration-300"
+        />
+
+        {/* Título en la parte superior */}
+        <text
+          x="150"
+          y="50"
+          textAnchor="middle"
+          className="fill-[#7a2323] text-lg font-serif font-bold"
+          fontSize="16"
+        >
+          {config.title}
+        </text>
+
+        {/* Descripción */}
+        <text
+          x="150"
+          y="70"
+          textAnchor="middle"
+          className="fill-[#5b0108] text-sm"
+          fontSize="12"
+        >
+          {config.description}
+        </text>
+
+        {/* Icono de categoría en el centro */}
+        {isHovered && (
+          <text
+            x="150"
+            y="140"
+            textAnchor="middle"
+            fontSize="32"
+            opacity="0.8"
+            className="transition-all duration-300 animate-pulse"
+          >
+            {config.icon}
+          </text>
+        )}
+
+        {/* Información de recursos en la parte inferior */}
+        <text
+          x="150"
+          y="190"
+          textAnchor="middle"
+          className="fill-[#C62328] text-xs font-semibold"
+          fontSize="11"
+        >
+          {data?.totalCount || 0} recursos
+        </text>
+
+        {/* Badge de nuevos si existen */}
+        {data?.newCount > 0 && (
+          <>
+            <rect
+              x="200"
+              y="175"
+              width="80"
+              height="20"
+              rx="10"
+              fill="#C62328"
+            />
+            <text
+              x="240"
+              y="187"
+              textAnchor="middle"
+              className="fill-white text-xs"
+              fontSize="10"
+            >
               {data.newCount} nuevos
-            </span>
-          )}
-        </div>
-        <p className="text-xs text-[#7a2323] font-light">
-          {isClicked ? "Accediendo a tu refugio..." : "Haz clic para explorar"}
-        </p>
-      </div>
-    </div>
+            </text>
+          </>
+        )}
+
+        {/* Texto de acción */}
+        <text
+          x="150"
+          y="240"
+          textAnchor="middle"
+          className="fill-[#7a2323] text-xs"
+          fontSize="10"
+        >
+          {isClicked
+            ? "Accediendo..."
+            : isHovered
+            ? "Click para explorar"
+            : "Haz clic para entrar"}
+        </text>
+      </svg>
+    </button>
   );
 };
 
@@ -410,13 +459,13 @@ const CategoryCard = ({
   const config = getCategoryConfig(categoryId);
 
   return (
-    <div className="flex flex-col h-full p-4">
+    <div className="w-full h-full">
       {!isExpanded ? (
-        // Vista compacta - botón de tienda
-        <TentButton categoryId={categoryId} onClick={onToggle || (() => {})} />
+        // Vista compacta - tienda que ocupa toda la caja
+        <TentCard categoryId={categoryId} onClick={onToggle || (() => {})} />
       ) : (
         // Vista expandida - contenido completo
-        <div className="h-full flex flex-col">
+        <div className="h-full flex flex-col p-4 bg-white/30 rounded-xl border border-[#C62328]/20">
           <div className="flex items-center justify-between mb-6">
             <div>
               <h3 className="text-xl font-serif font-bold text-[#7a2323]">
@@ -428,7 +477,7 @@ const CategoryCard = ({
             </div>
             <button
               onClick={onToggle}
-              className="text-[#C62328] hover:text-[#9d0d0b] transition-colors"
+              className="text-[#C62328] hover:text-[#9d0d0b] transition-colors text-xl"
             >
               ✕
             </button>
@@ -518,7 +567,6 @@ const LibraryPage: React.FC = () => {
           categoryId={item.id}
           isExpanded={isExpanded}
           onToggle={() => {
-            // Aquí manejarías el toggle, pero DraggableGrid debería exponer esta funcionalidad
             console.log(`Toggle ${item.id}`);
           }}
         />
