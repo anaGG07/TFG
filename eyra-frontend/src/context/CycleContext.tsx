@@ -189,7 +189,7 @@ export const CycleProvider: React.FC<{ children: ReactNode }> = ({ children }) =
               id: 1,
               title: 'Smoothie de frutos rojos',
               description: 'Ideal para fase menstrual, rico en hierro y antioxidantes',
-              type: 'recipe',
+              type: 'nutrition',
               imageUrl: API_ROUTES.MEDIA.PLACEHOLDER(300, 200)
             },
             {

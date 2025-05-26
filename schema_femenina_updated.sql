@@ -2,7 +2,7 @@
 CREATE TYPE profile_type AS ENUM ('GUEST', 'USER', 'ADMIN');
 CREATE TYPE cycle_phase AS ENUM ('menstrual', 'folicular', 'ovulacion', 'lutea');
 CREATE TYPE guest_type AS ENUM ('partner', 'parental', 'friend');
-CREATE TYPE content_type AS ENUM ('recipe', 'exercise', 'article', 'selfcare', 'recommendation');
+CREATE TYPE content_type AS ENUM ('nutrition', 'exercise', 'article', 'selfcare', 'recommendation');
 CREATE TYPE hormone_type AS ENUM ('estrogen', 'progesterone', 'testosterone', 'luteinizing_hormone', 'follicle_stimulating_hormone');
 
 -- Tabla "user"
@@ -235,9 +235,9 @@ VALUES
 -- Contenido
 INSERT INTO content (title, description, content, type, target_phase, tags)
 VALUES
-('Smoothie para fase menstrual', 'Bebida antioxidante y rica en hierro', 'Mezcla fresas, espinacas, una cucharada de linaza y leche vegetal.', 'recipe', 'menstrual', '["antioxidante", "hierro", "energía"]'),
+('Smoothie para fase menstrual', 'Bebida antioxidante y rica en hierro', 'Mezcla fresas, espinacas, una cucharada de linaza y leche vegetal.', 'nutrition', 'menstrual', '["antioxidante", "hierro", "energía"]'),
 ('Rutina de yoga suave', 'Ejercicios para aliviar calambres', 'Esta rutina de 15 minutos incluye posiciones como postura de niño y torsiones suaves...', 'exercise', 'menstrual', '["yoga", "dolor", "relajación"]'),
-('Receta alta en proteínas', 'Ideal para fase folicular', 'Ensalada de quinoa con pollo, aguacate y nueces.', 'recipe', 'folicular', '["proteína", "energía", "construcción"]'),
+('Receta alta en proteínas', 'Ideal para fase folicular', 'Ensalada de quinoa con pollo, aguacate y nueces.', 'nutrition', 'folicular', '["proteína", "energía", "construcción"]'),
 ('Entrenamiento de alta intensidad', 'Aprovecha tu energía en fase folicular', 'Rutina HIIT de 20 minutos para maximizar tu rendimiento físico.', 'exercise', 'folicular', '["cardio", "fuerza", "energía"]'),
 ('Cuidados durante la ovulación', 'Tips para esta fase', 'Durante la ovulación, es importante mantener una buena hidratación...', 'article', 'ovulacion', '["fertilidad", "bienestar", "hormonas"]');
 

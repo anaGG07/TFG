@@ -27,44 +27,57 @@ use Symfony\Component\Serializer\Annotation\Groups;
         new Put(security: "is_granted('EDIT', object)")
     ]
 )]
+// ! 23/05/2025 - Modificada entidad para trabajar con el nuevo modelo basado en fases
+// ! 23/05/2025 - Eliminados campos obsoletos cycle y phase
+// ! 25/05/2025 - Añadidos grupos de serialización para el calendario
 class CycleDay
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[Groups(['cycle_day:read', 'menstrual_cycle:read'])]
+    #[Groups(['cycle_day:read', 'menstrual_cycle:read', 'calendar:read'])]
     private ?int $id = null;
 
+    // ! 25/05/2025 - Solución temporal: Añadido campo cycle_id para mantener compatibilidad con base de datos
+    #[ORM\Column(nullable: false)]
+    private ?int $cycle_id = null;
+
+    // ! 25/05/2025 - Solución temporal: Añadido campo phase para mantener compatibilidad con base de datos
+    #[ORM\Column(length: 50, nullable: false)]
+    private ?string $phase = null;
+
+    // ! 23/05/2025 - Relación con fase del ciclo
+    // ! 25/05/2025 - Actualizado para usar CyclePhaseService para coordinar cambios entre fases
     #[ORM\ManyToOne(inversedBy: 'cycleDays')]
     #[ORM\JoinColumn(nullable: false)]
-    private ?MenstrualCycle $cycle = null;
+    #[Groups(['cycle_day:read', 'cycle_day:write'])]
+    private ?MenstrualCycle $cyclePhase = null;
+
 
     #[ORM\Column(type: Types::DATE_MUTABLE)]
-    #[Groups(['cycle_day:read', 'cycle_day:write', 'menstrual_cycle:read'])]
+    #[Groups(['cycle_day:read', 'cycle_day:write', 'menstrual_cycle:read', 'calendar:read'])]
     private ?\DateTimeInterface $date = null;
 
     #[ORM\Column(type: Types::SMALLINT)]
-    #[Groups(['cycle_day:read', 'menstrual_cycle:read'])]
+    #[Groups(['cycle_day:read', 'menstrual_cycle:read', 'calendar:read'])]
     private ?int $dayNumber = null;
 
-    #[ORM\Column(enumType: CyclePhase::class)]
-    #[Groups(['cycle_day:read', 'cycle_day:write', 'menstrual_cycle:read'])]
-    private ?CyclePhase $phase = null;
+    // ! 23/05/2025 - Eliminado campo phase obsoleto
 
     #[ORM\Column(type: Types::JSON, nullable: true)]
-    #[Groups(['cycle_day:read', 'cycle_day:write'])]
+    #[Groups(['cycle_day:read', 'cycle_day:write', 'calendar:read'])]
     private array $symptoms = [];
 
     #[ORM\Column(type: Types::JSON, nullable: true)]
-    #[Groups(['cycle_day:read', 'cycle_day:write'])]
+    #[Groups(['cycle_day:read', 'cycle_day:write', 'calendar:read'])]
     private array $notes = [];
 
     #[ORM\Column(type: Types::JSON, nullable: true)]
-    #[Groups(['cycle_day:read', 'cycle_day:write'])]
+    #[Groups(['cycle_day:read', 'cycle_day:write', 'calendar:read'])]
     private array $mood = [];
 
     #[ORM\Column(type: Types::SMALLINT, nullable: true)]
-    #[Groups(['cycle_day:read', 'cycle_day:write'])]
+    #[Groups(['cycle_day:read', 'cycle_day:write', 'calendar:read'])]
     private ?int $flowIntensity = null;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
@@ -87,14 +100,38 @@ class CycleDay
         return $this->id;
     }
 
-    public function getCycle(): ?MenstrualCycle
+    // ! 25/05/2025 - Getters y setters temporales para cycle_id
+    public function getCycleId(): ?int
     {
-        return $this->cycle;
+        return $this->cycle_id;
     }
 
-    public function setCycle(?MenstrualCycle $cycle): static
+    public function setCycleId(?int $cycleId): static
     {
-        $this->cycle = $cycle;
+        $this->cycle_id = $cycleId;
+        return $this;
+    }
+
+    // ! 25/05/2025 - Getters y setters temporales para phase
+    public function getPhase(): ?string
+    {
+        return $this->phase;
+    }
+
+    public function setPhase(?string $phase): static
+    {
+        $this->phase = $phase;
+        return $this;
+    }
+
+    public function getCyclePhase(): ?MenstrualCycle
+    {
+        return $this->cyclePhase;
+    }
+
+    public function setCyclePhase(?MenstrualCycle $cyclePhase): static
+    {
+        $this->cyclePhase = $cyclePhase;
         return $this;
     }
 
@@ -120,16 +157,7 @@ class CycleDay
         return $this;
     }
 
-    public function getPhase(): ?CyclePhase
-    {
-        return $this->phase;
-    }
-
-    public function setPhase(CyclePhase $phase): static
-    {
-        $this->phase = $phase;
-        return $this;
-    }
+    // ! 23/05/2025 - Eliminados getPhase() y setPhase() obsoletos
 
     public function getSymptoms(): array
     {

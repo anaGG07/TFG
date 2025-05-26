@@ -358,7 +358,7 @@ Los siguientes endpoints requieren `ROLE_ADMIN`:
 ### ❓ **Parámetros Opcionales**
 - Los campos marcados con `?` son opcionales
 - Los parámetros de query van después de `?` en la URL
-- Ejemplo: `/content?type=recipe&limit=10`
+- Ejemplo: `/content?type=nutrition&limit=10`
 
 ### 🏷️ **Estados de Respuesta HTTP**
 - `200` - Éxito

@@ -205,7 +205,7 @@ class LoadFixturesCommand extends Command
                 'title' => 'Smoothie para fase menstrual',
                 'description' => 'Bebida antioxidante y rica en hierro',
                 'content' => 'Mezcla fresas, espinacas, una cucharada de linaza y leche vegetal. Esta combinación aporta hierro y antioxidantes perfectos para reponer nutrientes durante la menstruación.',
-                'type' => ContentType::RECIPE,
+                'type' => ContentType::NUTRITION,
                 'phase' => CyclePhase::MENSTRUAL,
                 'tags' => ['hierro', 'antioxidantes', 'energia'],
                 'conditions' => [0] // Índices de las condiciones creadas anteriormente
@@ -232,7 +232,7 @@ class LoadFixturesCommand extends Command
                 'title' => 'Ensalada energética para fase ovulatoria',
                 'description' => 'Rica en antioxidantes y vitaminas',
                 'content' => 'Ingredientes: espinacas, aguacate, nueces, arándanos y quinoa. Aliñar con aceite de oliva, limón y una pizca de sal marina.',
-                'type' => ContentType::RECIPE,
+                'type' => ContentType::NUTRITION,
                 'phase' => CyclePhase::OVULACION,
                 'tags' => ['antioxidantes', 'proteína', 'vitaminas'],
                 'conditions' => [0, 2] // Menstruación y SOP

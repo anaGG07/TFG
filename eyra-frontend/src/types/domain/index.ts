@@ -7,7 +7,7 @@ export enum CyclePhase {
 }
 
 export enum ContentType {
-  RECIPE = 'recipe',
+  NUTRITION = 'nutrition',
   EXERCISE = 'exercise',
   ARTICLE = 'article',
   SELFCARE = 'selfcare',

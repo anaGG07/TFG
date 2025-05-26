@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use App\Repository\MenstrualCycleRepository;
+use App\Enum\CyclePhase; /* ! 23/05/2025 Agregado import correcto del enum CyclePhase */
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\ORM\Mapping\HasLifecycleCallbacks;
@@ -63,12 +64,14 @@ use Symfony\Component\Serializer\Annotation\Groups;
         )
     ]
 )]
+// ! 23/05/2025 - Modificada entidad para implementar el nuevo modelo basado en fases
+// ! 25/05/2025 - Añadidos grupos de serialización para el calendario
 class MenstrualCycle
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[Groups(['menstrual_cycle:read'])]
+    #[Groups(['menstrual_cycle:read', 'calendar:read'])]
     private ?int $id = null;
 
     #[ORM\ManyToOne(inversedBy: 'menstrualCycles')]
@@ -76,12 +79,20 @@ class MenstrualCycle
     #[Groups(['menstrual_cycle:read'])]
     private ?User $user = null;
 
+    #[ORM\Column(enumType: CyclePhase::class, nullable: true)]
+    #[Groups(['menstrual_cycle:read', 'menstrual_cycle:write', 'calendar:read'])]
+    private ?CyclePhase $phase = null;
+
+    #[ORM\Column(length: 36, nullable: true)]
+    #[Groups(['menstrual_cycle:read', 'menstrual_cycle:write', 'calendar:read'])]
+    private ?string $cycleId = null;
+
     #[ORM\Column(type: Types::DATE_MUTABLE)]
-    #[Groups(['menstrual_cycle:read', 'menstrual_cycle:write'])]
+    #[Groups(['menstrual_cycle:read', 'menstrual_cycle:write', 'calendar:read'])]
     private ?\DateTimeInterface $startDate = null;
 
     #[ORM\Column(type: Types::DATE_MUTABLE)]
-    #[Groups(['menstrual_cycle:read', 'menstrual_cycle:write'])]
+    #[Groups(['menstrual_cycle:read', 'menstrual_cycle:write', 'calendar:read'])]
     private ?\DateTimeInterface $endDate = null;
 
     #[ORM\Column(type: Types::DATE_MUTABLE)]
@@ -125,9 +136,16 @@ class MenstrualCycle
     /**
      * @var Collection<int, CycleDay>
      */
-    #[ORM\OneToMany(mappedBy: 'cycle', targetEntity: CycleDay::class, cascade: ['persist', 'remove'])]
+    #[ORM\OneToMany(mappedBy: 'cyclePhase', targetEntity: CycleDay::class, cascade: ['persist', 'remove'])]
     #[Groups(['menstrual_cycle:read'])]
     private Collection $cycleDays;
+
+    /**
+     * ! 25/05/2025 - Campo para almacenar temporalmente días filtrados para el calendario
+     * @var Collection<int, CycleDay>|array<CycleDay>
+     */
+    #[Groups(['calendar:read'])]
+    private $filteredCycleDays = [];
 
     public function __construct()
     {
@@ -316,22 +334,66 @@ class MenstrualCycle
         return $this->cycleDays;
     }
 
+    // ! 25/05/2025 - Actualizado para usar CyclePhaseService para coordinar cambios entre fases
     public function addCycleDay(CycleDay $cycleDay): static
     {
         if (!$this->cycleDays->contains($cycleDay)) {
             $this->cycleDays->add($cycleDay);
-            $cycleDay->setCycle($this);
+            $cycleDay->setCyclePhase($this);
         }
         return $this;
     }
 
+    // ! 25/05/2025 - Actualizado para usar CyclePhaseService para coordinar cambios entre fases
     public function removeCycleDay(CycleDay $cycleDay): static
     {
         if ($this->cycleDays->removeElement($cycleDay)) {
-            if ($cycleDay->getCycle() === $this) {
-                $cycleDay->setCycle(null);
+            if ($cycleDay->getCyclePhase() === $this) {
+                $cycleDay->setCyclePhase(null);
             }
         }
         return $this;
+    }
+
+    // ! 23/05/2025 - Nuevos getters y setters para campos phase y cycleId
+    public function getPhase(): ?CyclePhase
+    {
+        return $this->phase;
+    }
+
+    public function setPhase(?CyclePhase $phase): static
+    {
+        $this->phase = $phase;
+        return $this;
+    }
+
+    public function getCycleId(): ?string
+    {
+        return $this->cycleId;
+    }
+
+    public function setCycleId(?string $cycleId): static
+    {
+        $this->cycleId = $cycleId;
+        return $this;
+    }
+
+    // ! 25/05/2025 - Método para establecer días filtrados para el calendario
+    /**
+     * Establece los días filtrados para mostrar en el calendario
+     * Este método no persiste en la base de datos, solo es para serialización
+     */
+    public function setFilteredCycleDays(array $days): static
+    {
+        $this->filteredCycleDays = $days;
+        return $this;
+    }
+
+    /**
+     * Obtiene los días filtrados para el calendario
+     */
+    public function getFilteredCycleDays(): array
+    {
+        return $this->filteredCycleDays;
     }
 }

@@ -1,8 +1,8 @@
 {
     "api-platform/core": {
         "version": "4.1",
-        "recipe": {
-            "repo": "github.com/symfony/recipes",
+        "nutrition": {
+            "repo": "github.com/symfony/nutritions",
             "branch": "main",
             "version": "4.0",
             "ref": "cb9e6b8ceb9b62f32d41fc8ad72a25d5bd674c6d"
@@ -15,8 +15,8 @@
     },
     "doctrine/doctrine-bundle": {
         "version": "2.14",
-        "recipe": {
-            "repo": "github.com/symfony/recipes",
+        "nutrition": {
+            "repo": "github.com/symfony/nutritions",
             "branch": "main",
             "version": "2.13",
             "ref": "8d96c0b51591ffc26794d865ba3ee7d193438a83"
@@ -29,8 +29,8 @@
     },
     "doctrine/doctrine-migrations-bundle": {
         "version": "3.4",
-        "recipe": {
-            "repo": "github.com/symfony/recipes",
+        "nutrition": {
+            "repo": "github.com/symfony/nutritions",
             "branch": "main",
             "version": "3.1",
             "ref": "1d01ec03c6ecbd67c3375c5478c9a423ae5d6a33"
@@ -42,8 +42,8 @@
     },
     "lexik/jwt-authentication-bundle": {
         "version": "3.1",
-        "recipe": {
-            "repo": "github.com/symfony/recipes",
+        "nutrition": {
+            "repo": "github.com/symfony/nutritions",
             "branch": "main",
             "version": "2.5",
             "ref": "e9481b233a11ef7e15fe055a2b21fd3ac1aa2bb7"
@@ -54,8 +54,8 @@
     },
     "nelmio/cors-bundle": {
         "version": "2.5",
-        "recipe": {
-            "repo": "github.com/symfony/recipes",
+        "nutrition": {
+            "repo": "github.com/symfony/nutritions",
             "branch": "main",
             "version": "1.5",
             "ref": "6bea22e6c564fba3a1391615cada1437d0bde39c"
@@ -66,8 +66,8 @@
     },
     "symfony/console": {
         "version": "7.2",
-        "recipe": {
-            "repo": "github.com/symfony/recipes",
+        "nutrition": {
+            "repo": "github.com/symfony/nutritions",
             "branch": "main",
             "version": "5.3",
             "ref": "1781ff40d8a17d87cf53f8d4cf0c8346ed2bb461"
@@ -78,8 +78,8 @@
     },
     "symfony/flex": {
         "version": "2.5",
-        "recipe": {
-            "repo": "github.com/symfony/recipes",
+        "nutrition": {
+            "repo": "github.com/symfony/nutritions",
             "branch": "main",
             "version": "2.4",
             "ref": "52e9754527a15e2b79d9a610f98185a1fe46622a"
@@ -91,8 +91,8 @@
     },
     "symfony/framework-bundle": {
         "version": "7.2",
-        "recipe": {
-            "repo": "github.com/symfony/recipes",
+        "nutrition": {
+            "repo": "github.com/symfony/nutritions",
             "branch": "main",
             "version": "7.2",
             "ref": "87bcf6f7c55201f345d8895deda46d2adbdbaa89"
@@ -110,8 +110,8 @@
     },
     "symfony/maker-bundle": {
         "version": "1.62",
-        "recipe": {
-            "repo": "github.com/symfony/recipes",
+        "nutrition": {
+            "repo": "github.com/symfony/nutritions",
             "branch": "main",
             "version": "1.0",
             "ref": "fadbfe33303a76e25cb63401050439aa9b1a9c7f"
@@ -119,8 +119,8 @@
     },
     "symfony/monolog-bundle": {
         "version": "3.10",
-        "recipe": {
-            "repo": "github.com/symfony/recipes",
+        "nutrition": {
+            "repo": "github.com/symfony/nutritions",
             "branch": "main",
             "version": "3.7",
             "ref": "aff23899c4440dd995907613c1dd709b6f59503f"
@@ -131,8 +131,8 @@
     },
     "symfony/routing": {
         "version": "7.2",
-        "recipe": {
-            "repo": "github.com/symfony/recipes",
+        "nutrition": {
+            "repo": "github.com/symfony/nutritions",
             "branch": "main",
             "version": "7.0",
             "ref": "21b72649d5622d8f7da329ffb5afb232a023619d"
@@ -144,8 +144,8 @@
     },
     "symfony/security-bundle": {
         "version": "7.2",
-        "recipe": {
-            "repo": "github.com/symfony/recipes",
+        "nutrition": {
+            "repo": "github.com/symfony/nutritions",
             "branch": "main",
             "version": "6.4",
             "ref": "2ae08430db28c8eb4476605894296c82a642028f"
@@ -157,8 +157,8 @@
     },
     "symfony/twig-bundle": {
         "version": "7.2",
-        "recipe": {
-            "repo": "github.com/symfony/recipes",
+        "nutrition": {
+            "repo": "github.com/symfony/nutritions",
             "branch": "main",
             "version": "6.4",
             "ref": "cab5fd2a13a45c266d45a7d9337e28dee6272877"
@@ -170,8 +170,8 @@
     },
     "symfony/validator": {
         "version": "7.2",
-        "recipe": {
-            "repo": "github.com/symfony/recipes",
+        "nutrition": {
+            "repo": "github.com/symfony/nutritions",
             "branch": "main",
             "version": "7.0",
             "ref": "8c1c4e28d26a124b0bb273f537ca8ce443472bfd"
