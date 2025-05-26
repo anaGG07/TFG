@@ -1,3 +1,4 @@
+// Step5HealthConcerns.tsx
 import React from "react";
 
 const healthOptions = [
@@ -55,7 +56,7 @@ const Step5HealthConcerns: React.FC<Step5HealthConcerns> = ({
           </span>
         </p>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 w-full flex-1">
+        <div className="w-full max-w-2xl">
           <div
             className="p-4 rounded-2xl flex flex-col"
             style={{
@@ -95,55 +96,6 @@ const Step5HealthConcerns: React.FC<Step5HealthConcerns> = ({
                   </span>
                 </label>
               ))}
-            </div>
-          </div>
-
-          <div
-            className="p-4 rounded-2xl flex flex-col"
-            style={{
-              background: "#e7e0d5",
-              boxShadow: `
-                inset 4px 4px 8px rgba(91, 1, 8, 0.1),
-                inset -4px -4px 8px rgba(255, 255, 255, 0.8)
-              `,
-            }}
-          >
-            <h3 className="text-lg text-[#300808] font-medium mb-3">
-              Medicamentos y tratamientos
-            </h3>
-
-            <div className="flex-1 flex flex-col space-y-3 min-h-0">
-              <div className="flex-1 flex flex-col">
-                <label className="block text-[#300808] text-sm mb-2">
-                  ¿Tomas algún medicamento regularmente?
-                </label>
-                <textarea
-                  {...register("medications")}
-                  placeholder="Lista los medicamentos que tomas..."
-                  className="flex-1 p-3 rounded-lg border-0 bg-transparent focus:ring-2 focus:ring-[#C62328]/20 outline-none transition-all text-sm resize-none min-h-[60px]"
-                  style={{
-                    background: "transparent",
-                    boxShadow:
-                      "inset 4px 4px 8px rgba(91, 1, 8, 0.1), inset -4px -4px 8px rgba(255, 255, 255, 0.8)",
-                  }}
-                />
-              </div>
-
-              <div className="flex-1 flex flex-col">
-                <label className="block text-[#300808] text-sm mb-2">
-                  ¿Sigues algún tratamiento específico?
-                </label>
-                <textarea
-                  {...register("treatments")}
-                  placeholder="Describe los tratamientos que sigues..."
-                  className="flex-1 p-3 rounded-lg border-0 bg-transparent focus:ring-2 focus:ring-[#C62328]/20 outline-none transition-all text-sm resize-none min-h-[60px]"
-                  style={{
-                    background: "transparent",
-                    boxShadow:
-                      "inset 4px 4px 8px rgba(91, 1, 8, 0.1), inset -4px -4px 8px rgba(255, 255, 255, 0.8)",
-                  }}
-                />
-              </div>
             </div>
           </div>
         </div>
