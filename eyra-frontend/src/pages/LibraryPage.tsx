@@ -26,18 +26,16 @@ const libraryData: Record<string, CategoryData> = {
       {
         id: "h1",
         title: "Las Campañas Rojas: Reclamando el Poder Menstrual",
-        summary:
-          "Historia del movimiento que transformó la percepción social de la menstruación",
+        summary: "Historia del movimiento que transformó la percepción social de la menstruación",
         type: "historical",
         readTime: "8 min",
         tags: ["historia", "activismo", "sociedad"],
         isNew: true,
       },
       {
-        id: "h2",
+        id: "h2", 
         title: "Rituales Ancestrales: La Menstruación en Culturas Antiguas",
-        summary:
-          "Explorando cómo las civilizaciones honraban los ciclos femeninos",
+        summary: "Explorando cómo las civilizaciones honraban los ciclos femeninos",
         type: "historical",
         readTime: "12 min",
         tags: ["cultura", "rituales", "ancestral"],
@@ -172,11 +170,11 @@ const ArticlePreview = ({ article }: { article: LibraryContent }) => (
 );
 
 // Componente de tienda de campaña que ocupa toda la caja
-const TentCard = ({
-  categoryId,
-  onClick,
-}: {
-  categoryId: string;
+const TentCard = ({ 
+  categoryId, 
+  onClick 
+}: { 
+  categoryId: string; 
   onClick: () => void;
 }) => {
   const [isHovered, setIsHovered] = useState(false);
@@ -194,43 +192,43 @@ const TentCard = ({
         return {
           title: "Historia Menstrual",
           description: "Explorando el pasado para entender el presente",
-          icon: "🕰️",
+          icon: "🕰️"
         };
       case "science":
         return {
           title: "Ciencia & Investigación",
           description: "Evidencia científica y estudios contrastados",
-          icon: "🔬",
+          icon: "🔬"
         };
       case "phases":
         return {
           title: "Fases del Ciclo",
           description: "Comprende cada etapa de tu ciclo",
-          icon: "🌙",
+          icon: "🌙"
         };
       case "inclusivity":
         return {
           title: "Inclusividad & Género",
           description: "Apoyo para todas las identidades",
-          icon: "👥",
+          icon: "👥"
         };
       case "maternity":
         return {
           title: "Maternidad & Fertilidad",
           description: "Acompañándote en cada etapa",
-          icon: "❤️",
+          icon: "❤️"
         };
       case "wisdom":
         return {
           title: "Sabiduría & Longevidad",
           description: "Acompañándote a lo largo de la vida",
-          icon: "📚",
+          icon: "📚"
         };
       default:
         return {
           title: "Refugio",
           description: "Tu espacio seguro",
-          icon: "🏕️",
+          icon: "🏕️"
         };
     }
   };
@@ -247,122 +245,112 @@ const TentCard = ({
       aria-label={`Acceder a ${config.title}`}
     >
       {/* SVG que ocupa toda la caja */}
-      <svg
-        className={`w-full h-full transition-all duration-300 ${
-          isClicked ? "scale-95" : "scale-100"
-        }`}
-        viewBox="0 0 300 250"
+      <svg 
+        className={`w-full h-full transition-all duration-300 ${isClicked ? 'scale-95' : 'scale-100'}`}
+        viewBox="0 0 300 250" 
         preserveAspectRatio="none"
       >
         {/* Lado izquierdo de la tienda */}
-        <path
-          d={
-            isHovered
-              ? "M 150 20 L 20 220 L 120 220 Z"
-              : "M 150 20 L 40 220 L 150 220 Z"
-          }
-          fill="none"
-          stroke={isHovered ? "#f43f5e" : "#C62328"}
-          strokeWidth="3"
-          className="transition-all duration-500 ease-in-out"
+        <path 
+          d={isHovered ? "M 150 20 L 20 220 L 120 220 Z" : "M 150 20 L 40 220 L 150 220 Z"} 
+          fill="none" 
+          stroke={isHovered ? '#f43f5e' : '#C62328'} 
+          strokeWidth="3" 
+          className="transition-all duration-500 ease-in-out" 
         />
-
+        
         {/* Lado derecho de la tienda */}
-        <path
-          d={
-            isHovered
-              ? "M 150 20 L 180 220 L 280 220 Z"
-              : "M 150 20 L 150 220 L 260 220 Z"
-          }
-          fill="none"
-          stroke={isHovered ? "#f43f5e" : "#C62328"}
-          strokeWidth="3"
-          className="transition-all duration-500 ease-in-out"
+        <path 
+          d={isHovered ? "M 150 20 L 180 220 L 280 220 Z" : "M 150 20 L 150 220 L 260 220 Z"} 
+          fill="none" 
+          stroke={isHovered ? '#f43f5e' : '#C62328'} 
+          strokeWidth="3" 
+          className="transition-all duration-500 ease-in-out" 
         />
-
+        
         {/* Interior rosado cuando se abre */}
         {isHovered && (
-          <path
-            d="M 150 20 L 120 220 L 180 220 Z"
-            fill="#fce7f3"
-            opacity="0.3"
-            className="transition-all duration-500"
+          <path 
+            d="M 150 20 L 120 220 L 180 220 Z" 
+            fill="#fce7f3" 
+            opacity="0.3" 
+            className="transition-all duration-500" 
           />
         )}
-
+        
         {/* Base de la tienda - línea horizontal */}
-        <line
-          x1={isHovered ? "20" : "40"}
-          y1="220"
-          x2={isHovered ? "280" : "260"}
-          y2="220"
-          stroke="#C62328"
-          strokeWidth="2"
+        <line 
+          x1={isHovered ? "20" : "40"} 
+          y1="220" 
+          x2={isHovered ? "280" : "260"} 
+          y2="220" 
+          stroke="#C62328" 
+          strokeWidth="2" 
           className="transition-all duration-300"
         />
-
+        
         {/* Título en la parte superior */}
-        <text
-          x="150"
-          y="50"
-          textAnchor="middle"
+        <text 
+          x="150" 
+          y="50" 
+          textAnchor="middle" 
           className="fill-[#7a2323] text-lg font-serif font-bold"
           fontSize="16"
         >
           {config.title}
         </text>
-
+        
         {/* Descripción */}
-        <text
-          x="150"
-          y="70"
-          textAnchor="middle"
+        <text 
+          x="150" 
+          y="70" 
+          textAnchor="middle" 
           className="fill-[#5b0108] text-sm"
           fontSize="12"
         >
           {config.description}
         </text>
-
+        
         {/* Icono de categoría en el centro */}
         {isHovered && (
-          <text
-            x="150"
-            y="140"
-            textAnchor="middle"
-            fontSize="32"
+          <text 
+            x="150" 
+            y="140" 
+            textAnchor="middle" 
+            fontSize="32" 
             opacity="0.8"
             className="transition-all duration-300 animate-pulse"
           >
             {config.icon}
           </text>
         )}
-
+        
         {/* Información de recursos en la parte inferior */}
-        <text
-          x="150"
-          y="190"
-          textAnchor="middle"
+        <text 
+          x="150" 
+          y="190" 
+          textAnchor="middle" 
           className="fill-[#C62328] text-xs font-semibold"
           fontSize="11"
         >
           {data?.totalCount || 0} recursos
         </text>
-
+        
         {/* Badge de nuevos si existen */}
         {data?.newCount > 0 && (
           <>
-            <rect
-              x="200"
-              y="175"
-              width="80"
-              height="20"
-              rx="10"
+            <rect 
+              x="200" 
+              y="175" 
+              width="80" 
+              height="20" 
+              rx="10" 
               fill="#C62328"
             />
-            <text
-              x="240"
-              y="187"
-              textAnchor="middle"
+            <text 
+              x="240" 
+              y="187" 
+              textAnchor="middle" 
               className="fill-white text-xs"
               fontSize="10"
             >
@@ -370,20 +358,16 @@ const TentCard = ({
             </text>
           </>
         )}
-
+        
         {/* Texto de acción */}
-        <text
-          x="150"
-          y="240"
-          textAnchor="middle"
+        <text 
+          x="150" 
+          y="240" 
+          textAnchor="middle" 
           className="fill-[#7a2323] text-xs"
           fontSize="10"
         >
-          {isClicked
-            ? "Accediendo..."
-            : isHovered
-            ? "Click para explorar"
-            : "Haz clic para entrar"}
+          {isClicked ? 'Accediendo...' : isHovered ? 'Click para explorar' : 'Haz clic para entrar'}
         </text>
       </svg>
     </button>
@@ -391,17 +375,17 @@ const TentCard = ({
 };
 
 // Componente genérico para todas las categorías
-const CategoryCard = ({
-  categoryId,
+const CategoryCard = ({ 
+  categoryId, 
   isExpanded,
-  onToggle,
-}: {
-  categoryId: string;
+  onToggle 
+}: { 
+  categoryId: string; 
   isExpanded: boolean;
   onToggle?: () => void;
 }) => {
   const data = libraryData[categoryId];
-
+  
   const getCategoryConfig = (id: string) => {
     switch (id) {
       case "history":
@@ -409,49 +393,49 @@ const CategoryCard = ({
           title: "Historia Menstrual",
           description: "Explorando el pasado para entender el presente",
           unitLabel: "artículos",
-          details: "Campañas rojas, rituales ancestrales y más",
+          details: "Campañas rojas, rituales ancestrales y más"
         };
       case "science":
         return {
           title: "Ciencia & Investigación",
           description: "Evidencia científica y estudios contrastados",
           unitLabel: "estudios",
-          details: "Papers científicos y investigaciones",
+          details: "Papers científicos y investigaciones"
         };
       case "phases":
         return {
           title: "Fases del Ciclo",
           description: "Comprende cada etapa de tu ciclo",
           unitLabel: "guías",
-          details: "Folicular, ovulación, lútea y menstrual",
+          details: "Folicular, ovulación, lútea y menstrual"
         };
       case "inclusivity":
         return {
           title: "Inclusividad & Género",
           description: "Apoyo para todas las identidades",
           unitLabel: "recursos",
-          details: "Transición, hormonización y apoyo",
+          details: "Transición, hormonización y apoyo"
         };
       case "maternity":
         return {
           title: "Maternidad & Fertilidad",
           description: "Acompañándote en cada etapa",
           unitLabel: "artículos",
-          details: "Fertilidad, embarazo y postparto",
+          details: "Fertilidad, embarazo y postparto"
         };
       case "wisdom":
         return {
           title: "Sabiduría & Longevidad",
           description: "Acompañándote a lo largo de la vida",
           unitLabel: "artículos",
-          details: "Menopausia, longevidad y bienestar",
+          details: "Menopausia, longevidad y bienestar"
         };
       default:
         return {
           title: "Categoría",
           description: "Descripción",
           unitLabel: "artículos",
-          details: "Contenido variado",
+          details: "Contenido variado"
         };
     }
   };
@@ -482,7 +466,7 @@ const CategoryCard = ({
               ✕
             </button>
           </div>
-
+          
           <div className="flex-1 overflow-auto space-y-4">
             <AnimatePresence>
               {data.articles.map((article, index) => (
@@ -496,7 +480,7 @@ const CategoryCard = ({
                 </motion.div>
               ))}
             </AnimatePresence>
-
+            
             <motion.button
               className="w-full py-3 bg-[#C62328] text-white rounded-xl font-medium hover:bg-[#9d0d0b] transition-colors"
               whileHover={{ scale: 1.02 }}
@@ -512,87 +496,81 @@ const CategoryCard = ({
 };
 
 const LibraryPage: React.FC = () => {
-  console.log("LibraryPage: Renderizando RED TENT - Salud Femenina");
+  console.log('LibraryPage: Renderizando RED TENT - Salud Femenina');
 
   // Configurar items del grid de la biblioteca
-  const libraryItems = useMemo(
-    () => [
-      {
-        id: "history",
-        title: "Historia Menstrual",
-        component: <CategoryCard categoryId="history" isExpanded={false} />,
-        isExpanded: false,
-      },
-      {
-        id: "science",
-        title: "Ciencia & Investigación",
-        component: <CategoryCard categoryId="science" isExpanded={false} />,
-        isExpanded: false,
-      },
-      {
-        id: "phases",
-        title: "Fases del Ciclo",
-        component: <CategoryCard categoryId="phases" isExpanded={false} />,
-        isExpanded: false,
-      },
-      {
-        id: "inclusivity",
-        title: "Inclusividad & Género",
-        component: <CategoryCard categoryId="inclusivity" isExpanded={false} />,
-        isExpanded: false,
-      },
-      {
-        id: "maternity",
-        title: "Maternidad & Fertilidad",
-        component: <CategoryCard categoryId="maternity" isExpanded={false} />,
-        isExpanded: false,
-      },
-      {
-        id: "wisdom",
-        title: "Sabiduría & Longevidad",
-        component: <CategoryCard categoryId="wisdom" isExpanded={false} />,
-        isExpanded: false,
-      },
-    ],
-    []
-  );
+  const libraryItems = useMemo(() => [
+    {
+      id: "history",
+      title: "Historia Menstrual",
+      component: <CategoryCard categoryId="history" isExpanded={false} />,
+      isExpanded: false,
+    },
+    {
+      id: "science", 
+      title: "Ciencia & Investigación",
+      component: <CategoryCard categoryId="science" isExpanded={false} />,
+      isExpanded: false,
+    },
+    {
+      id: "phases",
+      title: "Fases del Ciclo", 
+      component: <CategoryCard categoryId="phases" isExpanded={false} />,
+      isExpanded: false,
+    },
+    {
+      id: "inclusivity",
+      title: "Inclusividad & Género",
+      component: <CategoryCard categoryId="inclusivity" isExpanded={false} />,
+      isExpanded: false,
+    },
+    {
+      id: "maternity",
+      title: "Maternidad & Fertilidad",
+      component: <CategoryCard categoryId="maternity" isExpanded={false} />,
+      isExpanded: false,
+    },
+    {
+      id: "wisdom",
+      title: "Sabiduría & Longevidad", 
+      component: <CategoryCard categoryId="wisdom" isExpanded={false} />,
+      isExpanded: false,
+    },
+  ], []);
 
   // Manejar expansión de categorías
   const handleItemsChange = (newItems: any[]) => {
     // Actualizar componentes con estado de expansión
-    const updatedItems = newItems.map((item) => {
+    const updatedItems = newItems.map(item => {
       const isExpanded = item.isExpanded || false;
       const component = (
-        <CategoryCard
-          categoryId={item.id}
-          isExpanded={isExpanded}
+        <CategoryCard 
+          categoryId={item.id} 
+          isExpanded={isExpanded} 
           onToggle={() => {
             console.log(`Toggle ${item.id}`);
           }}
         />
       );
-
+      
       return {
         ...item,
         component,
       };
     });
-
-    console.log(
-      "LibraryPage: Categorías actualizadas:",
-      updatedItems.map((i) => ({ id: i.id, expanded: i.isExpanded }))
-    );
+    
+    console.log("LibraryPage: Categorías actualizadas:", updatedItems.map(i => ({ id: i.id, expanded: i.isExpanded })));
   };
 
   return (
-    <motion.div
+    <motion.div 
       className="w-full h-full bg-[#e7e0d5] overflow-hidden"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.5 }}
     >
       {/* Header sutil de la biblioteca */}
-      <motion.div
+      <motion.div 
         className="absolute top-0 left-0 right-0 z-10 p-6"
         initial={{ y: -20, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
@@ -630,7 +608,10 @@ const LibraryPage: React.FC = () => {
         animate={{ y: 0, opacity: 1 }}
         transition={{ delay: 0.4, duration: 0.6 }}
       >
-        <DraggableGrid items={libraryItems} onItemsChange={handleItemsChange} />
+        <DraggableGrid
+          items={libraryItems}
+          onItemsChange={handleItemsChange}
+        />
       </motion.div>
 
       {/* Partículas flotantes de fondo para efecto mágico */}
