@@ -427,7 +427,7 @@ const CategoryCard = ({
 };
 
 const LibraryPage: React.FC = () => {
-  console.log('LibraryPage: Renderizando Biblioteca de Alejandría - Salud Femenina');
+  console.log('LibraryPage: Renderizando RED TENT - Salud Femenina');
 
   // Configurar items del grid de la biblioteca
   const libraryItems = useMemo(() => [
@@ -515,7 +515,7 @@ const LibraryPage: React.FC = () => {
             <WisdomIcon className="w-6 h-6" />
             <div className="text-center">
               <h1 className="text-lg font-serif font-bold text-[#7a2323] leading-none">
-                Biblioteca de Alejandría
+                RED TENT
               </h1>
               <p className="text-xs text-[#5b0108] leading-none mt-1">
                 Conocimiento y sabiduría femenina
