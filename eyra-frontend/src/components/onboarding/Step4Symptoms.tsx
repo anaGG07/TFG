@@ -45,9 +45,9 @@ const Step4Symptoms: React.FC<StepProps> = ({
           </span>
         </p>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 w-full">
+        <div className="flex justify-center w-full">
           <div
-            className="p-6 rounded-2xl"
+            className="p-6 rounded-2xl w-full max-w-lg"
             style={{
               background: "#e7e0d5",
               boxShadow: `
@@ -84,38 +84,6 @@ const Step4Symptoms: React.FC<StepProps> = ({
                 </label>
               ))}
             </div>
-          </div>
-
-          <div
-            className="p-6 rounded-2xl"
-            style={{
-              background: "#e7e0d5",
-              boxShadow: `
-                inset 4px 4px 8px rgba(91, 1, 8, 0.1),
-                inset -4px -4px 8px rgba(255, 255, 255, 0.8)
-              `,
-            }}
-          >
-            <h3 className="text-lg text-[#300808] font-medium mb-4">
-              Otros síntomas o condiciones
-            </h3>
-
-            <textarea
-              {...register("otherSymptoms")}
-              placeholder="Cuéntanos si hay algo más que quieras que sepamos..."
-              className="w-full p-4 rounded-lg border-0 bg-transparent focus:ring-2 focus:ring-[#C62328]/20 outline-none transition-all text-base resize-none"
-              style={{
-                background: "transparent",
-                boxShadow:
-                  "inset 4px 4px 8px rgba(91, 1, 8, 0.1), inset -4px -4px 8px rgba(255, 255, 255, 0.8)",
-              }}
-              rows={6}
-            />
-
-            <p className="text-sm text-gray-500 mt-3">
-              Opcional: Describe cualquier síntoma particular o patrón que hayas
-              notado.
-            </p>
           </div>
         </div>
 
