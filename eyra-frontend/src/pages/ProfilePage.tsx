@@ -2,8 +2,7 @@ import React from 'react';
 import { useAuth } from '../context/AuthContext';
 import { NeomorphicCard, NeomorphicButton } from '../components/ui/NeomorphicComponents';
 import { motion } from 'framer-motion';
-import { ProfileType } from '../types/domain';
-import { ReactComponent as EditIcon } from '../assets/icons/edit.svg';
+import EditIcon from '../assets/icons/edit.svg';
 
 const objetivoInfo: Record<string, { icon: string; title: string; desc: string; color: string }> = {
   profile_women: {
@@ -64,7 +63,7 @@ const ProfilePage = () => {
             className="mt-4 flex items-center gap-2 px-6 py-2 text-lg"
             // onClick={abrirModalEdicion}
           >
-            <EditIcon className="w-5 h-5" /> Editar perfil
+            <EditIcon /> Editar perfil
           </NeomorphicButton>
         </NeomorphicCard>
 
@@ -105,7 +104,7 @@ const ProfilePage = () => {
                 className="ml-8 px-4 py-2 text-base"
                 // onClick={abrirModalCiclo}
               >
-                <EditIcon className="w-4 h-4 mr-2" /> Editar ciclo
+                <EditIcon /> Editar ciclo
               </NeomorphicButton>
             </NeomorphicCard>
           </motion.div>
