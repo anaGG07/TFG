@@ -1,0 +1,19 @@
+export enum ProfileType {
+  USER = 'USER',
+  GUEST = 'GUEST',
+  ADMIN = 'ADMIN'
+}
+
+export enum HormoneType {
+  ESTROGEN = 'ESTROGEN',
+  PROGESTERONE = 'PROGESTERONE',
+  TESTOSTERONE = 'TESTOSTERONE',
+  OTHER = 'OTHER'
+}
+
+export enum CyclePhase {
+  MENSTRUAL = 'MENSTRUAL',
+  FOLLICULAR = 'FOLLICULAR',
+  OVULATION = 'OVULATION',
+  LUTEAL = 'LUTEAL'
+} 

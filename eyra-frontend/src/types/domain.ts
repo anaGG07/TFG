@@ -41,6 +41,11 @@ export interface User {
     averageCycleLength: number | null;
     averagePeriodLength: number | null;
     completed: boolean;
+    receiveAlerts: boolean;
+    receiveRecommendations: boolean;
+    receiveCyclePhaseTips: boolean;
+    receiveWorkoutSuggestions: boolean;
+    receiveNutritionAdvice: boolean;
   };
 }
 
