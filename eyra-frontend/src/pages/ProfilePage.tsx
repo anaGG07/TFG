@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { NeomorphicCard, NeomorphicButton } from '../components/ui/NeomorphicComponents';
 import { motion } from 'framer-motion';
@@ -47,7 +47,7 @@ const ProfilePage = () => {
   const handleSave = async (data: any) => {
     if (!user) return;
     // Actualizar perfil y onboarding
-    await userService.updateProfile(user.id, {
+    await userService.updateProfile({
       name: data.name,
       lastName: data.lastName,
       email: data.email,
@@ -68,7 +68,7 @@ const ProfilePage = () => {
     }
     // Actualizar usuario en contexto
     updateUserData({ ...user, ...data });
-    toast.custom((t) => (
+    toast.custom(() => (
       <div className="rounded-2xl px-6 py-4 shadow-xl bg-[#fff] border border-[#C62328]/20 flex items-center gap-3 animate-fade-in">
         <span className="text-2xl">✅</span>
         <span className="text-[#7a2323] font-semibold">¡Perfil actualizado con éxito!</span>

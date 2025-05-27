@@ -1,60 +1,26 @@
 import { User } from '../types/domain';
-
-const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000';
+import { API_ROUTES } from '../config/apiRoutes';
+import { apiFetch } from '../utils/httpClient';
 
 export const userService = {
-  async updateProfile(userId: number, data: Partial<User>): Promise<User> {
-    const response = await fetch(`${API_URL}/profile`, {
+  async updateProfile(data: Partial<User>): Promise<User> {
+    return apiFetch(API_ROUTES.USER.UPDATE_PROFILE, {
       method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      credentials: 'include',
-      body: JSON.stringify(data),
+      body: data,
     });
-
-    if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.message || 'Error al actualizar el perfil');
-    }
-
-    return response.json();
   },
 
   async changePassword(currentPassword: string, newPassword: string): Promise<void> {
-    const response = await fetch(`${API_URL}/password-change`, {
+    return apiFetch(API_ROUTES.AUTH.PASSWORD_CHANGE, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      credentials: 'include',
-      body: JSON.stringify({
-        currentPassword,
-        newPassword,
-      }),
+      body: { currentPassword, newPassword },
     });
-
-    if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.message || 'Error al cambiar la contraseña');
-    }
   },
 
   async updateOnboarding(data: Partial<User['onboarding']>): Promise<User> {
-    const response = await fetch(`${API_URL}/onboarding`, {
+    return apiFetch(API_ROUTES.AUTH.ONBOARDING, {
       method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      credentials: 'include',
-      body: JSON.stringify(data),
+      body: data,
     });
-
-    if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.message || 'Error al actualizar las preferencias');
-    }
-
-    return response.json();
   },
 }; 
