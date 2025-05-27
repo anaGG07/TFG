@@ -63,7 +63,8 @@ const ProfilePage = () => {
             className="mt-4 flex items-center gap-2 px-6 py-2 text-lg"
             // onClick={abrirModalEdicion}
           >
-            <EditIcon /> Editar perfil
+            <img src={EditIcon} alt="Editar" style={{ width: 22, height: 22, marginRight: 8, verticalAlign: 'middle' }} />
+            Editar perfil
           </NeomorphicButton>
         </NeomorphicCard>
 
@@ -104,7 +105,8 @@ const ProfilePage = () => {
                 className="ml-8 px-4 py-2 text-base"
                 // onClick={abrirModalCiclo}
               >
-                <EditIcon /> Editar ciclo
+                <img src={EditIcon} alt="Editar ciclo" style={{ width: 18, height: 18, marginRight: 8, verticalAlign: 'middle' }} />
+                Editar ciclo
               </NeomorphicButton>
             </NeomorphicCard>
           </motion.div>
