@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { NeomorphicInput, NeomorphicButton } from "./ui/NeomorphicComponents";
 import EditIcon from '../assets/icons/edit.svg';
 import AvatarCreator from './AvatarCreator';
+import { userService } from '../services/userService';
 
 interface ProfileEditModalProps {
   isOpen: boolean;
@@ -22,6 +23,9 @@ const ProfileEditModal: React.FC<ProfileEditModalProps> = ({ isOpen, onClose, us
     receiveRecommendations: user?.receiveRecommendations ?? true,
     receiveWorkoutSuggestions: user?.receiveWorkoutSuggestions ?? true,
     receiveNutritionAdvice: user?.receiveNutritionAdvice ?? true,
+    currentPassword: '',
+    newPassword: '',
+    confirmPassword: '',
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -37,7 +41,32 @@ const ProfileEditModal: React.FC<ProfileEditModalProps> = ({ isOpen, onClose, us
     setLoading(true);
     setError(null);
     try {
-      await onSave(form);
+      // Validación de cambio de contraseña
+      if (
+        form.currentPassword || form.newPassword || form.confirmPassword
+      ) {
+        if (!form.currentPassword || !form.newPassword || !form.confirmPassword) {
+          setError('Por favor, completa todos los campos de contraseña.');
+          setLoading(false);
+          return;
+        }
+        if (form.newPassword !== form.confirmPassword) {
+          setError('La nueva contraseña y la confirmación no coinciden.');
+          setLoading(false);
+          return;
+        }
+        // Llamar al endpoint correcto para cambio de contraseña
+        if (typeof userService.changePassword === 'function') {
+          await userService.changePassword(form.currentPassword, form.newPassword);
+        } else {
+          setError('No se pudo cambiar la contraseña.');
+          setLoading(false);
+          return;
+        }
+      }
+      // Guardar el resto del perfil
+      const { currentPassword, newPassword, confirmPassword, ...profileData } = form;
+      await onSave(profileData);
       onClose();
     } catch (err: any) {
       setError(err.message || 'Error al guardar los cambios');
@@ -106,35 +135,92 @@ const ProfileEditModal: React.FC<ProfileEditModalProps> = ({ isOpen, onClose, us
 
             {/* Datos personales */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <NeomorphicInput
-                name="name"
-                value={form.name}
-                onChange={handleChange}
-                placeholder="Nombre"
-                required
-              />
-              <NeomorphicInput
-                name="lastName"
-                value={form.lastName}
-                onChange={handleChange}
-                placeholder="Apellido"
-                required
-              />
-              <NeomorphicInput
-                name="username"
-                value={form.username}
-                onChange={handleChange}
-                placeholder="Nombre de usuario"
-                required
-              />
-              <NeomorphicInput
-                name="birthDate"
-                value={form.birthDate}
-                onChange={handleChange}
-                placeholder="Fecha de nacimiento"
-                type="date"
-                required
-              />
+              <div>
+                <label htmlFor="name" className="block text-[#7a2323] font-medium mb-1">Nombre</label>
+                <NeomorphicInput
+                  id="name"
+                  name="name"
+                  value={form.name}
+                  onChange={handleChange}
+                  placeholder="Nombre"
+                  required
+                />
+              </div>
+              <div>
+                <label htmlFor="lastName" className="block text-[#7a2323] font-medium mb-1">Apellido</label>
+                <NeomorphicInput
+                  id="lastName"
+                  name="lastName"
+                  value={form.lastName}
+                  onChange={handleChange}
+                  placeholder="Apellido"
+                  required
+                />
+              </div>
+              <div>
+                <label htmlFor="username" className="block text-[#7a2323] font-medium mb-1">Nombre de usuario</label>
+                <NeomorphicInput
+                  id="username"
+                  name="username"
+                  value={form.username}
+                  onChange={handleChange}
+                  placeholder="Nombre de usuario"
+                  required
+                />
+              </div>
+              <div>
+                <label htmlFor="birthDate" className="block text-[#7a2323] font-medium mb-1">Fecha de nacimiento</label>
+                <NeomorphicInput
+                  id="birthDate"
+                  name="birthDate"
+                  value={form.birthDate}
+                  onChange={handleChange}
+                  placeholder="Fecha de nacimiento"
+                  type="date"
+                  required
+                />
+              </div>
+            </div>
+
+            {/* Cambio de contraseña */}
+            <div className="space-y-2">
+              <h4 className="text-lg font-serif font-bold text-[#7a2323]">Cambiar contraseña</h4>
+              <div>
+                <label htmlFor="currentPassword" className="block text-[#7a2323] font-medium mb-1">Contraseña actual</label>
+                <NeomorphicInput
+                  id="currentPassword"
+                  name="currentPassword"
+                  type="password"
+                  value={form.currentPassword || ''}
+                  onChange={handleChange}
+                  placeholder="Contraseña actual"
+                  autoComplete="current-password"
+                />
+              </div>
+              <div>
+                <label htmlFor="newPassword" className="block text-[#7a2323] font-medium mb-1">Nueva contraseña</label>
+                <NeomorphicInput
+                  id="newPassword"
+                  name="newPassword"
+                  type="password"
+                  value={form.newPassword || ''}
+                  onChange={handleChange}
+                  placeholder="Nueva contraseña"
+                  autoComplete="new-password"
+                />
+              </div>
+              <div>
+                <label htmlFor="confirmPassword" className="block text-[#7a2323] font-medium mb-1">Confirmar nueva contraseña</label>
+                <NeomorphicInput
+                  id="confirmPassword"
+                  name="confirmPassword"
+                  type="password"
+                  value={form.confirmPassword || ''}
+                  onChange={handleChange}
+                  placeholder="Confirmar nueva contraseña"
+                  autoComplete="new-password"
+                />
+              </div>
             </div>
 
             {/* Recordatorios */}
