@@ -30,6 +30,7 @@ const ProfileEditModal: React.FC<ProfileEditModalProps> = ({ isOpen, onClose, us
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isAvatarCreatorOpen, setIsAvatarCreatorOpen] = useState(false);
+  const [showPasswordForm, setShowPasswordForm] = useState(false);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type, checked } = e.target;
@@ -182,46 +183,59 @@ const ProfileEditModal: React.FC<ProfileEditModalProps> = ({ isOpen, onClose, us
               </div>
             </div>
 
-            {/* Cambio de contraseña */}
-            <div className="space-y-2">
-              <h4 className="text-lg font-serif font-bold text-[#7a2323]">Cambiar contraseña</h4>
-              <div>
-                <label htmlFor="currentPassword" className="block text-[#7a2323] font-medium mb-1">Contraseña actual</label>
-                <NeomorphicInput
-                  id="currentPassword"
-                  name="currentPassword"
-                  type="password"
-                  value={form.currentPassword || ''}
-                  onChange={handleChange}
-                  placeholder="Contraseña actual"
-                  autoComplete="current-password"
-                />
-              </div>
-              <div>
-                <label htmlFor="newPassword" className="block text-[#7a2323] font-medium mb-1">Nueva contraseña</label>
-                <NeomorphicInput
-                  id="newPassword"
-                  name="newPassword"
-                  type="password"
-                  value={form.newPassword || ''}
-                  onChange={handleChange}
-                  placeholder="Nueva contraseña"
-                  autoComplete="new-password"
-                />
-              </div>
-              <div>
-                <label htmlFor="confirmPassword" className="block text-[#7a2323] font-medium mb-1">Confirmar nueva contraseña</label>
-                <NeomorphicInput
-                  id="confirmPassword"
-                  name="confirmPassword"
-                  type="password"
-                  value={form.confirmPassword || ''}
-                  onChange={handleChange}
-                  placeholder="Confirmar nueva contraseña"
-                  autoComplete="new-password"
-                />
-              </div>
+            {/* Botón para mostrar/ocultar cambio de contraseña */}
+            <div className="my-2">
+              <button
+                type="button"
+                className="text-[#C62328] font-semibold underline hover:text-[#7a2323] transition-colors"
+                onClick={() => setShowPasswordForm((v) => !v)}
+              >
+                {showPasswordForm ? 'Ocultar cambio de contraseña' : 'Cambiar contraseña'}
+              </button>
             </div>
+
+            {/* Cambio de contraseña (solo visible si showPasswordForm) */}
+            {showPasswordForm && (
+              <div className="space-y-2">
+                <h4 className="text-lg font-serif font-bold text-[#7a2323]">Cambiar contraseña</h4>
+                <div>
+                  <label htmlFor="currentPassword" className="block text-[#7a2323] font-medium mb-1">Contraseña actual</label>
+                  <NeomorphicInput
+                    id="currentPassword"
+                    name="currentPassword"
+                    type="password"
+                    value={form.currentPassword || ''}
+                    onChange={handleChange}
+                    placeholder="Contraseña actual"
+                    autoComplete="current-password"
+                  />
+                </div>
+                <div>
+                  <label htmlFor="newPassword" className="block text-[#7a2323] font-medium mb-1">Nueva contraseña</label>
+                  <NeomorphicInput
+                    id="newPassword"
+                    name="newPassword"
+                    type="password"
+                    value={form.newPassword || ''}
+                    onChange={handleChange}
+                    placeholder="Nueva contraseña"
+                    autoComplete="new-password"
+                  />
+                </div>
+                <div>
+                  <label htmlFor="confirmPassword" className="block text-[#7a2323] font-medium mb-1">Confirmar nueva contraseña</label>
+                  <NeomorphicInput
+                    id="confirmPassword"
+                    name="confirmPassword"
+                    type="password"
+                    value={form.confirmPassword || ''}
+                    onChange={handleChange}
+                    placeholder="Confirmar nueva contraseña"
+                    autoComplete="new-password"
+                  />
+                </div>
+              </div>
+            )}
 
             {/* Recordatorios */}
             <div className="space-y-4">
