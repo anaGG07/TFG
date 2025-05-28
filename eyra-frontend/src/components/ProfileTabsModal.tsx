@@ -115,40 +115,43 @@ const ProfileTabsModal: React.FC<ProfileTabsModalProps> = ({ isOpen, onClose, us
             </svg>
           </button>
 
-          {/* Avatar */}
-          <div className="flex flex-col items-center gap-4 mb-4">
+          {/* Avatar con icono de edición */}
+          <div className="relative flex flex-col items-center gap-2 mb-2">
             <div className="w-28 h-28 rounded-full overflow-hidden bg-[#C62328] flex items-center justify-center">
               <AvatarPreview config={form.avatar} />
+              <button
+                type="button"
+                onClick={() => setIsAvatarBuilderOpen(true)}
+                className="absolute top-2 right-2 bg-white/80 rounded-full p-1 shadow hover:bg-[#C62328]/90 hover:text-white transition-colors"
+                style={{ zIndex: 2 }}
+                aria-label="Editar avatar"
+              >
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M12 20h9" />
+                  <path d="M16.5 3.5a2.121 2.121 0 1 1 3 3L7 19l-4 1 1-4 12.5-12.5z" />
+                </svg>
+              </button>
             </div>
-            <NeomorphicButton
-              type="button"
-              variant="secondary"
-              onClick={() => setIsAvatarBuilderOpen(true)}
-            >
-              Cambiar avatar
-            </NeomorphicButton>
           </div>
 
-          {/* Pestañas */}
-          <div className="flex justify-center gap-4 mb-6 w-full">
-            {tabList.map((tab) => (
+          {/* Pestañas solo iconos */}
+          <div className="flex justify-center gap-8 mb-4 w-full">
+            {tabList.map((tab, idx) => (
               <button
                 key={tab.key}
-                className={`flex flex-col items-center min-h-[64px] px-6 py-2 rounded-2xl transition-all duration-200 border-2 ${activeTab === tab.key ? 'bg-[#E7E0D5] shadow-neomorphic border-[#C62328]' : 'bg-[#fff] border-transparent'} w-40`}
-                style={{ boxSizing: 'border-box', boxShadow: activeTab === tab.key ? '0 0 0 2px #C62328, 0 4px 16px #c6232822' : undefined }}
+                className={`flex items-center justify-center w-14 h-14 rounded-full transition-all duration-200 ${activeTab === tab.key ? 'bg-[#F5E9E6] shadow-neomorphic border-2 border-[#C62328]' : 'bg-transparent border-2 border-transparent'} text-[#C62328] hover:bg-[#F5E9E6]/80`}
+                style={{ boxSizing: 'border-box' }}
                 onClick={() => setActiveTab(tab.key as any)}
                 type="button"
+                aria-label={tab.label}
               >
-                <div className="flex items-center justify-center w-12 h-12">
-                  <tab.icon selected={activeTab === tab.key} />
-                </div>
-                <span className={`text-sm font-semibold ${activeTab === tab.key ? 'text-[#C62328]' : 'text-[#7a2323]'}`}>{tab.label}</span>
+                <tab.icon selected={activeTab === tab.key} />
               </button>
             ))}
           </div>
 
           {/* Contenido de pestañas */}
-          <div className="w-full flex-1 overflow-y-auto" style={{ maxHeight: '40vh' }}>
+          <div className="w-full flex-1">
             <AnimatePresence mode="wait">
               {activeTab === 'privacy' && (
                 <motion.form
