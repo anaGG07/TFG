@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { NeomorphicButton, NeomorphicInput } from "./ui/NeomorphicComponents";
 import AvatarBuilderModal from "./avatarBuilder/AvatarBuilderModal";
 import AvatarPreview from "./avatarBuilder/AvatarPreview";
-import ChangePasswordModal from "./ChangePasswordModal";
+import { userService } from '../services/userService';
 
 // Iconos SVG originales
 const PrivacyIcon = ({ selected }: { selected: boolean }) => (
@@ -14,17 +14,17 @@ const PrivacyIcon = ({ selected }: { selected: boolean }) => (
   </svg>
 );
 const SecurityIcon = ({ selected }: { selected: boolean }) => (
-  <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
-    <rect x="6" y="14" width="20" height="12" rx="4" fill={selected ? '#C62328' : '#E7E0D5'} stroke="#C62328" strokeWidth="2" />
-    <rect x="13" y="20" width="6" height="6" rx="3" fill={selected ? '#fff' : '#C62328'} />
-    <rect x="10" y="10" width="12" height="6" rx="3" fill={selected ? '#fff' : '#C62328'} stroke="#C62328" strokeWidth="2" />
+  <svg width="28" height="28" viewBox="0 0 28 28" fill="none" style={{ display: 'block', margin: '0 auto' }}>
+    <rect x="4" y="10" width="20" height="12" rx="4" fill={selected ? '#C62328' : '#E7E0D5'} stroke="#C62328" strokeWidth="2" />
+    <rect x="11" y="16" width="6" height="6" rx="3" fill={selected ? '#fff' : '#C62328'} />
+    <rect x="8" y="6" width="12" height="6" rx="3" fill={selected ? '#fff' : '#C62328'} stroke="#C62328" strokeWidth="2" />
   </svg>
 );
 const NotificationsIcon = ({ selected }: { selected: boolean }) => (
-  <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
-    <ellipse cx="16" cy="20" rx="10" ry="7" fill={selected ? '#C62328' : '#E7E0D5'} stroke="#C62328" strokeWidth="2" />
-    <circle cx="16" cy="13" r="4" fill={selected ? '#fff' : '#C62328'} />
-    <rect x="14" y="25" width="4" height="3" rx="2" fill={selected ? '#fff' : '#C62328'} />
+  <svg width="28" height="28" viewBox="0 0 28 28" fill="none" style={{ display: 'block', margin: '0 auto' }}>
+    <ellipse cx="14" cy="18" rx="10" ry="7" fill={selected ? '#C62328' : '#E7E0D5'} stroke="#C62328" strokeWidth="2" />
+    <circle cx="14" cy="11" r="4" fill={selected ? '#fff' : '#C62328'} />
+    <rect x="12" y="23" width="4" height="3" rx="2" fill={selected ? '#fff' : '#C62328'} />
   </svg>
 );
 
@@ -53,11 +53,13 @@ const ProfileTabsModal: React.FC<ProfileTabsModalProps> = ({ isOpen, onClose, us
     receiveRecommendations: user?.receiveRecommendations ?? true,
     receiveWorkoutSuggestions: user?.receiveWorkoutSuggestions ?? true,
     receiveNutritionAdvice: user?.receiveNutritionAdvice ?? true,
+    currentPassword: '',
+    newPassword: '',
+    confirmPassword: '',
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isAvatarBuilderOpen, setIsAvatarBuilderOpen] = useState(false);
-  const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type, checked } = e.target;
@@ -130,13 +132,15 @@ const ProfileTabsModal: React.FC<ProfileTabsModalProps> = ({ isOpen, onClose, us
             {tabList.map((tab) => (
               <button
                 key={tab.key}
-                className={`flex flex-col items-center px-4 py-2 rounded-2xl transition-all duration-200 ${activeTab === tab.key ? 'bg-[#E7E0D5] shadow-inner' : 'bg-[#fff]'} border border-[#C62328]/10`}
-                style={{ boxShadow: activeTab === tab.key ? '2px 2px 8px #c6232822, -2px -2px 8px #fff' : undefined }}
+                className={`flex flex-col items-center min-h-[64px] px-6 py-2 rounded-2xl transition-all duration-200 ${activeTab === tab.key ? 'bg-[#E7E0D5] shadow-neomorphic' : 'bg-[#fff]'} border border-[#C62328]/10`}
+                style={{ boxShadow: activeTab === tab.key ? '0 0 0 2px #C62328, 0 4px 16px #c6232822' : undefined }}
                 onClick={() => setActiveTab(tab.key as any)}
                 type="button"
               >
-                <tab.icon selected={activeTab === tab.key} />
-                <span className={`mt-1 text-sm font-semibold ${activeTab === tab.key ? 'text-[#C62328]' : 'text-[#7a2323]'}`}>{tab.label}</span>
+                <div className="flex items-center justify-center w-10 h-10 mb-1">
+                  <tab.icon selected={activeTab === tab.key} />
+                </div>
+                <span className={`text-sm font-semibold ${activeTab === tab.key ? 'text-[#C62328]' : 'text-[#7a2323]'}`}>{tab.label}</span>
               </button>
             ))}
           </div>
@@ -209,22 +213,78 @@ const ProfileTabsModal: React.FC<ProfileTabsModalProps> = ({ isOpen, onClose, us
                 </motion.form>
               )}
               {activeTab === 'security' && (
-                <motion.div
+                <motion.form
                   key="security"
                   initial={{ opacity: 0, x: 40 }}
                   animate={{ opacity: 1, x: 0 }}
                   exit={{ opacity: 0, x: -40 }}
                   transition={{ duration: 0.3 }}
-                  className="flex flex-col items-center justify-center gap-6 py-6"
+                  className="flex flex-col gap-4 py-2"
+                  onSubmit={async (e) => {
+                    e.preventDefault();
+                    setError(null);
+                    if (!form.currentPassword || !form.newPassword || !form.confirmPassword) {
+                      setError('Por favor, completa todos los campos.');
+                      return;
+                    }
+                    if (form.newPassword !== form.confirmPassword) {
+                      setError('La nueva contraseña y la confirmación no coinciden.');
+                      return;
+                    }
+                    setLoading(true);
+                    try {
+                      if (typeof userService.changePassword === 'function') {
+                        await userService.changePassword(form.currentPassword, form.newPassword);
+                      }
+                      setError(null);
+                      setForm((prev) => ({ ...prev, currentPassword: '', newPassword: '', confirmPassword: '' }));
+                      // Puedes mostrar un toast aquí si quieres
+                    } catch (err: any) {
+                      setError(err.message || 'Error al cambiar la contraseña');
+                    } finally {
+                      setLoading(false);
+                    }
+                  }}
                 >
-                  <NeomorphicButton
-                    type="button"
-                    variant="primary"
-                    onClick={() => setIsPasswordModalOpen(true)}
-                  >
-                    Cambiar contraseña
-                  </NeomorphicButton>
-                </motion.div>
+                  <NeomorphicInput
+                    id="currentPassword"
+                    name="currentPassword"
+                    type="password"
+                    value={form.currentPassword || ''}
+                    onChange={handleChange}
+                    placeholder="Contraseña actual"
+                    autoComplete="current-password"
+                  />
+                  <NeomorphicInput
+                    id="newPassword"
+                    name="newPassword"
+                    type="password"
+                    value={form.newPassword || ''}
+                    onChange={handleChange}
+                    placeholder="Nueva contraseña"
+                    autoComplete="new-password"
+                  />
+                  <NeomorphicInput
+                    id="confirmPassword"
+                    name="confirmPassword"
+                    type="password"
+                    value={form.confirmPassword || ''}
+                    onChange={handleChange}
+                    placeholder="Confirmar nueva contraseña"
+                    autoComplete="new-password"
+                  />
+                  {error && <div className="text-red-600 text-center font-medium">{error}</div>}
+                  <div className="flex gap-4 mt-2">
+                    <NeomorphicButton
+                      type="submit"
+                      variant="primary"
+                      className="flex-1"
+                      disabled={loading}
+                    >
+                      {loading ? 'Guardando...' : 'Guardar contraseña'}
+                    </NeomorphicButton>
+                  </div>
+                </motion.form>
               )}
               {activeTab === 'notifications' && (
                 <motion.form
@@ -296,13 +356,6 @@ const ProfileTabsModal: React.FC<ProfileTabsModalProps> = ({ isOpen, onClose, us
               setForm((prev) => ({ ...prev, avatar: config }));
               setIsAvatarBuilderOpen(false);
             }}
-          />
-          <ChangePasswordModal
-            isOpen={isPasswordModalOpen}
-            onClose={() => setIsPasswordModalOpen(false)}
-            loading={false}
-            error={null}
-            onChangePassword={async (_current, _next, _confirm) => {}}
           />
         </motion.div>
       </motion.div>
