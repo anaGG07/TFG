@@ -20,6 +20,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 use App\Entity\GuestAccess;
 use App\Entity\AIQuery;
 use App\Entity\Onboarding;
+use Symfony\Component\Validator\Constraints\Json;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ORM\Table(name: '`user`')]
@@ -165,6 +166,30 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\OneToOne(mappedBy: 'user', targetEntity: Onboarding::class, cascade: ['persist', 'remove'])]
     #[Groups(['user:read'])]
     private ?Onboarding $onboarding = null;
+
+    /**
+     * Avatar del usuario con características de personalización.
+     * 
+     * El avatar debe tener una estructura específica con los siguientes campos:
+     * - skinColor: Color de piel
+     * - eyes: Tipo de ojos
+     * - eyebrows: Tipo de cejas
+     * - mouth: Tipo de boca
+     * - hairStyle: Estilo de pelo
+     * - hairColor: Color de pelo
+     * - facialHair: Vello facial
+     * - clothes: Tipo de ropa
+     * - fabricColor: Color de la ropa
+     * - glasses: Tipo de gafas
+     * - glassOpacity: Opacidad de las gafas
+     * - accessories: Accesorios
+     * - tattoos: Tatuajes
+     * - backgroundColor: Color de fondo
+     */
+    // ! 28/05/2025 - Añadido campo avatar como JSONB para personalización del avatar
+    #[ORM\Column(type: "json", nullable: true)]
+    #[Groups(['user:read', 'user:write'])]
+    private ?array $avatar = null;
 
     // Y añadir estos métodos getter/setter:
 
@@ -635,6 +660,72 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setOnboardingCompleted(bool $onboardingCompleted): static
     {
         $this->onboardingCompleted = $onboardingCompleted;
+
+        return $this;
+    }
+
+    /**
+     * Obtiene el avatar del usuario
+     */
+    public function getAvatar(): ?array
+    {
+        return $this->avatar;
+    }
+
+    /**
+     * Establece el avatar del usuario
+     * 
+     * @param array|null $avatar El array debe contener una estructura específica
+     */
+    // ! 28/05/2025 - Método añadido para el nuevo campo avatar
+    public function setAvatar(?array $avatar): static
+    {
+        // Si el avatar es null, establecemos un valor predeterminado
+        if ($avatar === null) {
+            $this->avatar = [
+                "skinColor" => "",
+                "eyes" => "",
+                "eyebrows" => "",
+                "mouth" => "",
+                "hairStyle" => "",
+                "hairColor" => "",
+                "facialHair" => "",
+                "clothes" => "",
+                "fabricColor" => "",
+                "glasses" => "",
+                "glassOpacity" => "",
+                "accessories" => "",
+                "tattoos" => "",
+                "backgroundColor" => ""
+            ];
+        } else {
+            // Asegurarse de que todos los campos requeridos existen
+            $requiredFields = [
+                "skinColor",
+                "eyes",
+                "eyebrows",
+                "mouth",
+                "hairStyle",
+                "hairColor",
+                "facialHair",
+                "clothes",
+                "fabricColor",
+                "glasses",
+                "glassOpacity",
+                "accessories",
+                "tattoos",
+                "backgroundColor"
+            ];
+
+            foreach ($requiredFields as $field) {
+                // Si un campo no existe o es null, establecerlo como cadena vacía
+                if (!isset($avatar[$field]) || $avatar[$field] === null) {
+                    $avatar[$field] = "";
+                }
+            }
+
+            $this->avatar = $avatar;
+        }
 
         return $this;
     }

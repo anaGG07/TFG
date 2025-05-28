@@ -2,12 +2,11 @@ import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { NeomorphicInput, NeomorphicButton } from "./ui/NeomorphicComponents";
 import EditIcon from '../assets/icons/edit.svg';
-import AvatarCreator from './AvatarCreator';
-import { userService } from '../services/userService';
 import ChangePasswordModal from './ChangePasswordModal';
 import AvatarBuilderModal from './avatarBuilder/AvatarBuilderModal';
 import AvatarPreview from './avatarBuilder/AvatarPreview';
 import { AvatarConfig, defaultConfig as defaultAvatarConfig } from './avatarBuilder/AvatarBuilder';
+import { userService } from '../services/userService';
 
 interface ProfileEditModalProps {
   isOpen: boolean;
@@ -21,7 +20,7 @@ interface ProfileForm {
   lastName: string;
   username: string;
   birthDate: string;
-  avatar_config: AvatarConfig;
+  avatar: AvatarConfig;
   receiveAlerts: boolean;
   receiveRecommendations: boolean;
   receiveWorkoutSuggestions: boolean;
@@ -37,7 +36,7 @@ const ProfileEditModal: React.FC<ProfileEditModalProps> = ({ isOpen, onClose, us
     lastName: user?.lastName || '',
     username: user?.username || '',
     birthDate: user?.birthDate || '',
-    avatar_config: user?.avatar_config || defaultAvatarConfig,
+    avatar: user?.avatar || defaultAvatarConfig,
     receiveAlerts: user?.receiveAlerts ?? true,
     receiveRecommendations: user?.receiveRecommendations ?? true,
     receiveWorkoutSuggestions: user?.receiveWorkoutSuggestions ?? true,
@@ -48,7 +47,6 @@ const ProfileEditModal: React.FC<ProfileEditModalProps> = ({ isOpen, onClose, us
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [isAvatarCreatorOpen, setIsAvatarCreatorOpen] = useState(false);
   const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
   const [passwordLoading, setPasswordLoading] = useState(false);
   const [passwordError, setPasswordError] = useState<string | null>(null);
@@ -139,8 +137,8 @@ const ProfileEditModal: React.FC<ProfileEditModalProps> = ({ isOpen, onClose, us
             {/* Avatar */}
             <div className="flex flex-col items-center gap-4">
               <div className="w-32 h-32 rounded-full overflow-hidden bg-[#C62328] flex items-center justify-center">
-                {form.avatar_config ? (
-                  <AvatarPreview config={form.avatar_config} />
+                {form.avatar ? (
+                  <AvatarPreview config={form.avatar} />
                 ) : (
                   <span className="text-4xl text-white font-bold">
                     {user?.username?.charAt(0)?.toUpperCase() || 'U'}
@@ -271,16 +269,6 @@ const ProfileEditModal: React.FC<ProfileEditModalProps> = ({ isOpen, onClose, us
           </form>
         </motion.div>
 
-        {/* Avatar Creator Modal */}
-        <AvatarCreator
-          isOpen={isAvatarCreatorOpen}
-          onClose={() => setIsAvatarCreatorOpen(false)}
-          onSelect={(url) => {
-            setForm(prev => ({ ...prev, avatar: url }));
-            setIsAvatarCreatorOpen(false);
-          }}
-        />
-
         <ChangePasswordModal
           isOpen={isPasswordModalOpen}
           onClose={() => {
@@ -320,9 +308,9 @@ const ProfileEditModal: React.FC<ProfileEditModalProps> = ({ isOpen, onClose, us
         <AvatarBuilderModal
           isOpen={isAvatarBuilderOpen}
           onClose={() => setIsAvatarBuilderOpen(false)}
-          initialConfig={form.avatar_config || defaultAvatarConfig}
+          initialConfig={form.avatar || defaultAvatarConfig}
           onSave={(config) => {
-            setForm(prev => ({ ...prev, avatar_config: config }));
+            setForm(prev => ({ ...prev, avatar: config }));
             setIsAvatarBuilderOpen(false);
           }}
         />

@@ -4,6 +4,7 @@ import { useAuth } from "../context/AuthContext";
 import { ROUTES } from "../router/paths";
 import Blob from "../components/Blob";
 import GlassmorphicButton from "../components/Button";
+import { getRandomAvatarConfig } from '../components/avatarBuilder/randomAvatar';
 
 const RegisterPage = () => {
   const [username, setUsername] = useState("");
@@ -60,6 +61,7 @@ const RegisterPage = () => {
         lastName: "Apellido",
         profileType: "profile_women",
         birthDate,
+        avatar: getRandomAvatarConfig(),
       };
 
       await register(formattedRequest);

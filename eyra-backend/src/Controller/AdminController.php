@@ -59,12 +59,14 @@ class AdminController extends AbstractController
                 return $this->json(['message' => 'Acceso denegado. Se requiere rol de administrador.'], Response::HTTP_FORBIDDEN);
             }
 
+            $adminId = ($currentUser instanceof \App\Entity\User) ? $currentUser->getId() : null;
+
             // Buscar el usuario a editar
             $user = $this->userRepository->find($id);
             if (!$user) {
                 $this->logger->warning('Intento de editar un usuario que no existe', [
                     'targetUserId' => $id,
-                    'adminId' => $currentUser->getId()
+                    'adminId' => $adminId
                 ]);
                 return $this->json(['message' => 'Usuario no encontrado'], Response::HTTP_NOT_FOUND);
             }
@@ -213,7 +215,7 @@ class AdminController extends AbstractController
 
             $this->logger->info('Usuario actualizado con éxito por administrador', [
                 'targetUserId' => $user->getId(),
-                'adminId' => $currentUser->getId(),
+                'adminId' => $adminId,
                 'campos_actualizados' => array_keys($data)
             ]);
 
@@ -462,10 +464,12 @@ class AdminController extends AbstractController
             /** @var User|null $currentUser */
             $currentUser = $this->getUser();
 
+            $adminId = ($currentUser instanceof \App\Entity\User) ? $currentUser->getId() : null;
+
             // Verificar que no intenta eliminarse a sí mismo
             if ($currentUser->getId() === $id) {
                 $this->logger->warning('Intento de administrador de eliminarse a sí mismo', [
-                    'adminId' => $currentUser->getId()
+                    'adminId' => $adminId
                 ]);
                 return $this->json([
                     'message' => 'No puedes desactivar tu propia cuenta de administrador'
@@ -476,16 +480,16 @@ class AdminController extends AbstractController
             if (!$user) {
                 $this->logger->warning('Intento de eliminar un usuario que no existe', [
                     'targetUserId' => $id,
-                    'adminId' => $currentUser->getId()
+                    'adminId' => $adminId
                 ]);
                 return $this->json(['message' => 'Usuario no encontrado'], Response::HTTP_NOT_FOUND);
             }
 
             // Verificar que no intenta eliminar a otro administrador
-            if (in_array('ROLE_ADMIN', $user->getRoles()) && $currentUser->getId() !== $user->getId()) {
+            if (in_array('ROLE_ADMIN', $user->getRoles()) && $adminId !== $user->getId()) {
                 $this->logger->warning('Intento de eliminar a otro administrador', [
                     'targetAdminId' => $id,
-                    'requestingAdminId' => $currentUser->getId()
+                    'requestingAdminId' => $adminId
                 ]);
                 return $this->json([
                     'message' => 'No tienes permisos para desactivar a otros administradores'
@@ -498,7 +502,7 @@ class AdminController extends AbstractController
 
             $this->logger->info('Usuario desactivado por administrador', [
                 'targetUserId' => $id,
-                'adminId' => $currentUser->getId()
+                'adminId' => $adminId
             ]);
 
             return $this->json([

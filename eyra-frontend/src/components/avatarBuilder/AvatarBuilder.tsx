@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import AvatarPreview from './AvatarPreview';
+import { getRandomAvatarConfig } from './randomAvatar';
 
 export interface AvatarConfig {
   skinColor: string;
@@ -48,6 +49,17 @@ const AvatarBuilder: React.FC<{ onChange?: (config: AvatarConfig) => void }> = (
     <div className="flex flex-col md:flex-row gap-8">
       <AvatarPreview config={config} />
       <div className="flex flex-col gap-4">
+        <button
+          type="button"
+          className="mb-2 px-4 py-2 bg-[#C62328] text-white rounded-lg hover:bg-[#7a2323] transition-colors"
+          onClick={() => {
+            const random = getRandomAvatarConfig();
+            setConfig(random);
+            if (onChange) onChange(random);
+          }}
+        >
+          Aleatorio
+        </button>
         {/* Controles para cada parte */}
         <div>
           <label>Color de piel:</label>
