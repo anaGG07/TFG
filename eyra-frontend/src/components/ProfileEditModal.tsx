@@ -4,6 +4,10 @@ import { NeomorphicInput, NeomorphicButton } from "./ui/NeomorphicComponents";
 import EditIcon from '../assets/icons/edit.svg';
 import AvatarCreator from './AvatarCreator';
 import { userService } from '../services/userService';
+import ChangePasswordModal from './ChangePasswordModal';
+import AvatarBuilderModal from './avatarBuilder/AvatarBuilderModal';
+import AvatarPreview from './avatarBuilder/AvatarPreview';
+import { AvatarConfig, defaultConfig as defaultAvatarConfig } from './avatarBuilder/AvatarBuilder';
 
 interface ProfileEditModalProps {
   isOpen: boolean;
@@ -12,13 +16,28 @@ interface ProfileEditModalProps {
   onSave: (data: any) => Promise<void>;
 }
 
+interface ProfileForm {
+  name: string;
+  lastName: string;
+  username: string;
+  birthDate: string;
+  avatar_config: AvatarConfig;
+  receiveAlerts: boolean;
+  receiveRecommendations: boolean;
+  receiveWorkoutSuggestions: boolean;
+  receiveNutritionAdvice: boolean;
+  currentPassword: string;
+  newPassword: string;
+  confirmPassword: string;
+}
+
 const ProfileEditModal: React.FC<ProfileEditModalProps> = ({ isOpen, onClose, user, onSave }) => {
-  const [form, setForm] = useState({
+  const [form, setForm] = useState<ProfileForm>({
     name: user?.name || '',
     lastName: user?.lastName || '',
     username: user?.username || '',
     birthDate: user?.birthDate || '',
-    avatar: user?.avatar || '',
+    avatar_config: user?.avatar_config || defaultAvatarConfig,
     receiveAlerts: user?.receiveAlerts ?? true,
     receiveRecommendations: user?.receiveRecommendations ?? true,
     receiveWorkoutSuggestions: user?.receiveWorkoutSuggestions ?? true,
@@ -30,7 +49,10 @@ const ProfileEditModal: React.FC<ProfileEditModalProps> = ({ isOpen, onClose, us
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isAvatarCreatorOpen, setIsAvatarCreatorOpen] = useState(false);
-  const [showPasswordForm, setShowPasswordForm] = useState(false);
+  const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
+  const [passwordLoading, setPasswordLoading] = useState(false);
+  const [passwordError, setPasswordError] = useState<string | null>(null);
+  const [isAvatarBuilderOpen, setIsAvatarBuilderOpen] = useState(false);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type, checked } = e.target;
@@ -117,8 +139,8 @@ const ProfileEditModal: React.FC<ProfileEditModalProps> = ({ isOpen, onClose, us
             {/* Avatar */}
             <div className="flex flex-col items-center gap-4">
               <div className="w-32 h-32 rounded-full overflow-hidden bg-[#C62328] flex items-center justify-center">
-                {form.avatar ? (
-                  <img src={form.avatar} alt="Avatar" className="w-full h-full object-cover" />
+                {form.avatar_config ? (
+                  <AvatarPreview config={form.avatar_config} />
                 ) : (
                   <span className="text-4xl text-white font-bold">
                     {user?.username?.charAt(0)?.toUpperCase() || 'U'}
@@ -128,7 +150,7 @@ const ProfileEditModal: React.FC<ProfileEditModalProps> = ({ isOpen, onClose, us
               <NeomorphicButton
                 type="button"
                 variant="secondary"
-                onClick={() => setIsAvatarCreatorOpen(true)}
+                onClick={() => setIsAvatarBuilderOpen(true)}
               >
                 Cambiar avatar
               </NeomorphicButton>
@@ -183,59 +205,16 @@ const ProfileEditModal: React.FC<ProfileEditModalProps> = ({ isOpen, onClose, us
               </div>
             </div>
 
-            {/* Botón para mostrar/ocultar cambio de contraseña */}
+            {/* Botón para mostrar modal de cambio de contraseña */}
             <div className="my-2">
               <button
                 type="button"
                 className="text-[#C62328] font-semibold underline hover:text-[#7a2323] transition-colors"
-                onClick={() => setShowPasswordForm((v) => !v)}
+                onClick={() => setIsPasswordModalOpen(true)}
               >
-                {showPasswordForm ? 'Ocultar cambio de contraseña' : 'Cambiar contraseña'}
+                Cambiar contraseña
               </button>
             </div>
-
-            {/* Cambio de contraseña (solo visible si showPasswordForm) */}
-            {showPasswordForm && (
-              <div className="space-y-2">
-                <h4 className="text-lg font-serif font-bold text-[#7a2323]">Cambiar contraseña</h4>
-                <div>
-                  <label htmlFor="currentPassword" className="block text-[#7a2323] font-medium mb-1">Contraseña actual</label>
-                  <NeomorphicInput
-                    id="currentPassword"
-                    name="currentPassword"
-                    type="password"
-                    value={form.currentPassword || ''}
-                    onChange={handleChange}
-                    placeholder="Contraseña actual"
-                    autoComplete="current-password"
-                  />
-                </div>
-                <div>
-                  <label htmlFor="newPassword" className="block text-[#7a2323] font-medium mb-1">Nueva contraseña</label>
-                  <NeomorphicInput
-                    id="newPassword"
-                    name="newPassword"
-                    type="password"
-                    value={form.newPassword || ''}
-                    onChange={handleChange}
-                    placeholder="Nueva contraseña"
-                    autoComplete="new-password"
-                  />
-                </div>
-                <div>
-                  <label htmlFor="confirmPassword" className="block text-[#7a2323] font-medium mb-1">Confirmar nueva contraseña</label>
-                  <NeomorphicInput
-                    id="confirmPassword"
-                    name="confirmPassword"
-                    type="password"
-                    value={form.confirmPassword || ''}
-                    onChange={handleChange}
-                    placeholder="Confirmar nueva contraseña"
-                    autoComplete="new-password"
-                  />
-                </div>
-              </div>
-            )}
 
             {/* Recordatorios */}
             <div className="space-y-4">
@@ -299,6 +278,52 @@ const ProfileEditModal: React.FC<ProfileEditModalProps> = ({ isOpen, onClose, us
           onSelect={(url) => {
             setForm(prev => ({ ...prev, avatar: url }));
             setIsAvatarCreatorOpen(false);
+          }}
+        />
+
+        <ChangePasswordModal
+          isOpen={isPasswordModalOpen}
+          onClose={() => {
+            setIsPasswordModalOpen(false);
+            setPasswordError(null);
+          }}
+          loading={passwordLoading}
+          error={passwordError}
+          onChangePassword={async (current, next, confirm) => {
+            setPasswordLoading(true);
+            setPasswordError(null);
+            try {
+              if (!current || !next || !confirm) {
+                setPasswordError('Por favor, completa todos los campos.');
+                setPasswordLoading(false);
+                return;
+              }
+              if (next !== confirm) {
+                setPasswordError('La nueva contraseña y la confirmación no coinciden.');
+                setPasswordLoading(false);
+                return;
+              }
+              if (typeof userService.changePassword === 'function') {
+                await userService.changePassword(current, next);
+                setIsPasswordModalOpen(false);
+              } else {
+                setPasswordError('No se pudo cambiar la contraseña.');
+              }
+            } catch (err: any) {
+              setPasswordError(err.message || 'Error al cambiar la contraseña');
+            } finally {
+              setPasswordLoading(false);
+            }
+          }}
+        />
+
+        <AvatarBuilderModal
+          isOpen={isAvatarBuilderOpen}
+          onClose={() => setIsAvatarBuilderOpen(false)}
+          initialConfig={form.avatar_config || defaultAvatarConfig}
+          onSave={(config) => {
+            setForm(prev => ({ ...prev, avatar_config: config }));
+            setIsAvatarBuilderOpen(false);
           }}
         />
       </motion.div>
