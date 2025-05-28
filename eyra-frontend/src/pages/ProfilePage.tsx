@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { NeomorphicButton } from '../components/ui/NeomorphicComponents';
 import { motion } from 'framer-motion';
-import ProfileEditModal from '../components/ProfileEditModal';
+import ProfileTabsModal from '../components/ProfileTabsModal';
 import { userService } from '../services/userService';
 import { toast } from 'react-hot-toast';
 
@@ -81,7 +81,7 @@ const ProfilePage: React.FC = () => {
       </motion.div>
 
       {/* Modal de edición */}
-      <ProfileEditModal
+      <ProfileTabsModal
         isOpen={isEditModalOpen}
         onClose={() => setIsEditModalOpen(false)}
         onSave={handleSave}
