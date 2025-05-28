@@ -97,7 +97,7 @@ const ProfileTabsModal: React.FC<ProfileTabsModalProps> = ({ isOpen, onClose, us
         <div className="absolute inset-0" onClick={onClose} />
         {/* Modal */}
         <motion.div
-          className="relative bg-[#fff] rounded-3xl shadow-2xl p-6 w-full max-w-xl mx-4 flex flex-col items-center"
+          className="relative bg-[#fff] rounded-3xl shadow-2xl p-6 w-full max-w-xl mx-4 flex flex-col items-center min-h-[600px] md:min-h-[650px]"
           style={{ maxHeight: '90vh' }}
           initial={{ scale: 0.95, y: 40, opacity: 0 }}
           animate={{ scale: 1, y: 0, opacity: 1 }}
