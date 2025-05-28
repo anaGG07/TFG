@@ -33,6 +33,7 @@ export interface User {
   updatedAt: string | null;
   state: boolean;
   onboardingCompleted: boolean;
+  avatar?: string;
   onboarding?: {
     id: number;
     profileType: string;

@@ -2,74 +2,34 @@ import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { NeomorphicInput, NeomorphicButton } from "./ui/NeomorphicComponents";
 import EditIcon from '../assets/icons/edit.svg';
+import AvatarCreator from './AvatarCreator';
 
 interface ProfileEditModalProps {
   isOpen: boolean;
   onClose: () => void;
   user: any;
-  onboarding: any;
   onSave: (data: any) => Promise<void>;
 }
 
-const objetivoInfo: Record<string, { icon: string; title: string; desc: string; color: string }> = {
-  profile_women: {
-    icon: '🌸',
-    title: 'Ciclo y Bienestar',
-    desc: 'Descubre tu ciclo, conecta con tu cuerpo y potencia tu bienestar.',
-    color: '#C62328',
-  },
-  profile_trans: {
-    icon: '🦋',
-    title: 'Transición y Autocuidado',
-    desc: 'Acompaña tu transición con información y apoyo personalizado.',
-    color: '#7a2323',
-  },
-  profile_underage: {
-    icon: '🌱',
-    title: 'Primeros Ciclos',
-    desc: 'Aprende y explora tus primeros ciclos de forma segura.',
-    color: '#A62C2C',
-  },
-  profile_guest: {
-    icon: '🤝',
-    title: 'Acompañar a alguien',
-    desc: 'Apoya y aprende junto a quien más quieres.',
-    color: '#5b0108',
-  },
-};
-
-const ProfileEditModal: React.FC<ProfileEditModalProps> = ({ isOpen, onClose, user, onboarding, onSave }) => {
+const ProfileEditModal: React.FC<ProfileEditModalProps> = ({ isOpen, onClose, user, onSave }) => {
   const [form, setForm] = useState({
     name: user?.name || '',
     lastName: user?.lastName || '',
-    email: user?.email || '',
+    username: user?.username || '',
     birthDate: user?.birthDate || '',
-    averageCycleLength: onboarding?.averageCycleLength || 28,
-    averagePeriodLength: onboarding?.averagePeriodLength || 5,
-    profileType: onboarding?.profileType || 'profile_women',
-    receiveAlerts: onboarding?.receiveAlerts ?? true,
-    receiveRecommendations: onboarding?.receiveRecommendations ?? true,
-    receiveCyclePhaseTips: onboarding?.receiveCyclePhaseTips ?? true,
-    receiveWorkoutSuggestions: onboarding?.receiveWorkoutSuggestions ?? true,
-    receiveNutritionAdvice: onboarding?.receiveNutritionAdvice ?? true,
+    avatar: user?.avatar || '',
+    receiveAlerts: user?.receiveAlerts ?? true,
+    receiveRecommendations: user?.receiveRecommendations ?? true,
+    receiveWorkoutSuggestions: user?.receiveWorkoutSuggestions ?? true,
+    receiveNutritionAdvice: user?.receiveNutritionAdvice ?? true,
   });
-  const [showPassword, setShowPassword] = useState(false);
-  const [passwords, setPasswords] = useState({ current: '', new: '', confirm: '' });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [isAvatarCreatorOpen, setIsAvatarCreatorOpen] = useState(false);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type, checked } = e.target;
     setForm((prev) => ({ ...prev, [name]: type === 'checkbox' ? checked : value }));
-  };
-
-  const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setPasswords((prev) => ({ ...prev, [name]: value }));
-  };
-
-  const handleObjetivo = (profileType: string) => {
-    setForm((prev) => ({ ...prev, profileType }));
   };
 
   const handleSave = async (e: React.FormEvent) => {
@@ -77,7 +37,7 @@ const ProfileEditModal: React.FC<ProfileEditModalProps> = ({ isOpen, onClose, us
     setLoading(true);
     setError(null);
     try {
-      await onSave({ ...form, passwords: showPassword ? passwords : undefined });
+      await onSave(form);
       onClose();
     } catch (err: any) {
       setError(err.message || 'Error al guardar los cambios');
@@ -124,6 +84,26 @@ const ProfileEditModal: React.FC<ProfileEditModalProps> = ({ isOpen, onClose, us
           </h2>
 
           <form onSubmit={handleSave} className="space-y-6">
+            {/* Avatar */}
+            <div className="flex flex-col items-center gap-4">
+              <div className="w-32 h-32 rounded-full overflow-hidden bg-[#C62328] flex items-center justify-center">
+                {form.avatar ? (
+                  <img src={form.avatar} alt="Avatar" className="w-full h-full object-cover" />
+                ) : (
+                  <span className="text-4xl text-white font-bold">
+                    {user?.username?.charAt(0)?.toUpperCase() || 'U'}
+                  </span>
+                )}
+              </div>
+              <NeomorphicButton
+                type="button"
+                variant="secondary"
+                onClick={() => setIsAvatarCreatorOpen(true)}
+              >
+                Cambiar avatar
+              </NeomorphicButton>
+            </div>
+
             {/* Datos personales */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <NeomorphicInput
@@ -141,11 +121,10 @@ const ProfileEditModal: React.FC<ProfileEditModalProps> = ({ isOpen, onClose, us
                 required
               />
               <NeomorphicInput
-                name="email"
-                value={form.email}
+                name="username"
+                value={form.username}
                 onChange={handleChange}
-                placeholder="Email"
-                type="email"
+                placeholder="Nombre de usuario"
                 required
               />
               <NeomorphicInput
@@ -158,55 +137,12 @@ const ProfileEditModal: React.FC<ProfileEditModalProps> = ({ isOpen, onClose, us
               />
             </div>
 
-            {/* Ciclo */}
-            <div className="grid grid-cols-2 gap-6">
-              <NeomorphicInput
-                name="averageCycleLength"
-                value={form.averageCycleLength}
-                onChange={handleChange}
-                placeholder="Duración ciclo (días)"
-                type="number"
-                min={21}
-                max={35}
-                required
-              />
-              <NeomorphicInput
-                name="averagePeriodLength"
-                value={form.averagePeriodLength}
-                onChange={handleChange}
-                placeholder="Duración periodo (días)"
-                type="number"
-                min={1}
-                max={14}
-                required
-              />
-            </div>
-
-            {/* Objetivo */}
-            <div>
-              <div className="flex gap-4 justify-center">
-                {Object.entries(objetivoInfo).map(([key, obj]) => (
-                  <button
-                    key={key}
-                    type="button"
-                    className={`flex flex-col items-center px-4 py-2 rounded-xl border-2 transition-all ${form.profileType === key ? 'border-[#C62328] bg-[#f8e9ea]' : 'border-transparent bg-[#f0e8dc]'}`}
-                    style={{ minWidth: 120, boxShadow: form.profileType === key ? '0 4px 16px #c6232822' : undefined }}
-                    onClick={() => handleObjetivo(key)}
-                  >
-                    <span className="text-3xl mb-1" style={{ color: obj.color }}>{obj.icon}</span>
-                    <span className="font-bold text-[#7a2323] text-sm mb-1">{obj.title}</span>
-                    <span className="text-xs text-[#7a2323] text-center">{obj.desc}</span>
-                  </button>
-                ))}
-              </div>
-            </div>
-
             {/* Recordatorios */}
-            <div className="flex flex-wrap gap-6 justify-center">
+            <div className="space-y-4">
+              <h4 className="text-lg font-serif font-bold text-[#7a2323]">Notificaciones</h4>
               {[
                 { name: 'receiveAlerts', label: 'Alertas importantes' },
                 { name: 'receiveRecommendations', label: 'Recomendaciones' },
-                { name: 'receiveCyclePhaseTips', label: 'Consejos por fase' },
                 { name: 'receiveWorkoutSuggestions', label: 'Ejercicio' },
                 { name: 'receiveNutritionAdvice', label: 'Nutrición' },
               ].map((r) => (
@@ -231,69 +167,40 @@ const ProfileEditModal: React.FC<ProfileEditModalProps> = ({ isOpen, onClose, us
               ))}
             </div>
 
-            {/* Cambiar contraseña */}
-            <div>
-              <button
-                type="button"
-                className="text-[#C62328] underline text-sm mb-2"
-                onClick={() => setShowPassword((v) => !v)}
-              >
-                {showPassword ? 'Ocultar cambio de contraseña' : 'Cambiar contraseña'}
-              </button>
-              <AnimatePresence>
-                {showPassword && (
-                  <motion.div
-                    initial={{ opacity: 0, height: 0 }}
-                    animate={{ opacity: 1, height: 'auto' }}
-                    exit={{ opacity: 0, height: 0 }}
-                    transition={{ duration: 0.3 }}
-                    className="overflow-hidden"
-                  >
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-2">
-                      <NeomorphicInput
-                        name="current"
-                        value={passwords.current}
-                        onChange={handlePasswordChange}
-                        placeholder="Contraseña actual"
-                        type="password"
-                        required
-                      />
-                      <NeomorphicInput
-                        name="new"
-                        value={passwords.new}
-                        onChange={handlePasswordChange}
-                        placeholder="Nueva contraseña"
-                        type="password"
-                        required
-                      />
-                      <NeomorphicInput
-                        name="confirm"
-                        value={passwords.confirm}
-                        onChange={handlePasswordChange}
-                        placeholder="Confirmar nueva"
-                        type="password"
-                        required
-                      />
-                    </div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </div>
-
             {/* Error */}
             {error && <div className="text-red-600 text-center font-medium">{error}</div>}
 
             {/* Botones */}
-            <div className="flex justify-end gap-4 mt-6">
-              <NeomorphicButton type="button" variant="secondary" onClick={onClose}>
+            <div className="flex gap-4">
+              <NeomorphicButton
+                type="button"
+                variant="secondary"
+                onClick={onClose}
+                className="flex-1"
+              >
                 Cancelar
               </NeomorphicButton>
-              <NeomorphicButton type="submit" variant="primary" disabled={loading}>
+              <NeomorphicButton
+                type="submit"
+                variant="primary"
+                className="flex-1"
+                disabled={loading}
+              >
                 {loading ? 'Guardando...' : 'Guardar cambios'}
               </NeomorphicButton>
             </div>
           </form>
         </motion.div>
+
+        {/* Avatar Creator Modal */}
+        <AvatarCreator
+          isOpen={isAvatarCreatorOpen}
+          onClose={() => setIsAvatarCreatorOpen(false)}
+          onSelect={(url) => {
+            setForm(prev => ({ ...prev, avatar: url }));
+            setIsAvatarCreatorOpen(false);
+          }}
+        />
       </motion.div>
     </AnimatePresence>
   );

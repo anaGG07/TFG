@@ -145,6 +145,11 @@ class OnboardingController extends AbstractController
             }
 
             // Establecer preferencias de notificaciones si se proporcionan
+            // ! 27/05/2025 - Añadido procesamiento del campo isPersonal
+            if (isset($data['isPersonal'])) {
+                $onboarding->setIsPersonal(filter_var($data['isPersonal'], FILTER_VALIDATE_BOOLEAN));
+            }
+
             if (isset($data['receiveAlerts'])) {
                 $onboarding->setReceiveAlerts($data['receiveAlerts']);
             }
@@ -321,7 +326,8 @@ class OnboardingController extends AbstractController
                     'lastPeriodDate' => $onboarding->getLastPeriodDate() ? $onboarding->getLastPeriodDate()->format('Y-m-d') : null,
                     'averageCycleLength' => $onboarding->getAverageCycleLength(),
                     'averagePeriodLength' => $onboarding->getAveragePeriodLength(),
-                    'completed' => $onboarding->isCompleted()
+                    'completed' => $onboarding->isCompleted(),
+                    'isPersonal' => $onboarding->isIsPersonal() // ! 27/05/2025 - Añadido isPersonal en la respuesta
                 ]
             ];
 
