@@ -8,23 +8,25 @@ import { userService } from '../services/userService';
 // Iconos SVG originales
 const PrivacyIcon = ({ selected }: { selected: boolean }) => (
   <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
-    <circle cx="16" cy="16" r="15" fill={selected ? '#C62328' : '#E7E0D5'} stroke="#C62328" strokeWidth="2" />
-    <ellipse cx="16" cy="13" rx="5" ry="6" fill={selected ? '#fff' : '#C62328'} />
-    <rect x="10" y="22" width="12" height="5" rx="2.5" fill={selected ? '#fff' : '#C62328'} />
+    {selected && <circle cx="16" cy="16" r="15" fill="#F5E9E6" />}
+    <circle cx="16" cy="13" r="5" stroke="#C62328" strokeWidth="2" fill={selected ? '#fff' : 'none'} />
+    <path d="M10 23c0-3 4-4 6-4s6 1 6 4" stroke="#C62328" strokeWidth="2" strokeLinecap="round" fill={selected ? '#fff' : 'none'} />
   </svg>
 );
 const SecurityIcon = ({ selected }: { selected: boolean }) => (
   <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
-    <rect x="6" y="14" width="20" height="12" rx="4" fill={selected ? '#C62328' : '#E7E0D5'} stroke="#C62328" strokeWidth="2" />
-    <rect x="13" y="20" width="6" height="6" rx="3" fill={selected ? '#fff' : '#C62328'} />
-    <rect x="10" y="10" width="12" height="6" rx="3" fill={selected ? '#fff' : '#C62328'} stroke="#C62328" strokeWidth="2" />
+    {selected && <circle cx="16" cy="16" r="15" fill="#F5E9E6" />}
+    <rect x="9" y="15" width="14" height="8" rx="3" stroke="#C62328" strokeWidth="2" fill={selected ? '#fff' : 'none'} />
+    <path d="M12 15v-2a4 4 0 0 1 8 0v2" stroke="#C62328" strokeWidth="2" fill="none" />
+    <circle cx="16" cy="19" r="2" stroke="#C62328" strokeWidth="2" fill={selected ? '#fff' : 'none'} />
   </svg>
 );
 const NotificationsIcon = ({ selected }: { selected: boolean }) => (
   <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
-    <ellipse cx="16" cy="20" rx="10" ry="7" fill={selected ? '#C62328' : '#E7E0D5'} stroke="#C62328" strokeWidth="2" />
-    <circle cx="16" cy="13" r="4" fill={selected ? '#fff' : '#C62328'} />
-    <rect x="14" y="25" width="4" height="3" rx="2" fill={selected ? '#fff' : '#C62328'} />
+    {selected && <circle cx="16" cy="16" r="15" fill="#F5E9E6" />}
+    <path d="M24 23H8m8 0v1a2 2 0 1 1-4 0v-1" stroke="#C62328" strokeWidth="2" strokeLinecap="round" fill="none" />
+    <path d="M22 23V15a6 6 0 1 0-12 0v8" stroke="#C62328" strokeWidth="2" fill={selected ? '#fff' : 'none'} />
+    <circle cx="16" cy="10" r="1" fill="#C62328" />
   </svg>
 );
 
@@ -156,7 +158,7 @@ const ProfileTabsModal: React.FC<ProfileTabsModalProps> = ({ isOpen, onClose, us
                   exit={{ opacity: 0, x: -40 }}
                   transition={{ duration: 0.3 }}
                   onSubmit={handleSave}
-                  className="flex flex-col gap-4"
+                  className="flex flex-col gap-4 w-full"
                 >
                   <NeomorphicInput
                     id="name"
@@ -192,19 +194,19 @@ const ProfileTabsModal: React.FC<ProfileTabsModalProps> = ({ isOpen, onClose, us
                     required
                   />
                   {error && <div className="text-red-600 text-center font-medium">{error}</div>}
-                  <div className="flex gap-4 mt-2">
+                  <div className="flex gap-4 mt-2 w-full">
                     <NeomorphicButton
                       type="button"
                       variant="secondary"
                       onClick={onClose}
-                      className="w-1/2 min-w-[140px] border-2 border-transparent"
+                      className="flex-1 border-2 border-transparent"
                     >
                       Cancelar
                     </NeomorphicButton>
                     <NeomorphicButton
                       type="submit"
                       variant="primary"
-                      className="w-1/2 min-w-[140px] border-2 border-transparent"
+                      className="flex-1 border-2 border-transparent"
                       disabled={loading}
                     >
                       {loading ? 'Guardando...' : 'Guardar cambios'}
@@ -219,7 +221,7 @@ const ProfileTabsModal: React.FC<ProfileTabsModalProps> = ({ isOpen, onClose, us
                   animate={{ opacity: 1, x: 0 }}
                   exit={{ opacity: 0, x: -40 }}
                   transition={{ duration: 0.3 }}
-                  className="flex flex-col gap-4 py-2"
+                  className="flex flex-col gap-4 py-2 w-full"
                   onSubmit={async (e) => {
                     e.preventDefault();
                     setError(null);
@@ -274,19 +276,19 @@ const ProfileTabsModal: React.FC<ProfileTabsModalProps> = ({ isOpen, onClose, us
                     autoComplete="new-password"
                   />
                   {error && <div className="text-red-600 text-center font-medium">{error}</div>}
-                  <div className="flex gap-4 mt-2">
+                  <div className="flex gap-4 mt-2 w-full">
                     <NeomorphicButton
                       type="button"
                       variant="secondary"
                       onClick={onClose}
-                      className="w-1/2 min-w-[140px] border-2 border-transparent"
+                      className="flex-1 border-2 border-transparent"
                     >
                       Cancelar
                     </NeomorphicButton>
                     <NeomorphicButton
                       type="submit"
                       variant="primary"
-                      className="w-1/2 min-w-[140px] border-2 border-transparent"
+                      className="flex-1 border-2 border-transparent"
                       disabled={loading}
                     >
                       {loading ? 'Guardando...' : 'Guardar contraseña'}
@@ -301,7 +303,7 @@ const ProfileTabsModal: React.FC<ProfileTabsModalProps> = ({ isOpen, onClose, us
                   animate={{ opacity: 1, x: 0 }}
                   exit={{ opacity: 0, x: -40 }}
                   transition={{ duration: 0.3 }}
-                  className="flex flex-col gap-4 py-2"
+                  className="flex flex-col gap-4 py-2 w-full"
                   onSubmit={handleSave}
                 >
                   {[{
@@ -332,19 +334,19 @@ const ProfileTabsModal: React.FC<ProfileTabsModalProps> = ({ isOpen, onClose, us
                       <span className="text-[#7a2323] text-sm font-medium">{r.label}</span>
                     </label>
                   ))}
-                  <div className="flex gap-4 mt-2">
+                  <div className="flex gap-4 mt-2 w-full">
                     <NeomorphicButton
                       type="button"
                       variant="secondary"
                       onClick={onClose}
-                      className="w-1/2 min-w-[140px] border-2 border-transparent"
+                      className="flex-1 border-2 border-transparent"
                     >
                       Cancelar
                     </NeomorphicButton>
                     <NeomorphicButton
                       type="submit"
                       variant="primary"
-                      className="w-1/2 min-w-[140px] border-2 border-transparent"
+                      className="flex-1 border-2 border-transparent"
                       disabled={loading}
                     >
                       {loading ? 'Guardando...' : 'Guardar cambios'}
