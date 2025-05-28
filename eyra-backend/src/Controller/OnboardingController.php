@@ -10,6 +10,7 @@ use App\Entity\SymptomLog;
 use App\Entity\MenstrualCycle;
 use App\Enum\ProfileType;
 use App\Enum\HormoneType;
+use App\Repository\OnboardingRepository;
 use App\Service\CycleCalculatorService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -20,6 +21,7 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Lexik\Bundle\JWTAuthenticationBundle\Services\JWTTokenManagerInterface;
 use Lexik\Bundle\JWTAuthenticationBundle\Encoder\JWTEncoderInterface;
 use Symfony\Component\Security\Core\Exception\TokenNotFoundException;
+use Symfony\Component\Serializer\SerializerInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
@@ -30,11 +32,15 @@ class OnboardingController extends AbstractController
     private $tokenStorage;
     private LoggerInterface $logger;
     private CycleCalculatorService $cycleCalculatorService;
+    private OnboardingRepository $onboardingRepository;
+    private SerializerInterface $serializer;
     // private ContainerInterface $container;
 
     public function __construct(
         LoggerInterface $logger,
         CycleCalculatorService $cycleCalculatorService,
+        OnboardingRepository $onboardingRepository,
+        SerializerInterface $serializer,
         // ContainerInterface $container,
         JWTEncoderInterface $jwtEncoder = null,
         JWTTokenManagerInterface $jwtManager = null,
@@ -42,13 +48,145 @@ class OnboardingController extends AbstractController
     ) {
         $this->logger = $logger;
         $this->cycleCalculatorService = $cycleCalculatorService;
+        $this->onboardingRepository = $onboardingRepository;
+        $this->serializer = $serializer;
         // $this->container = $container;
         $this->jwtEncoder = $jwtEncoder;
         $this->jwtManager = $jwtManager;
         $this->tokenStorage = $tokenStorage;
     }
 
-    #[Route('/onboarding', name: 'api_onboarding', methods: ['POST'])]
+    /**
+     * Obtener datos de onboarding del usuario autenticado
+     * 
+     * ! 28/05/2025 - Implementado nuevo endpoint para obtener datos de onboarding
+     */
+    #[Route('/onboarding', name: 'api_onboarding_get', methods: ['GET'])]
+    public function getOnboardingData(EntityManagerInterface $em): JsonResponse
+    {
+        try {
+            /** @var User|null $user */
+            $user = $this->getUser();
+
+            if (!$user instanceof User) {
+                $this->logger->error('Onboarding GET: Usuario no autenticado');
+                return $this->json([
+                    'message' => 'No autenticado',
+                ], 401);
+            }
+
+            // Buscar el onboarding del usuario
+            $onboarding = $this->onboardingRepository->findOneBy(['user' => $user]);
+
+            if (!$onboarding) {
+                return $this->json([
+                    'message' => 'No se ha encontrado información de onboarding para este usuario',
+                    'data' => [
+                        'onboardingCompleted' => false,
+                        'user' => [
+                            'id' => $user->getId(),
+                            'email' => $user->getEmail(),
+                            'profileType' => $user->getProfileType() ? $user->getProfileType()->value : null,
+                        ]
+                    ]
+                ], 404);
+            }
+
+            // Preparar los datos para la respuesta
+            $onboardingData = [
+                'id' => $onboarding->getId(),
+                'profileType' => $onboarding->getProfileType() ? $onboarding->getProfileType()->value : null,
+                'genderIdentity' => $onboarding->getGenderIdentity(),
+                'pronouns' => $onboarding->getPronouns(),
+                'isPersonal' => $onboarding->isIsPersonal(),
+                'stageOfLife' => $onboarding->getStageOfLife(),
+                'lastPeriodDate' => $onboarding->getLastPeriodDate() ? $onboarding->getLastPeriodDate()->format('Y-m-d') : null,
+                'averageCycleLength' => $onboarding->getAverageCycleLength(),
+                'averagePeriodLength' => $onboarding->getAveragePeriodLength(),
+                'hormoneType' => $onboarding->getHormoneType() ? $onboarding->getHormoneType()->value : null,
+                'hormoneStartDate' => $onboarding->getHormoneStartDate() ? $onboarding->getHormoneStartDate()->format('Y-m-d') : null,
+                'hormoneFrequencyDays' => $onboarding->getHormoneFrequencyDays(),
+                'receiveAlerts' => $onboarding->isReceiveAlerts(),
+                'receiveRecommendations' => $onboarding->isReceiveRecommendations(),
+                'receiveCyclePhaseTips' => $onboarding->isReceiveCyclePhaseTips(),
+                'receiveWorkoutSuggestions' => $onboarding->isReceiveWorkoutSuggestions(),
+                'receiveNutritionAdvice' => $onboarding->isReceiveNutritionAdvice(),
+                'shareCycleWithPartner' => $onboarding->isShareCycleWithPartner(),
+                'wantAiCompanion' => $onboarding->isWantAiCompanion(),
+                'healthConcerns' => $onboarding->getHealthConcerns(),
+                'accessCode' => $onboarding->getAccessCode(),
+                'allowParentalMonitoring' => $onboarding->isAllowParentalMonitoring(),
+                'commonSymptoms' => $onboarding->getCommonSymptoms(),
+                'createdAt' => $onboarding->getCreatedAt() ? $onboarding->getCreatedAt()->format('Y-m-d H:i:s') : null,
+                'updatedAt' => $onboarding->getUpdatedAt() ? $onboarding->getUpdatedAt()->format('Y-m-d H:i:s') : null,
+                'completed' => $onboarding->isCompleted()
+            ];
+
+            // Obtener información adicional relacionada con el onboarding
+            $additionalData = [];
+
+            // 1. Verificar si tiene ciclo menstrual activo
+            if ($onboarding->getStageOfLife() === 'menstrual') {
+                $currentCyclePhase = $em->getRepository(MenstrualCycle::class)->findCurrentForUser($user->getId());
+                if ($currentCyclePhase) {
+                    $additionalData['currentCycle'] = [
+                        'cycleId' => $currentCyclePhase->getCycleId(),
+                        'phase' => $currentCyclePhase->getPhase()->value,
+                        'startDate' => $currentCyclePhase->getStartDate()->format('Y-m-d'),
+                        'endDate' => $currentCyclePhase->getEndDate() ? $currentCyclePhase->getEndDate()->format('Y-m-d') : null,
+                    ];
+                }
+            }
+
+            // 2. Obtener condiciones médicas registradas
+            $userConditions = $em->getRepository(UserCondition::class)->findActiveByUser($user->getId());
+            if (count($userConditions) > 0) {
+                $conditionsData = [];
+                foreach ($userConditions as $userCondition) {
+                    $conditionsData[] = [
+                        'id' => $userCondition->getId(),
+                        'name' => $userCondition->getCondition()->getName(),
+                        'startDate' => $userCondition->getStartDate()->format('Y-m-d'),
+                        'endDate' => $userCondition->getEndDate() ? $userCondition->getEndDate()->format('Y-m-d') : null,
+                    ];
+                }
+                $additionalData['registeredConditions'] = $conditionsData;
+            }
+
+            // Preparar la respuesta completa
+            $response = [
+                'onboarding' => $onboardingData,
+                'user' => [
+                    'id' => $user->getId(),
+                    'email' => $user->getEmail(),
+                    'username' => $user->getUsername(),
+                    'name' => $user->getName(),
+                    'lastName' => $user->getLastName(),
+                    'onboardingCompleted' => $user->isOnboardingCompleted(),
+                ],
+            ];
+
+            // Añadir datos adicionales si existen
+            if (!empty($additionalData)) {
+                $response['additionalData'] = $additionalData;
+            }
+
+            $this->logger->info('Onboarding GET: Datos recuperados correctamente para el usuario ' . $user->getId());
+            return $this->json($response);
+        } catch (\Exception $e) {
+            $this->logger->error('Onboarding GET: Error inesperado: ' . $e->getMessage());
+            $this->logger->error('Onboarding GET: Stacktrace: ' . $e->getTraceAsString());
+            return $this->json([
+                'message' => 'Error al recuperar datos de onboarding',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Completar el proceso de onboarding
+     */
+    #[Route('/onboarding', name: 'api_onboarding_post', methods: ['POST'])]
     public function completeOnboarding(Request $request, EntityManagerInterface $em, ValidatorInterface $validator): JsonResponse
     {
         try {

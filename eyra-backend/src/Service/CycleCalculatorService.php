@@ -10,6 +10,7 @@ use App\Repository\MenstrualCycleRepository;
 use App\Repository\OnboardingRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Uid\Uuid;
+use Psr\Log\LoggerInterface;
 
 // ! 20/05/2025 - Actualizado el servicio con algoritmo mejorado de predicción
 // ! 23/05/2025 - Modificado para implementar el modelo basado en fases
@@ -34,7 +35,8 @@ class CycleCalculatorService
     public function __construct(
         private MenstrualCycleRepository $cycleRepository,
         private OnboardingRepository $onboardingRepository,
-        private EntityManagerInterface $entityManager
+        private EntityManagerInterface $entityManager,
+        private LoggerInterface $logger
     ) {}
 
     /**
@@ -214,13 +216,24 @@ class CycleCalculatorService
             // Si no hay ciclos previos, intentar obtener valores del onboarding
             $onboarding = $this->onboardingRepository->findOneBy(['user' => $user]);
 
-            if ($onboarding && $onboarding->getAverageCycleLength() && $onboarding->getAveragePeriodLength()) {
-                $avgLength = $onboarding->getAverageCycleLength();
-                $avgDuration = $onboarding->getAveragePeriodLength();
+            if ($onboarding) {
+                // ! 28/05/2025 - Corregido para usar siempre los valores del onboarding si están disponibles
+                $avgLength = $onboarding->getAverageCycleLength() ?? 28;
+                $avgDuration = $onboarding->getAveragePeriodLength() ?? 5;
+
+                // Registrar en log los valores usados desde onboarding
+                $this->logger->info('CycleCalculator: Usando valores del onboarding para nuevo ciclo', [
+                    'userId' => $user->getId(),
+                    'averageCycleLength' => $avgLength,
+                    'averagePeriodLength' => $avgDuration
+                ]);
             } else {
                 // Valores por defecto si no hay información disponible
                 $avgLength = 28;
                 $avgDuration = 5;
+                $this->logger->info('CycleCalculator: Usando valores por defecto (no hay onboarding)', [
+                    'userId' => $user->getId()
+                ]);
             }
         }
 

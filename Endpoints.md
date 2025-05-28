@@ -1,8 +1,8 @@
 # 📋 EYRA Backend - Endpoints y Campos Requeridos
 
 > **Proyecto:** EYRA - Aplicación de Seguimiento Menstrual  
-> **Última actualización:** 25/05/2025  
-> **Total Endpoints:** 86 | **Implementados:** 47 ✅ | **Pendientes:** 39 ❌
+> **Última actualización:** 28/05/2025  
+> **Total Endpoints:** 87 | **Implementados:** 48 ✅ | **Pendientes:** 39 ❌
 
 ---
 
@@ -15,7 +15,7 @@
 | Días del Ciclo | 0 | 6 | 6 |
 | Síntomas | 0 | 6 | 6 |
 | Invitados y Accesos | 6 | 4 | 10 |
-| Onboarding | 1 | 0 | 1 |
+| Onboarding | 2 | 0 | 2 |
 | Notificaciones | 10 | 3 | 13 |
 | Condiciones Médicas | 9 | 5 | 14 |
 | Contenido | 6 | 6 | 12 |
@@ -139,7 +139,8 @@
 
 | Validado | Endpoint | Método | Campos de Entrada | Descripción | Respuesta |
 |:--------:|----------|--------|-------------------|-------------|----------|
-|     ✗     | `/onboarding` | `POST` | `{"isPersonal": "Boolean (String)", "profileType": "String (Enum)", "genderIdentity": "String", "pronouns": "String", "stageOfLife": "String", "lastPeriodDate": "String (YYYY-MM-DD)", "averageCycleLength": "Integer", "averagePeriodLength": "Integer", "receiveAlerts": "Boolean", "receiveRecommendations": "Boolean", "receiveCyclePhaseTips": "Boolean", "receiveWorkoutSuggestions": "Boolean", "receiveNutritionAdvice": "Boolean", "shareCycleWithPartner": "Boolean", "wantAiCompanion": "Boolean", "healthConcerns": ["Array de String"], "accessCode": "String", "allowParentalMonitoring": "Boolean", "commonSymptoms": ["Array de String"], "completed": "Boolean"}` | Completar onboarding | `{"message": "String", "user": {"id": "Integer", "email": "String", "onboardingCompleted": "Boolean"}, "onboarding": {"id": "Integer", "profileType": "String", "stageOfLife": "String", "lastPeriodDate": "String (YYYY-MM-DD)", "averageCycleLength": "Integer", "averagePeriodLength": "Integer", "completed": "Boolean"}, "additionalData": {"menstrualCycleCreated": "Boolean", "conditionsRegistered": ["Array de String"], "symptomsRegistered": ["Array de String"]}}` |
+|     ✅     | `/onboarding` | `POST` | `{"isPersonal": "Boolean (String)", "profileType": "String (Enum)", "genderIdentity": "String", "pronouns": "String", "stageOfLife": "String", "lastPeriodDate": "String (YYYY-MM-DD)", "averageCycleLength": "Integer", "averagePeriodLength": "Integer", "receiveAlerts": "Boolean", "receiveRecommendations": "Boolean", "receiveCyclePhaseTips": "Boolean", "receiveWorkoutSuggestions": "Boolean", "receiveNutritionAdvice": "Boolean", "shareCycleWithPartner": "Boolean", "wantAiCompanion": "Boolean", "healthConcerns": ["Array de String"], "accessCode": "String", "allowParentalMonitoring": "Boolean", "commonSymptoms": ["Array de String"], "completed": "Boolean"}` | Completar onboarding | `{"message": "String", "user": {"id": "Integer", "email": "String", "onboardingCompleted": "Boolean"}, "onboarding": {"id": "Integer", "profileType": "String", "stageOfLife": "String", "lastPeriodDate": "String (YYYY-MM-DD)", "averageCycleLength": "Integer", "averagePeriodLength": "Integer", "completed": "Boolean"}, "additionalData": {"menstrualCycleCreated": "Boolean", "conditionsRegistered": ["Array de String"], "symptomsRegistered": ["Array de String"]}}` |
+|     ✅     | `/onboarding` | `GET` | - | Obtener datos de onboarding | `{"onboarding": {"id": "Integer", "profileType": "String", "genderIdentity": "String", "pronouns": "String", "isPersonal": "Boolean", "stageOfLife": "String", "lastPeriodDate": "String", "averageCycleLength": "Integer", "averagePeriodLength": "Integer", "hormoneType": "String", "hormoneStartDate": "String", "hormoneFrequencyDays": "Integer", "receiveAlerts": "Boolean", "receiveRecommendations": "Boolean", "receiveCyclePhaseTips": "Boolean", "receiveWorkoutSuggestions": "Boolean", "receiveNutritionAdvice": "Boolean", "shareCycleWithPartner": "Boolean", "wantAiCompanion": "Boolean", "healthConcerns": ["Array"], "accessCode": "String", "allowParentalMonitoring": "Boolean", "commonSymptoms": ["Array"], "createdAt": "String", "updatedAt": "String", "completed": "Boolean"}, "user": {"id": "Integer", "email": "String", "username": "String", "name": "String", "lastName": "String", "onboardingCompleted": "Boolean"}, "additionalData": {"currentCycle": {"cycleId": "String", "phase": "String", "startDate": "String", "endDate": "String"}, "registeredConditions": [{"id": "Integer", "name": "String", "startDate": "String", "endDate": "String"}]}}` |
 
 
 ---
@@ -178,12 +179,14 @@
 
 | Validado | Endpoint | Método | Campos de Entrada | Descripción | Respuesta |
 |:--------:|----------|--------|-------------------|-------------|----------|
-|          | `/conditions` | `GET` | - | Listar condiciones | JSON con lista de condiciones médicas |
+|     ✅     | `/conditions` | `GET` | - | Listar todas las condiciones | JSON con lista completa de condiciones médicas |
 |          | `/conditions/{id}` | `GET` | ID en URL | Condición específica | JSON con detalles de la condición |
 |          | `/conditions/user` | `GET` | - | Condiciones del usuario | JSON con condiciones del usuario |
 |          | `/conditions/user/add` | `POST` | `{"conditionId": "", "startDate": "", "endDate": "", "notes": ""}` | Añadir al usuario | JSON con condición añadida |
 |          | `/conditions/user/{id}` | `PUT` | JSON con campos a actualizar | Actualizar condición usuario | JSON con condición actualizada |
 |          | `/conditions/user/{id}` | `DELETE` | ID en URL | Eliminar condición usuario | Mensaje de confirmación |
+|     ✅     | `/conditions-active` | `GET` | - | Listar condiciones activas | JSON con lista de condiciones médicas activas |
+|     ✅     | `/conditions/active` | `GET` | - | Listar condiciones activas (alt) | JSON con lista de condiciones médicas activas |
 |          | `/conditions/user/active` | `GET` | - | Condiciones activas | JSON con condiciones activas |
 |          | `/conditions/content/{id}` | `GET` | ID en URL | Contenido relacionado | JSON con contenido relacionado |
 |          | `/conditions/notifications/{id}` | `GET` | ID en URL | Notificaciones relacionadas | JSON con notificaciones relacionadas |
@@ -358,7 +361,7 @@ Los siguientes endpoints requieren `ROLE_ADMIN`:
 ### ❓ **Parámetros Opcionales**
 - Los campos marcados con `?` son opcionales
 - Los parámetros de query van después de `?` en la URL
-- Ejemplo: `/content?type=nutrition&limit=10`
+- Ejemplo: `/content?type=recipe&limit=10`
 
 ### 🏷️ **Estados de Respuesta HTTP**
 - `200` - Éxito
