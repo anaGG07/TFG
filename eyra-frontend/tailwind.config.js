@@ -4,34 +4,43 @@ export default {
   theme: {
     extend: {
       boxShadow: {
-        'neomorphic': '15px 15px 30px rgba(120, 113, 108, 0.12), -15px -15px 30px rgba(255, 255, 255, 0.7)',
-        'neomorphic-hover': '20px 20px 40px rgba(120, 113, 108, 0.15), -20px -20px 40px rgba(255, 255, 255, 0.8)',
-        'neomorphic-inset': 'inset 4px 4px 8px rgba(120, 113, 108, 0.1), inset -4px -4px 8px rgba(255, 255, 255, 0.8)',
-        'neomorphic-small': '8px 8px 16px rgba(120, 113, 108, 0.12), -8px -8px 16px rgba(255, 255, 255, 0.7)',
-        'neomorphic-tiny': '3px 3px 6px rgba(120, 113, 108, 0.1), -3px -3px 6px rgba(255, 255, 255, 0.7)'
+        neomorphic:
+          "15px 15px 30px rgba(120, 113, 108, 0.12), -15px -15px 30px rgba(255, 255, 255, 0.7)",
+        "neomorphic-hover":
+          "20px 20px 40px rgba(120, 113, 108, 0.15), -20px -20px 40px rgba(255, 255, 255, 0.8)",
+        "neomorphic-inset":
+          "inset 4px 4px 8px rgba(120, 113, 108, 0.1), inset -4px -4px 8px rgba(255, 255, 255, 0.8)",
+        "neomorphic-small":
+          "8px 8px 16px rgba(120, 113, 108, 0.12), -8px -8px 16px rgba(255, 255, 255, 0.7)",
+        "neomorphic-tiny":
+          "3px 3px 6px rgba(120, 113, 108, 0.1), -3px -3px 6px rgba(255, 255, 255, 0.7)",
       },
       backgroundImage: {
-        'neomorphic': 'linear-gradient(145deg, #fafaf9, #e7e5e4)',
-        'neomorphic-light': 'linear-gradient(145deg, #f5f5f4, #e7e5e4)'
+        backgroundImage: {
+          neomorphic: "linear-gradient(145deg, #f4f1ed, #d5cdc0)",
+          "neomorphic-light": "linear-gradient(145deg, #e7e0d5, #d5cdc0)", 
+          "gradient-radial": "radial-gradient(var(--tw-gradient-stops))",
+        },
       },
       colors: {
-        "primary-DEFAULT": "#C62328",
-        "primary-light": "#FF6C5C",
-        "primary-dark": "#FFEDEA",
-        "secondary-DEFAULT": "#FF6C5C",
-        "secondary-light": "#e7e0d5",
-        "secondary-dark": "#B5413A",
-        eyraRed: "#C62328",
-        eyraLightRed: "#FF6C5C",
+        primary: {
+          DEFAULT: "#d30006",
+          light: "#ff393f",
+          dark: "#650e00",
+        },
+        secondary: {
+          DEFAULT: "#e7e0d5",
+          light: "#f4f1ed",
+          dark: "#d5cdc0",
+        },
+        eyraRed: "#d30006",
+        eyraLightRed: "#ff393f",
         eyraLightPink: "#e7e0d5",
-        eyraDeepRed: "#B5413A",
+        eyraDeepRed: "#aa322b",
       },
       fontFamily: {
         serif: ["Playfair Display", "serif"],
         sans: ["Inter", "sans-serif"],
-      },
-      backgroundImage: {
-        "gradient-radial": "radial-gradient(var(--tw-gradient-stops))",
       },
       keyframes: {
         skewing: {
@@ -64,7 +73,9 @@ export default {
         },
         orbit: {
           "0%": { transform: "rotate(0deg) translateX(80px) rotate(0deg)" },
-          "100%": { transform: "rotate(360deg) translateX(80px) rotate(-360deg)" },
+          "100%": {
+            transform: "rotate(360deg) translateX(80px) rotate(-360deg)",
+          },
         },
       },
       animation: {

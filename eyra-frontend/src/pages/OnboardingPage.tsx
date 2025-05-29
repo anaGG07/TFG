@@ -107,10 +107,10 @@ const OnboardingPage: React.FC = () => {
 
   if (isLoading) {
     return (
-      <div className="h-screen bg-gradient-to-br from-[#f8e9ea] to-[#e7e0d5] flex items-center justify-center p-4">
+      <div className="h-screen bg-gradient-to-br from-secondary-light to-secondary flex items-center justify-center p-4">
         <div className="bg-white rounded-xl p-8 shadow-xl text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#5b0108] mx-auto"></div>
-          <p className="mt-4 text-[#5b0108]">Verificando sesión...</p>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-dark mx-auto"></div>
+          <p className="mt-4 text-primary-dark">Verificando sesión...</p>
         </div>
       </div>
     );
@@ -315,7 +315,7 @@ const OnboardingPage: React.FC = () => {
   };
 
   return (
-    <div className="w-screen h-screen flex flex-col bg-[#f5ede6] relative overflow-hidden">
+    <div className="w-screen h-screen flex flex-col bg-secondary-light relative overflow-hidden">
       {/* Barra de progreso superior optimizada */}
       <div className="absolute top-0 left-0 w-full flex justify-center z-10 pt-4">
         <div className="flex gap-2">
@@ -323,7 +323,7 @@ const OnboardingPage: React.FC = () => {
             <div
               key={n}
               className={`h-1.5 w-8 rounded-full transition-all duration-500 ${
-                step >= n ? "bg-[#C62328]" : "bg-[#e7e0d5]"
+                step >= n ? "bg-primary" : "bg-secondary"
               }`}
             ></div>
           ))}
@@ -333,9 +333,9 @@ const OnboardingPage: React.FC = () => {
       {/* Contenido principal con altura optimizada */}
       <div className="flex-1 flex items-center justify-center px-4 pt-8 pb-4">
         <div
-          className="bg-white rounded-3xl shadow-xl w-full h-full max-w-6xl flex flex-col animate-fade-in border border-[#e7e0d5] overflow-hidden"
+          className="bg-white rounded-3xl shadow-xl w-full h-full max-w-6xl flex flex-col animate-fade-in border border-secondary overflow-hidden"
           style={{
-            background: "#e7e0d5",
+            background: "bg-secondary",
             boxShadow: `
               20px 20px 40px rgba(91, 1, 8, 0.08),
               -20px -20px 40px rgba(255, 255, 255, 0.25),
@@ -373,16 +373,16 @@ const OnboardingPage: React.FC = () => {
           {/* Mensaje de completado SOLO cuando showCompletedMessage es true */}
           {showCompletedMessage && (
             <div className="px-6 pb-4 text-center animate-fade-in">
-              <h3 className="text-2xl font-serif text-[#C62328] font-bold mb-2">¡Onboarding completado!</h3>
-              <p className="text-[#7a2323] text-base">Estás lista para descubrir, conectar y evolucionar con EYRA.<br/>Recuerda: <span className="font-semibold">tu ciclo, tu poder</span>.</p>
+              <h3 className="text-2xl font-serif text-primary font-bold mb-2">¡Onboarding completado!</h3>
+              <p className="text-primary-dark text-base">Estás lista para descubrir, conectar y evolucionar con EYRA.<br/>Recuerda: <span className="font-semibold">tu ciclo, tu poder</span>.</p>
             </div>
           )}
 
           {/* Si es acompañante y se está enviando el formulario */}
           {isSubmitting && watch("stageOfLife") === "trackingOthers" && (
             <div className="px-6 pb-4 text-center animate-fade-in">
-              <h3 className="text-2xl font-serif text-[#C62328] font-bold mb-2">¡Registro completado!</h3>
-              <p className="text-[#7a2323] text-base">Te hemos vinculado como acompañante.<br/>Redirigiendo al dashboard...</p>
+              <h3 className="text-2xl font-serif text-primary font-bold mb-2">¡Registro completado!</h3>
+              <p className="text-primary-dark text-base">Te hemos vinculado como acompañante.<br/>Redirigiendo al dashboard...</p>
             </div>
           )}
         </div>

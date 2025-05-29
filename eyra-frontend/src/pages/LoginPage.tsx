@@ -84,7 +84,7 @@ const LoginPage = () => {
           <Blob
             width={dimensions.width}
             height={dimensions.height}
-            color="#C62328"
+            color="text-primary"
             radius={dimensions.height / 2.1}
           />
         </div>
@@ -93,18 +93,18 @@ const LoginPage = () => {
           <div className="text-center mb-6">
             <h1
               className="font-serif text-3xl md:text-5xl font-bold"
-              style={{ color: "#E7E0D5" }}
+              style={{ color: "text-secondary" }}
               id="login-title"
             >
               Iniciar Sesión
             </h1>
-            <p className="text-base md:text-lg" style={{ color: "#E7E0D5" }}>
+            <p className="text-base md:text-lg text-secondary">
               Accede a tu cuenta para continuar
             </p>
           </div>
           {error && (
             <div
-              className="shadow-md text-[#E7E0D5] text-center rounded-lg p-3 mb-6 text-md"
+              className="shadow-md text-secondary text-center rounded-lg p-3 mb-6 text-md"
               role="alert"
             >
               {error}
@@ -125,13 +125,13 @@ const LoginPage = () => {
                 value={email}
                 autoComplete="email"
                 onChange={(e) => setEmail(e.target.value)}
-                className="text-center w-full py-3 px-4 text-xl text-[#E7E0D5] placeholder-[#E7E0D5] bg-none active:bg-none focus:outline-none focus:bg-none transition-all duration-300"
+                className="text-center w-full py-3 px-4 text-xl text-secondary placeholder-secondary bg-none active:bg-none focus:outline-none focus:bg-none transition-all duration-300"
                 style={{
                   background: "transparent",
-                  WebkitTextFillColor: "#E7E0D5",
+                  WebkitTextFillColor: "text-secondary",
                   WebkitBoxShadow: "0 0 0px 1000px transparent inset",
                   WebkitBackgroundClip: "text",
-                  caretColor: "#E7E0D5",
+                  caretColor: "text-secondary",
                 }}
                 placeholder="Email"
                 required
@@ -145,13 +145,13 @@ const LoginPage = () => {
                 autoComplete="current-password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="text-center w-full py-3 px-4 text-xl text-[#E7E0D5] placeholder-[#E7E0D5] active:bg-none focus:outline-none focus:bg-none transition-all duration-300"
+                className="text-center w-full py-3 px-4 text-xl text-secondary placeholder-secondary active:bg-none focus:outline-none focus:bg-none transition-all duration-300"
                 style={{
                   background: "transparent",
-                  WebkitTextFillColor: "#E7E0D5",
+                  WebkitTextFillColor: "text-secondary",
                   WebkitBoxShadow: "0 0 0px 1000px transparent inset",
                   WebkitBackgroundClip: "text",
-                  caretColor: "#E7E0D5",
+                  caretColor: "text-secondary",
                 }}
                 placeholder="Contraseña"
                 required
@@ -159,27 +159,27 @@ const LoginPage = () => {
               />
             </div>
             <div className="flex items-center justify-center w-full pt-4">
-              <div className="w-full max-w-md h-[2px] bg-[#E7E0D5]/30 relative overflow-hidden rounded-full">
-                <span className="absolute inset-0 w-full h-full bg-gradient-to-r from-transparent via-[#E7E0D5] to-transparent animate-[shimmer_2s_infinite]"></span>
+              <div className="w-full max-w-md h-[2px] bg-secondary/30 relative overflow-hidden rounded-full">
+                <span className="absolute inset-0 w-full h-full bg-gradient-to-r from-transparent via-secondary to-transparent animate-[shimmer_2s_infinite]"></span>
               </div>
             </div>
 
             <div
               className="flex items-center justify-between text-sm"
-              style={{ color: "#E7E0D5" }}
+              style={{ color: "text-secondary" }}
             >
               <div className="flex items-center">
                 <div
-                  className={`w-4 h-4 rounded-full border-2 border-[#E7E0D5] cursor-pointer transition-all duration-200 flex items-center justify-center ${
+                  className={`w-4 h-4 rounded-full border-2 border-secondary cursor-pointer transition-all duration-200 flex items-center justify-center ${
                     isRememberMe
-                      ? "bg-[#E7E0D5] border-[#E7E0D5]"
+                      ? "bg-secondary border-secondary"
                       : "bg-transparent"
                   }`}
                   onClick={() => setIsRememberMe(!isRememberMe)}
                 >
                   {isRememberMe && (
                     <svg
-                      className="w-2 h-2 text-[#C62328]"
+                      className="w-2 h-2 text-primary"
                       fill="currentColor"
                       viewBox="0 0 20 20"
                     >
@@ -193,7 +193,7 @@ const LoginPage = () => {
                 </div>
                 <label
                   className="ml-2 cursor-pointer"
-                  style={{ color: "#E7E0D5" }}
+                  style={{ color: "text-secondary" }}
                   onClick={() => setIsRememberMe(!isRememberMe)}
                 >
                   Recordarme
@@ -203,7 +203,7 @@ const LoginPage = () => {
                 type="button"
                 onClick={() => setShowPasswordResetModal(true)}
                 className="cursor-pointer hover:underline font-medium transition-all duration-200 hover:text-white"
-                style={{ color: "#E7E0D5" }}
+                style={{ color: "text-secondary" }}
               >
                 ¿Olvidaste tu contraseña?
               </button>
@@ -214,7 +214,7 @@ const LoginPage = () => {
               <button
                 type="submit"
                 disabled={isLoading}
-                className=" shadow-[0_5px_10px_0_#00000079] hover:shadow-[0_4px_24px_0_#E7E0D540] text-[#E7E0D5]  cursor-pointer group relative px-12 py-3 font-semibold text-base rounded-full overflow-hidden transition-all duration-300 transform hover:scale-105 active:scale-95 disabled:opacity-60 disabled:cursor-not-allowed disabled:transform-none"
+                className="shadow-[0_5px_10px_0_#00000079] hover:shadow-[0_4px_24px_0_#E7E0D540] text-secondary cursor-pointer group relative px-12 py-3 font-semibold text-base rounded-full overflow-hidden transition-all duration-300 transform hover:scale-105 active:scale-95 disabled:opacity-60 disabled:cursor-not-allowed disabled:transform-none"
               >
                 {/* Contenido del botón */}
                 <span className="relative z-10 flex items-center justify-center gap-2">
@@ -267,12 +267,12 @@ const LoginPage = () => {
             </div>
           </form>
           <div className="mt-6 text-center pointer-events-auto">
-            <p className="text-sm" style={{ color: "#E7E0D5" }}>
+            <p className="text-sm text-secondary">
               ¿No tienes una cuenta?{" "}
               <Link
                 to={ROUTES.REGISTER}
                 className="hover:underline font-medium pointer-events-auto"
-                style={{ color: "#E7E0D5", textDecorationColor: "#fff" }}
+                style={{ color: "text-secondary", textDecorationColor: "text-white" }}
               >
                 Regístrate
               </Link>

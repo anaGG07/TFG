@@ -19,7 +19,7 @@ const DashboardPage: React.FC = () => {
               <div
                 className="w-16 h-16 rounded-full flex items-center justify-center"
                 style={{
-                  background: "#e7e0d5",
+                  background: "bg-secondary",
                   boxShadow: `
                   inset 4px 4px 8px rgba(91, 1, 8, 0.3),
                   inset -4px -4px 8px rgba(255, 108, 92, 0.2)
@@ -30,14 +30,13 @@ const DashboardPage: React.FC = () => {
               </div>
             </div>
             <div className="flex-1 space-y-4">
-              <p className="text-[#300808] text-center text-sm leading-relaxed font-medium">
+              <p className="text-primary-dark text-center text-sm leading-relaxed font-medium">
                 Información sobre tu ciclo menstrual actual
               </p>
               <div
                 className="rounded-xl p-4 border"
                 style={{
-                  background:
-                    "linear-gradient(135deg, rgba(198, 35, 40, 0.05), rgba(255, 108, 92, 0.03))",
+                  background: "bg-gradient-to-br from-primary to-primary-dark",
                   border: "1px solid rgba(198, 35, 40, 0.15)",
                   boxShadow: `
                   inset 2px 2px 4px rgba(198, 35, 40, 0.05),
@@ -49,10 +48,10 @@ const DashboardPage: React.FC = () => {
                   <div
                     className="w-3 h-3 rounded-full"
                     style={{
-                      background: "linear-gradient(135deg, #C62328, #9d0d0b)",
+                      background: "bg-secondary",
                     }}
                   ></div>
-                  <p className="text-xs text-[#5b0108] font-semibold">
+                  <p className="text-xs text-primary-dark font-semibold">
                     Estado:{" "}
                     {user?.onboarding?.completed
                       ? "Configurado"
@@ -73,7 +72,7 @@ const DashboardPage: React.FC = () => {
               <div
                 className="w-16 h-16 rounded-full flex items-center justify-center"
                 style={{
-                  background: "#e7e0d5",
+                  background: "bg-secondary",
                   boxShadow: `
                   inset 4px 4px 8px rgba(91, 1, 8, 0.3),
                   inset -4px -4px 8px rgba(255, 108, 92, 0.2)
@@ -84,14 +83,13 @@ const DashboardPage: React.FC = () => {
               </div>
             </div>
             <div className="flex-1 space-y-4">
-              <p className="text-[#300808] text-center text-sm leading-relaxed font-medium">
+              <p className="text-primary-dark text-center text-sm leading-relaxed font-medium">
                 Registro de síntomas recientes
               </p>
               <div
                 className="rounded-xl p-4 border"
                 style={{
-                  background:
-                    "linear-gradient(135deg, rgba(255, 108, 92, 0.05), rgba(198, 35, 40, 0.03))",
+                  background: "bg-gradient-to-br from-primary to-primary-dark",
                   border: "1px solid rgba(255, 108, 92, 0.15)",
                   boxShadow: `
                   inset 2px 2px 4px rgba(255, 108, 92, 0.05),
@@ -104,14 +102,14 @@ const DashboardPage: React.FC = () => {
                     <div
                       className="w-3 h-3 rounded-full"
                       style={{
-                        background: "linear-gradient(135deg, #FF6C5C, #C62328)",
+                        background: "bg-secondary",
                       }}
                     ></div>
-                    <p className="text-xs text-[#5b0108] font-semibold">
+                    <p className="text-xs text-primary-dark font-semibold">
                       Registros:
                     </p>
                   </div>
-                  <span className="text-xs text-[#9d0d0b] font-bold">
+                  <span className="text-xs text-primary font-bold">
                     0 síntomas hoy
                   </span>
                 </div>
@@ -129,7 +127,7 @@ const DashboardPage: React.FC = () => {
               <div
                 className="w-16 h-16 rounded-full flex items-center justify-center"
                 style={{
-                  background: "#e7e0d5",
+                  background: "bg-secondary",
                   boxShadow: `
                   inset 4px 4px 8px rgba(91, 1, 8, 0.4),
                   inset -4px -4px 8px rgba(157, 13, 11, 0.2)
@@ -140,14 +138,13 @@ const DashboardPage: React.FC = () => {
               </div>
             </div>
             <div className="flex-1 space-y-4">
-              <p className="text-[#300808] text-center text-sm leading-relaxed font-medium">
+              <p className="text-primary-dark text-center text-sm leading-relaxed font-medium">
                 Análisis y tendencias personalizadas
               </p>
               <div
                 className="rounded-xl p-4 border"
                 style={{
-                  background:
-                    "linear-gradient(135deg, rgba(157, 13, 11, 0.05), rgba(91, 1, 8, 0.03))",
+                  background: "bg-gradient-to-br from-primary to-primary-dark",
                   border: "1px solid rgba(157, 13, 11, 0.15)",
                   boxShadow: `
                   inset 2px 2px 4px rgba(157, 13, 11, 0.05),
@@ -159,10 +156,10 @@ const DashboardPage: React.FC = () => {
                   <div
                     className="w-3 h-3 rounded-full"
                     style={{
-                      background: "linear-gradient(135deg, #9d0d0b, #5b0108)",
+                      background: "bg-secondary",
                     }}
                   ></div>
-                  <p className="text-xs text-[#5b0108] font-semibold">
+                  <p className="text-xs text-primary-dark font-semibold">
                     Datos disponibles próximamente
                   </p>
                 </div>
@@ -180,7 +177,7 @@ const DashboardPage: React.FC = () => {
               <div
                 className="w-16 h-16 rounded-full flex items-center justify-center"
                 style={{
-                  background: "#e7e0d5",
+                  background: "bg-secondary",
                   boxShadow: `
                   inset 4px 4px 8px rgba(91, 1, 8, 0.3),
                   inset -4px -4px 8px rgba(181, 65, 58, 0.2)
@@ -191,14 +188,13 @@ const DashboardPage: React.FC = () => {
               </div>
             </div>
             <div className="flex-1 space-y-4">
-              <p className="text-[#300808] text-center text-sm leading-relaxed font-medium">
+              <p className="text-primary-dark text-center text-sm leading-relaxed font-medium">
                 Notificaciones y recordatorios
               </p>
               <div
                 className="rounded-xl p-4 border"
                 style={{
-                  background:
-                    "linear-gradient(135deg, rgba(181, 65, 58, 0.05), rgba(157, 13, 11, 0.03))",
+                  background: "bg-gradient-to-br from-primary to-primary-dark",
                   border: "1px solid rgba(181, 65, 58, 0.15)",
                   boxShadow: `
                   inset 2px 2px 4px rgba(181, 65, 58, 0.05),
@@ -210,10 +206,10 @@ const DashboardPage: React.FC = () => {
                   <div
                     className="w-3 h-3 rounded-full"
                     style={{
-                      background: "linear-gradient(135deg, #B5413A, #9d0d0b)",
+                      background: "bg-secondary",
                     }}
                   ></div>
-                  <p className="text-xs text-[#5b0108] font-semibold">
+                  <p className="text-xs text-primary-dark font-semibold">
                     No hay recordatorios pendientes
                   </p>
                 </div>
@@ -231,7 +227,7 @@ const DashboardPage: React.FC = () => {
               <div
                 className="w-16 h-16 rounded-full flex items-center justify-center"
                 style={{
-                  background: "#e7e0d5",
+                  background: "bg-secondary",
                   border: "2px solid rgba(198, 35, 40, 0.3)",
                   boxShadow: `
                   inset 4px 4px 8px rgba(91, 1, 8, 0.1),
@@ -243,14 +239,13 @@ const DashboardPage: React.FC = () => {
               </div>
             </div>
             <div className="flex-1 space-y-4">
-              <p className="text-[#300808] text-center text-sm leading-relaxed font-medium">
+              <p className="text-primary-dark text-center text-sm leading-relaxed font-medium">
                 Consejos y recomendaciones
               </p>
               <div
                 className="rounded-xl p-4 border"
                 style={{
-                  background:
-                    "linear-gradient(135deg, rgba(245, 223, 196, 0.3), rgba(231, 214, 184, 0.2))",
+                  background: "bg-gradient-to-br from-primary to-primary-dark",
                   border: "1px solid rgba(198, 35, 40, 0.15)",
                   boxShadow: `
                   inset 2px 2px 4px rgba(198, 35, 40, 0.03),
@@ -262,10 +257,10 @@ const DashboardPage: React.FC = () => {
                   <div
                     className="w-3 h-3 rounded-full"
                     style={{
-                      background: "linear-gradient(135deg, #e7e0d5, #C62328)",
+                      background: "bg-secondary",
                     }}
                   ></div>
-                  <p className="text-xs text-[#5b0108] font-semibold">
+                  <p className="text-xs text-primary-dark font-semibold">
                     Explora contenido personalizado
                   </p>
                 </div>
@@ -283,7 +278,7 @@ const DashboardPage: React.FC = () => {
               <div
                 className="w-16 h-16 rounded-full flex items-center justify-center"
                 style={{
-                  background: "#e7e0d5",
+                  background: "bg-secondary",
                   boxShadow: `
                   inset 4px 4px 8px rgba(91, 1, 8, 0.3),
                   inset -4px -4px 8px rgba(255, 108, 92, 0.3)
@@ -294,14 +289,13 @@ const DashboardPage: React.FC = () => {
               </div>
             </div>
             <div className="flex-1 space-y-4">
-              <p className="text-[#300808] text-center text-sm leading-relaxed font-medium">
+              <p className="text-primary-dark text-center text-sm leading-relaxed font-medium">
                 Conecta con otras usuarias
               </p>
               <div
                 className="rounded-xl p-4 border"
                 style={{
-                  background:
-                    "linear-gradient(135deg, rgba(198, 35, 40, 0.05), rgba(255, 108, 92, 0.05))",
+                  background: "bg-gradient-to-br from-primary to-primary-dark",
                   border: "1px solid rgba(198, 35, 40, 0.15)",
                   boxShadow: `
                   inset 2px 2px 4px rgba(198, 35, 40, 0.05),
@@ -314,14 +308,14 @@ const DashboardPage: React.FC = () => {
                     <div
                       className="w-3 h-3 rounded-full"
                       style={{
-                        background: "linear-gradient(135deg, #C62328, #FF6C5C)",
+                        background: "bg-secondary",
                       }}
                     ></div>
-                    <p className="text-xs text-[#5b0108] font-semibold">
+                    <p className="text-xs text-primary-dark font-semibold">
                       Estado:
                     </p>
                   </div>
-                  <span className="text-xs text-[#9d0d0b] font-bold">
+                  <span className="text-xs text-primary font-bold">
                     Próximamente disponible
                   </span>
                 </div>
@@ -335,7 +329,7 @@ const DashboardPage: React.FC = () => {
   );
 
   return (
-    <div className="w-full h-full bg-[#e7e0d5] overflow-hidden">
+    <div className="w-full h-full bg-secondary overflow-hidden">
       <DraggableGrid
         items={dashboardItems}
         onItemsChange={(newItems) => {
