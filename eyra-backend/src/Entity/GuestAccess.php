@@ -37,11 +37,11 @@ class GuestAccess
     #[ORM\GeneratedValue]
     #[ORM\Column]
     #[Groups(['guest_access:read'])]
-private ?int $id = null;
+    private ?int $id = null;
 
     #[ORM\ManyToOne(inversedBy: 'ownedGuestAccesses')]
     #[Groups(['guest_access:read'])]
-private ?User $owner = null;
+    private ?User $owner = null;
 
     #[ORM\ManyToOne(inversedBy: 'guestAccesses')]
     #[ORM\JoinColumn(nullable: false)]
@@ -51,19 +51,19 @@ private ?User $owner = null;
 
     #[ORM\Column(enumType: GuestType::class)]
     #[Groups(['guest_access:read', 'guest_access:write'])]
-private ?GuestType $guestType = null;
+    private ?GuestType $guestType = null;
 
     #[ORM\Column]
     #[Groups(['guest_access:read', 'guest_access:write'])]
-private array $accessTo = [];
+    private array $accessTo = [];
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
     #[Groups(['guest_access:read', 'guest_access:write'])]
-private ?\DateTimeInterface $expires_at = null;
+    private ?\DateTimeInterface $expires_at = null;
 
     #[ORM\Column]
     #[Groups(['guest_access:read', 'guest_access:write'])]
-private ?bool $state = true;
+    private ?bool $state = true;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
     private ?\DateTimeInterface $createdAt = null;
@@ -184,13 +184,19 @@ private ?bool $state = true;
     {
         $this->updatedAt = new \DateTime();
     }
-    
+
     /**
      * @var Collection<int, Notification>
      */
     #[ORM\OneToMany(mappedBy: 'guestAccess', targetEntity: Notification::class, cascade: ['persist', 'remove'])]
     #[Groups(['guest_access:read'])]
     private Collection $notifications;
+
+    // ! 28/05/2025 - Relación con el código de invitación usado para crear este acceso
+    #[ORM\ManyToOne(targetEntity: InvitationCode::class)]
+    #[ORM\JoinColumn(nullable: true)]
+    #[Groups(['guest_access:read'])]
+    private ?InvitationCode $invitationCode = null;
 
     public function __construct()
     {
@@ -221,6 +227,18 @@ private ?bool $state = true;
                 $notification->setGuestAccess(null);
             }
         }
+        return $this;
+    }
+
+    // ! 28/05/2025 - Getter y setter para la relación con InvitationCode
+    public function getInvitationCode(): ?InvitationCode
+    {
+        return $this->invitationCode;
+    }
+
+    public function setInvitationCode(?InvitationCode $invitationCode): static
+    {
+        $this->invitationCode = $invitationCode;
         return $this;
     }
 }
