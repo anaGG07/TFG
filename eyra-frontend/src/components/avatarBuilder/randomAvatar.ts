@@ -1,5 +1,9 @@
-import { AvatarConfig } from './AvatarBuilder';
+import { AvatarConfig } from '../../types/avatar';
 
+/**
+ * Genera una configuración aleatoria de avatar
+ *
+ */
 export function getRandomAvatarConfig(): AvatarConfig {
   const skinColors = ['#FCD7B6', '#E0A96D', '#8D5524'];
   const eyes = ['happy', 'normal', 'sleepy'];
@@ -14,7 +18,9 @@ export function getRandomAvatarConfig(): AvatarConfig {
   const accessories = ['none', 'earring', 'necklace'];
   const tattoos = ['none', 'star', 'heart'];
   const backgrounds = ['#fffbe6', '#e0e0e0', '#c6e2ff', '#ffe4e1'];
+  
   const rand = <T,>(arr: T[]) => arr[Math.floor(Math.random() * arr.length)];
+  
   return {
     skinColor: rand(skinColors),
     eyes: rand(eyes),
@@ -26,9 +32,9 @@ export function getRandomAvatarConfig(): AvatarConfig {
     clothes: rand(clothes),
     fabricColor: rand(fabricColors),
     glasses: rand(glasses),
-    glassOpacity: Math.round((Math.random() * 0.7 + 0.3) * 100) / 100,
+    glassOpacity: (Math.round((Math.random() * 0.7 + 0.3) * 100) / 100).toString(), // ✅ CORREGIDO: Convertido a string
     accessories: rand(accessories),
     tattoos: rand(tattoos),
     backgroundColor: rand(backgrounds),
   };
-} 
+}

@@ -1,4 +1,4 @@
-import { User } from './domain';
+import { User, AvatarConfig } from './domain';
 
 // Respuestas genéricas de la API
 export interface ApiResponse<T> {
@@ -29,6 +29,7 @@ export interface RegisterRequest {
   genderIdentity?: string;
   birthDate?: string;
   profileType?: string;
+  avatar?: AvatarConfig; // ✅ CORREGIDO: Ahora usa la interface correcta
 }
 
 export interface AuthResponse {

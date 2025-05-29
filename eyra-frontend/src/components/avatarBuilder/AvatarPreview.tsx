@@ -1,5 +1,5 @@
 import React from 'react';
-import { AvatarConfig } from './AvatarBuilder';
+import { AvatarConfig } from '../../types/avatar';
 import Background from './Background';
 import Skin from './Skin';
 import Hair from './Hair';
@@ -12,10 +12,14 @@ import Glasses from './Glasses';
 import Accessories from './Accessories';
 import Tattoos from './Tattoos';
 
+interface AvatarPreviewProps {
+  config: AvatarConfig;
+  className?: string;
+}
 
-const AvatarPreview: React.FC<{ config: AvatarConfig }> = ({ config }) => {
+const AvatarPreview: React.FC<AvatarPreviewProps> = ({ config, className }) => {
   return (
-    <svg width="240" height="320" viewBox="0 0 240 320">
+    <svg width="240" height="320" viewBox="0 0 240 320" className={className}>
       <Background color={config.backgroundColor} />
       <Skin color={config.skinColor} />
       <Hair style={config.hairStyle} color={config.hairColor} />

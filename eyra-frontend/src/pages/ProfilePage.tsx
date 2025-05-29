@@ -5,6 +5,7 @@ import { motion } from 'framer-motion';
 import ProfileTabsModal from '../components/ProfileTabsModal';
 import { userService } from '../services/userService';
 import { toast } from 'react-hot-toast';
+import AvatarPreview from '../components/avatarBuilder/AvatarPreview';
 
 const ProfilePage: React.FC = () => {
   const { user, updateUserData } = useAuth();
@@ -52,7 +53,7 @@ const ProfilePage: React.FC = () => {
             {/* Avatar */}
             <div className="w-32 h-32 rounded-full overflow-hidden bg-[#C62328] flex items-center justify-center">
               {user.avatar ? (
-                <img src={user.avatar} alt="Avatar" className="w-full h-full object-cover" />
+                <AvatarPreview config={user.avatar} className="w-full h-full" />
               ) : (
                 <span className="text-4xl text-white font-bold">
                   {user.username?.charAt(0)?.toUpperCase() || 'U'}

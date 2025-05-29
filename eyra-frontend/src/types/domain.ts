@@ -1,3 +1,5 @@
+import { AvatarConfig } from './avatar';
+
 export enum ProfileType {
   GUEST = 'profile_guest',
   WOMEN = 'profile_women',
@@ -26,28 +28,46 @@ export interface User {
   username: string;
   name: string;
   lastName: string;
-  profileType: ProfileType;
   roles: string[];
+  profileType: ProfileType;
   birthDate: string;
   createdAt: string;
   updatedAt: string | null;
   state: boolean;
   onboardingCompleted: boolean;
-  avatar?: string;
-  onboarding?: {
-    id: number;
+  avatar: AvatarConfig;
+  onboarding: {
+    receiveAlerts: boolean;
+    receiveRecommendations: boolean;
+    receiveWorkoutSuggestions: boolean;
+    receiveNutritionAdvice: boolean;
     profileType: string;
     stageOfLife: string;
     lastPeriodDate: string | null;
     averageCycleLength: number | null;
     averagePeriodLength: number | null;
     completed: boolean;
-    receiveAlerts: boolean;
-    receiveRecommendations: boolean;
-    receiveCyclePhaseTips: boolean;
-    receiveWorkoutSuggestions: boolean;
-    receiveNutritionAdvice: boolean;
   };
+}
+
+export interface Workout {
+  id: string;
+  name: string;
+  description: string;
+  duration: number;
+  difficulty: 'beginner' | 'intermediate' | 'advanced';
+  exercises: Exercise[];
+}
+
+export interface Exercise {
+  id: string;
+  name: string;
+  description: string;
+  sets: number;
+  reps: number;
+  restTime: number;
+  equipment: string[];
+  muscleGroups: string[];
 }
 
 export interface MenstrualCycle {
@@ -114,3 +134,12 @@ export interface AIQuery {
   answer: string;
   createdAt: string;
 }
+
+// ✅ Re-exportar tipos de avatar para facilitar importaciones
+export type { AvatarConfig } from './avatar';
+export { 
+  defaultAvatarConfig, 
+  createEmptyAvatarConfig, 
+  isValidAvatarConfig, 
+  ensureValidAvatarConfig 
+} from './avatar';

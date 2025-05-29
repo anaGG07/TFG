@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import AvatarBuilder, { AvatarConfig } from './AvatarBuilder';
+import AvatarBuilder from './AvatarBuilder';
+import { AvatarConfig } from '../../types/avatar';
 import { NeomorphicButton } from '../ui/NeomorphicComponents';
 
 interface AvatarBuilderModalProps {
