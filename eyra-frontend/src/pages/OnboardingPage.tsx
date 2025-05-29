@@ -11,6 +11,7 @@ import Step4Symptoms from "../components/onboarding/Step4Symptoms";
 import Step5HealthConcerns from "../components/onboarding/Step5HealthConcerns";
 import { OnboardingFormData } from "../types/forms/OnboardingFormData";
 import { StepProps } from "../types/components/StepProps";
+import { ProfileType } from "../types/domain";
 
 const OnboardingPage: React.FC = () => {
   const navigate = useNavigate();
@@ -34,7 +35,7 @@ const OnboardingPage: React.FC = () => {
     reValidateMode: "onChange",
     defaultValues: {
       isPersonal: true,
-      profileType: "profile_women",
+      profileType: ProfileType.WOMEN,
       genderIdentity: "",
       pronouns: "",
       stageOfLife: "",
@@ -52,18 +53,17 @@ const OnboardingPage: React.FC = () => {
       accessCode: "",
       allowParentalMonitoring: false,
       commonSymptoms: [],
-      completed: false,
     },
   });
 
-  const deriveProfileType = (): OnboardingFormData["profileType"] => {
+  const deriveProfileType = (): ProfileType => {
     const isPersonal = watch("isPersonal");
     const stage = watch("stageOfLife");
 
-    if (!isPersonal) return "profile_guest";
-    if (stage === "transition") return "profile_trans";
-    if (stage === "underage") return "profile_underage";
-    return "profile_women";
+    if (!isPersonal) return ProfileType.GUEST;
+    if (stage === "transition") return ProfileType.TRANS;
+    if (stage === "underage") return ProfileType.UNDERAGE;
+    return ProfileType.WOMEN;
   };
   
   useEffect(() => {
@@ -126,57 +126,74 @@ const OnboardingPage: React.FC = () => {
     setError(null);
 
     if (currentStep === 1) {
+      // Validar campos obligatorios del paso 1
       const genderValue = getValues("genderIdentity");
-      console.log("El valor de genderValue es: ", genderValue);            
+      const profileType = getValues("profileType");
 
-      if (genderValue && genderValue.trim() !== "") {
-        return true;
-      } else {
+      if (!profileType) {
+        setError("El tipo de perfil es obligatorio");
+        return false;
+      }
+
+      if (!genderValue || genderValue.trim() === "") {
         setError("El campo de identidad de género es obligatorio");
         return false;
       }
+
+      return true;
     } else if (currentStep === 2) {
-      let isValid = await trigger("stageOfLife");
+      // Validar campos obligatorios del paso 2
+      const stageOfLife = getValues("stageOfLife");
+      const lastPeriodDate = getValues("lastPeriodDate");
+      const averagePeriodLength = getValues("averagePeriodLength");
+      const averageCycleLength = getValues("averageCycleLength");
 
-      if (isValid) {
-        const stage = watch("stageOfLife");
-        const hormoneType = watch("hormoneType");
-        const hormoneStartDate = watch("hormoneStartDate");
-        const hormoneFrequencyDays = watch("hormoneFrequencyDays");
-        const lastPeriodDate = watch("lastPeriodDate");
+      if (!stageOfLife) {
+        setError("La etapa de vida es obligatoria");
+        return false;
+      }
 
-        // Validación para transición hormonal
-        if (
-          stage === "transition" &&
-          (hormoneType || hormoneStartDate || hormoneFrequencyDays) &&
-          (!hormoneType || !hormoneStartDate || !hormoneFrequencyDays)
-        ) {
-          setError(
-            "Si estás en transición hormonal, debes completar los tres campos o dejarlos vacíos."
-          );
-          isValid = false;
+      // Validaciones específicas para etapa menstrual
+      if (stageOfLife === "menstrual") {
+        if (!lastPeriodDate) {
+          setError("La fecha del último período es obligatoria");
+          return false;
         }
 
-        // Validación para fechas de período menstrual
-        if (stage === "menstrual" && lastPeriodDate) {
-          const selectedDate = new Date(lastPeriodDate);
-          const today = new Date();
-          const oneYearAgo = new Date();
-          oneYearAgo.setFullYear(today.getFullYear() - 1);
-          
-          if (selectedDate > today) {
-            setError("La fecha del último período no puede ser posterior a hoy");
-            isValid = false;
-          }
-          
-          if (selectedDate < oneYearAgo) {
-            setError("La fecha del último período no puede ser anterior a un año");
-            isValid = false;
-          }
+        if (!averagePeriodLength) {
+          setError("La duración promedio del período es obligatoria");
+          return false;
+        }
+
+        // Validar rangos
+        if (averagePeriodLength < 1 || averagePeriodLength > 14) {
+          setError("La duración del período debe estar entre 1 y 14 días");
+          return false;
+        }
+
+        if (averageCycleLength && (averageCycleLength < 21 || averageCycleLength > 35)) {
+          setError("La duración del ciclo debe estar entre 21 y 35 días");
+          return false;
+        }
+
+        // Validar fecha del último período
+        const selectedDate = new Date(lastPeriodDate);
+        const today = new Date();
+        const oneYearAgo = new Date();
+        oneYearAgo.setFullYear(today.getFullYear() - 1);
+        
+        if (selectedDate > today) {
+          setError("La fecha del último período no puede ser posterior a hoy");
+          return false;
+        }
+        
+        if (selectedDate < oneYearAgo) {
+          setError("La fecha del último período no puede ser anterior a un año");
+          return false;
         }
       }
 
-      return isValid;
+      return true;
     }
     
     return true;
@@ -231,7 +248,6 @@ const OnboardingPage: React.FC = () => {
       const finalData: OnboardingFormData = {
         ...data,
         profileType,
-        completed: true, 
         genderIdentity: data.genderIdentity?.trim() || '',
         stageOfLife: data.stageOfLife?.trim() || '',
         lastPeriodDate: data.lastPeriodDate?.trim() || undefined,

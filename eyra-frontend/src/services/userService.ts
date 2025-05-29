@@ -19,7 +19,7 @@ export const userService = {
 
   async updateOnboarding(data: Partial<User['onboarding']>): Promise<User> {
     return apiFetch(API_ROUTES.AUTH.ONBOARDING, {
-      method: 'PUT',
+      method: 'POST',
       body: data,
     });
   },

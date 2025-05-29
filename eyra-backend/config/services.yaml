@@ -56,3 +56,11 @@ services:
             $requestStack: '@request_stack'
         tags:
             - { name: kernel.event_listener, event: security.authentication.failure, method: onAuthenticationFailure }
+
+    # Configuración específica para CycleCalculatorService
+    App\Service\CycleCalculatorService:
+        arguments:
+            $cycleRepository: '@App\Repository\MenstrualCycleRepository'
+            $onboardingRepository: '@App\Repository\OnboardingRepository'
+            $entityManager: '@doctrine.orm.entity_manager'
+            $logger: '@logger'

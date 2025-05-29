@@ -1,37 +1,39 @@
+import { ProfileType } from '../domain';
+
 export interface OnboardingFormData {
-  isPersonal: boolean;
+  // Datos básicos
+  profileType: ProfileType;
   genderIdentity: string;
   pronouns?: string;
+  isPersonal: boolean;
   stageOfLife: string;
-  lastPeriodDate?: string;
-  averageCycleLength?: number;
-  averagePeriodLength?: number;
-  hormoneType?: string;
-  hormoneStartDate?: string;
-  hormoneFrequencyDays?: number;
+
+  // Datos del ciclo menstrual
+  lastPeriodDate?: string | null;
+  averageCycleLength?: number | null;
+  averagePeriodLength?: number | null;
+
+  // Datos de hormonas
+  hormoneType?: string | null;
+  hormoneStartDate?: string | null;
+  hormoneFrequencyDays?: number | null;
+
+  // Preferencias de notificaciones
   receiveAlerts: boolean;
   receiveRecommendations: boolean;
   receiveCyclePhaseTips: boolean;
   receiveWorkoutSuggestions: boolean;
   receiveNutritionAdvice: boolean;
+
+  // Preferencias de privacidad
   shareCycleWithPartner: boolean;
   wantAiCompanion: boolean;
-  healthConcerns: string[];
-  accessCode?: string;
   allowParentalMonitoring: boolean;
+
+  // Datos de salud
+  healthConcerns: string[];
   commonSymptoms: string[];
-  profileType:
-    | "profile_guest"
-    | "profile_women"
-    | "profile_trans"
-    | "profile_underage";
-  completed: boolean;
-  pregnancyStartDate?: string | null;
-  pregnancyDueDate?: string | null;
-  pregnancyWeek?: number | null;
-  pregnancySymptoms?: string | null;
-  pregnancyFetalMovements?: string | null;
-  pregnancyUltrasoundDate?: string | null;
-  pregnancyNotes?: string | null;
-  otherSymptoms?: string | null;
+
+  // Código de acceso (solo para perfiles no personales)
+  accessCode?: string;
 }
