@@ -40,13 +40,13 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
   // Sincronización simple y directa
   const syncAuthState = useCallback(() => {
-    const authState = authService.getAuthState();
-    setUser(authState.user);
-    setIsAuthenticated(authState.isAuthenticated);
+    const user = authService.getAuthState();
+    setUser(user);
+    setIsAuthenticated(!!user);
     console.log("AuthContext: Estado sincronizado:", {
-      isAuthenticated: authState.isAuthenticated,
-      hasUser: !!authState.user,
-      userEmail: authState.user?.email,
+      isAuthenticated: !!user,
+      hasUser: !!user,
+      userEmail: user?.email,
     });
   }, []);
 
