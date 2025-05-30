@@ -4,9 +4,13 @@ import { apiFetch } from '../utils/httpClient';
 
 export const userService = {
   async updateProfile(data: Partial<User>): Promise<User> {
+    const body = {
+      ...data,
+      avatar: data.avatar && typeof data.avatar === 'object' ? JSON.stringify(data.avatar) : data.avatar,
+    };
     return apiFetch(API_ROUTES.USER.UPDATE_PROFILE, {
       method: 'PUT',
-      body: data,
+      body,
     });
   },
 

@@ -8,7 +8,7 @@ import { toast } from 'react-hot-toast';
 import AvatarPreview from '../components/avatarBuilder/AvatarPreview';
 
 const ProfilePage: React.FC = () => {
-  const { user, updateUserData } = useAuth();
+  const { user, checkAuth } = useAuth();
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
   const handleSave = async (data: any) => {
@@ -27,8 +27,8 @@ const ProfilePage: React.FC = () => {
       receiveWorkoutSuggestions: data.receiveWorkoutSuggestions,
       receiveNutritionAdvice: data.receiveNutritionAdvice,
     });
-    // Actualizar usuario en contexto
-    updateUserData({ ...user, ...data });
+    // Refrescar usuario desde backend para asegurar datos actualizados
+    await checkAuth();
     toast.custom(() => (
       <div className="rounded-2xl px-6 py-4 shadow-xl bg-[#fff] border border-[#C62328]/20 flex items-center gap-3 animate-fade-in">
         <span className="text-2xl">✅</span>
@@ -51,7 +51,7 @@ const ProfilePage: React.FC = () => {
         <div className="bg-white rounded-3xl shadow-lg p-8 mb-8">
           <div className="flex flex-col items-center gap-6">
             {/* Avatar */}
-            <div className="w-32 h-32 rounded-full overflow-hidden bg-[#C62328] flex items-center justify-center">
+            <div className="w-32 h-32 rounded-full overflow-hidden flex items-center justify-center">
               {user.avatar ? (
                 <AvatarPreview config={user.avatar} className="w-full h-full" />
               ) : (
