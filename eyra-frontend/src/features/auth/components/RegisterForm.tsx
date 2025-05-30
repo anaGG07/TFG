@@ -3,9 +3,10 @@ import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../../../context/AuthContext';
 import { TextField } from '../../../components/forms/TextField';
 import { Select } from '../../../components/forms/Select';
-import { Button } from '../../../components/ui/Button';
+import Button from '../../../components/Button';
 import { Alert } from '../../../components/ui/Alert';
 import { ProfileType } from '../../../types/domain';
+import { getRandomAvatarConfig } from "../../../components/avatarBuilder/randomAvatar";
 
 export const RegisterForm = () => {
   const navigate = useNavigate();
@@ -130,7 +131,14 @@ export const RegisterForm = () => {
       // Excluir solo confirmPassword del envío
       const { confirmPassword, ...registerData } = formData;
       
-      await register(registerData);
+      const randomAvatar = getRandomAvatarConfig();
+      const dataWithAvatar = {
+        ...registerData,
+        avatar: randomAvatar,
+      };
+
+      await register(dataWithAvatar);
+
       
       // Iniciar sesión automáticamente después del registro
       await login({ email: formData.email, password: formData.password });
@@ -294,8 +302,7 @@ export const RegisterForm = () => {
             variant="primary"
             onClick={step === 1 ? handleNextStep : undefined}
             isLoading={isLoading}
-            fullWidth={step === 1}
-            className={step === 2 ? "ml-auto" : ""}
+            className={step === 1 ? "w-full" : "ml-auto"}
           >
             {step === 1 ? 'Siguiente' : 'Crear cuenta'}
           </Button>
