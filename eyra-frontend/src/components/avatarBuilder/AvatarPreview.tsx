@@ -19,7 +19,7 @@ interface AvatarPreviewProps {
 
 const AvatarPreview: React.FC<AvatarPreviewProps> = ({ config, className }) => {
   return (
-    <svg width="240" height="320" viewBox="0 0 240 320" className={className}>
+    <svg width="100%" height="100%" viewBox="0 0 320 320" className={className} preserveAspectRatio="xMidYMid slice">
       <Background color={config.backgroundColor} />
       <Skin color={config.skinColor} />
       <Hair style={config.hairStyle} color={config.hairColor} />

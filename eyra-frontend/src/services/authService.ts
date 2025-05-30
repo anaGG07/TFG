@@ -4,21 +4,9 @@ import { apiFetch } from "../utils/httpClient";
 import { API_ROUTES } from "../config/apiRoutes";
 import { ensureValidAvatarConfig } from "../types/avatar";
 
-const AUTH_STATE_KEY = "auth_state";
-
-interface AuthState {
-  user: User | null;
-  isAuthenticated: boolean;
-  lastVerified: number;
-}
-
 class AuthService {
   private static instance: AuthService;
-  private authState: AuthState = {
-    user: null,
-    isAuthenticated: false,
-    lastVerified: 0,
-  };
+  private authState: User | null = null;
 
   // Controles de concurrencia simplificados
   private verificationPromise: Promise<boolean> | null = null;
@@ -26,7 +14,7 @@ class AuthService {
   private readonly VERIFICATION_COOLDOWN = 3000; // 3 segundos
 
   private constructor() {
-    this.initializeFromStorage();
+    // Elimina toda la lógica de localStorage y persistencia
   }
 
   /**
@@ -73,48 +61,8 @@ class AuthService {
     return AuthService.instance;
   }
 
-  private initializeFromStorage() {
-    try {
-      const storedState = localStorage.getItem(AUTH_STATE_KEY);
-      if (storedState) {
-        const parsedState = JSON.parse(storedState);
-
-        // Procesar usuario si existe
-        if (parsedState.user) {
-          parsedState.user = this.processUserData(parsedState.user);
-        }
-
-        this.authState = parsedState;
-        console.log("AuthService: Estado cargado desde localStorage:", {
-          isAuthenticated: this.authState.isAuthenticated,
-          hasUser: !!this.authState.user,
-        });
-      }
-    } catch (error) {
-      console.error("AuthService: Error cargando desde localStorage:", error);
-      this.clearAuthState();
-    }
-  }
-
-  private persistAuthState() {
-    try {
-      localStorage.setItem(AUTH_STATE_KEY, JSON.stringify(this.authState));
-    } catch (error) {
-      console.error("AuthService: Error guardando en localStorage:", error);
-    }
-  }
-
-  private clearAuthState() {
-    this.authState = {
-      user: null,
-      isAuthenticated: false,
-      lastVerified: 0,
-    };
-    localStorage.removeItem(AUTH_STATE_KEY);
-  }
-
-  public getAuthState(): AuthState {
-    return { ...this.authState };
+  public getAuthState(): User | null {
+    return this.authState;
   }
 
   public async login(credentials: LoginRequest): Promise<User> {
@@ -130,11 +78,7 @@ class AuthService {
       }
 
       const processedUser = this.processUserData(response.user);
-      this.authState = {
-        user: processedUser,
-        isAuthenticated: true,
-        lastVerified: Date.now(),
-      };
+      this.authState = processedUser;
       // Notificar a otras pestañas
       localStorage.setItem("auth_event", Date.now().toString());
 
@@ -142,11 +86,7 @@ class AuthService {
       return response.user;
     } catch (error) {
       console.error("AuthService: Error en login:", error);
-      this.authState = {
-        user: null,
-        isAuthenticated: false,
-        lastVerified: 0,
-      };
+      this.authState = null;
       // Notificar a otras pestañas
       localStorage.setItem("auth_event", Date.now().toString());
       throw error;
@@ -161,11 +101,7 @@ class AuthService {
     } catch (error) {
       console.error("AuthService: Error en logout del servidor:", error);
     } finally {
-      this.authState = {
-        user: null,
-        isAuthenticated: false,
-        lastVerified: 0,
-      };
+      this.authState = null;
       // Notificar a otras pestañas
       localStorage.setItem("auth_event", Date.now().toString());
       console.log("AuthService: Estado local limpiado");
@@ -181,7 +117,7 @@ class AuthService {
       if (!silent) {
         console.log("AuthService: Verificación en cooldown");
       }
-      return this.authState.isAuthenticated;
+      return !!this.authState;
     }
 
     // Si hay verificación en curso, esperar
@@ -216,12 +152,7 @@ class AuthService {
       const user = userData.user || userData;
 
       const processedUser = this.processUserData(user);
-      this.authState = {
-        user: processedUser,
-        isAuthenticated: true,
-        lastVerified: Date.now(),
-      };
-      this.persistAuthState();
+      this.authState = processedUser;
 
       if (!silent) {
         console.log("AuthService: Sesión válida para:", user.email);
@@ -231,7 +162,7 @@ class AuthService {
       if (!silent) {
         console.log("AuthService: Sesión no válida o expirada");
       }
-      this.clearAuthState();
+      this.authState = null;
       return false;
     }
   }
@@ -270,13 +201,7 @@ class AuthService {
       };
 
       const processedUser = this.processUserData(updatedUser);
-      this.authState = {
-        ...this.authState,
-        user: processedUser,
-        isAuthenticated: true,
-        lastVerified: Date.now(),
-      };
-      this.persistAuthState();
+      this.authState = processedUser;
 
       console.log(
         "AuthService: Onboarding completado para:",
@@ -285,18 +210,14 @@ class AuthService {
       return updatedUser;
     } catch (error) {
       console.error("AuthService: Error completando onboarding:", error);
-      this.clearAuthState();
+      this.authState = null;
       throw error;
     }
   }
 
   public updateUserData(userData: Partial<User>): void {
-    if (this.authState.user) {
-      this.authState = {
-        ...this.authState,
-        user: { ...this.authState.user, ...userData },
-      };
-      this.persistAuthState();
+    if (this.authState) {
+      this.authState = { ...this.authState, ...userData };
     }
   }
 }

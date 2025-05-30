@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { NeomorphicButton, NeomorphicInput } from "./ui/NeomorphicComponents";
 import AvatarBuilderModal from "./avatarBuilder/AvatarBuilderModal";
@@ -62,6 +62,26 @@ const ProfileTabsModal: React.FC<ProfileTabsModalProps> = ({ isOpen, onClose, us
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isAvatarBuilderOpen, setIsAvatarBuilderOpen] = useState(false);
+
+  // Sincroniza el estado local del formulario con el usuario global cada vez que el modal se abre o el usuario cambia
+  useEffect(() => {
+    if (isOpen && user) {
+      setForm({
+        name: user?.name || '',
+        lastName: user?.lastName || '',
+        username: user?.username || '',
+        birthDate: user?.birthDate || '',
+        avatar: user?.avatar || {},
+        receiveAlerts: user?.receiveAlerts ?? true,
+        receiveRecommendations: user?.receiveRecommendations ?? true,
+        receiveWorkoutSuggestions: user?.receiveWorkoutSuggestions ?? true,
+        receiveNutritionAdvice: user?.receiveNutritionAdvice ?? true,
+        currentPassword: '',
+        newPassword: '',
+        confirmPassword: '',
+      });
+    }
+  }, [isOpen, user]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type, checked } = e.target;
