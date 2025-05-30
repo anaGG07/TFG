@@ -84,7 +84,7 @@ const LoginPage = () => {
           <Blob
             width={dimensions.width}
             height={dimensions.height}
-            color="text-secondary"
+            color="text-[#e7e0d5]"
             radius={dimensions.height / 2.1}
           />
         </div>
@@ -92,18 +92,18 @@ const LoginPage = () => {
         <main className="p-6 md:p-8 w-full max-w-md z-10 relative bg-none pointer-events-none">
           <div className="text-center mb-6">
             <h1
-              className="font-serif text-3xl md:text-5xl font-bold text-secondary"
+              className="font-serif text-3xl md:text-5xl font-bold text-[#e7e0d5]"
               id="login-title"
             >
               Iniciar Sesión
             </h1>
-            <p className="text-base md:text-lg text-secondary">
+            <p className="md:text-lg text-[#e7e0d5]">
               Accede a tu cuenta para continuar
             </p>
           </div>
           {error && (
             <div
-              className="shadow-md text-secondary text-center rounded-lg p-3 mb-6 text-md"
+              className="shadow-md text-[#e7e0d5] text-center rounded-lg p-3 mb-6 text-md"
               role="alert"
             >
               {error}
@@ -124,13 +124,13 @@ const LoginPage = () => {
                 value={email}
                 autoComplete="email"
                 onChange={(e) => setEmail(e.target.value)}
-                className="text-center w-full py-3 px-4 text-xl text-secondary placeholder-secondary bg-none active:bg-none focus:outline-none focus:bg-none transition-all duration-300"
+                className="text-center w-full py-3 px-4 text-xl text-[#e7e0d5] placeholder-secondary bg-none active:bg-none focus:outline-none focus:bg-none transition-all duration-300"
                 style={{
                   background: "transparent",
-                  WebkitTextFillColor: "text-secondary",
+                  WebkitTextFillColor: "text-[#e7e0d5]",
                   WebkitBoxShadow: "0 0 0px 1000px transparent inset",
                   WebkitBackgroundClip: "text",
-                  caretColor: "text-secondary",
+                  caretColor: "text-[#e7e0d5]",
                 }}
                 placeholder="Email"
                 required
@@ -144,13 +144,13 @@ const LoginPage = () => {
                 autoComplete="current-password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="text-center w-full py-3 px-4 text-xl text-secondary placeholder-secondary active:bg-none focus:outline-none focus:bg-none transition-all duration-300"
+                className="text-center w-full py-3 px-4 text-xl text-[#e7e0d5] placeholder-secondary active:bg-none focus:outline-none focus:bg-none transition-all duration-300"
                 style={{
                   background: "transparent",
-                  WebkitTextFillColor: "text-secondary",
+                  WebkitTextFillColor: "text-[#e7e0d5]",
                   WebkitBoxShadow: "0 0 0px 1000px transparent inset",
                   WebkitBackgroundClip: "text",
-                  caretColor: "text-secondary",
+                  caretColor: "text-[#e7e0d5]",
                 }}
                 placeholder="Contraseña"
                 required
@@ -163,9 +163,7 @@ const LoginPage = () => {
               </div>
             </div>
 
-            <div
-              className="flex items-center justify-between text-sm text-secondary"
-            >
+            <div className="flex items-center justify-between text-sm text-[#e7e0d5]">
               <div className="flex items-center">
                 <div
                   className={`w-4 h-4 rounded-full border-2 border-secondary cursor-pointer transition-all duration-200 flex items-center justify-center ${
@@ -190,8 +188,7 @@ const LoginPage = () => {
                   )}
                 </div>
                 <label
-                  className="ml-2 cursor-pointer text-secondary"
-  
+                  className="ml-2 cursor-pointer text-[#e7e0d5]"
                   onClick={() => setIsRememberMe(!isRememberMe)}
                 >
                   Recordarme
@@ -200,8 +197,7 @@ const LoginPage = () => {
               <button
                 type="button"
                 onClick={() => setShowPasswordResetModal(true)}
-                className="cursor-pointer hover:underline font-medium transition-all duration-200 hover:text-white text-secondary"
-
+                className="cursor-pointer hover:underline font-medium transition-all duration-200 hover:text-white text-[#e7e0d5]"
               >
                 ¿Olvidaste tu contraseña?
               </button>
@@ -212,7 +208,7 @@ const LoginPage = () => {
               <button
                 type="submit"
                 disabled={isLoading}
-                className="shadow-[0_5px_10px_0_#00000079] hover:shadow-[0_4px_24px_0_#E7E0D540] text-secondary cursor-pointer group relative px-12 py-3 font-semibold text-base rounded-full overflow-hidden transition-all duration-300 transform hover:scale-105 active:scale-95 disabled:opacity-60 disabled:cursor-not-allowed disabled:transform-none"
+                className="shadow-[0_5px_10px_0_#00000079] hover:shadow-[0_4px_24px_0_#E7E0D540] text-[#e7e0d5] cursor-pointer group relative px-12 py-3 font-semibold rounded-full overflow-hidden transition-all duration-300 transform hover:scale-105 active:scale-95 disabled:opacity-60 disabled:cursor-not-allowed disabled:transform-none"
               >
                 {/* Contenido del botón */}
                 <span className="relative z-10 flex items-center justify-center gap-2">
@@ -265,12 +261,15 @@ const LoginPage = () => {
             </div>
           </form>
           <div className="mt-6 text-center pointer-events-auto">
-            <p className="text-sm text-secondary">
+            <p className="text-sm text-[#e7e0d5]">
               ¿No tienes una cuenta?{" "}
               <Link
                 to={ROUTES.REGISTER}
                 className="hover:underline font-medium pointer-events-auto"
-                style={{ color: "text-secondary", textDecorationColor: "text-white" }}
+                style={{
+                  color: "text-[#e7e0d5]",
+                  textDecorationColor: "text-white",
+                }}
               >
                 Regístrate
               </Link>
