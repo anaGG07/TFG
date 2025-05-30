@@ -2,6 +2,7 @@ import { User } from "../types/domain";
 import { LoginRequest, RegisterRequest } from "../types/api";
 import { apiFetch } from "../utils/httpClient";
 import { API_ROUTES } from "../config/apiRoutes";
+import { ensureValidAvatarConfig } from "../types/avatar";
 
 const AUTH_STATE_KEY = "auth_state";
 
@@ -28,6 +29,43 @@ class AuthService {
     this.initializeFromStorage();
   }
 
+  /**
+   * Procesa los datos del usuario asegurando que el avatar esté en formato correcto
+   */
+  private processUserData(userData: any): User {
+    if (!userData) {
+      throw new Error("Datos de usuario inválidos");
+    }
+
+    // Procesar el campo avatar si existe
+    if (userData.avatar) {
+      // Si es string, parsearlo a objeto
+      if (typeof userData.avatar === "string") {
+        try {
+          userData.avatar = JSON.parse(userData.avatar);
+        } catch (error) {
+          console.warn(
+            "AuthService: Error parseando avatar string, usando por defecto:",
+            error
+          );
+          userData.avatar = null;
+        }
+      }
+
+      // Asegurar que el avatar tenga estructura válida
+      if (userData.avatar && typeof userData.avatar === "object") {
+        userData.avatar = ensureValidAvatarConfig(userData.avatar);
+      } else {
+        userData.avatar = ensureValidAvatarConfig(null);
+      }
+    } else {
+      // Si no hay avatar, usar configuración por defecto
+      userData.avatar = ensureValidAvatarConfig(null);
+    }
+
+    return userData as User;
+  }
+
   public static getInstance(): AuthService {
     if (!AuthService.instance) {
       AuthService.instance = new AuthService();
@@ -39,7 +77,14 @@ class AuthService {
     try {
       const storedState = localStorage.getItem(AUTH_STATE_KEY);
       if (storedState) {
-        this.authState = JSON.parse(storedState);
+        const parsedState = JSON.parse(storedState);
+
+        // Procesar usuario si existe
+        if (parsedState.user) {
+          parsedState.user = this.processUserData(parsedState.user);
+        }
+
+        this.authState = parsedState;
         console.log("AuthService: Estado cargado desde localStorage:", {
           isAuthenticated: this.authState.isAuthenticated,
           hasUser: !!this.authState.user,
@@ -84,18 +129,26 @@ class AuthService {
         throw new Error("Respuesta inválida del servidor");
       }
 
+      const processedUser = this.processUserData(response.user);
       this.authState = {
-        user: response.user,
+        user: processedUser,
         isAuthenticated: true,
         lastVerified: Date.now(),
       };
-      this.persistAuthState();
+      // Notificar a otras pestañas
+      localStorage.setItem("auth_event", Date.now().toString());
 
       console.log("AuthService: Login exitoso para:", response.user.email);
       return response.user;
     } catch (error) {
       console.error("AuthService: Error en login:", error);
-      this.clearAuthState();
+      this.authState = {
+        user: null,
+        isAuthenticated: false,
+        lastVerified: 0,
+      };
+      // Notificar a otras pestañas
+      localStorage.setItem("auth_event", Date.now().toString());
       throw error;
     }
   }
@@ -108,7 +161,13 @@ class AuthService {
     } catch (error) {
       console.error("AuthService: Error en logout del servidor:", error);
     } finally {
-      this.clearAuthState();
+      this.authState = {
+        user: null,
+        isAuthenticated: false,
+        lastVerified: 0,
+      };
+      // Notificar a otras pestañas
+      localStorage.setItem("auth_event", Date.now().toString());
       console.log("AuthService: Estado local limpiado");
     }
   }
@@ -156,8 +215,9 @@ class AuthService {
       );
       const user = userData.user || userData;
 
+      const processedUser = this.processUserData(user);
       this.authState = {
-        user,
+        user: processedUser,
         isAuthenticated: true,
         lastVerified: Date.now(),
       };
@@ -209,9 +269,10 @@ class AuthService {
           : user.onboarding,
       };
 
+      const processedUser = this.processUserData(updatedUser);
       this.authState = {
         ...this.authState,
-        user: updatedUser,
+        user: processedUser,
         isAuthenticated: true,
         lastVerified: Date.now(),
       };

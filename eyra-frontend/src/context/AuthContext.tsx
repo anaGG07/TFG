@@ -108,18 +108,16 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     initialize();
   }, []); // Solo se ejecuta una vez
 
-  // Solo escuchar cambios de localStorage
+  // Sincronización entre pestañas solo con eventos, no datos sensibles
   useEffect(() => {
     const handleStorageChange = (e: StorageEvent) => {
-      if (e.key === "auth_state") {
-        console.log("AuthContext: Cambio en localStorage detectado");
-        syncAuthState();
+      if (e.key === "auth_event") {
+        checkAuth();
       }
     };
-
     window.addEventListener("storage", handleStorageChange);
     return () => window.removeEventListener("storage", handleStorageChange);
-  }, [syncAuthState]);
+  }, [checkAuth]);
 
   const login = async (credentials: LoginRequest) => {
     setIsLoading(true);
