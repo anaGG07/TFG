@@ -136,9 +136,9 @@ const ProfileTabsModal: React.FC<ProfileTabsModalProps> = ({ isOpen, onClose, us
           </button>
 
           {/* Avatar con icono de edición */}
-          <div className="relative flex flex-col items-center gap-2 mb-2">
-            <div className="w-28 h-28 rounded-full overflow-hidden bg-[#C62328] flex items-center justify-center">
-              <AvatarPreview config={form.avatar} />
+          <div className="relative mb-6">
+            <div className="w-28 h-28 rounded-full overflow-hidden flex items-center justify-center">
+              <AvatarPreview config={form.avatar} className="w-full h-full" />
               <button
                 type="button"
                 onClick={() => setIsAvatarBuilderOpen(true)}

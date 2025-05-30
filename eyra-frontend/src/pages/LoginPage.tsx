@@ -92,8 +92,7 @@ const LoginPage = () => {
         <main className="p-6 md:p-8 w-full max-w-md z-10 relative bg-none pointer-events-none">
           <div className="text-center mb-6">
             <h1
-              className="font-serif text-3xl md:text-5xl font-bold"
-              style={{ color: "text-secondary" }}
+              className="font-serif text-3xl md:text-5xl font-bold text-secondary"
               id="login-title"
             >
               Iniciar Sesión
@@ -165,8 +164,7 @@ const LoginPage = () => {
             </div>
 
             <div
-              className="flex items-center justify-between text-sm"
-              style={{ color: "text-secondary" }}
+              className="flex items-center justify-between text-sm text-secondary"
             >
               <div className="flex items-center">
                 <div
@@ -192,8 +190,8 @@ const LoginPage = () => {
                   )}
                 </div>
                 <label
-                  className="ml-2 cursor-pointer"
-                  style={{ color: "text-secondary" }}
+                  className="ml-2 cursor-pointer text-secondary"
+  
                   onClick={() => setIsRememberMe(!isRememberMe)}
                 >
                   Recordarme
@@ -202,8 +200,8 @@ const LoginPage = () => {
               <button
                 type="button"
                 onClick={() => setShowPasswordResetModal(true)}
-                className="cursor-pointer hover:underline font-medium transition-all duration-200 hover:text-white"
-                style={{ color: "text-secondary" }}
+                className="cursor-pointer hover:underline font-medium transition-all duration-200 hover:text-white text-secondary"
+
               >
                 ¿Olvidaste tu contraseña?
               </button>

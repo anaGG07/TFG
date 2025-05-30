@@ -1,14 +1,25 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import AvatarPreview from './AvatarPreview';
 import { getRandomAvatarConfig } from './randomAvatar';
 import { AvatarConfig, defaultAvatarConfig } from '../../types/avatar';
 
-// ✅ ELIMINADO: interface AvatarConfig duplicada - ahora usa la centralizada
 
-const AvatarBuilder: React.FC<{ onChange?: (config: AvatarConfig) => void }> = ({ onChange }) => {
-  const [config, setConfig] = useState<AvatarConfig>(defaultAvatarConfig);
 
-  const handleChange = (key: keyof AvatarConfig, value: string) => { // ✅ CORREGIDO: Solo acepta string
+interface AvatarBuilderProps {
+  onChange?: (config: AvatarConfig) => void;
+  initialConfig?: AvatarConfig;
+}
+
+const AvatarBuilder: React.FC<AvatarBuilderProps> = ({ onChange, initialConfig }) => {
+  const [config, setConfig] = useState<AvatarConfig>(initialConfig || defaultAvatarConfig);
+
+  useEffect(() => {
+    if (initialConfig) {
+      setConfig(initialConfig);
+    }
+  }, [initialConfig]);
+
+  const handleChange = (key: keyof AvatarConfig, value: string) => { 
     const newConfig = { ...config, [key]: value };
     setConfig(newConfig);
     if (onChange) onChange(newConfig);
@@ -16,7 +27,9 @@ const AvatarBuilder: React.FC<{ onChange?: (config: AvatarConfig) => void }> = (
 
   return (
     <div className="flex flex-col md:flex-row gap-8">
-      <AvatarPreview config={config} />
+      <div className="w-64 h-64 mx-auto">
+        <AvatarPreview config={config} className="w-full h-full" />
+      </div>
       <div className="flex flex-col gap-4">
         <button
           type="button"

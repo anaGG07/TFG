@@ -54,7 +54,7 @@ const AvatarBuilderModal: React.FC<AvatarBuilderModalProps> = ({ isOpen, onClose
             Personaliza tu avatar
           </h2>
 
-          <AvatarBuilder onChange={setConfig} />
+          <AvatarBuilder onChange={setConfig} initialConfig={config} />
 
           <div className="flex gap-4 mt-8">
             <NeomorphicButton
