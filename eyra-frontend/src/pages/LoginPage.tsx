@@ -92,7 +92,8 @@ const LoginPage = () => {
         <main className="p-6 md:p-8 w-full max-w-md z-10 relative bg-none pointer-events-none">
           <div className="text-center mb-6">
             <h1
-              className="font-serif text-3xl md:text-5xl font-bold text-secondary"
+              className="font-serif text-3xl md:text-5xl font-bold"
+              style={{ color: "text-secondary" }}
               id="login-title"
             >
               Iniciar Sesión
@@ -124,7 +125,14 @@ const LoginPage = () => {
                 value={email}
                 autoComplete="email"
                 onChange={(e) => setEmail(e.target.value)}
-                className="text-center w-full py-3 px-4 text-xl text-secondary placeholder-secondary bg-transparent focus:outline-none transition-all duration-300"
+                className="text-center w-full py-3 px-4 text-xl text-secondary placeholder-secondary bg-none active:bg-none focus:outline-none focus:bg-none transition-all duration-300"
+                style={{
+                  background: "transparent",
+                  WebkitTextFillColor: "text-secondary",
+                  WebkitBoxShadow: "0 0 0px 1000px transparent inset",
+                  WebkitBackgroundClip: "text",
+                  caretColor: "text-secondary",
+                }}
                 placeholder="Email"
                 required
                 aria-required="true"
@@ -137,7 +145,14 @@ const LoginPage = () => {
                 autoComplete="current-password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="text-center w-full py-3 px-4 text-xl text-secondary placeholder-secondary bg-transparent focus:outline-none transition-all duration-300"
+                className="text-center w-full py-3 px-4 text-xl text-secondary placeholder-secondary active:bg-none focus:outline-none focus:bg-none transition-all duration-300"
+                style={{
+                  background: "transparent",
+                  WebkitTextFillColor: "text-secondary",
+                  WebkitBoxShadow: "0 0 0px 1000px transparent inset",
+                  WebkitBackgroundClip: "text",
+                  caretColor: "text-secondary",
+                }}
                 placeholder="Contraseña"
                 required
                 aria-required="true"
@@ -150,7 +165,8 @@ const LoginPage = () => {
             </div>
 
             <div
-              className="flex items-center justify-between text-sm text-secondary"
+              className="flex items-center justify-between text-sm"
+              style={{ color: "text-secondary" }}
             >
               <div className="flex items-center">
                 <div
@@ -176,7 +192,8 @@ const LoginPage = () => {
                   )}
                 </div>
                 <label
-                  className="ml-2 cursor-pointer text-secondary"
+                  className="ml-2 cursor-pointer"
+                  style={{ color: "text-secondary" }}
                   onClick={() => setIsRememberMe(!isRememberMe)}
                 >
                   Recordarme
@@ -185,7 +202,8 @@ const LoginPage = () => {
               <button
                 type="button"
                 onClick={() => setShowPasswordResetModal(true)}
-                className="cursor-pointer hover:underline font-medium transition-all duration-200 hover:text-white text-secondary"
+                className="cursor-pointer hover:underline font-medium transition-all duration-200 hover:text-white"
+                style={{ color: "text-secondary" }}
               >
                 ¿Olvidaste tu contraseña?
               </button>
@@ -253,7 +271,8 @@ const LoginPage = () => {
               ¿No tienes una cuenta?{" "}
               <Link
                 to={ROUTES.REGISTER}
-                className="hover:underline font-medium pointer-events-auto text-secondary"
+                className="hover:underline font-medium pointer-events-auto"
+                style={{ color: "text-secondary", textDecorationColor: "text-white" }}
               >
                 Regístrate
               </Link>
