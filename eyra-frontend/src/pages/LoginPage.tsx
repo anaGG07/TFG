@@ -84,7 +84,7 @@ const LoginPage = () => {
           <Blob
             width={dimensions.width}
             height={dimensions.height}
-            color="text-primary"
+            color="text-secondary"
             radius={dimensions.height / 2.1}
           />
         </div>
@@ -179,7 +179,7 @@ const LoginPage = () => {
                 >
                   {isRememberMe && (
                     <svg
-                      className="w-2 h-2 text-primary"
+                      className="w-2 h-2 text-se"
                       fill="currentColor"
                       viewBox="0 0 20 20"
                     >
