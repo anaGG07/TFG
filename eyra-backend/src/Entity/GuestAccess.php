@@ -37,11 +37,11 @@ class GuestAccess
     #[ORM\GeneratedValue]
     #[ORM\Column]
     #[Groups(['guest_access:read'])]
-    private ?int $id = null;
+private ?int $id = null;
 
     #[ORM\ManyToOne(inversedBy: 'ownedGuestAccesses')]
     #[Groups(['guest_access:read'])]
-    private ?User $owner = null;
+private ?User $owner = null;
 
     #[ORM\ManyToOne(inversedBy: 'guestAccesses')]
     #[ORM\JoinColumn(nullable: false)]
@@ -51,19 +51,24 @@ class GuestAccess
 
     #[ORM\Column(enumType: GuestType::class)]
     #[Groups(['guest_access:read', 'guest_access:write'])]
-    private ?GuestType $guestType = null;
+private ?GuestType $guestType = null;
 
     #[ORM\Column]
     #[Groups(['guest_access:read', 'guest_access:write'])]
-    private array $accessTo = [];
+private array $accessTo = [];
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
     #[Groups(['guest_access:read', 'guest_access:write'])]
-    private ?\DateTimeInterface $expires_at = null;
+private ?\DateTimeInterface $expires_at = null;
 
     #[ORM\Column]
     #[Groups(['guest_access:read', 'guest_access:write'])]
     private ?bool $state = true;
+
+    // ! 31/05/2025 - Nuevo campo para las preferencias del invitado en sistema de calendario compartido
+    #[ORM\Column(type: 'json', nullable: true)]
+    #[Groups(['guest_access:read', 'guest_access:write'])]
+    private ?array $guestPreferences = null;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
     private ?\DateTimeInterface $createdAt = null;
@@ -184,7 +189,7 @@ class GuestAccess
     {
         $this->updatedAt = new \DateTime();
     }
-
+    
     /**
      * @var Collection<int, Notification>
      */
@@ -239,6 +244,18 @@ class GuestAccess
     public function setInvitationCode(?InvitationCode $invitationCode): static
     {
         $this->invitationCode = $invitationCode;
+        return $this;
+    }
+
+    // ! 31/05/2025 - Métodos getter y setter para las preferencias del invitado
+    public function getGuestPreferences(): ?array
+    {
+        return $this->guestPreferences;
+    }
+
+    public function setGuestPreferences(?array $guestPreferences): static
+    {
+        $this->guestPreferences = $guestPreferences;
         return $this;
     }
 }

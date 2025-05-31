@@ -2,6 +2,69 @@
 
 Este documento registra todos los cambios realizados durante el desarrollo del backend de EYRA.
 
+## v0.7.0 - 31/05/2025
+
+| Archivo | Descripción | Tipo de Fichero | Tipo de Cambio |
+|---------|-------------|-----------------|----------------|
+| GuestAccess.php | Añadido campo guestPreferences (JSON) para preferencias del invitado en calendario compartido | Entidad | Nueva funcionalidad |
+| Version20250531000002.php | Migración para añadir columna guest_preferences a tabla guest_access | Migración | Nueva funcionalidad |
+| CalendarAccessService.php | Nuevo servicio para gestionar acceso al calendario compartido con sistema de doble filtrado | Servicio | Nueva funcionalidad |
+| GuestController.php | Añadidos 4 nuevos endpoints: GET/PUT preferences, PUT permissions, GET available-permissions | Controlador | Nueva funcionalidad |
+| CycleController.php | Modificado endpoint /cycles/calendar para incluir datos de anfitriones (hostCycles) | Controlador | Mejora |
+| CalendarAccessService.php | Implementado sistema de filtrado: permisos del anfitrión ∩ preferencias del invitado | Servicio | Nueva funcionalidad |
+| CalendarAccessService.php | Soporte para permisos granulares: fases, detalles, síntomas, notas, estados de ánimo | Servicio | Nueva funcionalidad |
+
+## v0.6.0 - 31/05/2025
+
+| Archivo | Descripción | Tipo de Fichero | Tipo de Cambio |
+|---------|-------------|-----------------|----------------|
+| Condition.php | Añadidos campos category y severity para clasificar condiciones médicas | Entidad | Nueva funcionalidad |
+| ConditionCategory.php | Nuevo enum con 11 categorías de condiciones médicas (ginecológicas, hormonales, etc.) | Enum | Nueva funcionalidad |
+| ConditionSeverity.php | Nuevo enum con 4 niveles de severidad (leve, moderada, severa, crítica) | Enum | Nueva funcionalidad |
+| ConditionRepository.php | Añadidos métodos search(), getUniqueCategories() y findByCategory() | Repositorio | Nueva funcionalidad |
+| ConditionController.php | Implementados 5 endpoints de administración para admins: POST, PUT, DELETE, search, categories | Controlador | Nueva funcionalidad |
+| Version20250531000001.php | Migración para añadir campos category y severity con índices y datos iniciales | Migración | Nueva funcionalidad |
+| nixpacks.toml | Configuración de Nixpacks para deployment en Railway con PHP 8.2 | Configuración | Nueva funcionalidad |
+| .railway.toml | Configuración alternativa de Railway para usar Dockerfile existente | Configuración | Nueva funcionalidad |
+| HealthController.php | Nuevo controlador con endpoints de health check para verificación de deployment | Controlador | Nueva funcionalidad |
+| start.sh | Script de inicio personalizado para Railway con migraciones automáticas | Script | Nueva funcionalidad |
+| Dockerfile.railway | Dockerfile optimizado para Railway con PHP-CLI y servidor built-in | Docker | Nueva funcionalidad |
+| Dockerfile.hybrid | Dockerfile alternativo que adapta el existente para Railway | Docker | Nueva funcionalidad |
+| railway-start.sh | Script de inicio robusto con verificaciones y migraciones | Script | Nueva funcionalidad |
+| entrypoint-railway.sh | Entrypoint modificado para usar servidor built-in en lugar de PHP-FPM | Script | Nueva funcionalidad |
+| .dockerignore | Archivo para optimizar build de Docker excluyendo archivos innecesarios | Configuración | Nueva funcionalidad |
+| Dockerfile.production | Dockerfile PRINCIPAL para Railway - optimizado y con generación JWT automática | Docker | Nueva funcionalidad |
+| RAILWAY.md | Documentación específica para deployment en Railway con Docker | Documentación | Nueva funcionalidad |
+| railway-start.sh | Script de inicio MEJORADO con diagnósticos avanzados y manejo robusto de errores | Script | Mejora |
+| .railway.toml | Configuración SIMPLIFICADA para forzar uso de Docker en Railway | Configuración | Mejora |
+| package.json | Archivo movido a .backup - causaba detección errónea como proyecto Node.js | Corrección | Corrección de error |
+| package-lock.json | Archivo movido a .backup - causaba detección errónea como proyecto Node.js | Corrección | Corrección de error |
+| .railwayapp | Archivo indicador para Railway de que es proyecto PHP/Docker | Configuración | Nueva funcionalidad |
+| Dockerfile | Dockerfile estándar (nombre principal) para Railway | Docker | Nueva funcionalidad |
+| .dockerignore | Actualizado para excluir archivos Node.js que no deberían estar en backend PHP | Configuración | Mejora |
+
+## v0.5.0 - 29/05/2025
+
+| Archivo | Descripción | Tipo de Fichero | Tipo de Cambio |
+|---------|-------------|-----------------|----------------|
+| PasswordResetToken.php | Nueva entidad para gestionar tokens de reset de contraseña con expiración y seguridad | Entidad | Nueva funcionalidad |
+| PasswordResetTokenRepository.php | Repositorio con métodos especializados para validar y gestionar tokens de reset | Repositorio | Nueva funcionalidad |
+| EmailService.php | Nuevo servicio para envío de emails (reset de contraseña, bienvenida, recordatorios) | Servicio | Nueva funcionalidad |
+| base.html.twig | Template base para emails con diseño responsive y branding de EYRA | Template | Nueva funcionalidad |
+| password_reset.html.twig | Template específico para emails de reset de contraseña con instrucciones claras | Template | Nueva funcionalidad |
+| welcome.html.twig | Template de bienvenida para nuevos usuarios con guía de primeros pasos | Template | Nueva funcionalidad |
+| cycle_reminder.html.twig | Template para recordatorios de ciclo (período próximo, ovulación, retrasos) | Template | Nueva funcionalidad |
+| AuthController.php | Implementación completa de reset de contraseña con envío de emails reales | Controlador | Mejora |
+| AuthController.php | Nuevo endpoint /password-reset/confirm para completar el proceso de reset | Controlador | Nueva funcionalidad |
+| AuthController.php | Añadido envío automático de email de bienvenida en el registro | Controlador | Mejora |
+| Version20250529000001.php | Migración para crear tabla password_reset_tokens con índices optimizados | Migración | Nueva funcionalidad |
+| CleanExpiredResetTokensCommand.php | Comando de consola para limpiar tokens expirados automáticamente | Comando | Nueva funcionalidad |
+| TestEmailUrlsCommand.php | Comando para verificar y probar configuración de URLs de frontend | Comando | Nueva funcionalidad |
+| EmailService.php | URLs del frontend ahora configurables mediante variables de entorno | Servicio | Mejora |
+| .env | Añadidas variables FRONTEND_BASE_URL, FRONTEND_RESET_PASSWORD_PATH, FRONTEND_DASHBOARD_PATH | Configuración | Mejora |
+| welcome.html.twig | Template actualizado para usar URL configurable del dashboard | Template | Mejora |
+| cycle_reminder.html.twig | Template actualizado para usar URL configurable del calendario | Template | Mejora |
+
 ## v0.4.0 - 28/05/2025
 
 | Archivo | Descripción | Tipo de Fichero | Tipo de Cambio |

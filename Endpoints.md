@@ -1,8 +1,8 @@
 # 📋 EYRA Backend - Endpoints y Campos Requeridos
 
 > **Proyecto:** EYRA - Aplicación de Seguimiento Menstrual  
-> **Última actualización:** 28/05/2025  
-> **Total Endpoints:** 87 | **Implementados:** 48 ✅ | **Pendientes:** 39 ❌
+> **Última actualización:** 31/05/2025  
+> **Total Endpoints:** 106 | **Implementados:** 79 ✅ | **Pendientes:** 27 ❌
 
 ---
 
@@ -10,14 +10,14 @@
 
 | Sección | Implementados | Pendientes | Total |
 |---------|:-------------:|:----------:|:-----:|
-| Autenticación y Perfil | 8 | 6 | 14 |
+| Autenticación y Perfil | 14 | 0 | 14 |
 | Ciclos Menstruales | 14 | 0 | 14 |
-| Días del Ciclo | 0 | 6 | 6 |
+| Días del Ciclo | 6 | 0 | 6 |
 | Síntomas | 0 | 6 | 6 |
-| Invitados y Accesos | 6 | 4 | 10 |
+| Invitados y Accesos | 20 | 4 | 24 |
 | Onboarding | 2 | 0 | 2 |
 | Notificaciones | 10 | 3 | 13 |
-| Condiciones Médicas | 9 | 5 | 14 |
+| Condiciones Médicas | 14 | 0 | 14 |
 | Contenido | 6 | 6 | 12 |
 | Insights | 3 | 8 | 11 |
 | Menopausia | 5 | 7 | 12 |
@@ -34,23 +34,24 @@
 | Validado | Endpoint | Método | Campos de Entrada | Descripción | Respuesta |
 |:--------:|----------|--------|-------------------|-------------|----------|
 |     ✅     | `/login_check` | `POST` | `{"email": "String (email válido)", "password": "String"}` | Autenticar usuario | `{"message": "String", "user": {"id": "Integer", "email": "String", "username": "String", "name": "String", "lastName": "String", "roles": ["Array de String"], "profileType": "String", "birthDate": "String (YYYY-MM-DD)", "createdAt": "String (ISO 8601)", "updatedAt": "String (ISO 8601)", "state": "Boolean", "onboardingCompleted": "Boolean"}}` + cookie de sesión |
-|          | `/register` | `POST` | `{"email": "String (email válido)","password": "String (mínimo 8 caracteres)","username": "String","name": "String","lastName": "String","birthDate": "String (YYYY-MM-DD)","profileType": "String (Enum: profile_women, profile_men, profile_nb, profile_transgender, profile_custom, profile_parent, profile_partner, profile_provider, profile_guest)"}` | Registrar nuevo usuario | `{"message": "String","user": {"id": "Integer","email": "String","username": "String"}}` |
+|          | `/register` | `POST` | `{"email": "String (email válido)","password": "String (mínimo 8 caracteres)","username": "String","name": "String","lastName": "String","birthDate": "String (YYYY-MM-DD)","profileType": "String (Enum: profile_women, profile_men, profile_nb, profile_transgender, profile_custom, profile_parent, profile_partner, profile_provider, profile_guest)", "avatar": {"skinColor": "String", "eyes": "String", "eyebrows": "String", "mouth": "String", "hairStyle": "String", "hairColor": "String", "facialHair": "String", "clothes": "String", "fabricColor": "String", "glasses": "String", "glassOpacity": "String", "accessories": "String", "tattoos": "String", "backgroundColor": "String"}}` | Registrar nuevo usuario | `{"message": "String","user": {"id": "Integer","email": "String","username": "String", "avatar": {"skinColor": "String", "eyes": "String", "eyebrows": "String", "mouth": "String", "hairStyle": "String", "hairColor": "String", "facialHair": "String", "clothes": "String", "fabricColor": "String", "glasses": "String", "glassOpacity": "String", "accessories": "String", "tattoos": "String", "backgroundColor": "String"}}}` |
 |     ✅     | `/logout` | `POST` | - | Cerrar sesión actual | `{"message": "String"}` + eliminación de cookies |
 |     ✅     | `/logout-all` | `POST` | - | Cerrar todas las sesiones | Mensaje de confirmación |
-|    ✅      | `/profile` | `GET` | - | Obtener perfil del usuario | `{"user": {"id": "Integer", "email": "String", "username": "String", "name": "String", "lastName": "String", "roles": ["Array de String"], "profileType": "String", "birthDate": "String (YYYY-MM-DD)", "createdAt": "String (ISO 8601)", "updatedAt": "String (ISO 8601)", "state": "Boolean", "onboardingCompleted": "Boolean", "onboarding": {"completed": "Boolean"}}}` |
-|    ✅      | `/profile` | `PUT` | `{"username": "String", "name": "String", "lastName": "String", "genderIdentity": "String", "birthDate": "String (YYYY-MM-DD)"}` | Actualizar perfil | `{"message": "String", "user": {"id": "Integer", "email": "String", "roles": ["Array de String"], "username": "String", "name": "String", "lastName": "String", "profileType": "String", "birthDate": "String (ISO 8601)", "createdAt": "String (ISO 8601)", "updatedAt": "String (ISO 8601)", "state": "Boolean", "onboardingCompleted": "Boolean", "onboarding": "Object o null"}}` |
+|    ✅      | `/profile` | `GET` | - | Obtener perfil del usuario | `{"user": {"id": "Integer", "email": "String", "username": "String", "name": "String", "lastName": "String", "roles": ["Array de String"], "profileType": "String", "birthDate": "String (YYYY-MM-DD)", "createdAt": "String (ISO 8601)", "updatedAt": "String (ISO 8601)", "state": "Boolean", "onboardingCompleted": "Boolean", "onboarding": {"completed": "Boolean"}, "avatar": {"skinColor": "String", "eyes": "String", "eyebrows": "String", "mouth": "String", "hairStyle": "String", "hairColor": "String", "facialHair": "String", "clothes": "String", "fabricColor": "String", "glasses": "String", "glassOpacity": "String", "accessories": "String", "tattoos": "String", "backgroundColor": "String"}}}` |
+|    ✅      | `/profile` | `PUT` | `{"username": "String", "name": "String", "lastName": "String", "genderIdentity": "String", "birthDate": "String (YYYY-MM-DD)", "avatar": {"skinColor": "String", "eyes": "String", "eyebrows": "String", "mouth": "String", "hairStyle": "String", "hairColor": "String", "facialHair": "String", "clothes": "String", "fabricColor": "String", "glasses": "String", "glassOpacity": "String", "accessories": "String", "tattoos": "String", "backgroundColor": "String"}}` | Actualizar perfil | `{"message": "String", "user": {"id": "Integer", "email": "String", "roles": ["Array de String"], "username": "String", "name": "String", "lastName": "String", "profileType": "String", "birthDate": "String (ISO 8601)", "createdAt": "String (ISO 8601)", "updatedAt": "String (ISO 8601)", "state": "Boolean", "onboardingCompleted": "Boolean", "onboarding": "Object o null", "avatar": "Object"}}` |
 |    ✅      | `/password-change` | `POST` | `{"currentPassword": "String", "newPassword": "String"}` | Cambiar contraseña | `{"message": "String"}` |
 |     ✅     | `/password-reset` | `POST` | `{"email": "String (email válido)"}` | Solicitar restablecimiento | `{"message": "String"}` |
+|     ✅     | `/password-reset/confirm` | `POST` | `{"token": "String", "newPassword": "String (mínimo 6 caracteres)"}` | Confirmar restablecimiento | `{"message": "String"}` |
+|     ✅     | `/api/admin/users` | `GET` | Query: `limit?, page?, role?, profileType?, search?` | Listar usuarios (admin) | `{"users": [{"id": "Integer", "email": "String", "username": "String", "name": "String", "lastName": "String", "roles": ["Array de String"], "profileType": "String", "birthDate": "String (YYYY-MM-DD)", "createdAt": "String (ISO 8601)", "updatedAt": "String (ISO 8601)", "state": "Boolean", "onboardingCompleted": "Boolean", "avatar": "Object"}], "pagination": {"page": "Integer", "limit": "Integer", "total": "Integer", "totalPages": "Integer"}}` |
+|     ✅     | `/api/admin/users/{id}` | `GET` | ID en URL | Obtener usuario por ID (admin) | `{"user": {"id": "Integer", "email": "String", "username": "String", "name": "String", "lastName": "String", "roles": ["Array de String"], "profileType": "String", "birthDate": "String (YYYY-MM-DD)", "createdAt": "String (ISO 8601)", "updatedAt": "String (ISO 8601)", "state": "Boolean", "onboardingCompleted": "Boolean", "avatar": "Object", "onboarding": {"id": "Integer", "profileType": "String", "stageOfLife": "String", "lastPeriodDate": "String (YYYY-MM-DD)", "averageCycleLength": "Integer", "averagePeriodLength": "Integer", "completed": "Boolean"}}}` |
+|     ✅     | `/api/admin/users/{id}` | `PUT` | `{"email": "String", "username": "String", "name": "String", "lastName": "String", "profileType": "String", "birthDate": "String (YYYY-MM-DD)", "roles": ["Array de String"], "state": "Boolean", "onboardingCompleted": "Boolean", "password": "String (opcional)", "avatar": "Object (opcional)"}` | Actualizar usuario (admin) | `{"message": "String", "user": {"id": "Integer", "email": "String", "username": "String", "name": "String", "lastName": "String", "roles": ["Array de String"], "profileType": "String", "birthDate": "String (YYYY-MM-DD)", "createdAt": "String (ISO 8601)", "updatedAt": "String (ISO 8601)", "state": "Boolean", "onboardingCompleted": "Boolean", "avatar": "Object"}}` |
+|     ✅     | `/api/admin/users/{id}` | `DELETE` | ID en URL | Desactivar usuario (admin) | `{"message": "String"}` |
 
 ### ❌ **Pendientes**
 
 | Validado | Endpoint | Método | Campos de Entrada | Descripción | Respuesta |
 |:--------:|----------|--------|-------------------|-------------|----------|
-|          | `/password-reset/confirm` | `POST` | `{"token": "", "newPassword": ""}` | Confirmar restablecimiento | Mensaje de confirmación |
-|          | `/users` | `GET` | Query: `limit, page, role, profileType` | Listar usuarios (admin) | JSON con lista paginada de usuarios |
-|          | `/users/{id}` | `GET` | ID en URL | Obtener usuario por ID (admin) | JSON con datos del usuario |
-|          | `/users/{id}` | `PUT` | JSON con campos a actualizar | Actualizar usuario (admin) | JSON con usuario actualizado |
-|          | `/users/{id}` | `DELETE` | ID en URL | Desactivar usuario (admin) | Mensaje de confirmación |
+| *Todos implementados* | | | | | |
 
 ---
 
@@ -64,7 +65,7 @@
 |          | `/cycles/phases` | `GET` | - | Obtener todas las fases del ciclo actual | `[{"id": "Integer", "user": "String (IRI)", "phase": "String (menstrual/folicular/ovulacion/lutea)", "cycleId": "String (UUID)", "startDate": "String (ISO 8601)", "endDate": "String (ISO 8601)", "estimatedNextStart": "String (ISO 8601)", "averageCycleLength": "Integer", "averageDuration": "Integer"}]` |
 |          | `/cycles/today` | `GET` | - | Información del día actual | `{"id": "Integer", "date": "String (ISO 8601)", "dayNumber": "Integer", "cyclePhase": {"id": "Integer", "phase": "String (menstrual/folicular/ovulacion/lutea)"}, "symptoms": ["Array"], "notes": ["Array"], "mood": ["Array"], "flowIntensity": "String o null", "hormoneLevels": ["Array"]}` |
 |     ✓     | `/cycles/recommendations` | `GET` | Query: `type?` (String), `limit?` (Integer) | Recomendaciones personalizadas | `{"success": "Boolean", "currentPhase": "String", "cycleDay": "Integer", "recommendations": ["Array"]}` |
-|     ✓     | `/cycles/calendar` | `GET` | Query: `start` (YYYY-MM-DD), `end` (YYYY-MM-DD) | Calendario de ciclos | `[{"id": "Integer", "phase": "String (menstrual/folicular/ovulacion/lutea)", "cycleId": "String (UUID)", "startDate": "String (ISO 8601)", "endDate": "String (ISO 8601)", "filteredCycleDays": [{"id": "Integer", "date": "String (ISO 8601)", "dayNumber": "Integer", "symptoms": ["Array"], "notes": ["Array"], "mood": ["Array"], "flowIntensity": "Integer o null"}]}]` |
+|     X     | `/cycles/calendar` | `GET` | Query: `start` (YYYY-MM-DD), `end` (YYYY-MM-DD) | Calendario de ciclos compartido | `{"userCycles": [...], "hostCycles": [{"hostId": "Integer", "hostName": "String", "hostUsername": "String", "guestType": "String", "accessPermissions": ["Array"], "guestPreferences": ["Array"], "cycles": [...], "currentPhase": "String"}]}` |
 |          | `/cycles/predict` | `GET` | - | Predecir próximo ciclo | `{"success": "Boolean", "expectedStartDate": "String (YYYY-MM-DD)", "expectedEndDate": "String (YYYY-MM-DD)", "cycleLength": "Integer", "periodDuration": "Integer", "confidence": "Integer (0-99)", "marginOfError": "Integer", "basedOnCycles": "Integer", "algorithm": "String (weighted_average/trend_based/seasonal/default)", "regularity": "Integer (0-100)", "trend": "String (stable/increasing/decreasing)"}` |
 |          | `/cycles/prediction-details` | `GET` | - | Obtener detalles avanzados de predicción | `{"success": "Boolean", "expectedStartDate": "String (YYYY-MM-DD)", "expectedEndDate": "String (YYYY-MM-DD)", "cycleLength": "Integer", "periodDuration": "Integer", "confidence": "Integer (0-99)", "marginOfError": "Integer", "basedOnCycles": "Integer", "algorithm": "String", "regularity": "Integer (0-100)", "trend": "String", "historicalData": {"cycleLengths": ["Array de Integer"], "periodDurations": ["Array de Integer"], "startDates": ["Array de String (YYYY-MM-DD)"]}, "statistics": {"standardDeviation": "Float", "minCycleLength": "Integer", "maxCycleLength": "Integer", "variabilityIndex": "Float"}, "forecastRange": {"earliestStartDate": "String (YYYY-MM-DD)", "latestStartDate": "String (YYYY-MM-DD)"}}` |
 |          | `/cycles/sync-algorithm` | `POST` | - | Recalcular algoritmo de predicción | `{"message": "String", "prediction": {...}}` (La respuesta incluye el mismo objeto de predicción detallada que devuelve `/cycles/prediction-details`) |
@@ -81,16 +82,22 @@
 
 ## 📅 **Días del Ciclo**
 
-### ❌ **Todos Pendientes**
+### ✅ **Implementados**
 
 | Validado | Endpoint | Método | Campos de Entrada | Descripción | Respuesta |
 |:--------:|----------|--------|-------------------|-------------|----------|
-|          | `/cycle-days` | `GET` | Query: `cyclePhaseId, startDate, endDate` | Listar días de ciclo | JSON con lista de días de ciclo |
-|          | `/cycle-days/{id}` | `GET` | ID en URL | Obtener día específico | JSON con detalles del día |
-|     ✗     | `/cycle-days` | `POST` | `{"date": "", "phaseId?": "", "mood?": [], "symptoms?": [], "flowIntensity?": 0, "notes?": []}` | Registrar nuevo día | JSON con día creado |
-|          | `/cycle-days/{id}` | `PUT` | JSON con campos a actualizar | Actualizar día de ciclo | JSON con día actualizado |
-|          | `/cycle-days/{id}` | `DELETE` | ID en URL | Eliminar día de ciclo | Mensaje de confirmación |
-|          | `/cycle-days/date/{date}` | `GET` | Fecha en URL (YYYY-MM-DD) | Obtener día por fecha | JSON con detalles del día |
+|          | `/cycle-days` | `GET` | Query: `cycleId?`, `phaseId?`, `startDate?`, `endDate?` | Listar días de ciclo | `{"cycleDays": [{"id": "Integer", "date": "String (ISO 8601)", "dayNumber": "Integer", "cyclePhase": {"id": "Integer", "phase": "String"}, "symptoms": ["Array"], "mood": ["Array"], "flowIntensity": "Integer o null", "notes": ["Array"]}]}` |
+|          | `/cycle-days/{id}` | `GET` | ID en URL | Obtener día específico | `{"id": "Integer", "date": "String (ISO 8601)", "dayNumber": "Integer", "cyclePhase": {"id": "Integer", "phase": "String"}, "symptoms": ["Array"], "mood": ["Array"], "flowIntensity": "Integer o null", "notes": ["Array"]}` |
+|          | `/cycle-days` | `POST` | `{"date": "String (YYYY-MM-DD)", "phaseId?": "Integer", "symptoms?": ["Array"], "mood?": ["Array"], "flowIntensity?": "Integer", "notes?": ["Array"]}` | Registrar nuevo día | `{"id": "Integer", "date": "String (ISO 8601)", "dayNumber": "Integer", "cyclePhase": {"id": "Integer"}, "symptoms": ["Array"], "mood": ["Array"], "flowIntensity": "Integer o null", "notes": ["Array"]}` |
+|          | `/cycle-days/{id}` | `PUT` | `{"date?": "String (YYYY-MM-DD)", "phaseId?": "Integer", "symptoms?": ["Array"], "mood?": ["Array"], "flowIntensity?": "Integer", "notes?": ["Array"]}` | Actualizar día de ciclo | `{"id": "Integer", "date": "String (ISO 8601)", "dayNumber": "Integer", "cyclePhase": {"id": "Integer"}, "symptoms": ["Array"], "mood": ["Array"], "flowIntensity": "Integer o null", "notes": ["Array"]}` |
+|          | `/cycle-days/{id}` | `DELETE` | ID en URL | Eliminar día de ciclo | `{"message": "String"}` |
+|          | `/cycle-days/date/{date}` | `GET` | Fecha en URL (YYYY-MM-DD) | Obtener día por fecha | `{"cycleDays": [{"id": "Integer", "date": "String (ISO 8601)", "dayNumber": "Integer", "cyclePhase": {"id": "Integer", "phase": "String"}, "symptoms": ["Array"], "mood": ["Array"], "flowIntensity": "Integer o null", "notes": ["Array"]}]}` |
+
+### ❌ **Pendientes**
+
+| Validado | Endpoint | Método | Campos de Entrada | Descripción | Respuesta |
+|:--------:|----------|--------|-------------------|-------------|----------|
+| *Ninguno - Todos implementados* | | | | | |
 
 ---
 
@@ -121,6 +128,15 @@
 |          | `/guests/{id}/modify` | `PUT` | JSON con campos a actualizar | Modificar acceso | JSON con acceso actualizado |
 |          | `/guests/invitations` | `GET` | - | Invitaciones recibidas | JSON con lista de invitaciones |
 |          | `/guests/test-route` | `GET` | - | Ruta de prueba | Mensaje de prueba |
+|          | `/invitation-codes/generate` | `POST` | `{"guestType": "String (partner/friend/parental/healthcare_provider)", "accessPermissions": ["Array de String"], "expirationHours": "Integer (1-168, default: 48)"}` | Generar código de invitación | `{"id": "Integer", "code": "String (8 chars)", "guestType": "String", "accessPermissions": ["Array"], "expiresAt": "String (ISO 8601)"}` |
+|          | `/invitation-codes` | `GET` | Query: `status?` (String) | Listar códigos creados | `{"codes": [{"id": "Integer", "code": "String", "guestType": "String", "status": "String", "createdAt": "String", "expiresAt": "String", "redeemedBy": "Object o null", "redeemedAt": "String o null"}]}` |
+|          | `/invitation-codes/verify/{code}` | `GET` | Código en URL | Verificar código (público) | `{"valid": "Boolean", "creator": {"id": "Integer", "username": "String", "name": "String"}, "guestType": "String", "accessPermissions": ["Array"], "expiresAt": "String"}` o `{"valid": false, "message": "String"}` |
+|          | `/invitation-codes/redeem/{code}` | `POST` | Código en URL | Canjear código | `{"success": "Boolean", "access": {"id": "Integer", "hostUser": {"id": "Integer", "username": "String", "name": "String"}, "guestType": "String", "accessPermissions": ["Array"]}}` |
+|          | `/invitation-codes/{id}` | `DELETE` | ID en URL | Revocar código | `{"success": "Boolean", "message": "String"}` |
+|     X     | `/guests/{id}/preferences` | `GET` | ID en URL | Obtener preferencias del invitado | `{"id": "Integer", "guestPreferences": ["Array"], "availablePermissions": {"Object"}, "hostPermissions": ["Array"]}` |
+|     X     | `/guests/{id}/preferences` | `PUT` | `{"guestPreferences": ["Array de String"]}` | Actualizar preferencias del invitado | `{"message": "String", "guestAccess": {"Object"}}` |
+|     X     | `/guests/{id}/permissions` | `PUT` | `{"accessTo": ["Array de String"]}` | Actualizar permisos del anfitrión | `{"message": "String", "guestAccess": {"Object"}, "adjustedPreferences": "Boolean"}` |
+|     X     | `/guests/available-permissions` | `GET` | - | Obtener permisos disponibles | `{"permissions": {"phases": {"Object"}, "details": {"Object"}, "features": {"Object"}}}` |
 
 ### ❌ **Pendientes**
 
@@ -190,16 +206,17 @@
 |          | `/conditions/user/active` | `GET` | - | Condiciones activas | JSON con condiciones activas |
 |          | `/conditions/content/{id}` | `GET` | ID en URL | Contenido relacionado | JSON con contenido relacionado |
 |          | `/conditions/notifications/{id}` | `GET` | ID en URL | Notificaciones relacionadas | JSON con notificaciones relacionadas |
+|          | `/conditions` | `POST` | `{"name": "String", "description": "String", "isChronic": "Boolean", "category": "String (enum)", "severity": "String (enum)", "state": "Boolean"}` | Crear condición (admin) | `{"message": "String", "condition": {"id": "Integer", "name": "String", "description": "String", "isChronic": "Boolean", "category": "String", "severity": "String", "state": "Boolean", "createdAt": "String", "updatedAt": "String"}}` |
+|          | `/conditions/{id}` | `PUT` | `{"name": "String", "description": "String", "isChronic": "Boolean", "category": "String (enum)", "severity": "String (enum)", "state": "Boolean"}` | Actualizar condición (admin) | `{"message": "String", "condition": {"id": "Integer", "name": "String", "description": "String", "isChronic": "Boolean", "category": "String", "severity": "String", "state": "Boolean", "createdAt": "String", "updatedAt": "String"}}` |
+|          | `/conditions/{id}` | `DELETE` | ID en URL | Eliminar condición (admin) | `{"message": "String", "action": "String (deleted/deactivated)"}` |
+|          | `/conditions/search` | `GET` | Query: `query` (String), `category?` (String), `state?` (Boolean) | Buscar condiciones | `{"query": "String", "category": "String", "state": "Boolean", "results": ["Array de condiciones"], "count": "Integer"}` |
+|          | `/conditions/categories` | `GET` | - | Categorías de condiciones | `{"availableCategories": ["Array de categorías con value, label, description"], "usedCategories": ["Array de categorías usadas"], "availableSeverities": ["Array de severidades con value, label, description"]}` |
 
 ### ❌ **Pendientes**
 
 | Validado | Endpoint | Método | Campos de Entrada | Descripción | Respuesta |
 |:--------:|----------|--------|-------------------|-------------|----------|
-|          | `/conditions` | `POST` | `{"name": "", "description": "", "symptoms": [], "recommendations": []}` | Crear condición (admin) | JSON con condición creada |
-|          | `/conditions/{id}` | `PUT` | JSON con campos a actualizar | Actualizar (admin) | JSON con condición actualizada |
-|          | `/conditions/{id}` | `DELETE` | ID en URL | Eliminar (admin) | Mensaje de confirmación |
-|          | `/conditions/search` | `GET` | Query: `query` | Buscar condiciones | JSON con resultados de búsqueda |
-|          | `/conditions/categories` | `GET` | - | Categorías condiciones | JSON con categorías |
+| *Todos implementados* | | | | | |
 
 ---
 
@@ -349,8 +366,10 @@
 
 ### 👑 **Permisos Admin**
 Los siguientes endpoints requieren `ROLE_ADMIN`:
-- `/users/*` (gestión de usuarios)
-- `/conditions` (POST, PUT, DELETE)
+- `/api/admin/users/*` (gestión de usuarios)
+- `/conditions` (POST, PUT, DELETE) - **NUEVOS ENDPOINTS v0.6.0**
+- `/conditions/search` (GET) - Disponible para todos los usuarios autenticados
+- `/conditions/categories` (GET) - Disponible para todos los usuarios autenticados
 - `/content` (POST, PUT, DELETE)
 - `/notifications` (POST para crear)
 

@@ -54,6 +54,16 @@ class Condition
     #[Groups(['condition:read', 'condition:write'])]
     private ?bool $state = true;
 
+    /* ! 31/05/2025 - Añadido campo category para clasificar condiciones médicas */
+    #[ORM\Column(length: 100, nullable: true)]
+    #[Groups(['condition:read', 'condition:write'])]
+    private ?string $category = null;
+
+    /* ! 31/05/2025 - Añadido campo severity para clasificar la severidad de las condiciones */
+    #[ORM\Column(length: 50, nullable: true)]
+    #[Groups(['condition:read', 'condition:write'])]
+    private ?string $severity = null;
+
     /**
      * @var Collection<int, UserCondition>
      */
@@ -255,6 +265,30 @@ class Condition
             $content->removeRelatedCondition($this);
         }
 
+        return $this;
+    }
+
+    /* ! 31/05/2025 - Métodos getter y setter para campo category */
+    public function getCategory(): ?string
+    {
+        return $this->category;
+    }
+
+    public function setCategory(?string $category): static
+    {
+        $this->category = $category;
+        return $this;
+    }
+
+    /* ! 31/05/2025 - Métodos getter y setter para campo severity */
+    public function getSeverity(): ?string
+    {
+        return $this->severity;
+    }
+
+    public function setSeverity(?string $severity): static
+    {
+        $this->severity = $severity;
         return $this;
     }
 }

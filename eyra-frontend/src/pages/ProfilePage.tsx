@@ -12,7 +12,7 @@ import NotificationsForm from "../components/profile/NotificationsForm";
 import AvatarBuilder from "../components/avatarBuilder/AvatarBuilder";
 import { User as UserIcon, Lock, Bell } from "lucide-react";
 import { getRandomAvatarConfig } from "../components/avatarBuilder/randomAvatar";
-import { Alert } from "../components/ui/Alert";
+import NeomorphicToast from "../components/ui/NeomorphicToast";
 
 const tabList = [
   { key: "privacy", icon: "user", alt: "Perfil" },
@@ -95,13 +95,11 @@ const ProfilePage: React.FC = () => {
   const showCustomToast = (message: string, variant: 'success' | 'error') => {
     toast.custom(
       (t) => (
-        <Alert
+        <NeomorphicToast
+          message={message}
           variant={variant}
-          className="shadow-xl border-2 border-[#C62328]/20 animate-fade-in min-w-[320px] max-w-xs"
           onClose={() => toast.dismiss(t.id)}
-        >
-          {message}
-        </Alert>
+        />
       ),
       { duration: 3500 }
     );
@@ -172,7 +170,24 @@ const ProfilePage: React.FC = () => {
       await checkAuth();
       showCustomToast("¡Preferencias de notificaciones actualizadas!", "success");
     } catch (err: any) {
-      showCustomToast(err.message || "Error al guardar las notificaciones", "error");
+      // Si el error es 404, intenta POST (crear onboarding)
+      if (err?.message?.includes("404")) {
+        try {
+          await userService.updateOnboarding({
+            receiveAlerts: form.receiveAlerts,
+            receiveRecommendations: form.receiveRecommendations,
+            receiveWorkoutSuggestions: form.receiveWorkoutSuggestions,
+            receiveNutritionAdvice: form.receiveNutritionAdvice,
+          });
+          await checkAuth();
+          showCustomToast("¡Preferencias de notificaciones guardadas!", "success");
+          return;
+        } catch (err2: any) {
+          showCustomToast(err2.message || "Error al guardar las notificaciones", "error");
+        }
+      } else {
+        showCustomToast(err.message || "Error al guardar las notificaciones", "error");
+      }
     } finally {
       setLoading(false);
     }

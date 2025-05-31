@@ -9,6 +9,7 @@ use App\Enum\CyclePhase;
 use App\Service\CycleCalculatorService;
 use App\Service\CyclePhaseService;
 use App\Service\ContentRecommendationService;
+use App\Service\CalendarAccessService;
 use App\Repository\CycleDayRepository;
 use App\Repository\MenstrualCycleRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -30,6 +31,7 @@ class CycleController extends AbstractController
         private CycleCalculatorService $cycleCalculator,
         private CyclePhaseService $cyclePhaseService,
         private ContentRecommendationService $contentRecommendation,
+        private CalendarAccessService $calendarAccessService,
         private EntityManagerInterface $entityManager
     ) {}
 
@@ -192,6 +194,7 @@ class CycleController extends AbstractController
     }
 
     // ! 25/05/2025 - Modificado para devolver los ciclos y sus días asociados en el rango de fechas
+    // ! 31/05/2025 - Actualizado para incluir datos de anfitriones en calendario compartido
     #[Route('/calendar', name: 'api_cycles_calendar', methods: ['GET'])]
     public function getCalendar(Request $request): JsonResponse
     {
@@ -205,11 +208,11 @@ class CycleController extends AbstractController
         $startDate = new \DateTime($request->query->get('start', 'first day of this month'));
         $endDate = new \DateTime($request->query->get('end', 'last day of this month'));
 
-        // Obtener los ciclos que se solapan con el rango de fechas
-        $cycles = $this->cycleRepository->findByDateRange($user, $startDate, $endDate);
+        // 1. Obtener los ciclos propios del usuario (funcionalidad actual)
+        $userCycles = $this->cycleRepository->findByDateRange($user, $startDate, $endDate);
 
         // Para cada ciclo, cargar los días que estén dentro del rango de fechas
-        foreach ($cycles as $cycle) {
+        foreach ($userCycles as $cycle) {
             // Obtener solo los días dentro del rango de fechas para este ciclo
             $cycleDays = $this->cycleDayRepository->findByCyclePhaseAndDateRange(
                 $cycle,
@@ -221,7 +224,14 @@ class CycleController extends AbstractController
             $cycle->setFilteredCycleDays($cycleDays);
         }
 
-        return $this->json($cycles, 200, [], ['groups' => 'calendar:read']);
+        // 2. Obtener datos de anfitriones (NUEVA funcionalidad)
+        $hostCycles = $this->calendarAccessService->getAccessibleHostData($user, $startDate, $endDate);
+
+        // 3. Estructura de respuesta actualizada
+        return $this->json([
+            'userCycles' => $userCycles,  // Datos propios (funcionalidad actual)
+            'hostCycles' => $hostCycles   // NUEVO: Datos de anfitriones filtrados
+        ], 200, [], ['groups' => 'calendar:read']);
     }
 
     #[Route('/predict', name: 'api_cycles_predict', methods: ['GET'])]
