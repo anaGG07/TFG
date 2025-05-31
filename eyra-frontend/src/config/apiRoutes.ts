@@ -1,5 +1,7 @@
 // API_URL es definido directamente desde la variable de entorno VITE_API_URL
-const API_URL = import.meta.env.VITE_API_URL || 'https://eyraclub.es';
+//const API_URL = import.meta.env.VITE_API_URL || 'https://eyraclub.es';
+
+const API_URL = import.meta.env.VITE_API_URL || 'http://51.44.101.112';
 
 // Log para verificar API URL
 console.log('API_ROUTES utilizando URL base:', API_URL);
