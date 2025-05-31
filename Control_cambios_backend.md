@@ -2,6 +2,20 @@
 
 Este documento registra todos los cambios realizados durante el desarrollo del backend de EYRA.
 
+## v0.5.0 - 31/05/2025
+
+| Archivo | Descripción | Tipo de Fichero | Tipo de Cambio |
+|---------|-------------|-----------------|----------------|
+| apiRoutes.ts | Añadidas rutas de administración para CRUD de usuarios en ADMIN.USERS | Configuración | Nueva funcionalidad |
+| adminService.ts | Creado nuevo servicio para gestionar operaciones CRUD de usuarios por administradores | Servicio | Nueva funcionalidad |
+| user.ts | Actualizada interfaz User con campo avatar opcional y nueva interfaz Avatar | Tipos | Mejora |
+| enums.ts | Actualizados ProfileTypes según documentación con nuevos valores específicos | Tipos | Mejora |
+| UsersTable.tsx | Creado componente tabla completa de usuarios con filtros, paginación y acciones CRUD | Componente | Nueva funcionalidad |
+| UserViewModal.tsx | Creado modal para visualizar detalles completos de usuario | Componente | Nueva funcionalidad |
+| UserEditModal.tsx | Creado modal para editar usuarios con formulario completo y validaciones | Componente | Nueva funcionalidad |
+| AdminStats.tsx | Creado componente de estadísticas con métricas visuales y gráficos circulares | Componente | Nueva funcionalidad |
+| AdminPage.tsx | Completamente rediseñado con sistema de pestañas y gestión completa de usuarios | Página | Refactorización completa |
+
 ## v0.4.0 - 28/05/2025
 
 | Archivo | Descripción | Tipo de Fichero | Tipo de Cambio |

@@ -90,6 +90,16 @@ export const API_ROUTES = {
     READ_ALL: createApiUrl('/notifications/read-all'),
     DELETE: (id: string) => createApiUrl(`/notifications/${id}`),
   },
+
+  // ! 31/05/2025 - Rutas de administración para CRUD de usuarios
+  ADMIN: {
+    USERS: {
+      LIST: createApiUrl('/admin/users'),
+      GET: (id: string) => createApiUrl(`/admin/users/${id}`),
+      UPDATE: (id: string) => createApiUrl(`/admin/users/${id}`),
+      DELETE: (id: string) => createApiUrl(`/admin/users/${id}`),
+    },
+  },
 };
 
 // También exportamos la URL base para su uso en otros archivos
