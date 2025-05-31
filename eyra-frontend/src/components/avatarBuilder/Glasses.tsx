@@ -19,17 +19,17 @@ const Glasses: React.FC<GlassesProps> = ({ type, opacity }) => {
     case "round":
       return (
         <g transform="translate(0,-12)">
-          <ellipse cx="148" cy="155" rx="22" ry="18" fill="none" stroke="#222" strokeWidth="3" />
-          <ellipse cx="212" cy="155" rx="22" ry="18" fill="none" stroke="#222" strokeWidth="3" />
-          <rect x="170" y="150" width="20" height="6" fill="#222" />
+          <ellipse cx="148" cy="143" rx="22" ry="18" fill="none" stroke="#222" strokeWidth="5" />
+          <ellipse cx="212" cy="143" rx="22" ry="18" fill="none" stroke="#222" strokeWidth="5" />
+          <rect x="170" y="138" width="20" height="6" fill="#222" />
         </g>
       );
     case "square":
       return (
         <g transform="translate(0,-12)">
-          <rect x="126" y="137" width="44" height="36" rx="8" fill="none" stroke="#222" strokeWidth="3" />
-          <rect x="190" y="137" width="44" height="36" rx="8" fill="none" stroke="#222" strokeWidth="3" />
-          <rect x="170" y="150" width="20" height="6" fill="#222" />
+          <rect x="126" y="125" width="44" height="36" rx="8" fill="none" stroke="#222" strokeWidth="5" />
+          <rect x="190" y="125" width="44" height="36" rx="8" fill="none" stroke="#222" strokeWidth="5" />
+          <rect x="170" y="138" width="20" height="6" fill="#222" />
         </g>
       );
     default:
