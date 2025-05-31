@@ -77,6 +77,10 @@ class AuthService {
         body: credentials,
       });
 
+      console.log("=== DEBUG LOGIN RESPONSE AVATAR ===");
+      console.log("Avatar recibido en login:", response.user.avatar);
+      console.log("====================================");
+
       if (!response.user) {
         throw new Error("Respuesta inválida del servidor");
       }
