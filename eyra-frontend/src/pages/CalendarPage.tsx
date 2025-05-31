@@ -1,20 +1,20 @@
-import React from 'react';
-import { EnhancedCalendar } from '../features/calendar/components/EnhancedCalendar';
+import React from "react";
+import { CalendarContainer } from "../features/calendar/components/CalendarContainer";
 
 const CalendarPage = () => {
   return (
-    <div className="calendar-page pt-24 pb-20 px-4">
+    <div className="calendar-page">
       <div className="container">
-        <h1>Calendario</h1>
-        
         <div className="mb-6">
+          <h1>Calendario</h1>
           <p>
-            Registra y visualiza tu ciclo menstrual, tus síntomas y recibe recomendaciones personalizadas.
-            Este calendario te ayudará a entender mejor los patrones de tu ciclo y a tomar el control de tu bienestar.
+            Registra y visualiza tu ciclo menstrual, síntomas y recibe
+            recomendaciones personalizadas. Este calendario te ayudará a
+            entender mejor los patrones de tu ciclo.
           </p>
         </div>
-        
-        <EnhancedCalendar />
+
+        <CalendarContainer className="calendar-container" />
       </div>
     </div>
   );

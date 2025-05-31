@@ -32,55 +32,45 @@ const AvatarPreview: React.FC<AvatarPreviewProps> = ({ config, className }) => {
       preserveAspectRatio="xMidYMid meet"
       style={{ display: "block" }} // Asegurar que no hay problemas de display
     >
-      <g transform="translate(180, 180)">
-        {/* Capa 1: Fondo y piel */}
-        <Background color={safeValue(config.backgroundColor, "#E7E0D5")} />
-        <Skin color={safeValue(config.skinColor, "#F5D0A9")} />
-        
-        {/* Capa 2: Pelo trasero */}
-        <g className="hair-back">
-          <Hair
-            style={safeValue(config.hairStyle, "short")}
-            color={safeValue(config.hairColor, "#4A4A4A")}
-            isBack={true}
-          />
-        </g>
-
-        {/* Capa 3: Ropa y cuerpo */}
-        <Clothes
-          type={safeValue(config.clothes, "tshirt")}
-          color={safeValue(config.fabricColor, "#C62328")}
-        />
-
-        {/* Capa 4: Cara y características faciales */}
-        <Eyes type={safeValue(config.eyes, "default")} />
-        <Eyebrows type={safeValue(config.eyebrows, "default")} />
-        <Mouth type={safeValue(config.mouth, "default")} />
-        <FacialHair type={safeValue(config.facialHair, "none")} />
-
-        {/* Capa 5: Pelo delantero */}
-        <g className="hair-front">
-          <Hair
-            style={safeValue(config.hairStyle, "short")}
-            color={safeValue(config.hairColor, "#4A4A4A")}
-            isBack={false}
-          />
-        </g>
-
-        {/* Capa 6: Accesorios y detalles finales */}
-        <Glasses
-          type={safeValue(config.glasses, "none")}
-          opacity={safeValue(config.glassOpacity, "0.8")}
-        />
-        <Accessories 
-          type={safeValue(config.accessories, "none")} 
-          color={safeValue(config.accessoryColor, "#FFD700")}
-        />
-        <Tattoos 
-          type={safeValue(config.tattoos, "none")} 
-          color={safeValue(config.tattooColor, "#000000")}
-        />
-      </g>
+      {/* Fondo */}
+      <Background color={safeValue(config.backgroundColor, "#E7E0D5")} />
+      {/* Pelo trasero */}
+      <Hair
+        style={safeValue(config.hairStyle, "short")}
+        color={safeValue(config.hairColor, "#4A4A4A")}
+        isBack={true}
+      />
+      {/* Cuerpo y piel */}
+      <Skin color={safeValue(config.skinColor, "#F5D0A9")} />
+      {/* Ropa */}
+      <Clothes
+        type={safeValue(config.clothes, "tshirt")}
+        color={safeValue(config.fabricColor, "#C62328")}
+      />
+      {/* Cara y facciones */}
+      <Eyes type={safeValue(config.eyes, "default")} />
+      <Eyebrows type={safeValue(config.eyebrows, "default")} />
+      <Mouth type={safeValue(config.mouth, "default")} />
+      <FacialHair type={safeValue(config.facialHair, "none")} />
+      {/* Pelo delantero */}
+      <Hair
+        style={safeValue(config.hairStyle, "short")}
+        color={safeValue(config.hairColor, "#4A4A4A")}
+        isBack={false}
+      />
+      {/* Accesorios, gafas y tatuajes */}
+      <Accessories 
+        type={safeValue(config.accessories, "none")} 
+        color={safeValue(config.accessoryColor, "#FFD700")}
+      />
+      <Glasses
+        type={safeValue(config.glasses, "none")}
+        opacity={safeValue(config.glassOpacity, "0.8")}
+      />
+      <Tattoos 
+        type={safeValue(config.tattoos, "none")} 
+        color={safeValue(config.tattooColor, "#000000")}
+      />
     </svg>
   );
 };
