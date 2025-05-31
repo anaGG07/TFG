@@ -260,10 +260,11 @@ const OnboardingPage: React.FC = () => {
         console.log("OnboardingPage: Respuesta del servidor:", updatedUser);
 
         if (updatedUser?.onboardingCompleted) {
+          // Forzar recarga del usuario desde el backend
+          await checkAuth();
           // Mostrar mensaje de éxito
           setShowCompletedMessage(true);
           setIsSubmitting(false);
-          
           // Redirigir después de 2 segundos
           setTimeout(() => {
             navigate(ROUTES.DASHBOARD, { replace: true });

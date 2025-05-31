@@ -450,8 +450,17 @@ class OnboardingController extends AbstractController
             $userData = [
                 'id' => $user->getId(),
                 'email' => $user->getEmail(),
-                'onboardingCompleted' => $onboarding->isCompleted(),
-                // Agrega aquí otros campos relevantes del usuario
+                'username' => $user->getUsername(),
+                'name' => $user->getName(),
+                'lastName' => $user->getLastName(),
+                'roles' => $user->getRoles(),
+                'profileType' => $user->getProfileType() ? $user->getProfileType()->value : null,
+                'birthDate' => $user->getBirthDate() ? $user->getBirthDate()->format('Y-m-d') : null,
+                'createdAt' => $user->getCreatedAt() ? $user->getCreatedAt()->format('c') : null,
+                'updatedAt' => $user->getUpdatedAt() ? $user->getUpdatedAt()->format('c') : null,
+                'state' => $user->getState(),
+                'onboardingCompleted' => $user->isOnboardingCompleted(),
+                'avatar' => $user->getAvatar(),
             ];
 
             $response = [
