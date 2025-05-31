@@ -1,8 +1,8 @@
-# ! 31/05/2025 - Configuración de Railway para usar Docker
+# ! 31/05/2025 - Configuración de Railway para FORZAR Docker
 
 [build]
 builder = "dockerfile"
-dockerfilePath = "Dockerfile.railway"
+dockerfilePath = "Dockerfile.production"
 
 [deploy]
 startCommand = "php -S 0.0.0.0:$PORT -t public/"
@@ -10,10 +10,3 @@ healthcheckPath = "/api/health"
 healthcheckTimeout = 100
 restartPolicyType = "on_failure"
 restartPolicyMaxRetries = 3
-
-[environments.production.build]
-builder = "dockerfile"
-dockerfilePath = "Dockerfile.railway"
-
-[environments.production.deploy]
-startCommand = "php -S 0.0.0.0:$PORT -t public/"

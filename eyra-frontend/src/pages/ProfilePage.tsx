@@ -148,17 +148,36 @@ const ProfilePage: React.FC = () => {
 
   // Renderizado
   return (
-    <div className="flex w-full min-h-screen bg-[#ece5db]">
+    <div className="flex w-full min-h-screen" style={{ background: '#e7e0d5' }}>
       {/* Columna izquierda: Avatar */}
-      <div className="flex flex-col items-center justify-center w-1/3 min-w-[340px] p-10 gap-6">
+      <div className="flex flex-col items-center justify-center w-[420px] min-w-[340px] py-16 gap-8 relative" style={{ minHeight: '100vh' }}>
+        {/* Línea de separación neumórfica */}
+        <div className="absolute top-0 right-0 h-full w-[2.5rem] flex items-center justify-center z-10">
+          <div style={{
+            width: '2px',
+            height: '80%',
+            background: 'linear-gradient(180deg, #e0d6c8 0%, #d4c7bb 100%)',
+            boxShadow: '2px 0 8px #c6232822, -2px 0 8px #fff8',
+            borderRadius: '2px',
+            marginLeft: 'auto',
+            marginRight: 'auto',
+          }} />
+        </div>
+        {/* Avatar neumórfico circular */}
         <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.5 }}
-          className="rounded-full shadow-lg"
-          style={{ background: "#f5ede6", boxShadow: "0 8px 32px #c6232822" }}
+          className="flex items-center justify-center rounded-full shadow-lg"
+          style={{
+            width: 320,
+            height: 320,
+            background: form.avatar.backgroundColor || '#f5ede6',
+            boxShadow: '0 8px 32px #c6232822, 8px 8px 24px #e7e0d5, -8px -8px 24px #fff8',
+            border: '8px solid #ece5db',
+          }}
         >
-          <AvatarPreview config={getAvatarConfig()} className="w-56 h-56" />
+          <AvatarPreview config={getAvatarConfig()} className="w-[220px] h-[220px]" />
         </motion.div>
         <NeomorphicButton
           variant="primary"
@@ -168,90 +187,88 @@ const ProfilePage: React.FC = () => {
           Editar avatar
         </NeomorphicButton>
       </div>
-      {/* Columna derecha: Caja dinámica */}
-      <div className="flex-1 flex flex-col justify-center items-center">
-        <NeomorphicCard className="w-full max-w-2xl p-10 flex flex-col gap-8">
-          {/* Cabecera: nombre, email, frase */}
-          <div className="flex flex-col items-center gap-1">
-            <h1 className="text-3xl font-serif font-bold text-[#7a2323]">{user.name} {user.lastName}</h1>
-            <p className="text-[#7a2323]/80">{user.email}</p>
-            <p className="text-[#C62328] text-lg font-serif mt-2">Hoy es un gran día para cuidar de ti ✨</p>
-          </div>
-          {/* Tabs de iconos */}
-          <div className="flex justify-center gap-8 mb-2">
-            {tabList.map((tab) => (
-              <button
-                key={tab.key}
-                className={`flex items-center justify-center w-14 h-14 rounded-full transition-all duration-200 ${
-                  activeTab === tab.key
-                    ? "bg-[#F5E9E6] shadow-neomorphic border-2 border-[#C62328]"
-                    : "bg-transparent border-2 border-transparent"
-                } text-[#C62328] hover:bg-[#F5E9E6]/80`}
-                style={{ boxSizing: "border-box" }}
-                onClick={() => setActiveTab(tab.key as any)}
-                type="button"
-                aria-label={tab.alt}
+      {/* Columna derecha: Contenido sobre fondo */}
+      <div className="flex-1 flex flex-col justify-center items-center min-h-screen py-16 px-12">
+        {/* Cabecera: nombre, email, frase */}
+        <div className="flex flex-col items-center gap-1 mb-8">
+          <h1 className="text-3xl font-serif font-bold text-[#7a2323]">{user.name} {user.lastName}</h1>
+          <p className="text-[#7a2323]/80">{user.email}</p>
+          <p className="text-[#C62328] text-lg font-serif mt-2">Hoy es un gran día para cuidar de ti ✨</p>
+        </div>
+        {/* Tabs de iconos */}
+        <div className="flex justify-center gap-8 mb-6">
+          {tabList.map((tab) => (
+            <button
+              key={tab.key}
+              className={`flex items-center justify-center w-14 h-14 rounded-full transition-all duration-200 ${
+                activeTab === tab.key
+                  ? "bg-[#F5E9E6] shadow-neomorphic border-2 border-[#C62328]"
+                  : "bg-transparent border-2 border-transparent"
+              } text-[#C62328] hover:bg-[#F5E9E6]/80`}
+              style={{ boxSizing: "border-box" }}
+              onClick={() => setActiveTab(tab.key as any)}
+              type="button"
+              aria-label={tab.alt}
+            >
+              {iconMap[tab.icon]}
+            </button>
+          ))}
+        </div>
+        {/* Contenido dinámico */}
+        <div className="w-full max-w-2xl min-h-[320px]">
+          <AnimatePresence mode="wait">
+            {activeTab === "privacy" && (
+              <motion.div
+                key="privacy"
+                initial={{ opacity: 0, x: 40 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -40 }}
+                transition={{ duration: 0.3 }}
               >
-                {iconMap[tab.icon]}
-              </button>
-            ))}
-          </div>
-          {/* Contenido dinámico */}
-          <div className="w-full min-h-[320px]">
-            <AnimatePresence mode="wait">
-              {activeTab === "privacy" && (
-                <motion.div
-                  key="privacy"
-                  initial={{ opacity: 0, x: 40 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: -40 }}
-                  transition={{ duration: 0.3 }}
-                >
-                  <ProfileForm
-                    form={form}
-                    error={error}
-                    loading={loading}
-                    handleChange={handleChange}
-                    handleSave={handleSave}
-                  />
-                </motion.div>
-              )}
-              {activeTab === "security" && (
-                <motion.div
-                  key="security"
-                  initial={{ opacity: 0, x: 40 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: -40 }}
-                  transition={{ duration: 0.3 }}
-                >
-                  <SecurityForm
-                    form={form}
-                    error={error}
-                    loading={loading}
-                    handleChange={handleChange}
-                    handlePasswordChange={handlePasswordChange}
-                  />
-                </motion.div>
-              )}
-              {activeTab === "notifications" && (
-                <motion.div
-                  key="notifications"
-                  initial={{ opacity: 0, x: 40 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: -40 }}
-                  transition={{ duration: 0.3 }}
-                >
-                  <NotificationsForm
-                    form={form}
-                    loading={loading}
-                    handleChange={handleChange}
-                    handleSave={handleSave}
-                  />
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </div>
-        </NeomorphicCard>
+                <ProfileForm
+                  form={form}
+                  error={error}
+                  loading={loading}
+                  handleChange={handleChange}
+                  handleSave={handleSave}
+                />
+              </motion.div>
+            )}
+            {activeTab === "security" && (
+              <motion.div
+                key="security"
+                initial={{ opacity: 0, x: 40 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -40 }}
+                transition={{ duration: 0.3 }}
+              >
+                <SecurityForm
+                  form={form}
+                  error={error}
+                  loading={loading}
+                  handleChange={handleChange}
+                  handlePasswordChange={handlePasswordChange}
+                />
+              </motion.div>
+            )}
+            {activeTab === "notifications" && (
+              <motion.div
+                key="notifications"
+                initial={{ opacity: 0, x: 40 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -40 }}
+                transition={{ duration: 0.3 }}
+              >
+                <NotificationsForm
+                  form={form}
+                  loading={loading}
+                  handleChange={handleChange}
+                  handleSave={handleSave}
+                />
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
       </div>
       {/* Modal del editor de avatar */}
       <AvatarBuilderModal
