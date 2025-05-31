@@ -1,15 +1,25 @@
-import React from 'react';
+import React from "react";
 
 const Tattoos: React.FC<{ type: string }> = ({ type }) => {
   switch (type) {
-    case 'star':
-      return <polygon points="120,180 123,188 131,188 125,192 127,200 120,195 113,200 115,192 109,188 117,188" fill="#FFD700" />;
-    case 'heart':
-      return <path d="M120 185 Q125 180 130 185 Q130 190 120 200 Q110 190 110 185 Q115 180 120 185" fill="#E57373" />;
-    case 'none':
+    case "star":
+      return (
+        <polygon
+          points="160,220 163,228 171,228 165,232 167,240 160,235 153,240 155,232 149,228 157,228"
+          fill="#FFD700"
+        />
+      );
+    case "heart":
+      return (
+        <path
+          d="M160 225 Q165 220 170 225 Q170 230 160 240 Q150 230 150 225 Q155 220 160 225"
+          fill="#E57373"
+        />
+      );
+    case "none":
     default:
       return null;
   }
 };
 
-export default Tattoos; 
+export default Tattoos;
