@@ -19,130 +19,74 @@ const Eyes: React.FC<{ type: string }> = ({ type }) => {
     case "eyeroll":
       return (
         <>
-          <ellipse cx="148" cy="160" rx="7" ry="3" fill="#222" />
-          <ellipse cx="212" cy="160" rx="7" ry="3" fill="#222" />
+          <ellipse cx="148" cy="143" rx="7" ry="3" fill="#222" />
+          <ellipse cx="212" cy="143" rx="7" ry="3" fill="#222" />
         </>
       );
     case "happy":
       return (
         <>
-          <ellipse cx="148" cy="160" rx="8" ry="6" fill="#222" />
-          <ellipse cx="212" cy="160" rx="8" ry="6" fill="#222" />
+          <ellipse cx="148" cy="143" rx="8" ry="6" fill="#222" />
+          <ellipse cx="212" cy="143" rx="8" ry="6" fill="#222" />
         </>
       );
     case "close":
       return (
         <>
-          <path
-            d="M143 160 L153 160"
-            stroke="#222"
-            strokeWidth="3"
-            fill="none"
-          />
-          <path
-            d="M207 160 L217 160"
-            stroke="#222"
-            strokeWidth="3"
-            fill="none"
-          />
+          <path d="M143 143 L153 143" stroke="#222" strokeWidth="3" fill="none" />
+          <path d="M207 143 L217 143" stroke="#222" strokeWidth="3" fill="none" />
         </>
       );
     case "hearts":
       return (
         <>
-          <path
-            d="M148 160 Q150 155 152 160 Q154 165 152 170 Q150 175 148 170 Q146 165 148 160"
-            fill="#E57373"
-          />
-          <path
-            d="M212 160 Q214 155 216 160 Q218 165 216 170 Q214 175 212 170 Q210 165 212 160"
-            fill="#E57373"
-          />
+          <path d="M148 143 Q150 138 152 143 Q154 148 152 153 Q150 158 148 153 Q146 148 148 143" fill="#E57373" />
+          <path d="M212 143 Q214 138 216 143 Q218 148 216 153 Q214 158 212 153 Q210 148 212 143" fill="#E57373" />
         </>
       );
     case "side":
       return (
         <>
-          <ellipse cx="148" cy="160" rx="7" ry="7" fill="#222" />
-          <ellipse cx="212" cy="160" rx="7" ry="7" fill="#222" />
-          <path
-            d="M148 160 L153 160 M212 160 L217 160"
-            stroke="#222"
-            strokeWidth="2"
-            fill="none"
-          />
+          <ellipse cx="148" cy="143" rx="7" ry="7" fill="#222" />
+          <ellipse cx="212" cy="143" rx="7" ry="7" fill="#222" />
+          <path d="M148 143 L153 143 M212 143 L217 143" stroke="#222" strokeWidth="2" fill="none" />
         </>
       );
     case "wink":
       return (
         <>
-          <path
-            d="M143 160 L153 160"
-            stroke="#222"
-            strokeWidth="3"
-            fill="none"
-          />
-          <ellipse cx="212" cy="160" rx="7" ry="7" fill="#222" />
+          <path d="M143 143 L153 143" stroke="#222" strokeWidth="3" fill="none" />
+          <ellipse cx="212" cy="143" rx="7" ry="7" fill="#222" />
         </>
       );
     case "squint":
       return (
         <>
-          <path
-            d="M143 160 Q148 165 153 160"
-            stroke="#222"
-            strokeWidth="3"
-            fill="none"
-          />
-          <path
-            d="M207 160 Q212 165 217 160"
-            stroke="#222"
-            strokeWidth="3"
-            fill="none"
-          />
+          <path d="M143 143 Q148 148 153 143" stroke="#222" strokeWidth="3" fill="none" />
+          <path d="M207 143 Q212 148 217 143" stroke="#222" strokeWidth="3" fill="none" />
         </>
       );
     case "surprised":
       return (
         <>
-          <circle cx="148" cy="160" r="7" fill="#222" />
-          <circle cx="212" cy="160" r="7" fill="#222" />
+          <circle cx="148" cy="143" r="7" fill="#222" />
+          <circle cx="212" cy="143" r="7" fill="#222" />
         </>
       );
     case "winkwacky":
       return (
         <>
-          <path
-            d="M143 160 L153 160"
-            stroke="#222"
-            strokeWidth="3"
-            fill="none"
-          />
-          <path
-            d="M207 160 Q212 165 217 160"
-            stroke="#222"
-            strokeWidth="3"
-            fill="none"
-          />
+          <path d="M143 143 L153 143" stroke="#222" strokeWidth="3" fill="none" />
+          <path d="M207 143 Q212 148 217 143" stroke="#222" strokeWidth="3" fill="none" />
         </>
       );
     case "cry":
       return (
         <>
-          <ellipse cx="148" cy="160" rx="7" ry="7" fill="#222" />
-          <ellipse cx="212" cy="160" rx="7" ry="7" fill="#222" />
-          <path
-            d="M148 170 Q148 180 153 180"
-            stroke="#222"
-            strokeWidth="2"
-            fill="none"
-          />
-          <path
-            d="M212 170 Q212 180 217 180"
-            stroke="#222"
-            strokeWidth="2"
-            fill="none"
-          />
+          <ellipse cx="148" cy="143" rx="7" ry="7" fill="#222" />
+          <ellipse cx="212" cy="143" rx="7" ry="7" fill="#222" />
+          <path d="M148 153 Q148 163 153 163" stroke="#222" strokeWidth="2" fill="none" />
+          <path d="M212 153 Q212 163 217 163" stroke="#222" strokeWidth="2" fill="none" />
         </>
       );
     default:

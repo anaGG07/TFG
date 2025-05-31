@@ -10,8 +10,8 @@ const Accessories: React.FC<AccessoriesProps> = ({ type, color = "#FFD700" }) =>
     case "earring":
       return (
         <>
-          <circle cx="148" cy="143" r="8" fill={color} />
-          <circle cx="212" cy="143" r="8" fill={color} />
+          <circle cx="148" cy="143" r="8" fill={color} stroke="#222" strokeWidth="2" />
+          <circle cx="212" cy="143" r="8" fill={color} stroke="#222" strokeWidth="2" />
         </>
       );
     case "necklace":
@@ -29,10 +29,14 @@ const Accessories: React.FC<AccessoriesProps> = ({ type, color = "#FFD700" }) =>
           <path
             d="M154 220 L144 230 L154 240"
             fill={color}
+            stroke="#222"
+            strokeWidth="2"
           />
           <path
             d="M206 220 L216 230 L206 240"
             fill={color}
+            stroke="#222"
+            strokeWidth="2"
           />
         </>
       );
@@ -41,6 +45,8 @@ const Accessories: React.FC<AccessoriesProps> = ({ type, color = "#FFD700" }) =>
         <path
           d="M160 220 L160 260 L150 270 L170 270 Z"
           fill={color}
+          stroke="#222"
+          strokeWidth="2"
         />
       );
     case "scarf":
@@ -48,6 +54,8 @@ const Accessories: React.FC<AccessoriesProps> = ({ type, color = "#FFD700" }) =>
         <path
           d="M150 220 Q180 240 210 220 Q180 260 150 220"
           fill={color}
+          stroke="#222"
+          strokeWidth="2"
         />
       );
     case "none":
