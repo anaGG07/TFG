@@ -6,6 +6,7 @@ import ProfileTabsModal from "../components/ProfileTabsModal";
 import { userService } from "../services/userService";
 import { toast } from "react-hot-toast";
 import AvatarPreview from "../components/avatarBuilder/AvatarPreview";
+import { hasAvatarContent } from "../types/avatar"; 
 
 const ProfilePage: React.FC = () => {
   const { user, checkAuth } = useAuth();
@@ -56,10 +57,10 @@ const ProfilePage: React.FC = () => {
           <div className="flex flex-col items-center gap-6">
             {/* Avatar */}
             <div className="w-32 h-32 rounded-full overflow-hidden flex items-center justify-center bg-gray-100">
-              {user.avatar ? (
+              {hasAvatarContent(user.avatar) ? ( // Usar función de detección
                 <AvatarPreview config={user.avatar} className="w-full h-full" />
               ) : (
-                <span className="text-4xl text-white font-bold">
+                <span className="text-4xl text-gray-500 font-bold">
                   {user.username?.charAt(0)?.toUpperCase() || "U"}
                 </span>
               )}

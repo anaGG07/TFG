@@ -112,3 +112,18 @@ export const ensureValidAvatarConfig = (avatar: Partial<AvatarConfig> | null | u
     backgroundColor: avatar.backgroundColor || defaultAvatarConfig.backgroundColor
   };
 };
+
+/**
+ * Función para verificar si un avatar tiene contenido real (no solo campos vacíos)
+ */
+export const hasAvatarContent = (avatar: AvatarConfig | null | undefined): boolean => {
+  if (!avatar) return false;
+  
+  // Verificar si al menos tiene color de piel o algún valor significativo
+  return !!(
+    (avatar.skinColor && avatar.skinColor.trim() !== '') ||
+    (avatar.eyes && avatar.eyes.trim() !== '') ||
+    (avatar.hairStyle && avatar.hairStyle.trim() !== '') ||
+    (avatar.clothes && avatar.clothes.trim() !== '')
+  );
+};

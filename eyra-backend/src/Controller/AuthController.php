@@ -154,22 +154,23 @@ class AuthController extends AbstractController
                 }
             } else {
                 // Establecer el avatar predeterminado vacío
-                $user->setAvatar([
-                    "skinColor" => "",
-                    "eyes" => "",
-                    "eyebrows" => "",
-                    "mouth" => "",
-                    "hairStyle" => "",
-                    "hairColor" => "",
-                    "facialHair" => "",
-                    "clothes" => "",
-                    "fabricColor" => "",
-                    "glasses" => "",
-                    "glassOpacity" => "",
-                    "accessories" => "",
-                    "tattoos" => "",
-                    "backgroundColor" => ""
-                ]);
+                $randomAvatar = [
+                    "skinColor" => "#F5D0A9",
+                    "eyes" => "default",
+                    "eyebrows" => "default",
+                    "mouth" => "default",
+                    "hairStyle" => "short",
+                    "hairColor" => "#4A4A4A",
+                    "facialHair" => "none",
+                    "clothes" => "tshirt",
+                    "fabricColor" => "#C62328",
+                    "glasses" => "none",
+                    "glassOpacity" => "0.8",
+                    "accessories" => "none",
+                    "tattoos" => "none",
+                    "backgroundColor" => "#E7E0D5"
+                ];
+                $user->setAvatar($randomAvatar);
             }
 
             // Validar el usuario
