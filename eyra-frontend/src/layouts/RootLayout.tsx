@@ -2,6 +2,7 @@ import { Outlet, useLocation } from "react-router-dom";
 import { AuthProvider, useAuth } from "../context/AuthContext";
 import { CycleProvider } from "../context/CycleContext";
 import CircularNavigation from "../components/CircularNavigation";
+import AdminNavigation from "../components/AdminNavigation";
 
 // Rutas donde mostrar la navegación circular
 const AUTHENTICATED_ROUTES = [
@@ -34,11 +35,15 @@ const RootContent = () => {
     user?.onboardingCompleted &&
     needsNavigation(location.pathname);
 
-  console.log("RootLayout: Navegación circular:", {
+  // Determinar qué navegación mostrar basado en el rol
+  const NavigationComponent = user?.roles?.includes("admin") ? AdminNavigation : CircularNavigation;
+
+  console.log("RootLayout: Navegación:", {
     shouldShow: shouldShowNavigation,
     path: location.pathname,
     isAuthenticated,
     onboardingCompleted: user?.onboardingCompleted,
+    userRoles: user?.roles,
     userObject: user,
     routeMatches: AUTHENTICATED_ROUTES.map(route => ({ route, matches: location.pathname.startsWith(route) })),
     needsNavigationResult: needsNavigation(location.pathname),
@@ -51,7 +56,7 @@ const RootContent = () => {
         <div className="w-screen h-screen overflow-hidden bg-bg text-primary font-sans flex">
           {/* Columna izquierda - Navegación fija */}
           <div className="w-[300px] h-full flex-shrink-0 relative">
-            <CircularNavigation />
+            <NavigationComponent />
           </div>
 
           {/* Columna derecha - Contenido principal */}
