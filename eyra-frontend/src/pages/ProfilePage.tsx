@@ -206,32 +206,14 @@ const ProfilePage: React.FC = () => {
         </div>
         {/* Tabs de iconos mejorados o editor de avatar */}
         {isEditingAvatar ? (
-          <div className="w-full max-w-4xl grid grid-cols-1 md:grid-cols-2 gap-8 animate-fade-in items-start" style={{background: 'none', boxShadow: 'none', borderRadius: 0, padding: 0}}>
-            <div className="col-span-1 flex flex-col gap-6">
-              <h2 className="font-serif text-2xl font-bold text-[#7a2323] mb-2 text-center">Personaliza tu avatar</h2>
-              <AvatarBuilder
-                initialConfig={tempAvatar}
-                onChange={setTempAvatar}
-                showPreview={false}
-              />
-            </div>
-            <div className="col-span-1 flex flex-col justify-center items-center">
-              <motion.div
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.5 }}
-                className="flex items-center justify-center rounded-full shadow-lg relative z-10"
-                style={{
-                  width: 320,
-                  height: 320,
-                  background: (isEditingAvatar ? tempAvatar.backgroundColor : form.avatar.backgroundColor) || '#f5ede6',
-                  boxShadow: '0 8px 32px #c6232822, 8px 8px 24px #e7e0d5, -8px -8px 24px #fff8',
-                }}
-              >
-                <AvatarPreview config={isEditingAvatar ? tempAvatar : getAvatarConfig()} className="w-[220px] h-[220px]" />
-              </motion.div>
-            </div>
-            <div className="col-span-2 flex flex-row flex-wrap gap-4 justify-center mt-4">
+          <div className="w-full max-w-4xl animate-fade-in" style={{background: 'none', boxShadow: 'none', borderRadius: 0, padding: 0}}>
+            <h2 className="font-serif text-2xl font-bold text-[#7a2323] mb-2 text-center">Personaliza tu avatar</h2>
+            <AvatarBuilder
+              initialConfig={tempAvatar}
+              onChange={setTempAvatar}
+              showPreview={false}
+            />
+            <div className="flex flex-row flex-wrap gap-4 justify-center mt-4">
               <NeomorphicButton
                 type="button"
                 variant="secondary"
