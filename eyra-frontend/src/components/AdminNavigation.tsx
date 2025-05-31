@@ -427,12 +427,7 @@ const AdminNavigation: React.FC = () => {
               <div className="w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900"></div>
             </div>
           </div>
-        </div>
-        
-        {/* Círculo de pulsación de fondo */}
-        <div className={`absolute inset-0 rounded-full border-2 border-red-400 animate-ping pointer-events-none ${
-          isInAdminPanel ? 'opacity-75' : 'opacity-0'
-        }`}></div>
+        </div>      
       </div>
     </>
   );
