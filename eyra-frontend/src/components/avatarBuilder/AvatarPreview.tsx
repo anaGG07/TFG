@@ -18,6 +18,11 @@ interface AvatarPreviewProps {
 }
 
 const AvatarPreview: React.FC<AvatarPreviewProps> = ({ config, className }) => {
+  // Función helper para proveer valores por defecto solo para renderizado
+  const safeValue = (value: string | undefined, defaultValue: string) => {
+    return value && value.trim() !== "" ? value : defaultValue;
+  };
+
   return (
     <svg
       width="100%"
@@ -26,17 +31,26 @@ const AvatarPreview: React.FC<AvatarPreviewProps> = ({ config, className }) => {
       className={className}
       preserveAspectRatio="xMidYMid meet" // Cambiado de "slice" a "meet" para evitar cortes
     >
-      <Background color={config.backgroundColor} />
-      <Skin color={config.skinColor} />
-      <Hair style={config.hairStyle} color={config.hairColor} />
-      <FacialHair type={config.facialHair} />
-      <Clothes type={config.clothes} color={config.fabricColor} />
-      <Eyes type={config.eyes} />
-      <Eyebrows type={config.eyebrows} />
-      <Mouth type={config.mouth} />
-      <Glasses type={config.glasses} opacity={config.glassOpacity} />
-      <Accessories type={config.accessories} />
-      <Tattoos type={config.tattoos} />
+      <Background color={safeValue(config.backgroundColor, "#E7E0D5")} />
+      <Skin color={safeValue(config.skinColor, "#F5D0A9")} />
+      <Hair
+        style={safeValue(config.hairStyle, "short")}
+        color={safeValue(config.hairColor, "#4A4A4A")}
+      />
+      <FacialHair type={safeValue(config.facialHair, "none")} />
+      <Clothes
+        type={safeValue(config.clothes, "tshirt")}
+        color={safeValue(config.fabricColor, "#C62328")}
+      />
+      <Eyes type={safeValue(config.eyes, "default")} />
+      <Eyebrows type={safeValue(config.eyebrows, "default")} />
+      <Mouth type={safeValue(config.mouth, "default")} />
+      <Glasses
+        type={safeValue(config.glasses, "none")}
+        opacity={safeValue(config.glassOpacity, "0.8")}
+      />
+      <Accessories type={safeValue(config.accessories, "none")} />
+      <Tattoos type={safeValue(config.tattoos, "none")} />
     </svg>
   );
 };

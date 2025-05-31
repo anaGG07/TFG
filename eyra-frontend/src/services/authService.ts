@@ -2,7 +2,7 @@ import { User } from "../types/domain";
 import { LoginRequest, RegisterRequest } from "../types/api";
 import { apiFetch } from "../utils/httpClient";
 import { API_ROUTES } from "../config/apiRoutes";
-import { ensureValidAvatarConfig } from "../types/avatar";
+import { isValidAvatarConfig } from "../types/avatar";
 
 class AuthService {
   private static instance: AuthService;
@@ -18,7 +18,7 @@ class AuthService {
   }
 
   /**
-   * Procesa los datos del usuario asegurando que el avatar esté en formato correcto
+   * Procesa los datos del usuario RESPETANDO el avatar exacto de la base de datos
    */
   private processUserData(userData: any): User {
     if (!userData) {
@@ -32,24 +32,28 @@ class AuthService {
         try {
           userData.avatar = JSON.parse(userData.avatar);
         } catch (error) {
-          console.warn(
-            "AuthService: Error parseando avatar string, usando por defecto:",
-            error
-          );
+          console.warn("AuthService: Error parseando avatar string:", error);
           userData.avatar = null;
         }
       }
 
-      // Asegurar que el avatar tenga estructura válida
+      // Solo validar estructura, NO aplicar valores por defecto
       if (userData.avatar && typeof userData.avatar === "object") {
-        userData.avatar = ensureValidAvatarConfig(userData.avatar);
+        // Verificar que tenga la estructura básica, pero mantener valores exactos de BD
+        if (isValidAvatarConfig(userData.avatar)) {
+          // Avatar válido, mantener exactamente como viene de BD
+          // No aplicar ensureValidAvatarConfig que sobreescribe valores
+        } else {
+          console.warn(
+            "AuthService: Avatar inválido en BD, estableciendo como null"
+          );
+          userData.avatar = null;
+        }
       } else {
-        userData.avatar = ensureValidAvatarConfig(null);
+        userData.avatar = null;
       }
-    } else {
-      // Si no hay avatar, usar configuración por defecto
-      userData.avatar = ensureValidAvatarConfig(null);
     }
+    // Si no hay avatar, mantenerlo como null (no forzar avatar por defecto)
 
     return userData as User;
   }
