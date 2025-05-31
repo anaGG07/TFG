@@ -5,8 +5,8 @@ const Eyes: React.FC<{ type: string }> = ({ type }) => {
     case "default":
       return (
         <g>
-          <circle fill="#000000" fillOpacity="0.7" cx="148" cy="153" r="8" />
-          <circle fill="#000000" fillOpacity="0.7" cx="212" cy="153" r="8" />
+          <circle fill="#000000" fillOpacity="0.7" cx="144" cy="153" r="8" />
+          <circle fill="#000000" fillOpacity="0.7" cx="176" cy="153" r="8" />
         </g>
       );
     case "dizzy":
