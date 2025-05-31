@@ -13,12 +13,16 @@ const AdminPage = () => {
   const [activeTab, setActiveTab] = useState<'overview' | 'users' | 'content' | 'settings'>('overview');
 
   if (isLoading) {
-    return <LoadingSpinner />;
+    return (
+      <div className="w-full h-full flex items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-pink-500"></div>
+      </div>
+    );
   }
 
   if (!user || !user.roles.includes('ROLE_ADMIN')) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="w-full h-full flex items-center justify-center">
         <div className="text-center">
           <h1 className="text-2xl font-bold text-red-600 mb-4">Acceso Denegado</h1>
           <p className="text-gray-600">No tienes permisos para acceder a esta página.</p>
@@ -35,8 +39,8 @@ const AdminPage = () => {
   ] as const;
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
-      <div className="max-w-7xl mx-auto">
+    <div className="w-full h-full bg-gray-50 overflow-auto">
+      <div className="max-w-7xl mx-auto p-6">
         {/* Header */}
         <div className="mb-8">
           <h1 className="text-4xl font-bold text-pink-600 mb-2">
