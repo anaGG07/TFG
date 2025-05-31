@@ -14,45 +14,53 @@ interface SecurityFormProps {
 }
 
 const SecurityForm: React.FC<SecurityFormProps> = ({ form, error, loading, handleChange, handlePasswordChange }) => {
+  const [fieldErrors, setFieldErrors] = React.useState<Record<string, string>>({});
+
+  // Validación de complejidad de contraseña
+  const isPasswordComplex = (password: string) => {
+    const hasUpperCase = /[A-Z]/.test(password);
+    const hasLowerCase = /[a-z]/.test(password);
+    const hasNumbers = /\d/.test(password);
+    const hasSpecialChar = /[!@#$%^&*(),.?":{}|<>]/.test(password);
+    return hasUpperCase && hasLowerCase && hasNumbers && hasSpecialChar;
+  };
+
   const validateForm = (e: React.FormEvent) => {
     e.preventDefault();
-    
-    // Validar que todos los campos estén completos
-    if (!form.currentPassword || !form.newPassword || !form.confirmPassword) {
-      return false;
+    const newErrors: Record<string, string> = {};
+    if (!form.currentPassword) {
+      newErrors.currentPassword = 'La contraseña actual es obligatoria';
+    } else if (form.currentPassword.length < 8) {
+      newErrors.currentPassword = 'La contraseña actual debe tener al menos 8 caracteres';
     }
-
-    // Validar longitud mínima de contraseña
-    if (form.newPassword.length < 8) {
-      return false;
+    if (!form.newPassword) {
+      newErrors.newPassword = 'La nueva contraseña es obligatoria';
+    } else if (form.newPassword.length < 8) {
+      newErrors.newPassword = 'La nueva contraseña debe tener al menos 8 caracteres';
+    } else if (!isPasswordComplex(form.newPassword)) {
+      newErrors.newPassword = 'Debe tener mayúscula, minúscula, número y símbolo';
+    } else if (form.newPassword === form.currentPassword) {
+      newErrors.newPassword = 'La nueva contraseña debe ser diferente a la actual';
     }
-
-    // Validar que la nueva contraseña y la confirmación coincidan
-    if (form.newPassword !== form.confirmPassword) {
-      return false;
+    if (!form.confirmPassword) {
+      newErrors.confirmPassword = 'La confirmación es obligatoria';
+    } else if (form.newPassword !== form.confirmPassword) {
+      newErrors.confirmPassword = 'La nueva contraseña y la confirmación no coinciden';
     }
-
-    // Validar que la nueva contraseña sea diferente a la actual
-    if (form.newPassword === form.currentPassword) {
-      return false;
-    }
-
-    // Validar complejidad de la contraseña
-    const hasUpperCase = /[A-Z]/.test(form.newPassword);
-    const hasLowerCase = /[a-z]/.test(form.newPassword);
-    const hasNumbers = /\d/.test(form.newPassword);
-    const hasSpecialChar = /[!@#$%^&*(),.?":{}|<>]/.test(form.newPassword);
-
-    if (!hasUpperCase || !hasLowerCase || !hasNumbers || !hasSpecialChar) {
-      return false;
-    }
-
-    return true;
+    setFieldErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     if (validateForm(e)) {
-      handlePasswordChange(e);
+      try {
+        handlePasswordChange(e);
+        setFieldErrors({});
+      } catch (err: any) {
+        if (err.response && err.response.errors) {
+          setFieldErrors(err.response.errors);
+        }
+      }
     }
   };
 
@@ -71,6 +79,7 @@ const SecurityForm: React.FC<SecurityFormProps> = ({ form, error, loading, handl
           required
           minLength={8}
         />
+        {fieldErrors.currentPassword && <span className="text-red-600 text-xs">{fieldErrors.currentPassword}</span>}
       </div>
       <div className="w-full max-w-xs flex flex-col gap-2">
         <label htmlFor="newPassword" className="font-semibold text-[#7a2323] mb-1">Nueva contraseña</label>
@@ -87,6 +96,7 @@ const SecurityForm: React.FC<SecurityFormProps> = ({ form, error, loading, handl
           pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$"
           title="La contraseña debe tener al menos 8 caracteres, una mayúscula, una minúscula, un número y un carácter especial"
         />
+        {fieldErrors.newPassword && <span className="text-red-600 text-xs">{fieldErrors.newPassword}</span>}
       </div>
       <div className="w-full max-w-xs flex flex-col gap-2">
         <label htmlFor="confirmPassword" className="font-semibold text-[#7a2323] mb-1">Confirmar nueva contraseña</label>
@@ -101,6 +111,7 @@ const SecurityForm: React.FC<SecurityFormProps> = ({ form, error, loading, handl
           required
           minLength={8}
         />
+        {fieldErrors.confirmPassword && <span className="text-red-600 text-xs">{fieldErrors.confirmPassword}</span>}
       </div>
       {error && (
         <div className="text-red-600 text-center font-medium">{error}</div>

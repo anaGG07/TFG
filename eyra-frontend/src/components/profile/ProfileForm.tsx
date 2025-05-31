@@ -15,36 +15,72 @@ interface ProfileFormProps {
 }
 
 const ProfileForm: React.FC<ProfileFormProps> = ({ form, error, loading, handleChange, handleSave }) => {
-  const validateForm = (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    // Validar que los campos no estén vacíos
-    if (!form.name.trim() || !form.lastName.trim() || !form.username.trim() || !form.birthDate) {
-      return false;
-    }
-
-    // Validar formato de fecha
-    const birthDate = new Date(form.birthDate);
-    if (isNaN(birthDate.getTime())) {
-      return false;
-    }
-
-    // Validar que la fecha no sea futura
-    if (birthDate > new Date()) {
-      return false;
-    }
-
-    // Validar longitud del nombre de usuario
-    if (form.username.length < 3 || form.username.length > 30) {
-      return false;
-    }
-
-    return true;
+  // Validación de formato de username
+  const isUsernameValid = (username: string) => {
+    return /^[A-Za-z0-9_-]{3,30}$/.test(username);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
-    if (validateForm(e)) {
-      handleSave(e);
+  // Comprobación de unicidad de username
+  const checkUsernameUnique = async (username: string) => {
+    try {
+      const res = await fetch(`/api/check-username?username=${encodeURIComponent(username)}`);
+      const data = await res.json();
+      return data.isUnique;
+    } catch {
+      return false;
+    }
+  };
+
+  const [fieldErrors, setFieldErrors] = React.useState<Record<string, string>>({});
+
+  const validateForm = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const newErrors: Record<string, string> = {};
+    if (!form.name.trim()) {
+      newErrors.name = 'El nombre es obligatorio';
+    } else if (!/^[A-Za-zÀ-ÿ\s]{2,50}$/.test(form.name)) {
+      newErrors.name = 'Solo letras y espacios (2-50 caracteres)';
+    }
+    if (!form.lastName.trim()) {
+      newErrors.lastName = 'El apellido es obligatorio';
+    } else if (!/^[A-Za-zÀ-ÿ\s]{2,50}$/.test(form.lastName)) {
+      newErrors.lastName = 'Solo letras y espacios (2-50 caracteres)';
+    }
+    if (!form.username.trim()) {
+      newErrors.username = 'El nombre de usuario es obligatorio';
+    } else if (!isUsernameValid(form.username)) {
+      newErrors.username = 'Solo letras, números, guiones y guiones bajos (3-30 caracteres)';
+    } else {
+      const isUnique = await checkUsernameUnique(form.username);
+      if (!isUnique) {
+        newErrors.username = 'El nombre de usuario ya está en uso';
+      }
+    }
+    if (!form.birthDate) {
+      newErrors.birthDate = 'La fecha de nacimiento es obligatoria';
+    } else {
+      const birthDate = new Date(form.birthDate);
+      if (isNaN(birthDate.getTime())) {
+        newErrors.birthDate = 'Formato de fecha inválido';
+      } else if (birthDate > new Date()) {
+        newErrors.birthDate = 'La fecha de nacimiento no puede ser futura';
+      }
+    }
+    setFieldErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    if (await validateForm(e)) {
+      try {
+        await handleSave(e);
+        setFieldErrors({});
+      } catch (err: any) {
+        // Si el backend devuelve errores de validación
+        if (err.response && err.response.errors) {
+          setFieldErrors(err.response.errors);
+        }
+      }
     }
   };
 
@@ -64,6 +100,7 @@ const ProfileForm: React.FC<ProfileFormProps> = ({ form, error, loading, handleC
           pattern="[A-Za-zÀ-ÿ\s]+"
           title="Solo letras y espacios"
         />
+        {fieldErrors.name && <span className="text-red-600 text-xs">{fieldErrors.name}</span>}
       </div>
       <div className="w-full max-w-xs flex flex-col gap-2 mx-auto">
         <label htmlFor="lastName" className="font-semibold text-[#7a2323] mb-1">Apellido</label>
@@ -79,6 +116,7 @@ const ProfileForm: React.FC<ProfileFormProps> = ({ form, error, loading, handleC
           pattern="[A-Za-zÀ-ÿ\s]+"
           title="Solo letras y espacios"
         />
+        {fieldErrors.lastName && <span className="text-red-600 text-xs">{fieldErrors.lastName}</span>}
       </div>
       <div className="w-full max-w-xs flex flex-col gap-2 mx-auto">
         <label htmlFor="username" className="font-semibold text-[#7a2323] mb-1">Nombre de usuario</label>
@@ -94,6 +132,7 @@ const ProfileForm: React.FC<ProfileFormProps> = ({ form, error, loading, handleC
           pattern="[A-Za-z0-9_-]+"
           title="Solo letras, números, guiones y guiones bajos"
         />
+        {fieldErrors.username && <span className="text-red-600 text-xs">{fieldErrors.username}</span>}
       </div>
       <div className="w-full max-w-xs flex flex-col gap-2 mx-auto">
         <label htmlFor="birthDate" className="font-semibold text-[#7a2323] mb-1">Fecha de nacimiento</label>
@@ -107,6 +146,7 @@ const ProfileForm: React.FC<ProfileFormProps> = ({ form, error, loading, handleC
           required
           max={new Date().toISOString().split('T')[0]}
         />
+        {fieldErrors.birthDate && <span className="text-red-600 text-xs">{fieldErrors.birthDate}</span>}
       </div>
       {error && (
         <div className="col-span-2 text-red-600 text-center font-medium">{error}</div>

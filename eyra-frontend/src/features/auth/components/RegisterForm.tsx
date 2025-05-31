@@ -34,44 +34,74 @@ export const RegisterForm = () => {
     { value: ProfileType.UNDERAGE, label: 'Menor de edad' },
   ];
 
+  // Validación de complejidad de contraseña
+  const isPasswordComplex = (password: string) => {
+    const hasUpperCase = /[A-Z]/.test(password);
+    const hasLowerCase = /[a-z]/.test(password);
+    const hasNumbers = /\d/.test(password);
+    const hasSpecialChar = /[!@#$%^&*(),.?":{}|<>]/.test(password);
+    return hasUpperCase && hasLowerCase && hasNumbers && hasSpecialChar;
+  };
+
+  // Validación de formato de username
+  const isUsernameValid = (username: string) => {
+    return /^[A-Za-z0-9_-]{3,30}$/.test(username);
+  };
+
+  // Comprobación de unicidad de username
+  const checkUsernameUnique = async (username: string) => {
+    try {
+      const res = await fetch(`/api/check-username?username=${encodeURIComponent(username)}`);
+      const data = await res.json();
+      return data.isUnique;
+    } catch {
+      return false;
+    }
+  };
+
   const validateStep1 = () => {
     const newErrors: Record<string, string> = {};
-    
     if (!formData.email) {
       newErrors.email = 'El correo electrónico es obligatorio';
     } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
       newErrors.email = 'El correo electrónico no es válido';
     }
-    
     if (!formData.password) {
       newErrors.password = 'La contraseña es obligatoria';
     } else if (formData.password.length < 8) {
       newErrors.password = 'La contraseña debe tener al menos 8 caracteres';
+    } else if (!isPasswordComplex(formData.password)) {
+      newErrors.password = 'Debe tener mayúscula, minúscula, número y símbolo';
     }
-    
     if (formData.password !== formData.confirmPassword) {
       newErrors.confirmPassword = 'Las contraseñas no coinciden';
     }
-    
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
-  const validateStep2 = () => {
+  const validateStep2 = async () => {
     const newErrors: Record<string, string> = {};
-    
     if (!formData.username) {
       newErrors.username = 'El nombre de usuario es obligatorio';
+    } else if (!isUsernameValid(formData.username)) {
+      newErrors.username = 'Solo letras, números, guiones y guiones bajos (3-30 caracteres)';
+    } else {
+      const isUnique = await checkUsernameUnique(formData.username);
+      if (!isUnique) {
+        newErrors.username = 'El nombre de usuario ya está en uso';
+      }
     }
-    
     if (!formData.name) {
       newErrors.name = 'El nombre es obligatorio';
+    } else if (!/^[A-Za-zÀ-ÿ\s]{2,50}$/.test(formData.name)) {
+      newErrors.name = 'Solo letras y espacios (2-50 caracteres)';
     }
-    
     if (!formData.lastName) {
       newErrors.lastName = 'El apellido es obligatorio';
+    } else if (!/^[A-Za-zÀ-ÿ\s]{2,50}$/.test(formData.lastName)) {
+      newErrors.lastName = 'Solo letras y espacios (2-50 caracteres)';
     }
-    
     if (!formData.birthDate) {
       newErrors.birthDate = 'La fecha de nacimiento es obligatoria';
     } else {
@@ -81,7 +111,6 @@ export const RegisterForm = () => {
         newErrors.birthDate = 'La fecha de nacimiento no puede ser futura';
       }
     }
-    
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -100,9 +129,12 @@ export const RegisterForm = () => {
     }
   };
 
-  const handleNextStep = () => {
+  const handleNextStep = async () => {
     if (step === 1 && validateStep1()) {
       setStep(2);
+    }
+    if (step === 2) {
+      await validateStep2();
     }
   };
 
@@ -114,38 +146,32 @@ export const RegisterForm = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
     if (step === 1) {
       handleNextStep();
       return;
     }
-    
-    if (!validateStep2()) {
+    if (!(await validateStep2())) {
       return;
     }
-
     setIsLoading(true);
     setApiError('');
-
     try {
-      // Excluir solo confirmPassword del envío
       const { confirmPassword, ...registerData } = formData;
-      
       const randomAvatar = getRandomAvatarConfig();
       const dataWithAvatar = {
         ...registerData,
         avatar: randomAvatar,
       };
-
       await register(dataWithAvatar);
-
-      
-      // Iniciar sesión automáticamente después del registro
       await login({ email: formData.email, password: formData.password });
-      
       navigate('/dashboard');
     } catch (err: any) {
-      setApiError(err.message || 'Error al registrar la cuenta. Por favor, inténtalo de nuevo.');
+      // Mostrar error específico del backend si existe
+      if (err.response && err.response.errors) {
+        setErrors(err.response.errors);
+      } else {
+        setApiError(err.message || 'Error al registrar la cuenta. Por favor, inténtalo de nuevo.');
+      }
     } finally {
       setIsLoading(false);
     }
