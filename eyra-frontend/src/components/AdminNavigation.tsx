@@ -260,9 +260,6 @@ const AdminNavigation: React.FC = () => {
 
   // ! 31/05/2025 - Manejar click del botón admin
   const handleAdminClick = () => {
-    console.log('🚀 Navegando al panel de administración...');
-    console.log('👤 Usuario actual:', user);
-    console.log('🔑 Roles del usuario:', user?.roles);
     navigate("/admin");
   };
 
@@ -433,7 +430,7 @@ const AdminNavigation: React.FC = () => {
         </div>
         
         {/* Círculo de pulsación de fondo */}
-        <div className={`absolute inset-0 rounded-full border-2 border-red-400 animate-ping ${
+        <div className={`absolute inset-0 rounded-full border-2 border-red-400 animate-ping pointer-events-none ${
           isInAdminPanel ? 'opacity-75' : 'opacity-0'
         }`}></div>
       </div>
