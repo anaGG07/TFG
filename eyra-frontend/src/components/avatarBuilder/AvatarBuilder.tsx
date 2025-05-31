@@ -91,21 +91,13 @@ const AvatarBuilder: React.FC<AvatarBuilderProps> = ({
                 Color de piel:
               </label>
             </div>
-            <div className="grid grid-cols-4 gap-2">
-              {AVATAR_OPTIONS.skinColors.map((skin) => (
-                <button
-                  key={skin.value}
-                  onClick={() => handleChange("skinColor", skin.value)}
-                  className={`w-12 h-12 rounded-full shadow-neomorphic transition-all duration-200 ${
-                    config.skinColor === skin.value
-                      ? "ring-2 ring-[#C62328] scale-110"
-                      : "hover:scale-105"
-                  }`}
-                  style={{ backgroundColor: skin.value }}
-                  title={skin.name}
-                />
-              ))}
-            </div>
+            <input
+              type="color"
+              value={config.skinColor}
+              onChange={e => handleChange("skinColor", e.target.value)}
+              className="w-12 h-12 rounded-full border-2 border-gray-200 shadow-neomorphic"
+              title="Color de piel"
+            />
           </div>
 
           {/* Ojos */}
@@ -227,24 +219,13 @@ const AvatarBuilder: React.FC<AvatarBuilderProps> = ({
               <Palette size={18} stroke="#C62328" />
               <label className="font-semibold text-[#7a2323]">Color:</label>
             </div>
-            <div className="grid grid-cols-3 gap-2">
-              {AVATAR_OPTIONS.hairColors.map((color) => {
-                const primaryColor = color.value.split("_")[0];
-                return (
-                  <button
-                    key={color.value}
-                    onClick={() => handleChange("hairColor", color.value)}
-                    className={`w-full h-8 rounded-lg shadow-neomorphic transition-all duration-200 ${
-                      config.hairColor === color.value
-                        ? "ring-2 ring-[#C62328] scale-105"
-                        : "hover:scale-102"
-                    }`}
-                    style={{ backgroundColor: primaryColor }}
-                    title={color.name}
-                  />
-                );
-              })}
-            </div>
+            <input
+              type="color"
+              value={config.hairColor.split("_")[0]}
+              onChange={e => handleChange("hairColor", e.target.value)}
+              className="w-12 h-12 rounded-full border-2 border-gray-200 shadow-neomorphic"
+              title="Color de cabello"
+            />
           </div>
         </div>
       </div>
@@ -283,21 +264,13 @@ const AvatarBuilder: React.FC<AvatarBuilderProps> = ({
               <PaintBucket size={18} stroke="#C62328" />
               <label className="font-semibold text-[#7a2323]">Color:</label>
             </div>
-            <div className="grid grid-cols-4 gap-2">
-              {AVATAR_OPTIONS.fabricColors.map((color) => (
-                <button
-                  key={color.value}
-                  onClick={() => handleChange("fabricColor", color.value)}
-                  className={`w-10 h-10 rounded-lg shadow-neomorphic transition-all duration-200 ${
-                    config.fabricColor === color.value
-                      ? "ring-2 ring-[#C62328] scale-110"
-                      : "hover:scale-105"
-                  }`}
-                  style={{ backgroundColor: color.value }}
-                  title={color.name}
-                />
-              ))}
-            </div>
+            <input
+              type="color"
+              value={config.fabricColor}
+              onChange={e => handleChange("fabricColor", e.target.value)}
+              className="w-12 h-12 rounded-full border-2 border-gray-200 shadow-neomorphic"
+              title="Color de ropa"
+            />
           </div>
         </div>
 
@@ -378,6 +351,21 @@ const AvatarBuilder: React.FC<AvatarBuilderProps> = ({
             </select>
           </div>
 
+          {/* Color de accesorios */}
+          <div className="mb-4">
+            <div className="flex items-center gap-2 mb-2">
+              <Gem size={18} stroke="#C62328" />
+              <label className="font-semibold text-[#7a2323]">Color de accesorio:</label>
+            </div>
+            <input
+              type="color"
+              value={config.accessoryColor}
+              onChange={e => handleChange("accessoryColor", e.target.value)}
+              className="w-12 h-12 rounded-full border-2 border-gray-200 shadow-neomorphic"
+              title="Color de accesorio"
+            />
+          </div>
+
           {/* Tatuajes */}
           <div>
             <div className="flex items-center gap-2 mb-2">
@@ -395,6 +383,21 @@ const AvatarBuilder: React.FC<AvatarBuilderProps> = ({
                 </option>
               ))}
             </select>
+          </div>
+
+          {/* Color de tatuaje */}
+          <div>
+            <div className="flex items-center gap-2 mb-2">
+              <Star size={18} stroke="#C62328" />
+              <label className="font-semibold text-[#7a2323]">Color de tatuaje:</label>
+            </div>
+            <input
+              type="color"
+              value={config.tattooColor}
+              onChange={e => handleChange("tattooColor", e.target.value)}
+              className="w-12 h-12 rounded-full border-2 border-gray-200 shadow-neomorphic"
+              title="Color de tatuaje"
+            />
           </div>
         </div>
       </div>
@@ -415,21 +418,13 @@ const AvatarBuilder: React.FC<AvatarBuilderProps> = ({
                 Color de fondo:
               </label>
             </div>
-            <div className="grid grid-cols-4 gap-2 justify-center">
-              {AVATAR_OPTIONS.backgroundColors.map((color) => (
-                <button
-                  key={color.value}
-                  onClick={() => handleChange("backgroundColor", color.value)}
-                  className={`w-12 h-12 rounded-full shadow-neomorphic transition-all duration-200 border-2 border-gray-200 ${
-                    config.backgroundColor === color.value
-                      ? "ring-2 ring-[#C62328] scale-110"
-                      : "hover:scale-105"
-                  }`}
-                  style={{ backgroundColor: color.value }}
-                  title={color.name}
-                />
-              ))}
-            </div>
+            <input
+              type="color"
+              value={config.backgroundColor}
+              onChange={e => handleChange("backgroundColor", e.target.value)}
+              className="w-12 h-12 rounded-full border-2 border-gray-200 shadow-neomorphic"
+              title="Color de fondo"
+            />
           </div>
         </div>
       </div>
