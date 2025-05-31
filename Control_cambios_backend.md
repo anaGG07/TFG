@@ -16,6 +16,8 @@ Este documento registra todos los cambios realizados durante el desarrollo del b
 | AdminStats.tsx | Creado componente de estadísticas con métricas visuales y gráficos circulares | Componente | Nueva funcionalidad |
 | AdminPage.tsx | Implementado con datos reales de la base de datos y colores coherentes con EYRA | Página | Funcionalidad completa |
 | adminStatsService.ts | Creado servicio para obtener estadísticas reales del sistema desde la API | Servicio | Nueva funcionalidad |
+| AdminController.php | Corregido prefijo de rutas duplicado que causaba 404 en endpoints de administración | Controlador | Corrección de error |
+| fix-admin-routes.sh | Script para limpiar caché de Symfony y verificar rutas de administración | Script | Nueva funcionalidad |
 | CreateAdminCommand.php | Creado comando de consola para crear usuarios administradores fácilmente | Comando | Nueva funcionalidad |
 | create_admin.sql | Script SQL para crear usuarios administradores manualmente en la base de datos | Script | Nueva funcionalidad |
 
