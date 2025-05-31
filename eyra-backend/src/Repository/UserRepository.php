@@ -43,6 +43,7 @@ class UserRepository extends ServiceEntityRepository
 
     /**
      * ! 31/05/2025 - Método para búsqueda avanzada de usuarios con filtros para el panel de administración
+     * ! 31/05/2025 - Filtro por rol aplicado en PHP para mayor compatibilidad
      */
     public function findUsersWithFilters(
         ?string $search = null,
@@ -53,30 +54,55 @@ class UserRepository extends ServiceEntityRepository
     ): array {
         $qb = $this->createQueryBuilder('u');
         
-        $this->applyFilters($qb, $search, $role, $profileType);
+        // Aplicar filtros SQL (texto y tipo de perfil)
+        $this->applyFilters($qb, $search, null, $profileType); // No aplicamos rol en SQL
         
-        return $qb
+        // Obtener todos los usuarios que coinciden con los otros filtros
+        $users = $qb
             ->orderBy('u.id', 'ASC')
-            ->setMaxResults($limit)
-            ->setFirstResult($offset)
             ->getQuery()
             ->getResult();
+        
+        // Aplicar filtro por rol en PHP si es necesario
+        if ($role) {
+            $users = array_filter($users, function (User $user) use ($role) {
+                return in_array($role, $user->getRoles());
+            });
+        }
+        
+        // Aplicar paginación manualmente
+        $users = array_slice($users, $offset, $limit);
+        
+        return array_values($users); // Reindexar array
     }
 
     /**
      * ! 31/05/2025 - Método para contar usuarios con filtros aplicados
+     * ! 31/05/2025 - Filtro por rol aplicado en PHP para mayor compatibilidad
      */
     public function countUsersWithFilters(
         ?string $search = null,
         ?string $role = null,
         ?ProfileType $profileType = null
     ): int {
-        $qb = $this->createQueryBuilder('u')
-            ->select('COUNT(u.id)');
+        $qb = $this->createQueryBuilder('u');
         
-        $this->applyFilters($qb, $search, $role, $profileType);
+        // Aplicar filtros SQL (texto y tipo de perfil)
+        $this->applyFilters($qb, $search, null, $profileType); // No aplicamos rol en SQL
         
-        return (int) $qb->getQuery()->getSingleScalarResult();
+        // Obtener todos los usuarios que coinciden con los otros filtros
+        $users = $qb
+            ->getQuery()
+            ->getResult();
+        
+        // Aplicar filtro por rol en PHP si es necesario
+        if ($role) {
+            $users = array_filter($users, function (User $user) use ($role) {
+                return in_array($role, $user->getRoles());
+            });
+        }
+        
+        return count($users);
     }
 
     /**
@@ -107,12 +133,8 @@ class UserRepository extends ServiceEntityRepository
                ->setParameter('profileType', $profileType);
         }
 
-        // Filtro por rol - utilizamos CAST para convertir JSON a texto
-        if ($role) {
-            // Convertimos el JSON a texto y buscamos el rol
-            $qb->andWhere('CAST(u.roles AS text) LIKE :rolePattern')
-               ->setParameter('rolePattern', '%"' . $role . '"%');
-        }
+        // Filtro por rol - aplicado en PHP para mayor compatibilidad
+        // Nota: El filtro por rol se aplica en PHP en los métodos principales
     }
 
     // Add custom query methods below as needed

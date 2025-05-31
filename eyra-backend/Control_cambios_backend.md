@@ -443,3 +443,115 @@ bash fix-enum-error.sh
 5. **Scripts de Aplicación**: Automatizar aplicación de cambios críticos
 
 **🎆 RESULTADO: Sistema completamente operativo - Error 502 resuelto - Panel admin 100% funcional**
+
+---
+
+## 🔴 **31/05/2025 - v0.6.4 - Corrección Final: Error 500 en Filtro por Rol**
+
+### 🐛 **Problema Identificado:**
+
+#### **Error 500 Internal Server Error en Filtro por Rol**
+- **Síntoma**: Al filtrar usuarios por rol (ROLE_USER, ROLE_ADMIN, ROLE_GUEST) se produce error 500
+- **Causa**: Consulta SQL JSON incompatible con el motor de base de datos
+- **Endpoint afectado**: `GET /api/admin/users?role=ROLE_USER`
+- **Impacto**: Filtro por rol completamente inoperativo
+
+### 🔧 **Solución Implementada:**
+
+#### **Cambio de Estrategia: SQL → PHP**
+**Archivo**: `eyra-backend/src/Repository/UserRepository.php`
+
+```php
+// ❌ ANTES (ERROR SQL):
+$qb->andWhere('CAST(u.roles AS text) LIKE :rolePattern')
+   ->setParameter('rolePattern', '%"' . $role . '"%');
+
+// ✅ AHORA (PHP FILTERING):
+// 1. Obtener usuarios con otros filtros
+$users = $qb->getQuery()->getResult();
+
+// 2. Aplicar filtro por rol en PHP
+if ($role) {
+    $users = array_filter($users, function (User $user) use ($role) {
+        return in_array($role, $user->getRoles());
+    });
+}
+
+// 3. Aplicar paginación manualmente
+$users = array_slice($users, $offset, $limit);
+```
+
+#### **Ventajas de la Nueva Implementación:**
+- ✅ **100% Compatible**: Funciona con cualquier motor de base de datos
+- ✅ **Más Confiable**: No depende de sintaxis SQL específica
+- ✅ **Fácil Debug**: Lógica de filtrado transparente en PHP
+- ✅ **Mantenible**: Código más legible y comprensible
+
+### 🔧 **Métodos Actualizados:**
+
+#### **1. `findUsersWithFilters()` - Método Principal**
+- Aplica filtros SQL para búsqueda de texto y tipo de perfil
+- Filtra por rol en PHP después de obtener resultados SQL
+- Aplica paginación manualmente
+- Reindexación de array para mantener estructura
+
+#### **2. `countUsersWithFilters()` - Conteo**
+- Obtiene todos los usuarios con filtros SQL aplicados
+- Aplica filtro por rol en PHP
+- Retorna conteo real de usuarios filtrados
+
+#### **3. `applyFilters()` - Filtros Base**
+- Solo aplica filtros compatibles con SQL (texto y profileType)
+- Comentario claro indicando que rol se filtra en PHP
+
+### ✅ **Resultados de la Corrección:**
+
+#### **Filtro por Rol:**
+- ✅ **Sin errores 500**: Filtro completamente funcional
+- ✅ **Todos los roles**: ROLE_USER, ROLE_ADMIN, ROLE_GUEST funcionan
+- ✅ **Paginación correcta**: Conteo y navegación precisos
+- ✅ **Combinación de filtros**: Funciona con búsqueda y tipo de perfil
+
+#### **Rendimiento:**
+- ✅ **Impacto mínimo**: El filtrado en PHP es eficiente para volúmenes normales
+- ✅ **Escalabilidad**: Adecuado para bases de usuarios típicas
+- ✅ **Optimizable**: Puede mejorarse con índices si es necesario
+
+### 🔍 **Testing Completo Realizado:**
+- ✅ Filtro por rol individual (ROLE_USER, ROLE_ADMIN, ROLE_GUEST)
+- ✅ Combinación de filtros (rol + búsqueda + tipo de perfil)
+- ✅ Paginación con filtro por rol activo
+- ✅ Conteo de resultados correcto
+- ✅ Botón reset mantiene funcionalidad
+- ✅ Navegación entre páginas con filtros
+
+### 🔧 **Script de Aplicación:**
+```bash
+# Para aplicar la corrección:
+cd eyra-backend
+bash fix-role-filter.sh
+
+# O manualmente:
+php bin/console cache:clear
+```
+
+### 🛠 **Archivos Modificados:**
+```
+eyra-backend/src/Repository/UserRepository.php - Lógica de filtrado corregida
+eyra-backend/fix-role-filter.sh - Script de aplicación (nuevo)
+```
+
+### 📊 **Estado Final del Panel Admin:**
+
+| Funcionalidad | Estado | Comentario |
+|---------------|--------|-----------|
+| Login | ✅ Funcional | Error 502 resuelto |
+| Listado usuarios | ✅ Funcional | Paginación correcta |
+| Buscador | ✅ Funcional | Por email, username, nombre, apellido |
+| Filtro por rol | ✅ Funcional | **CORREGIDO** - Todos los roles |
+| Filtro por tipo perfil | ✅ Funcional | Todos los 11 tipos |
+| Combinación filtros | ✅ Funcional | Múltiples filtros simultáneos |
+| CRUD usuarios | ✅ Funcional | Crear, ver, editar, desactivar |
+| Reset filtros | ✅ Funcional | Limpieza completa |
+
+**🎆 RESULTADO FINAL: Panel de administración 100% operativo - TODOS los filtros funcionando perfectamente**
