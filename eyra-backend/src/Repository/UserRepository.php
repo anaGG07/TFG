@@ -42,7 +42,7 @@ class UserRepository extends ServiceEntityRepository
     }
 
     /**
-     * ! 31/05/2025 - Método optimizado para búsqueda de usuarios con filtrado en base de datos
+     * ! 31/05/2025 - Método híbrido: filtros SQL seguros + filtro por rol en PHP
      */
     public function findUsersWithFilters(
         ?string $search = null,
@@ -52,11 +52,32 @@ class UserRepository extends ServiceEntityRepository
         int $offset = 0
     ): array {
         $qb = $this->createQueryBuilder('u')
-            ->orderBy('u.id', 'ASC')
-            ->setMaxResults($limit)
-            ->setFirstResult($offset);
+            ->orderBy('u.id', 'ASC');
         
-        // Aplicar filtros de búsqueda de texto
+        // Aplicar solo filtros SQL seguros (no rol)
+        $this->applyBasicFilters($qb, $search, $profileType);
+        
+        // Obtener usuarios con filtros básicos
+        $users = $qb->getQuery()->getResult();
+        
+        // Aplicar filtro por rol en PHP (más seguro)
+        if ($role) {
+            $users = array_filter($users, function (User $user) use ($role) {
+                return in_array($role, $user->getRoles());
+            });
+            $users = array_values($users); // Reindexar array
+        }
+        
+        // Aplicar paginación manualmente
+        return array_slice($users, $offset, $limit);
+    }
+    
+    /**
+     * ! 31/05/2025 - Aplicar filtros SQL básicos (seguros)
+     */
+    private function applyBasicFilters(QueryBuilder $qb, ?string $search, ?ProfileType $profileType): void
+    {
+        // Filtro de búsqueda de texto
         if ($search) {
             $qb->andWhere(
                 $qb->expr()->orX(
@@ -69,58 +90,37 @@ class UserRepository extends ServiceEntityRepository
             ->setParameter('search', '%' . strtolower($search) . '%');
         }
         
-        // Aplicar filtro por tipo de perfil
+        // Filtro por tipo de perfil
         if ($profileType) {
             $qb->andWhere('u.profileType = :profileType')
                ->setParameter('profileType', $profileType);
         }
-        
-        // Aplicar filtro por rol (usando sintaxis de PostgreSQL para JSON)
-        if ($role) {
-            $qb->andWhere('u.roles::text LIKE :role')
-               ->setParameter('role', '%"' . $role . '"%');
-        }
-        
-        return $qb->getQuery()->getResult();
     }
 
     /**
-     * ! 31/05/2025 - Método optimizado para contar usuarios con filtrado en base de datos
+     * ! 31/05/2025 - Método híbrido: filtros SQL seguros + filtro por rol en PHP
      */
     public function countUsersWithFilters(
         ?string $search = null,
         ?string $role = null,
         ?ProfileType $profileType = null
     ): int {
-        $qb = $this->createQueryBuilder('u')
-            ->select('COUNT(u.id)');
+        $qb = $this->createQueryBuilder('u');
         
-        // Aplicar filtros de búsqueda de texto
-        if ($search) {
-            $qb->andWhere(
-                $qb->expr()->orX(
-                    $qb->expr()->like('LOWER(u.email)', ':search'),
-                    $qb->expr()->like('LOWER(u.username)', ':search'),
-                    $qb->expr()->like('LOWER(u.name)', ':search'),
-                    $qb->expr()->like('LOWER(u.lastName)', ':search')
-                )
-            )
-            ->setParameter('search', '%' . strtolower($search) . '%');
-        }
+        // Aplicar solo filtros SQL seguros (no rol)
+        $this->applyBasicFilters($qb, $search, $profileType);
         
-        // Aplicar filtro por tipo de perfil
-        if ($profileType) {
-            $qb->andWhere('u.profileType = :profileType')
-               ->setParameter('profileType', $profileType);
-        }
+        // Obtener usuarios con filtros básicos
+        $users = $qb->getQuery()->getResult();
         
-        // Aplicar filtro por rol (usando sintaxis de PostgreSQL para JSON)
+        // Aplicar filtro por rol en PHP si es necesario
         if ($role) {
-            $qb->andWhere('u.roles::text LIKE :role')
-               ->setParameter('role', '%"' . $role . '"%');
+            $users = array_filter($users, function (User $user) use ($role) {
+                return in_array($role, $user->getRoles());
+            });
         }
         
-        return (int) $qb->getQuery()->getSingleScalarResult();
+        return count($users);
     }
 
 

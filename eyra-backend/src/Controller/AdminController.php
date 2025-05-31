@@ -254,34 +254,18 @@ class AdminController extends AbstractController
      * @param Request $request Datos de la petición con posibles filtros
      * @return JsonResponse Lista paginada de usuarios
      * 
-     * ! 28/05/2025 - Implementado endpoint para listar usuarios con filtros para administradores
-     * ! 31/05/2025 - Corregido sistema de filtros para que funcionen correctamente buscador y filtro por tipo de perfil
-     * ! 31/05/2025 - Añadido manejo robusto de errores y logging detallado
+     * ! 31/05/2025 - Endpoint simplificado y optimizado para evitar errores 500
      */
     #[Route('/users', name: 'admin_list_users', methods: ['GET'])]
     public function listUsers(Request $request): JsonResponse
     {
         try {
-            $this->logger->info('Iniciando listado de usuarios por administrador');
-            
-            /** @var User|null $currentUser */
-            $currentUser = $this->getUser();
-            $adminId = ($currentUser instanceof \App\Entity\User) ? $currentUser->getId() : null;
-
             // Obtener parámetros de paginación y filtrado
             $page = max(1, $request->query->getInt('page', 1));
-            $limit = min(100, max(1, $request->query->getInt('limit', 20))); // Entre 1 y 100, default 20
+            $limit = min(100, max(1, $request->query->getInt('limit', 20)));
             $role = $request->query->get('role');
             $profileType = $request->query->get('profileType');
             $search = $request->query->get('search');
-            
-            $this->logger->info('Parámetros de filtrado recibidos', [
-                'page' => $page,
-                'limit' => $limit,
-                'role' => $role,
-                'profileType' => $profileType,
-                'search' => $search
-            ]);
 
             // Calcular offset para paginación
             $offset = ($page - 1) * $limit;
@@ -291,101 +275,38 @@ class AdminController extends AbstractController
             if ($profileType) {
                 try {
                     $profileTypeEnum = ProfileType::from($profileType);
-                    $this->logger->info('Filtro de profileType procesado correctamente', ['profileType' => $profileType]);
                 } catch (ValueError $e) {
-                    $this->logger->warning('Filtro de profileType inválido', [
-                        'valor_proporcionado' => $profileType,
-                        'valores_validos' => array_map(fn($case) => $case->value, ProfileType::cases()),
-                        'error' => $e->getMessage()
-                    ]);
-                    // No establecer profileTypeEnum si es inválido
+                    // Ignorar filtro inválido
+                    $profileTypeEnum = null;
                 }
             }
 
-            $this->logger->info('Iniciando conteo de usuarios con filtros');
-            
-            // Obtener total de usuarios que coinciden con los criterios de filtrado
-            try {
-                $total = $this->userRepository->countUsersWithFilters(
-                    $search,
-                    $role,
-                    $profileTypeEnum
-                );
-                $this->logger->info('Conteo de usuarios completado', ['total' => $total]);
-            } catch (Exception $e) {
-                $this->logger->error('Error en conteo de usuarios', [
-                    'error' => $e->getMessage(),
-                    'trace' => $e->getTraceAsString()
-                ]);
-                throw $e;
-            }
+            // Obtener total y usuarios
+            $total = $this->userRepository->countUsersWithFilters($search, $role, $profileTypeEnum);
+            $users = $this->userRepository->findUsersWithFilters($search, $role, $profileTypeEnum, $limit, $offset);
 
-            $this->logger->info('Iniciando búsqueda de usuarios con filtros');
-            
-            // Obtener usuarios paginados con filtros aplicados
-            try {
-                $users = $this->userRepository->findUsersWithFilters(
-                    $search,
-                    $role,
-                    $profileTypeEnum,
-                    $limit,
-                    $offset
-                );
-                $this->logger->info('Búsqueda de usuarios completada', ['count' => count($users)]);
-            } catch (Exception $e) {
-                $this->logger->error('Error en búsqueda de usuarios', [
-                    'error' => $e->getMessage(),
-                    'trace' => $e->getTraceAsString()
-                ]);
-                throw $e;
-            }
-
-            $this->logger->info('Iniciando transformación de datos de usuarios');
-            
             // Transformar usuarios en formato JSON
-            try {
-                $usersData = [];
-                foreach ($users as $user) {
-                    $usersData[] = [
-                        'id' => $user->getId(),
-                        'email' => $user->getEmail(),
-                        'username' => $user->getUsername(),
-                        'name' => $user->getName(),
-                        'lastName' => $user->getLastName(),
-                        'roles' => $user->getRoles(),
-                        'profileType' => $user->getProfileType()->value,
-                        'birthDate' => $user->getBirthDate()->format('Y-m-d'),
-                        'createdAt' => $user->getCreatedAt()->format('c'),
-                        'updatedAt' => $user->getUpdatedAt() ? $user->getUpdatedAt()->format('c') : null,
-                        'state' => $user->getState(),
-                        'onboardingCompleted' => $user->isOnboardingCompleted(),
-                        'avatar' => $user->getAvatar()
-                    ];
-                }
-                $this->logger->info('Transformación de datos completada', ['transformedCount' => count($usersData)]);
-            } catch (Exception $e) {
-                $this->logger->error('Error en transformación de datos', [
-                    'error' => $e->getMessage(),
-                    'trace' => $e->getTraceAsString()
-                ]);
-                throw $e;
+            $usersData = [];
+            foreach ($users as $user) {
+                $usersData[] = [
+                    'id' => $user->getId(),
+                    'email' => $user->getEmail(),
+                    'username' => $user->getUsername(),
+                    'name' => $user->getName(),
+                    'lastName' => $user->getLastName(),
+                    'roles' => $user->getRoles(),
+                    'profileType' => $user->getProfileType()->value,
+                    'birthDate' => $user->getBirthDate()->format('Y-m-d'),
+                    'createdAt' => $user->getCreatedAt()->format('c'),
+                    'updatedAt' => $user->getUpdatedAt() ? $user->getUpdatedAt()->format('c') : null,
+                    'state' => $user->getState(),
+                    'onboardingCompleted' => $user->isOnboardingCompleted(),
+                    'avatar' => $user->getAvatar()
+                ];
             }
 
             // Calcular total de páginas
             $totalPages = ceil($total / $limit);
-
-            $this->logger->info('Listado de usuarios completado exitosamente', [
-                'adminId' => $adminId,
-                'page' => $page,
-                'limit' => $limit,
-                'filtros' => [
-                    'search' => $search,
-                    'role' => $role,
-                    'profileType' => $profileType
-                ],
-                'totalUsers' => $total,
-                'returnedUsers' => count($usersData)
-            ]);
 
             return $this->json([
                 'users' => $usersData,
@@ -397,27 +318,15 @@ class AdminController extends AbstractController
                 ]
             ]);
         } catch (Exception $e) {
-            $this->logger->error('Error crítico al listar usuarios', [
-                'exception' => $e->getMessage(),
-                'trace' => $e->getTraceAsString(),
+            $this->logger->error('Error al listar usuarios', [
+                'error' => $e->getMessage(),
                 'file' => $e->getFile(),
-                'line' => $e->getLine(),
-                'request_params' => [
-                    'page' => $request->query->get('page'),
-                    'limit' => $request->query->get('limit'),
-                    'role' => $request->query->get('role'),
-                    'profileType' => $request->query->get('profileType'),
-                    'search' => $request->query->get('search')
-                ]
+                'line' => $e->getLine()
             ]);
 
             return $this->json([
-                'message' => 'Error al listar usuarios',
-                'error' => $e->getMessage(),
-                'debug' => [
-                    'file' => $e->getFile(),
-                    'line' => $e->getLine()
-                ]
+                'message' => 'Error interno del servidor',
+                'error' => 'No se pudieron cargar los usuarios'
             ], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
