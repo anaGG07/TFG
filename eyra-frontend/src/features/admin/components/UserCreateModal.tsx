@@ -1,16 +1,25 @@
-// ! 31/05/2025 - Modal para editar usuario en administración
-// ! 31/05/2025 - Actualizados colores para usar colores de EYRA
+// ! 31/05/2025 - Modal para crear nuevo usuario en administración
 
-import React, { useState, useEffect } from 'react';
-import { User } from '../../../types/user';
+import React, { useState } from 'react';
 import { ProfileType } from '../../../types/enums';
-import { adminService, AdminUserUpdateData } from '../../../services/adminService';
+import { API_ROUTES } from '../../../config/apiRoutes';
+import { apiFetch } from '../../../utils/httpClient';
 
-interface UserEditModalProps {
-  user: User;
+interface UserCreateModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSave: (user: User) => void;
+  onSave: () => void;
+}
+
+interface CreateUserData {
+  email: string;
+  username: string;
+  name: string;
+  lastName: string;
+  password: string;
+  profileType: ProfileType;
+  birthDate: string;
+  roles: string[];
 }
 
 const ProfileTypeOptions = [
@@ -23,9 +32,6 @@ const ProfileTypeOptions = [
   { value: ProfileType.PROFILE_PARTNER, label: 'Pareja' },
   { value: ProfileType.PROFILE_PROVIDER, label: 'Proveedor' },
   { value: ProfileType.PROFILE_GUEST, label: 'Invitado' },
-  { value: ProfileType.USER, label: 'Usuario' },
-  { value: ProfileType.GUEST, label: 'Invitado' },
-  { value: ProfileType.ADMIN, label: 'Administrador' },
 ];
 
 const RoleOptions = [
@@ -34,57 +40,45 @@ const RoleOptions = [
   { value: 'ROLE_GUEST', label: 'Invitado' },
 ];
 
-const UserEditModal: React.FC<UserEditModalProps> = ({ user, isOpen, onClose, onSave }) => {
-  const [formData, setFormData] = useState<AdminUserUpdateData>({
+const UserCreateModal: React.FC<UserCreateModalProps> = ({ isOpen, onClose, onSave }) => {
+  const [formData, setFormData] = useState<CreateUserData>({
     email: '',
     username: '',
     name: '',
     lastName: '',
-    profileType: ProfileType.USER,
-    birthDate: '',
-    roles: [],
-    state: true,
-    onboardingCompleted: false,
     password: '',
+    profileType: ProfileType.PROFILE_WOMEN,
+    birthDate: '',
+    roles: ['ROLE_USER'],
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    if (user && isOpen) {
-      setFormData({
-        email: user.email,
-        username: user.username,
-        name: user.name,
-        lastName: user.lastName,
-        profileType: user.profileType,
-        birthDate: user.birthDate ? user.birthDate.split('T')[0] : '',
-        roles: user.roles,
-        state: user.state,
-        onboardingCompleted: user.onboardingCompleted,
-        password: '',
-      });
-      setError(null);
-    }
-  }, [user, isOpen]);
+  const resetForm = () => {
+    setFormData({
+      email: '',
+      username: '',
+      name: '',
+      lastName: '',
+      password: '',
+      profileType: ProfileType.PROFILE_WOMEN,
+      birthDate: '',
+      roles: ['ROLE_USER'],
+    });
+    setError(null);
+  };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    const { name, value, type } = e.target;
-    
-    if (type === 'checkbox') {
-      const checked = (e.target as HTMLInputElement).checked;
-      setFormData(prev => ({ ...prev, [name]: checked }));
-    } else {
-      setFormData(prev => ({ ...prev, [name]: value }));
-    }
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
   };
 
   const handleRolesChange = (role: string, checked: boolean) => {
     setFormData(prev => ({
       ...prev,
       roles: checked 
-        ? [...(prev.roles || []), role]
-        : (prev.roles || []).filter(r => r !== role)
+        ? [...prev.roles, role]
+        : prev.roles.filter(r => r !== role)
     }));
   };
 
@@ -95,28 +89,60 @@ const UserEditModal: React.FC<UserEditModalProps> = ({ user, isOpen, onClose, on
 
     try {
       // Validaciones básicas
-      if (!formData.email || !formData.username || !formData.name) {
-        throw new Error('Los campos email, username y nombre son obligatorios');
+      if (!formData.email || !formData.username || !formData.name || !formData.password) {
+        throw new Error('Los campos email, username, nombre y contraseña son obligatorios');
       }
 
-      if (!formData.roles || formData.roles.length === 0) {
+      if (formData.password.length < 6) {
+        throw new Error('La contraseña debe tener al menos 6 caracteres');
+      }
+
+      if (formData.roles.length === 0) {
         throw new Error('El usuario debe tener al menos un rol');
       }
 
-      // Preparar datos para envío
-      const updateData: AdminUserUpdateData = {
-        ...formData,
-        // Solo incluir password si se especificó uno nuevo
-        ...(formData.password && formData.password.trim() ? { password: formData.password.trim() } : {}),
+      // Crear el avatar por defecto
+      const defaultAvatar = {
+        skinColor: "light",
+        eyes: "normal",
+        eyebrows: "normal", 
+        mouth: "smile",
+        hairStyle: "short",
+        hairColor: "brown",
+        facialHair: "none",
+        clothes: "casual",
+        fabricColor: "blue",
+        glasses: "none",
+        glassOpacity: "0",
+        accessories: "none",
+        tattoos: "none",
+        backgroundColor: "white"
       };
 
-      const updatedUser = await adminService.updateUser(user.id.toString(), updateData);
-      onSave(updatedUser);
+      // Preparar datos para envío (usamos endpoint de registro)
+      const userData = {
+        ...formData,
+        avatar: defaultAvatar
+      };
+
+      const createdUser = await apiFetch(API_ROUTES.AUTH.REGISTER, {
+        method: 'POST',
+        body: userData
+      });
+
+      console.log('Usuario creado:', createdUser);
+      resetForm();
+      onSave();
     } catch (err: any) {
-      setError(err.message || 'Error al actualizar usuario');
+      setError(err.message || 'Error al crear usuario');
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleClose = () => {
+    resetForm();
+    onClose();
   };
 
   if (!isOpen) return null;
@@ -127,10 +153,10 @@ const UserEditModal: React.FC<UserEditModalProps> = ({ user, isOpen, onClose, on
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b">
           <h2 className="text-2xl font-serif text-[#b91c1c]">
-            Editar Usuario
+            Crear Usuario
           </h2>
           <button
-            onClick={onClose}
+            onClick={handleClose}
             className="text-gray-400 hover:text-gray-600 transition-colors"
             disabled={loading}
           >
@@ -224,16 +250,18 @@ const UserEditModal: React.FC<UserEditModalProps> = ({ user, isOpen, onClose, on
               
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Nueva Contraseña
+                  Contraseña *
                 </label>
                 <input
                   type="password"
                   name="password"
                   value={formData.password}
                   onChange={handleInputChange}
-                  placeholder="Dejar vacío para mantener actual"
+                  required
+                  minLength={6}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#b91c1c] focus:border-transparent"
                 />
+                <p className="text-xs text-gray-500 mt-1">Mínimo 6 caracteres</p>
               </div>
             </div>
           </div>
@@ -274,7 +302,7 @@ const UserEditModal: React.FC<UserEditModalProps> = ({ user, isOpen, onClose, on
                 <label key={role.value} className="flex items-center">
                   <input
                     type="checkbox"
-                    checked={formData.roles?.includes(role.value) || false}
+                    checked={formData.roles.includes(role.value)}
                     onChange={(e) => handleRolesChange(role.value, e.target.checked)}
                     className="rounded border-gray-300 text-[#b91c1c] focus:ring-[#b91c1c]"
                   />
@@ -284,41 +312,11 @@ const UserEditModal: React.FC<UserEditModalProps> = ({ user, isOpen, onClose, on
             </div>
           </div>
 
-          {/* Configuración de estado */}
-          <div className="mb-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">
-              Estado
-            </h3>
-            <div className="space-y-4">
-              <label className="flex items-center">
-                <input
-                  type="checkbox"
-                  name="state"
-                  checked={formData.state}
-                  onChange={handleInputChange}
-                  className="rounded border-gray-300 text-[#b91c1c] focus:ring-[#b91c1c]"
-                />
-                <span className="ml-2 text-sm text-gray-700">Usuario Activo</span>
-              </label>
-              
-              <label className="flex items-center">
-                <input
-                  type="checkbox"
-                  name="onboardingCompleted"
-                  checked={formData.onboardingCompleted}
-                  onChange={handleInputChange}
-                  className="rounded border-gray-300 text-[#b91c1c] focus:ring-[#b91c1c]"
-                />
-                <span className="ml-2 text-sm text-gray-700">Onboarding Completado</span>
-              </label>
-            </div>
-          </div>
-
           {/* Footer */}
           <div className="flex justify-end space-x-3 pt-6 border-t">
             <button
               type="button"
-              onClick={onClose}
+              onClick={handleClose}
               disabled={loading}
               className="px-6 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50"
             >
@@ -332,7 +330,7 @@ const UserEditModal: React.FC<UserEditModalProps> = ({ user, isOpen, onClose, on
               {loading && (
                 <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
               )}
-              {loading ? 'Guardando...' : 'Guardar Cambios'}
+              {loading ? 'Creando...' : 'Crear Usuario'}
             </button>
           </div>
         </form>
@@ -341,4 +339,4 @@ const UserEditModal: React.FC<UserEditModalProps> = ({ user, isOpen, onClose, on
   );
 };
 
-export default UserEditModal;
+export default UserCreateModal;

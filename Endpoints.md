@@ -391,3 +391,27 @@ En la columna "Validado" se indicará:
 - ✓ - Endpoint validado y funcionando correctamente
 - ✗ - Endpoint validado pero con errores o problemas
 - (vacío) - Endpoint aún no validado
+
+---
+
+## 🔄 **Últimos Cambios - 31/05/2025**
+
+### ✅ **Endpoints Admin Validados:**
+Los siguientes endpoints de administración han sido **validados** y están funcionando correctamente con el CRUD completo de usuarios:
+
+- **`/api/admin/users` (GET)** ✓ - Listar usuarios con filtros y paginación
+- **`/api/admin/users/{id}` (GET)** ✓ - Obtener usuario específico con detalles completos
+- **`/api/admin/users/{id}` (PUT)** ✓ - Actualizar usuario (incluye validaciones)
+- **`/api/admin/users/{id}` (DELETE)** ✓ - Desactivar usuario (soft delete)
+- **`/register` (POST)** ✓ - Crear nuevo usuario (usado para creación admin)
+
+### 🎯 **Funcionalidades Validadas:**
+- ✅ Filtros por rol, tipo de perfil y búsqueda de texto
+- ✅ Paginación completa con navegación
+- ✅ Modales CRUD (Crear, Ver, Editar, Desactivar)
+- ✅ Validaciones de formulario en frontend y backend
+- ✅ Manejo de errores y estados de carga
+- ✅ Actualización en tiempo real de estadísticas
+- ✅ Colores y diseño consistente con EYRA
+
+*Validación realizada el 31/05/2025 con interfaz de usuario completa y funcional.*

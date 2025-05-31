@@ -1,3 +1,250 @@
 // ! 31/05/2025 - Modal para ver detalles del usuario en administración
+// ! 31/05/2025 - Actualizados colores para usar colores de EYRA
 
-import React from 'react';\nimport { User } from '../../../types/user';\nimport { ProfileType } from '../../../types/enums';\n\ninterface UserViewModalProps {\n  user: User;\n  isOpen: boolean;\n  onClose: () => void;\n  onEdit: () => void;\n}\n\nconst ProfileTypeLabels: Record<string, string> = {\n  [ProfileType.PROFILE_WOMEN]: 'Mujer',\n  [ProfileType.PROFILE_MEN]: 'Hombre',\n  [ProfileType.PROFILE_NB]: 'No Binario',\n  [ProfileType.PROFILE_TRANSGENDER]: 'Transgénero',\n  [ProfileType.PROFILE_CUSTOM]: 'Personalizado',\n  [ProfileType.PROFILE_PARENT]: 'Padre/Madre',\n  [ProfileType.PROFILE_PARTNER]: 'Pareja',\n  [ProfileType.PROFILE_PROVIDER]: 'Proveedor',\n  [ProfileType.PROFILE_GUEST]: 'Invitado',\n  [ProfileType.USER]: 'Usuario',\n  [ProfileType.GUEST]: 'Invitado',\n  [ProfileType.ADMIN]: 'Administrador',\n};\n\nconst RoleLabels: Record<string, string> = {\n  'ROLE_USER': 'Usuario',\n  'ROLE_ADMIN': 'Administrador',\n  'ROLE_GUEST': 'Invitado',\n};\n\nconst UserViewModal: React.FC<UserViewModalProps> = ({ user, isOpen, onClose, onEdit }) => {\n  if (!isOpen) return null;\n\n  const formatDate = (dateString: string) => {\n    return new Date(dateString).toLocaleDateString('es-ES', {\n      year: 'numeric',\n      month: 'long',\n      day: 'numeric',\n      hour: '2-digit',\n      minute: '2-digit',\n    });\n  };\n\n  const formatRoles = (roles: string[]) => {\n    return roles.map(role => RoleLabels[role] || role).join(', ');\n  };\n\n  return (\n    <div className=\"fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4\">\n      <div className=\"bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto\">\n        {/* Header */}\n        <div className=\"flex items-center justify-between p-6 border-b\">\n          <h2 className=\"text-2xl font-serif text-primary\">\n            Detalles del Usuario\n          </h2>\n          <button\n            onClick={onClose}\n            className=\"text-gray-400 hover:text-gray-600 transition-colors\"\n          >\n            <svg className=\"w-6 h-6\" fill=\"none\" stroke=\"currentColor\" viewBox=\"0 0 24 24\">\n              <path strokeLinecap=\"round\" strokeLinejoin=\"round\" strokeWidth={2} d=\"M6 18L18 6M6 6l12 12\" />\n            </svg>\n          </button>\n        </div>\n\n        {/* Content */}\n        <div className=\"p-6\">\n          {/* Avatar y info básica */}\n          <div className=\"flex items-center mb-6\">\n            <div className=\"flex-shrink-0 h-16 w-16\">\n              <div className=\"h-16 w-16 rounded-full bg-primary text-white flex items-center justify-center font-bold text-xl\">\n                {user.name?.charAt(0) || user.username?.charAt(0) || 'U'}\n              </div>\n            </div>\n            <div className=\"ml-4\">\n              <h3 className=\"text-lg font-semibold text-gray-900\">\n                {user.name} {user.lastName}\n              </h3>\n              <p className=\"text-gray-600\">@{user.username}</p>\n              <div className=\"mt-1\">\n                <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${\n                  user.state \n                    ? 'bg-green-100 text-green-800' \n                    : 'bg-red-100 text-red-800'\n                }`}>\n                  {user.state ? 'Activo' : 'Inactivo'}\n                </span>\n              </div>\n            </div>\n          </div>\n\n          {/* Información personal */}\n          <div className=\"grid grid-cols-1 md:grid-cols-2 gap-6 mb-6\">\n            <div>\n              <h4 className=\"text-sm font-medium text-gray-500 uppercase tracking-wider mb-3\">\n                Información Personal\n              </h4>\n              <div className=\"space-y-3\">\n                <div>\n                  <label className=\"block text-sm font-medium text-gray-700\">\n                    Email\n                  </label>\n                  <p className=\"text-sm text-gray-900\">{user.email}</p>\n                </div>\n                <div>\n                  <label className=\"block text-sm font-medium text-gray-700\">\n                    Fecha de Nacimiento\n                  </label>\n                  <p className=\"text-sm text-gray-900\">\n                    {user.birthDate ? new Date(user.birthDate).toLocaleDateString('es-ES') : 'No especificada'}\n                  </p>\n                </div>\n                <div>\n                  <label className=\"block text-sm font-medium text-gray-700\">\n                    Tipo de Perfil\n                  </label>\n                  <p className=\"text-sm text-gray-900\">\n                    {ProfileTypeLabels[user.profileType] || user.profileType}\n                  </p>\n                </div>\n              </div>\n            </div>\n\n            <div>\n              <h4 className=\"text-sm font-medium text-gray-500 uppercase tracking-wider mb-3\">\n                Información del Sistema\n              </h4>\n              <div className=\"space-y-3\">\n                <div>\n                  <label className=\"block text-sm font-medium text-gray-700\">\n                    ID\n                  </label>\n                  <p className=\"text-sm text-gray-900\">{user.id}</p>\n                </div>\n                <div>\n                  <label className=\"block text-sm font-medium text-gray-700\">\n                    Roles\n                  </label>\n                  <p className=\"text-sm text-gray-900\">{formatRoles(user.roles)}</p>\n                </div>\n                <div>\n                  <label className=\"block text-sm font-medium text-gray-700\">\n                    Onboarding Completado\n                  </label>\n                  <p className=\"text-sm text-gray-900\">\n                    {user.onboardingCompleted ? 'Sí' : 'No'}\n                  </p>\n                </div>\n              </div>\n            </div>\n          </div>\n\n          {/* Fechas */}\n          <div className=\"mb-6\">\n            <h4 className=\"text-sm font-medium text-gray-500 uppercase tracking-wider mb-3\">\n              Fechas\n            </h4>\n            <div className=\"grid grid-cols-1 md:grid-cols-2 gap-6\">\n              <div>\n                <label className=\"block text-sm font-medium text-gray-700\">\n                  Fecha de Registro\n                </label>\n                <p className=\"text-sm text-gray-900\">{formatDate(user.createdAt)}</p>\n              </div>\n              <div>\n                <label className=\"block text-sm font-medium text-gray-700\">\n                  Última Actualización\n                </label>\n                <p className=\"text-sm text-gray-900\">\n                  {user.updatedAt ? formatDate(user.updatedAt) : 'Nunca'}\n                </p>\n              </div>\n            </div>\n          </div>\n\n          {/* Información de Onboarding */}\n          {user.onboarding && (\n            <div className=\"mb-6\">\n              <h4 className=\"text-sm font-medium text-gray-500 uppercase tracking-wider mb-3\">\n                Información de Onboarding\n              </h4>\n              <div className=\"bg-gray-50 rounded-lg p-4\">\n                <div className=\"grid grid-cols-1 md:grid-cols-2 gap-4\">\n                  <div>\n                    <label className=\"block text-sm font-medium text-gray-700\">\n                      Etapa de Vida\n                    </label>\n                    <p className=\"text-sm text-gray-900\">\n                      {user.onboarding.stageOfLife || 'No especificada'}\n                    </p>\n                  </div>\n                  <div>\n                    <label className=\"block text-sm font-medium text-gray-700\">\n                      Última Menstruación\n                    </label>\n                    <p className=\"text-sm text-gray-900\">\n                      {user.onboarding.lastPeriodDate \n                        ? new Date(user.onboarding.lastPeriodDate).toLocaleDateString('es-ES')\n                        : 'No especificada'\n                      }\n                    </p>\n                  </div>\n                  <div>\n                    <label className=\"block text-sm font-medium text-gray-700\">\n                      Duración Promedio del Ciclo\n                    </label>\n                    <p className=\"text-sm text-gray-900\">\n                      {user.onboarding.averageCycleLength ? `${user.onboarding.averageCycleLength} días` : 'No especificada'}\n                    </p>\n                  </div>\n                  <div>\n                    <label className=\"block text-sm font-medium text-gray-700\">\n                      Duración Promedio del Período\n                    </label>\n                    <p className=\"text-sm text-gray-900\">\n                      {user.onboarding.averagePeriodLength ? `${user.onboarding.averagePeriodLength} días` : 'No especificada'}\n                    </p>\n                  </div>\n                </div>\n              </div>\n            </div>\n          )}\n        </div>\n\n        {/* Footer */}\n        <div className=\"flex justify-end space-x-3 p-6 border-t bg-gray-50\">\n          <button\n            onClick={onClose}\n            className=\"px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50\"\n          >\n            Cerrar\n          </button>\n          <button\n            onClick={onEdit}\n            className=\"px-4 py-2 text-sm font-medium text-white bg-primary rounded-md hover:bg-primary-dark\"\n          >\n            Editar Usuario\n          </button>\n        </div>\n      </div>\n    </div>\n  );\n};\n\nexport default UserViewModal;"
+import React from 'react';
+import { User } from '../../../types/user';
+import { ProfileType } from '../../../types/enums';
+
+interface UserViewModalProps {
+  user: User;
+  isOpen: boolean;
+  onClose: () => void;
+  onEdit: () => void;
+}
+
+const ProfileTypeLabels: Record<string, string> = {
+  [ProfileType.PROFILE_WOMEN]: 'Mujer',
+  [ProfileType.PROFILE_MEN]: 'Hombre',
+  [ProfileType.PROFILE_NB]: 'No Binario',
+  [ProfileType.PROFILE_TRANSGENDER]: 'Transgénero',
+  [ProfileType.PROFILE_CUSTOM]: 'Personalizado',
+  [ProfileType.PROFILE_PARENT]: 'Padre/Madre',
+  [ProfileType.PROFILE_PARTNER]: 'Pareja',
+  [ProfileType.PROFILE_PROVIDER]: 'Proveedor',
+  [ProfileType.PROFILE_GUEST]: 'Invitado',
+  [ProfileType.USER]: 'Usuario',
+  [ProfileType.GUEST]: 'Invitado',
+  [ProfileType.ADMIN]: 'Administrador',
+};
+
+const RoleLabels: Record<string, string> = {
+  'ROLE_USER': 'Usuario',
+  'ROLE_ADMIN': 'Administrador',
+  'ROLE_GUEST': 'Invitado',
+};
+
+const UserViewModal: React.FC<UserViewModalProps> = ({ user, isOpen, onClose, onEdit }) => {
+  if (!isOpen) return null;
+
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('es-ES', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+    });
+  };
+
+  const formatRoles = (roles: string[]) => {
+    return roles.map(role => RoleLabels[role] || role).join(', ');
+  };
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+        {/* Header */}
+        <div className="flex items-center justify-between p-6 border-b">
+          <h2 className="text-2xl font-serif text-[#b91c1c]">
+            Detalles del Usuario
+          </h2>
+          <button
+            onClick={onClose}
+            className="text-gray-400 hover:text-gray-600 transition-colors"
+          >
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+
+        {/* Content */}
+        <div className="p-6">
+          {/* Avatar y info básica */}
+          <div className="flex items-center mb-6">
+            <div className="flex-shrink-0 h-16 w-16">
+              <div className="h-16 w-16 rounded-full bg-[#b91c1c] text-white flex items-center justify-center font-bold text-xl">
+                {user.name?.charAt(0) || user.username?.charAt(0) || 'U'}
+              </div>
+            </div>
+            <div className="ml-4">
+              <h3 className="text-lg font-semibold text-gray-900">
+                {user.name} {user.lastName}
+              </h3>
+              <p className="text-gray-600">@{user.username}</p>
+              <div className="mt-1">
+                <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                  user.state 
+                    ? 'bg-green-100 text-green-800' 
+                    : 'bg-red-100 text-red-800'
+                }`}>
+                  {user.state ? 'Activo' : 'Inactivo'}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          {/* Información personal */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+            <div>
+              <h4 className="text-sm font-medium text-gray-500 uppercase tracking-wider mb-3">
+                Información Personal
+              </h4>
+              <div className="space-y-3">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">
+                    Email
+                  </label>
+                  <p className="text-sm text-gray-900">{user.email}</p>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">
+                    Fecha de Nacimiento
+                  </label>
+                  <p className="text-sm text-gray-900">
+                    {user.birthDate ? new Date(user.birthDate).toLocaleDateString('es-ES') : 'No especificada'}
+                  </p>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">
+                    Tipo de Perfil
+                  </label>
+                  <p className="text-sm text-gray-900">
+                    {ProfileTypeLabels[user.profileType] || user.profileType}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <h4 className="text-sm font-medium text-gray-500 uppercase tracking-wider mb-3">
+                Información del Sistema
+              </h4>
+              <div className="space-y-3">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">
+                    ID
+                  </label>
+                  <p className="text-sm text-gray-900">{user.id}</p>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">
+                    Roles
+                  </label>
+                  <p className="text-sm text-gray-900">{formatRoles(user.roles)}</p>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">
+                    Onboarding Completado
+                  </label>
+                  <p className="text-sm text-gray-900">
+                    {user.onboardingCompleted ? 'Sí' : 'No'}
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Fechas */}
+          <div className="mb-6">
+            <h4 className="text-sm font-medium text-gray-500 uppercase tracking-wider mb-3">
+              Fechas
+            </h4>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label className="block text-sm font-medium text-gray-700">
+                  Fecha de Registro
+                </label>
+                <p className="text-sm text-gray-900">{formatDate(user.createdAt)}</p>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700">
+                  Última Actualización
+                </label>
+                <p className="text-sm text-gray-900">
+                  {user.updatedAt ? formatDate(user.updatedAt) : 'Nunca'}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Información de Onboarding */}
+          {user.onboarding && (
+            <div className="mb-6">
+              <h4 className="text-sm font-medium text-gray-500 uppercase tracking-wider mb-3">
+                Información de Onboarding
+              </h4>
+              <div className="bg-gray-50 rounded-lg p-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">
+                      Etapa de Vida
+                    </label>
+                    <p className="text-sm text-gray-900">
+                      {user.onboarding.stageOfLife || 'No especificada'}
+                    </p>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">
+                      Última Menstruación
+                    </label>
+                    <p className="text-sm text-gray-900">
+                      {user.onboarding.lastPeriodDate 
+                        ? new Date(user.onboarding.lastPeriodDate).toLocaleDateString('es-ES')
+                        : 'No especificada'
+                      }
+                    </p>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">
+                      Duración Promedio del Ciclo
+                    </label>
+                    <p className="text-sm text-gray-900">
+                      {user.onboarding.averageCycleLength ? `${user.onboarding.averageCycleLength} días` : 'No especificada'}
+                    </p>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">
+                      Duración Promedio del Período
+                    </label>
+                    <p className="text-sm text-gray-900">
+                      {user.onboarding.averagePeriodLength ? `${user.onboarding.averagePeriodLength} días` : 'No especificada'}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Footer */}
+        <div className="flex justify-end space-x-3 p-6 border-t bg-gray-50">
+          <button
+            onClick={onClose}
+            className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50"
+          >
+            Cerrar
+          </button>
+          <button
+            onClick={onEdit}
+            className="px-4 py-2 text-sm font-medium text-white bg-[#b91c1c] rounded-md hover:bg-[#991b1b]"
+          >
+            Editar Usuario
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default UserViewModal;

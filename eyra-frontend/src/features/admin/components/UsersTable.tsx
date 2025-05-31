@@ -1,4 +1,5 @@
 // ! 31/05/2025 - Componente tabla de usuarios para administración
+// ! 31/05/2025 - Agregada funcionalidad de crear usuarios y corregidos errores de formato
 
 import React, { useState, useEffect } from 'react';
 import { User } from '../../../types/user';
@@ -7,6 +8,7 @@ import { adminService, AdminUserListParams } from '../../../services/adminServic
 import { Card } from '../../../components/ui/Card';
 import UserEditModal from './UserEditModal';
 import UserViewModal from './UserViewModal';
+import UserCreateModal from './UserCreateModal';
 
 interface UsersTableProps {
   onRefresh?: () => void;
@@ -42,4 +44,372 @@ const UsersTable: React.FC<UsersTableProps> = ({ onRefresh }) => {
   const [totalUsers, setTotalUsers] = useState(0);
   const [limit] = useState(10);
   
-  // Filtros\n  const [searchTerm, setSearchTerm] = useState('');\n  const [roleFilter, setRoleFilter] = useState('');\n  const [profileTypeFilter, setProfileTypeFilter] = useState('');\n  \n  // Modales\n  const [selectedUser, setSelectedUser] = useState<User | null>(null);\n  const [isEditModalOpen, setIsEditModalOpen] = useState(false);\n  const [isViewModalOpen, setIsViewModalOpen] = useState(false);\n\n  const loadUsers = async (params: AdminUserListParams = {}) => {\n    try {\n      setLoading(true);\n      setError(null);\n      \n      const response = await adminService.listUsers({\n        page: currentPage,\n        limit,\n        search: searchTerm || undefined,\n        role: roleFilter || undefined,\n        profileType: profileTypeFilter || undefined,\n        ...params,\n      });\n      \n      setUsers(response.users);\n      setTotalPages(response.pagination.totalPages);\n      setTotalUsers(response.pagination.total);\n    } catch (err: any) {\n      setError(err.message || 'Error al cargar usuarios');\n    } finally {\n      setLoading(false);\n    }\n  };\n\n  useEffect(() => {\n    loadUsers({ page: currentPage });\n  }, [currentPage]);\n\n  const handleSearch = () => {\n    setCurrentPage(1);\n    loadUsers({ page: 1 });\n  };\n\n  const handleReset = () => {\n    setSearchTerm('');\n    setRoleFilter('');\n    setProfileTypeFilter('');\n    setCurrentPage(1);\n    loadUsers({ page: 1 });\n  };\n\n  const handleViewUser = (user: User) => {\n    setSelectedUser(user);\n    setIsViewModalOpen(true);\n  };\n\n  const handleEditUser = (user: User) => {\n    setSelectedUser(user);\n    setIsEditModalOpen(true);\n  };\n\n  const handleDeleteUser = async (user: User) => {\n    if (!confirm(`¿Estás seguro de que quieres desactivar al usuario \"${user.username}\"?`)) {\n      return;\n    }\n\n    try {\n      await adminService.deleteUser(user.id.toString());\n      loadUsers({ page: currentPage });\n      onRefresh?.();\n    } catch (err: any) {\n      alert(err.message || 'Error al desactivar usuario');\n    }\n  };\n\n  const handleUserUpdated = () => {\n    setIsEditModalOpen(false);\n    setSelectedUser(null);\n    loadUsers({ page: currentPage });\n    onRefresh?.();\n  };\n\n  const formatDate = (dateString: string) => {\n    return new Date(dateString).toLocaleDateString('es-ES', {\n      year: 'numeric',\n      month: 'short',\n      day: 'numeric',\n    });\n  };\n\n  const formatRoles = (roles: string[]) => {\n    return roles.map(role => RoleLabels[role] || role).join(', ');\n  };\n\n  if (loading && users.length === 0) {\n    return (\n      <Card>\n        <div className=\"flex justify-center items-center py-12\">\n          <div className=\"animate-spin rounded-full h-8 w-8 border-b-2 border-primary\"></div>\n        </div>\n      </Card>\n    );\n  }\n\n  if (error) {\n    return (\n      <Card>\n        <div className=\"text-center py-8\">\n          <div className=\"text-red-600 mb-4\">{error}</div>\n          <button\n            onClick={() => loadUsers()}\n            className=\"bg-primary text-white px-4 py-2 rounded-lg hover:bg-primary-dark transition-colors\"\n          >\n            Reintentar\n          </button>\n        </div>\n      </Card>\n    );\n  }\n\n  return (\n    <>\n      <Card title=\"Gestión de Usuarios\" className=\"mb-6\">\n        {/* Filtros */}\n        <div className=\"grid grid-cols-1 md:grid-cols-4 gap-4 mb-6\">\n          <div>\n            <label className=\"block text-sm font-medium text-gray-700 mb-2\">\n              Buscar\n            </label>\n            <input\n              type=\"text\"\n              value={searchTerm}\n              onChange={(e) => setSearchTerm(e.target.value)}\n              placeholder=\"Email, nombre o username...\"\n              className=\"w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent\"\n            />\n          </div>\n          \n          <div>\n            <label className=\"block text-sm font-medium text-gray-700 mb-2\">\n              Rol\n            </label>\n            <select\n              value={roleFilter}\n              onChange={(e) => setRoleFilter(e.target.value)}\n              className=\"w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent\"\n            >\n              <option value=\"\">Todos los roles</option>\n              <option value=\"ROLE_USER\">Usuario</option>\n              <option value=\"ROLE_ADMIN\">Administrador</option>\n              <option value=\"ROLE_GUEST\">Invitado</option>\n            </select>\n          </div>\n          \n          <div>\n            <label className=\"block text-sm font-medium text-gray-700 mb-2\">\n              Tipo de Perfil\n            </label>\n            <select\n              value={profileTypeFilter}\n              onChange={(e) => setProfileTypeFilter(e.target.value)}\n              className=\"w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent\"\n            >\n              <option value=\"\">Todos los tipos</option>\n              {Object.entries(ProfileTypeLabels).map(([value, label]) => (\n                <option key={value} value={value}>{label}</option>\n              ))}\n            </select>\n          </div>\n          \n          <div className=\"flex flex-col justify-end\">\n            <div className=\"flex gap-2\">\n              <button\n                onClick={handleSearch}\n                className=\"flex-1 bg-primary text-white px-4 py-2 rounded-md hover:bg-primary-dark transition-colors\"\n              >\n                Buscar\n              </button>\n              <button\n                onClick={handleReset}\n                className=\"flex-1 bg-gray-500 text-white px-4 py-2 rounded-md hover:bg-gray-600 transition-colors\"\n              >\n                Reset\n              </button>\n            </div>\n          </div>\n        </div>\n\n        {/* Información de resultados */}\n        <div className=\"flex justify-between items-center mb-4\">\n          <div className=\"text-sm text-gray-600\">\n            Mostrando {users.length} de {totalUsers} usuarios\n          </div>\n        </div>\n\n        {/* Tabla */}\n        <div className=\"overflow-x-auto\">\n          <table className=\"min-w-full bg-white\">\n            <thead className=\"bg-gray-50\">\n              <tr>\n                <th className=\"px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider\">\n                  Usuario\n                </th>\n                <th className=\"px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider\">\n                  Email\n                </th>\n                <th className=\"px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider\">\n                  Rol\n                </th>\n                <th className=\"px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider\">\n                  Tipo de Perfil\n                </th>\n                <th className=\"px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider\">\n                  Estado\n                </th>\n                <th className=\"px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider\">\n                  Fecha de Registro\n                </th>\n                <th className=\"px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider\">\n                  Acciones\n                </th>\n              </tr>\n            </thead>\n            <tbody className=\"bg-white divide-y divide-gray-200\">\n              {users.map((user) => (\n                <tr key={user.id} className=\"hover:bg-gray-50\">\n                  <td className=\"px-6 py-4 whitespace-nowrap\">\n                    <div className=\"flex items-center\">\n                      <div className=\"flex-shrink-0 h-10 w-10\">\n                        <div className=\"h-10 w-10 rounded-full bg-primary text-white flex items-center justify-center font-semibold\">\n                          {user.name?.charAt(0) || user.username?.charAt(0) || 'U'}\n                        </div>\n                      </div>\n                      <div className=\"ml-4\">\n                        <div className=\"text-sm font-medium text-gray-900\">\n                          {user.name} {user.lastName}\n                        </div>\n                        <div className=\"text-sm text-gray-500\">@{user.username}</div>\n                      </div>\n                    </div>\n                  </td>\n                  <td className=\"px-6 py-4 whitespace-nowrap text-sm text-gray-900\">\n                    {user.email}\n                  </td>\n                  <td className=\"px-6 py-4 whitespace-nowrap text-sm text-gray-900\">\n                    {formatRoles(user.roles)}\n                  </td>\n                  <td className=\"px-6 py-4 whitespace-nowrap text-sm text-gray-900\">\n                    {ProfileTypeLabels[user.profileType] || user.profileType}\n                  </td>\n                  <td className=\"px-6 py-4 whitespace-nowrap\">\n                    <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${\n                      user.state \n                        ? 'bg-green-100 text-green-800' \n                        : 'bg-red-100 text-red-800'\n                    }`}>\n                      {user.state ? 'Activo' : 'Inactivo'}\n                    </span>\n                  </td>\n                  <td className=\"px-6 py-4 whitespace-nowrap text-sm text-gray-900\">\n                    {formatDate(user.createdAt)}\n                  </td>\n                  <td className=\"px-6 py-4 whitespace-nowrap text-sm font-medium\">\n                    <div className=\"flex space-x-2\">\n                      <button\n                        onClick={() => handleViewUser(user)}\n                        className=\"text-blue-600 hover:text-blue-900 transition-colors\"\n                      >\n                        Ver\n                      </button>\n                      <button\n                        onClick={() => handleEditUser(user)}\n                        className=\"text-indigo-600 hover:text-indigo-900 transition-colors\"\n                      >\n                        Editar\n                      </button>\n                      <button\n                        onClick={() => handleDeleteUser(user)}\n                        className=\"text-red-600 hover:text-red-900 transition-colors\"\n                        disabled={!user.state}\n                      >\n                        {user.state ? 'Desactivar' : 'Desactivado'}\n                      </button>\n                    </div>\n                  </td>\n                </tr>\n              ))}\n            </tbody>\n          </table>\n        </div>\n\n        {/* Paginación */}\n        {totalPages > 1 && (\n          <div className=\"flex items-center justify-between mt-6\">\n            <div className=\"text-sm text-gray-700\">\n              Página {currentPage} de {totalPages}\n            </div>\n            <div className=\"flex space-x-2\">\n              <button\n                onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}\n                disabled={currentPage === 1}\n                className=\"px-3 py-2 text-sm bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed\"\n              >\n                Anterior\n              </button>\n              <button\n                onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}\n                disabled={currentPage === totalPages}\n                className=\"px-3 py-2 text-sm bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed\"\n              >\n                Siguiente\n              </button>\n            </div>\n          </div>\n        )}\n      </Card>\n\n      {/* Modales */}\n      {selectedUser && (\n        <>\n          <UserViewModal\n            user={selectedUser}\n            isOpen={isViewModalOpen}\n            onClose={() => {\n              setIsViewModalOpen(false);\n              setSelectedUser(null);\n            }}\n            onEdit={() => {\n              setIsViewModalOpen(false);\n              setIsEditModalOpen(true);\n            }}\n          />\n          \n          <UserEditModal\n            user={selectedUser}\n            isOpen={isEditModalOpen}\n            onClose={() => {\n              setIsEditModalOpen(false);\n              setSelectedUser(null);\n            }}\n            onSave={handleUserUpdated}\n          />\n        </>\n      )}\n    </>\n  );\n};\n\nexport default UsersTable;"
+  // Filtros
+  const [searchTerm, setSearchTerm] = useState('');
+  const [roleFilter, setRoleFilter] = useState('');
+  const [profileTypeFilter, setProfileTypeFilter] = useState('');
+  
+  // Modales
+  const [selectedUser, setSelectedUser] = useState<User | null>(null);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isViewModalOpen, setIsViewModalOpen] = useState(false);
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+
+  const loadUsers = async (params: AdminUserListParams = {}) => {
+    try {
+      setLoading(true);
+      setError(null);
+      
+      const response = await adminService.listUsers({
+        page: currentPage,
+        limit,
+        search: searchTerm || undefined,
+        role: roleFilter || undefined,
+        profileType: profileTypeFilter || undefined,
+        ...params,
+      });
+      
+      setUsers(response.users);
+      setTotalPages(response.pagination.totalPages);
+      setTotalUsers(response.pagination.total);
+    } catch (err: any) {
+      setError(err.message || 'Error al cargar usuarios');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    loadUsers({ page: currentPage });
+  }, [currentPage]);
+
+  const handleSearch = () => {
+    setCurrentPage(1);
+    loadUsers({ page: 1 });
+  };
+
+  const handleReset = () => {
+    setSearchTerm('');
+    setRoleFilter('');
+    setProfileTypeFilter('');
+    setCurrentPage(1);
+    loadUsers({ page: 1 });
+  };
+
+  const handleViewUser = (user: User) => {
+    setSelectedUser(user);
+    setIsViewModalOpen(true);
+  };
+
+  const handleEditUser = (user: User) => {
+    setSelectedUser(user);
+    setIsEditModalOpen(true);
+  };
+
+  const handleDeleteUser = async (user: User) => {
+    if (!confirm(`¿Estás seguro de que quieres desactivar al usuario "${user.username}"?`)) {
+      return;
+    }
+
+    try {
+      await adminService.deleteUser(user.id.toString());
+      loadUsers({ page: currentPage });
+      onRefresh?.();
+    } catch (err: any) {
+      alert(err.message || 'Error al desactivar usuario');
+    }
+  };
+
+  const handleUserUpdated = () => {
+    setIsEditModalOpen(false);
+    setSelectedUser(null);
+    loadUsers({ page: currentPage });
+    onRefresh?.();
+  };
+
+  const handleUserCreated = () => {
+    setIsCreateModalOpen(false);
+    loadUsers({ page: currentPage });
+    onRefresh?.();
+  };
+
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('es-ES', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+    });
+  };
+
+  const formatRoles = (roles: string[]) => {
+    return roles.map(role => RoleLabels[role] || role).join(', ');
+  };
+
+  if (loading && users.length === 0) {
+    return (
+      <Card>
+        <div className="flex justify-center items-center py-12">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#b91c1c]"></div>
+        </div>
+      </Card>
+    );
+  }
+
+  if (error) {
+    return (
+      <Card>
+        <div className="text-center py-8">
+          <div className="text-red-600 mb-4">{error}</div>
+          <button
+            onClick={() => loadUsers()}
+            className="bg-[#b91c1c] text-white px-4 py-2 rounded-lg hover:bg-[#991b1b] transition-colors"
+          >
+            Reintentar
+          </button>
+        </div>
+      </Card>
+    );
+  }
+
+  return (
+    <>
+      <Card title="Gestión de Usuarios" className="mb-6">
+        {/* Filtros */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Buscar
+            </label>
+            <input
+              type="text"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              placeholder="Email, nombre o username..."
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#b91c1c] focus:border-transparent"
+            />
+          </div>
+          
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Rol
+            </label>
+            <select
+              value={roleFilter}
+              onChange={(e) => setRoleFilter(e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#b91c1c] focus:border-transparent"
+            >
+              <option value="">Todos los roles</option>
+              <option value="ROLE_USER">Usuario</option>
+              <option value="ROLE_ADMIN">Administrador</option>
+              <option value="ROLE_GUEST">Invitado</option>
+            </select>
+          </div>
+          
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Tipo de Perfil
+            </label>
+            <select
+              value={profileTypeFilter}
+              onChange={(e) => setProfileTypeFilter(e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#b91c1c] focus:border-transparent"
+            >
+              <option value="">Todos los tipos</option>
+              {Object.entries(ProfileTypeLabels).map(([value, label]) => (
+                <option key={value} value={value}>{label}</option>
+              ))}
+            </select>
+          </div>
+          
+          <div className="flex flex-col justify-end">
+            <div className="flex gap-2">
+              <button
+                onClick={handleSearch}
+                className="flex-1 bg-[#b91c1c] text-white px-4 py-2 rounded-md hover:bg-[#991b1b] transition-colors"
+              >
+                Buscar
+              </button>
+              <button
+                onClick={handleReset}
+                className="flex-1 bg-gray-500 text-white px-4 py-2 rounded-md hover:bg-gray-600 transition-colors"
+              >
+                Reset
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Información de resultados y botón crear */}
+        <div className="flex justify-between items-center mb-4">
+          <div className="text-sm text-gray-600">
+            Mostrando {users.length} de {totalUsers} usuarios
+          </div>
+          <button
+            onClick={() => setIsCreateModalOpen(true)}
+            className="bg-[#b91c1c] text-white px-4 py-2 rounded-md hover:bg-[#991b1b] transition-colors flex items-center gap-2"
+          >
+            <span>+</span>
+            Crear Usuario
+          </button>
+        </div>
+
+        {/* Tabla */}
+        <div className="overflow-x-auto">
+          <table className="min-w-full bg-white">
+            <thead className="bg-gray-50">
+              <tr>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Usuario
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Email
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Rol
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Tipo de Perfil
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Estado
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Fecha de Registro
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Acciones
+                </th>
+              </tr>
+            </thead>
+            <tbody className="bg-white divide-y divide-gray-200">
+              {users.map((user) => (
+                <tr key={user.id} className="hover:bg-gray-50">
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className="flex items-center">
+                      <div className="flex-shrink-0 h-10 w-10">
+                        <div className="h-10 w-10 rounded-full bg-[#b91c1c] text-white flex items-center justify-center font-semibold">
+                          {user.name?.charAt(0) || user.username?.charAt(0) || 'U'}
+                        </div>
+                      </div>
+                      <div className="ml-4">
+                        <div className="text-sm font-medium text-gray-900">
+                          {user.name} {user.lastName}
+                        </div>
+                        <div className="text-sm text-gray-500">@{user.username}</div>
+                      </div>
+                    </div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    {user.email}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    {formatRoles(user.roles)}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    {ProfileTypeLabels[user.profileType] || user.profileType}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                      user.state 
+                        ? 'bg-green-100 text-green-800' 
+                        : 'bg-red-100 text-red-800'
+                    }`}>
+                      {user.state ? 'Activo' : 'Inactivo'}
+                    </span>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    {formatDate(user.createdAt)}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                    <div className="flex space-x-2">
+                      <button
+                        onClick={() => handleViewUser(user)}
+                        className="text-blue-600 hover:text-blue-900 transition-colors"
+                      >
+                        Ver
+                      </button>
+                      <button
+                        onClick={() => handleEditUser(user)}
+                        className="text-indigo-600 hover:text-indigo-900 transition-colors"
+                      >
+                        Editar
+                      </button>
+                      <button
+                        onClick={() => handleDeleteUser(user)}
+                        className="text-red-600 hover:text-red-900 transition-colors"
+                        disabled={!user.state}
+                      >
+                        {user.state ? 'Desactivar' : 'Desactivado'}
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        {/* Paginación */}
+        {totalPages > 1 && (
+          <div className="flex items-center justify-between mt-6">
+            <div className="text-sm text-gray-700">
+              Página {currentPage} de {totalPages}
+            </div>
+            <div className="flex space-x-2">
+              <button
+                onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+                disabled={currentPage === 1}
+                className="px-3 py-2 text-sm bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Anterior
+              </button>
+              <button
+                onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
+                disabled={currentPage === totalPages}
+                className="px-3 py-2 text-sm bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Siguiente
+              </button>
+            </div>
+          </div>
+        )}
+      </Card>
+
+      {/* Modales */}
+      {selectedUser && (
+        <>
+          <UserViewModal
+            user={selectedUser}
+            isOpen={isViewModalOpen}
+            onClose={() => {
+              setIsViewModalOpen(false);
+              setSelectedUser(null);
+            }}
+            onEdit={() => {
+              setIsViewModalOpen(false);
+              setIsEditModalOpen(true);
+            }}
+          />
+          
+          <UserEditModal
+            user={selectedUser}
+            isOpen={isEditModalOpen}
+            onClose={() => {
+              setIsEditModalOpen(false);
+              setSelectedUser(null);
+            }}
+            onSave={handleUserUpdated}
+          />
+        </>
+      )}
+
+      <UserCreateModal
+        isOpen={isCreateModalOpen}
+        onClose={() => setIsCreateModalOpen(false)}
+        onSave={handleUserCreated}
+      />
+    </>
+  );
+};
+
+export default UsersTable;

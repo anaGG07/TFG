@@ -1,13 +1,13 @@
 
 // ! 31/05/2025 - Página de administración completamente actualizada con gestión de usuarios
+// ! 31/05/2025 - Activados componentes de gestión de usuarios
 
 import React, { useState, useEffect } from 'react';
 import { Card } from '../components/ui/Card';
 import { useAuth } from '../context/AuthContext';
 import LoadingSpinner from '../components/LoadingSpinner';
 import { adminStatsService, AdminStats, RecentActivity } from '../services/adminStatsService';
-// import UsersTable from '../features/admin/components/UsersTable';
-// import AdminStats from '../features/admin/components/AdminStats';
+import UsersTable from '../features/admin/components/UsersTable';
 
 const AdminPage = () => {
   const { user, isLoading: authLoading } = useAuth();
@@ -20,31 +20,31 @@ const AdminPage = () => {
   const [error, setError] = useState<string | null>(null);
 
   // Cargar datos cuando el componente se monta
+  const loadData = async () => {
+    if (!user || !user.roles.includes('ROLE_ADMIN')) {
+      return;
+    }
+
+    try {
+      setIsLoadingStats(true);
+      setError(null);
+      
+      const [statsData, activityData] = await Promise.all([
+        adminStatsService.getSystemStats(),
+        adminStatsService.getRecentActivity()
+      ]);
+      
+      setStats(statsData);
+      setRecentActivity(activityData);
+    } catch (err: any) {
+      console.error('Error cargando datos de administración:', err);
+      setError(err.message || 'Error al cargar los datos');
+    } finally {
+      setIsLoadingStats(false);
+    }
+  };
+
   useEffect(() => {
-    const loadData = async () => {
-      if (!user || !user.roles.includes('ROLE_ADMIN')) {
-        return;
-      }
-
-      try {
-        setIsLoadingStats(true);
-        setError(null);
-        
-        const [statsData, activityData] = await Promise.all([
-          adminStatsService.getSystemStats(),
-          adminStatsService.getRecentActivity()
-        ]);
-        
-        setStats(statsData);
-        setRecentActivity(activityData);
-      } catch (err: any) {
-        console.error('Error cargando datos de administración:', err);
-        setError(err.message || 'Error al cargar los datos');
-      } finally {
-        setIsLoadingStats(false);
-      }
-    };
-
     loadData();
   }, [user]);
 
@@ -271,15 +271,7 @@ const AdminPage = () => {
           {activeTab === 'users' && (
             <div>
               <h2 className="text-2xl font-semibold mb-6">Gestión de Usuarios</h2>
-              <div className="text-center py-12">
-                <span className="text-6xl mb-4 block">🚧</span>
-                <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                  En Desarrollo
-                </h3>
-                <p className="text-gray-600">
-                  La tabla de usuarios estará disponible después de resolver los conflictos de tipos.
-                </p>
-              </div>
+              <UsersTable onRefresh={() => loadData()} />
             </div>
           )}
 
