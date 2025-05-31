@@ -1,2 +1,48 @@
-node_modules
-vendor
+# ! 31/05/2025 - Dockerignore para optimizar build de Railway
+
+# Git
+.git
+.gitignore
+.github
+
+# Docker
+Dockerfile*
+docker-compose*
+.dockerignore
+
+# Development
+var/cache/*
+var/log/*
+!var/cache/.gitkeep
+!var/log/.gitkeep
+
+# Node modules (si los hay)
+node_modules/
+npm-debug.log
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Backup files
+*.backup
+nixpacks.toml.backup
+
+# Test files
+tests/
+phpunit.xml
+
+# Documentation
+README.md
+*.md
+docs/
+
+# Temporary files
+tmp/
+temp/

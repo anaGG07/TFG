@@ -83,10 +83,6 @@ class AuthService {
         method: "GET"
       });
 
-      console.log("=== DEBUG PROFILE RESPONSE AVATAR ===");
-      console.log("Avatar recibido en profile:", profileResponse.user.avatar);
-      console.log("====================================");
-
       if (!profileResponse.user) {
         throw new Error("No se pudo obtener el perfil del usuario tras login");
       }
@@ -96,7 +92,6 @@ class AuthService {
       // Notificar a otras pestañas
       localStorage.setItem("auth_event", Date.now().toString());
 
-      console.log("AuthService: Login exitoso para:", profileResponse.user.email);
       return processedUser;
     } catch (error) {
       console.error("AuthService: Error en login:", error);
