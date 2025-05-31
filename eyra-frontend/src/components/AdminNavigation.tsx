@@ -174,7 +174,7 @@ const AdminNavigation: React.FC = () => {
 
   const blobRef = useRef<HTMLDivElement>(null);
 
-  // ! 31/05/2025 - Configuración específica para administradores con botón de admin visible
+  // ! 31/05/2025 - Configuración específica para administradores
   const navigationItems: NavigationItem[] = [
     {
       id: "dashboard",
@@ -227,25 +227,9 @@ const AdminNavigation: React.FC = () => {
     },
   ];
 
-  // ! 31/05/2025 - Botón de administración siempre visible para admins
-  const adminButton = {
-    id: "admin",
-    label: "Panel Admin",
-    icon: AdminIcon,
-    route: "/admin",
-    color: "#1A0001",
-  };
-
   // Detectar ruta actual y establecer índice
   useEffect(() => {
     const currentPath = location.pathname;
-    
-    // Verificar si estamos en el panel de admin
-    if (currentPath.startsWith('/admin')) {
-      setCurrentIndex(-1); // Índice especial para admin
-      return;
-    }
-    
     const index = navigationItems.findIndex(
       (item) => item.route === currentPath
     );
@@ -266,18 +250,17 @@ const AdminNavigation: React.FC = () => {
 
   // Manejar selección de item
   const selectItem = (index: number) => {
-    if (index === -1) {
-      // Admin button
-      navigate(adminButton.route);
-      return;
-    }
-    
     const item = navigationItems[index];
     if (item.id === "logout") {
       handleLogout();
     } else if (item.route) {
       navigate(item.route);
     }
+  };
+
+  // ! 31/05/2025 - Manejar click del botón admin
+  const handleAdminClick = () => {
+    navigate("/admin");
   };
 
   // Calcular posición de los elementos en el círculo
@@ -319,128 +302,140 @@ const AdminNavigation: React.FC = () => {
     if (!isVisible) {
       return user?.name || "Admin";
     }
-    if (hoveredIndex === -1) {
-      return adminButton.label;
-    }
     if (hoveredIndex !== null) {
       return navigationItems[hoveredIndex]?.label;
-    }
-    if (currentIndex === -1) {
-      return adminButton.label;
     }
     return navigationItems[currentIndex]?.label;
   };
 
-  // Obtener color actual
-  const getCurrentColor = () => {
-    if (currentIndex === -1) {
-      return adminButton.color;
-    }
-    return navigationItems[currentIndex]?.color || "#C62328";
-  };
+  // Verificar si estamos en el panel admin
+  const isInAdminPanel = location.pathname.startsWith('/admin');
 
   return (
-    <div
-      className="fixed top-2 left-2 w-[250px] h-[300px] z-50"
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={handleMouseLeave}
-    >
-      {/* Blob de fondo */}
-      <div ref={blobRef} className="absolute inset-0">
-        <Blob
-          width={250}
-          height={250}
-          color={getCurrentColor()}
-          radius={110}
-        />
-      </div>
-
-      {/* Elementos de navegación circular - Solo visibles en hover */}
-      {isVisible &&
-        navigationItems.map((item, index) => {
-          const position = getItemPosition(index, item.id);
-          const isActive = index === currentIndex;
-          const isHovered = index === hoveredIndex;
-          const isAI = item.id === "ai-assistant";
-
-          return (
-            <div
-              key={item.id}
-              className={`absolute transition-all duration-300 ease-out transform
-              ${isActive ? "scale-110 z-30" : "scale-85 z-20"}
-              ${isHovered ? "scale-125" : ""}
-              ${isAI ? "z-40" : ""}`}
-              style={{
-                left: `${position.x - 18}px`,
-                top: `${position.y - 18}px`,
-                opacity: isActive ? 1 : 0.4,
-              }}
-              onMouseEnter={() => setHoveredIndex(index)}
-              onMouseLeave={() => setHoveredIndex(null)}
-            >
-              <div
-                className={`w-12 h-12 rounded-full flex items-center justify-center text-white font-bold
-                ${isActive || isHovered ? " bg-opacity-25" : " bg-opacity-10  "}
-                cursor-pointer hover:bg-opacity-40 transition-all duration-200
-              `}
-                onClick={() => selectItem(index)}
-              >
-                <item.icon className="w-10 h-10 text-white" />
-              </div>
-            </div>
-          );
-        })}
-
-      {/* ! 31/05/2025 - Botón de administración fijo en la parte inferior */}
+    <>
+      {/* Navegación circular principal */}
       <div
-        className={`absolute transition-all duration-300 ease-out transform
-        ${currentIndex === -1 ? "scale-110 z-30" : "scale-100 z-20"}
-        ${hoveredIndex === -1 ? "scale-125" : ""}`}
-        style={{
-          left: `${119 - 20}px`,
-          top: `${250}px`,
-          opacity: currentIndex === -1 || hoveredIndex === -1 ? 1 : 0.8,
-        }}
-        onMouseEnter={() => setHoveredIndex(-1)}
-        onMouseLeave={() => setHoveredIndex(null)}
+        className="fixed top-2 left-2 w-[250px] h-[250px] z-50"
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
       >
-        <div
-          className={`w-14 h-14 rounded-full flex items-center justify-center text-white font-bold
-          ${currentIndex === -1 || hoveredIndex === -1 ? "bg-opacity-40 ring-2 ring-white ring-opacity-50" : "bg-opacity-20"}
-          cursor-pointer hover:bg-opacity-50 transition-all duration-200 shadow-lg
-        `}
-          style={{ backgroundColor: adminButton.color }}
-          onClick={() => selectItem(-1)}
-        >
-          <adminButton.icon className="w-12 h-12 text-white" />
+        {/* Blob de fondo */}
+        <div ref={blobRef} className="absolute inset-0">
+          <Blob
+            width={250}
+            height={250}
+            color={navigationItems[currentIndex]?.color || "#C62328"}
+            radius={110}
+          />
         </div>
-      </div>
 
-      {/* Texto central dinámico - Solo cuando NO está visible el menú */}
-      <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-30 pointer-events-none">
-        <div className="text-center">
+        {/* Elementos de navegación circular - Solo visibles en hover */}
+        {isVisible &&
+          navigationItems.map((item, index) => {
+            const position = getItemPosition(index, item.id);
+            const isActive = index === currentIndex;
+            const isHovered = index === hoveredIndex;
+            const isAI = item.id === "ai-assistant";
+
+            return (
+              <div
+                key={item.id}
+                className={`absolute transition-all duration-300 ease-out transform
+                ${isActive ? "scale-110 z-30" : "scale-85 z-20"}
+                ${isHovered ? "scale-125" : ""}
+                ${isAI ? "z-40" : ""}`}
+                style={{
+                  left: `${position.x - 18}px`,
+                  top: `${position.y - 18}px`,
+                  opacity: isActive ? 1 : 0.4,
+                }}
+                onMouseEnter={() => setHoveredIndex(index)}
+                onMouseLeave={() => setHoveredIndex(null)}
+              >
+                <div
+                  className={`w-12 h-12 rounded-full flex items-center justify-center text-white font-bold
+                  ${isActive || isHovered ? " bg-opacity-25" : " bg-opacity-10  "}
+                  cursor-pointer hover:bg-opacity-40 transition-all duration-200
+                `}
+                  onClick={() => selectItem(index)}
+                >
+                  <item.icon className="w-10 h-10 text-white" />
+                </div>
+              </div>
+            );
+          })}
+
+        {/* Texto central dinámico - Solo cuando NO está visible el menú */}
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-30 pointer-events-none">
+          <div className="text-center">
+            <p
+              className={`capitalize text-3xl font-semibold text-white drop-shadow-lg transition-all duration-300 ${
+                isVisible ? "opacity-0" : "opacity-100"
+              }`}
+            >
+              {!isVisible ? user?.name || "Admin" : ""}
+            </p>
+          </div>
+        </div>
+
+        {/* Texto del elemento actual/hover */}
+        <div className="absolute top-60 left-1/2 transform -translate-x-1/2 mt-3">
           <p
-            className={`capitalize text-3xl font-semibold text-white drop-shadow-lg transition-all duration-300 ${
-              isVisible ? "opacity-0" : "opacity-100"
+            className={`text-xl font-semibold text-[#C62328] capitalize drop-shadow-sm transition-all duration-300 text-center ${
+              isVisible ? "opacity-100" : "opacity-0"
             }`}
           >
-            {!isVisible ? user?.name || "Admin" : ""}
+            {getDisplayText()}
           </p>
         </div>
       </div>
 
-      {/* Texto del elemento actual/hover */}
-      <div className="absolute top-72 left-1/2 transform -translate-x-1/2 mt-3">
-        <p
-          className={`text-xl font-semibold text-[#C62328] capitalize drop-shadow-sm transition-all duration-300 text-center ${
-            isVisible ? "opacity-100" : "opacity-0"
-          }`}
+      {/* ! 31/05/2025 - Botón de administración prominente */}
+      <div 
+        className="fixed bottom-6 left-6 z-50 group"
+        title="Panel de Administración"
+      >
+        <div
+          className={`relative w-20 h-20 rounded-full flex items-center justify-center text-white font-bold cursor-pointer
+          shadow-2xl transition-all duration-300 transform hover:scale-115 hover:shadow-3xl
+          ${
+            isInAdminPanel 
+              ? "bg-gradient-to-br from-red-600 to-red-800 ring-4 ring-red-300 ring-opacity-60 scale-110 shadow-red-500/50" 
+              : "bg-gradient-to-br from-red-700 to-red-900 hover:from-red-600 hover:to-red-800 shadow-red-600/40"
+          }
+          animate-pulse hover:animate-none border-2 border-red-400/30`}
+          onClick={handleAdminClick}
         >
-          {getDisplayText()}
-        </p>
+          <AdminIcon className="w-12 h-12 text-white drop-shadow-lg" />
+          
+          {/* Efecto de brillo */}
+          <div className="absolute inset-0 rounded-full bg-gradient-to-tr from-white/20 to-transparent"></div>
+          
+          {/* Indicador de estado activo */}
+          {isInAdminPanel && (
+            <div className="absolute -top-1 -right-1 w-6 h-6 bg-green-400 rounded-full border-2 border-white shadow-lg flex items-center justify-center">
+              <div className="w-3 h-3 bg-green-600 rounded-full animate-pulse"></div>
+            </div>
+          )}
+        </div>
+        
+        {/* Etiqueta del botón mejorada */}
+        <div className="absolute -top-12 left-1/2 transform -translate-x-1/2 whitespace-nowrap opacity-0 group-hover:opacity-100 transition-all duration-300">
+          <div className="bg-gray-900 text-white text-sm px-3 py-2 rounded-lg shadow-xl border border-gray-700">
+            <span className="font-semibold">Panel de Administración</span>
+            <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 translate-y-full">
+              <div className="w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900"></div>
+            </div>
+          </div>
+        </div>
+        
+        {/* Círculo de pulsación de fondo */}
+        <div className={`absolute inset-0 rounded-full border-2 border-red-400 animate-ping ${
+          isInAdminPanel ? 'opacity-75' : 'opacity-0'
+        }`}></div>
       </div>
-    </div>
+    </>
   );
-};
+}; 
 
 export default AdminNavigation;
