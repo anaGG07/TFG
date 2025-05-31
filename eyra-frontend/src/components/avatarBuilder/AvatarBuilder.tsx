@@ -84,14 +84,13 @@ const AvatarBuilder: React.FC<AvatarBuilderProps> = ({ onChange, initialConfig, 
           <span className="font-bold text-lg text-[#7a2323]">Cabello y complementos</span>
         </div>
         <div className="flex items-center gap-2">
-          <Scissors size={18} stroke="#C62328" className="cursor-help" aria-label="Estilo de pelo" />
-          <label className="font-semibold text-[#7a2323]">Estilo de pelo:</label>
+          <Scissors size={18} stroke="#C62328" className="cursor-help" aria-label="Pelo" />
+          <label className="font-semibold text-[#7a2323]">Pelo:</label>
           <select value={config.hairStyle} onChange={e => handleChange('hairStyle', e.target.value)} className="rounded-xl py-2 px-3 shadow-neomorphic ml-2">
             <option value="short">Corto</option>
             <option value="long">Largo</option>
             <option value="curly">Rizado</option>
           </select>
-          <Palette size={18} stroke="#C62328" className="ml-2 cursor-help" aria-label="Color de pelo" />
           <input type="color" value={config.hairColor} onChange={e => handleChange('hairColor', e.target.value)} className="rounded-full w-8 h-8 border-none shadow-neomorphic ml-2" />
         </div>
         <div className="flex items-center gap-2">
@@ -102,7 +101,6 @@ const AvatarBuilder: React.FC<AvatarBuilderProps> = ({ onChange, initialConfig, 
             <option value="hoodie">Sudadera</option>
             <option value="dress">Vestido</option>
           </select>
-          <Palette size={18} stroke="#C62328" className="ml-2 cursor-help" aria-label="Color de ropa" />
           <input type="color" value={config.fabricColor} onChange={e => handleChange('fabricColor', e.target.value)} className="rounded-full w-8 h-8 border-none shadow-neomorphic ml-2" />
         </div>
         <div className="flex items-center gap-2">
@@ -113,7 +111,9 @@ const AvatarBuilder: React.FC<AvatarBuilderProps> = ({ onChange, initialConfig, 
             <option value="round">Redondas</option>
             <option value="square">Cuadradas</option>
           </select>
-          <label className="ml-2 font-semibold text-[#7a2323]">Opacidad:</label>
+        </div>
+        <div className="flex items-center gap-2 w-full">
+          <span className="font-semibold text-[#7a2323] ml-8">Opacidad:</span>
           <input 
             type="range" 
             min={0} 
@@ -121,7 +121,7 @@ const AvatarBuilder: React.FC<AvatarBuilderProps> = ({ onChange, initialConfig, 
             step={0.05} 
             value={parseFloat(config.glassOpacity) || 0.7}
             onChange={e => handleChange('glassOpacity', e.target.value)}
-            className="ml-2 align-middle"
+            className="flex-1 ml-2 align-middle"
           />
         </div>
         <div className="flex items-center gap-2">

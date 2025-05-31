@@ -199,11 +199,13 @@ const ProfilePage: React.FC = () => {
       {/* Columna derecha: Contenido sobre fondo */}
       <div className="flex-1 flex flex-col justify-center items-center min-h-screen py-16 px-4 md:px-12">
         {/* Cabecera: nombre, email, frase */}
-        <div className="flex flex-col items-center gap-1 mb-8">
-          <h1 className="text-3xl font-serif font-bold text-[#7a2323] text-center">{user.name} {user.lastName}</h1>
-          <p className="text-[#7a2323]/80 text-center">{user.email}</p>
-          <p className="text-[#C62328] text-lg font-serif mt-2 text-center">Hoy es un gran día para cuidar de ti ✨</p>
-        </div>
+        {!isEditingAvatar && (
+          <div className="flex flex-col items-center gap-1 mb-8">
+            <h1 className="text-3xl font-serif font-bold text-[#7a2323] text-center">{user.name} {user.lastName}</h1>
+            <p className="text-[#7a2323]/80 text-center">{user.email}</p>
+            <p className="text-[#C62328] text-lg font-serif mt-2 text-center">Hoy es un gran día para cuidar de ti ✨</p>
+          </div>
+        )}
         {/* Tabs de iconos mejorados o editor de avatar */}
         {isEditingAvatar ? (
           <div className="w-full max-w-4xl animate-fade-in" style={{background: 'none', boxShadow: 'none', borderRadius: 0, padding: 0}}>
