@@ -72,26 +72,32 @@ class AuthService {
   public async login(credentials: LoginRequest): Promise<User> {
     try {
       console.log("AuthService: Enviando solicitud de login...");
-      const response = await apiFetch<{ user: User }>(API_ROUTES.AUTH.LOGIN, {
+      // 1. Login: obtener token (no usuario)
+      await apiFetch(API_ROUTES.AUTH.LOGIN, {
         method: "POST",
         body: credentials,
       });
 
-      console.log("=== DEBUG LOGIN RESPONSE AVATAR ===");
-      console.log("Avatar recibido en login:", response.user.avatar);
+      // 2. Obtener perfil completo
+      const profileResponse = await apiFetch<{ user: User }>(API_ROUTES.AUTH.PROFILE, {
+        method: "GET"
+      });
+
+      console.log("=== DEBUG PROFILE RESPONSE AVATAR ===");
+      console.log("Avatar recibido en profile:", profileResponse.user.avatar);
       console.log("====================================");
 
-      if (!response.user) {
-        throw new Error("Respuesta inválida del servidor");
+      if (!profileResponse.user) {
+        throw new Error("No se pudo obtener el perfil del usuario tras login");
       }
 
-      const processedUser = this.processUserData(response.user);
+      const processedUser = this.processUserData(profileResponse.user);
       this.authState = processedUser;
       // Notificar a otras pestañas
       localStorage.setItem("auth_event", Date.now().toString());
 
-      console.log("AuthService: Login exitoso para:", response.user.email);
-      return response.user;
+      console.log("AuthService: Login exitoso para:", profileResponse.user.email);
+      return processedUser;
     } catch (error) {
       console.error("AuthService: Error en login:", error);
       this.authState = null;
