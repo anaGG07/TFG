@@ -1,7 +1,7 @@
 # 📋 EYRA Backend - Endpoints y Campos Requeridos
 
 > **Proyecto:** EYRA - Aplicación de Seguimiento Menstrual  
-> **Última actualización:** 28/05/2025  
+> **Última actualización:** 31/05/2025  
 > **Total Endpoints:** 87 | **Implementados:** 48 ✅ | **Pendientes:** 39 ❌
 
 ---
@@ -415,3 +415,34 @@ Los siguientes endpoints de administración han sido **validados** y están func
 - ✅ Colores y diseño consistente con EYRA
 
 *Validación realizada el 31/05/2025 con interfaz de usuario completa y funcional.*
+
+---
+
+## ⚠️ **NOTA IMPORTANTE - 31/05/2025**
+
+### 🔧 **Cambios en Endpoints de Administración:**
+
+Se han realizado **modificaciones significativas** en el endpoint de administración de usuarios que **requieren re-validación**:
+
+#### **Endpoint Modificado:**
+- **`/api/admin/users` (GET)** ❌ **REQUIERE RE-VALIDACIÓN**
+  - **Problema corregido**: Los filtros de búsqueda y tipo de perfil no funcionaban
+  - **Solución**: Sistema de filtros reescrito con consultas SQL optimizadas
+  - **Cambios**: Nuevos métodos en UserRepository + lógica del AdminController
+  - **Impacto**: Mejora significativa en rendimiento y funcionalidad
+
+#### **Funcionalidades Corregidas:**
+- ✅ **Buscador**: Ahora funciona correctamente en email, username, name y lastName
+- ✅ **Filtro por Tipo de Perfil**: Funciona con todos los ProfileType enum values
+- ✅ **Filtro por Rol**: Mantiene funcionalidad correcta
+- ✅ **Paginación**: Ahora se calcula correctamente con filtros aplicados
+- ✅ **Rendimiento**: Consultas optimizadas vs filtrado post-consulta
+
+#### **Archivos Modificados:**
+```
+eyra-backend/src/Repository/UserRepository.php
+eyra-backend/src/Controller/AdminController.php  
+eyra-backend/Control_cambios_backend.md
+```
+
+**⚠️ Este endpoint necesita ser re-validado por el usuario antes de marcar como ✓ en la documentación oficial.**

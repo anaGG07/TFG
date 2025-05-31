@@ -255,6 +255,7 @@ class AdminController extends AbstractController
      * @return JsonResponse Lista paginada de usuarios
      * 
      * ! 28/05/2025 - Implementado endpoint para listar usuarios con filtros para administradores
+     * ! 31/05/2025 - Corregido sistema de filtros para que funcionen correctamente buscador y filtro por tipo de perfil
      */
     #[Route('/users', name: 'admin_list_users', methods: ['GET'])]
     public function listUsers(Request $request): JsonResponse
@@ -274,57 +275,35 @@ class AdminController extends AbstractController
             // Calcular offset para paginación
             $offset = ($page - 1) * $limit;
 
-            // Crear criterios de filtrado
-            $criteria = [];
-
-            // Si se proporciona un rol específico
-            if ($role) {
-                // No se puede filtrar directamente por rol en DQL simple, se manejará en PHP
-            }
-
-            // Si se proporciona un tipo de perfil
+            // Procesar filtro de tipo de perfil
+            $profileTypeEnum = null;
             if ($profileType) {
                 try {
                     $profileTypeEnum = ProfileType::from($profileType);
-                    $criteria['profileType'] = $profileTypeEnum;
                 } catch (ValueError $e) {
-                    // Ignorar filtro de profileType si es inválido
                     $this->logger->warning('Filtro de profileType inválido', [
-                        'valor_proporcionado' => $profileType
+                        'valor_proporcionado' => $profileType,
+                        'valores_validos' => array_map(fn($case) => $case->value, ProfileType::cases())
                     ]);
+                    // No establecer profileTypeEnum si es inválido
                 }
             }
 
-            // Obtener total de usuarios que coinciden con los criterios
-            $total = $this->userRepository->count($criteria);
+            // Obtener total de usuarios que coinciden con los criterios de filtrado
+            $total = $this->userRepository->countUsersWithFilters(
+                $search,
+                $role,
+                $profileTypeEnum
+            );
 
-            // Obtener usuarios paginados
-            $users = $this->userRepository->findBy(
-                $criteria,
-                ['id' => 'ASC'],
+            // Obtener usuarios paginados con filtros aplicados
+            $users = $this->userRepository->findUsersWithFilters(
+                $search,
+                $role,
+                $profileTypeEnum,
                 $limit,
                 $offset
             );
-
-            // Filtrar por rol si es necesario (no se puede hacer en la consulta directa)
-            if ($role) {
-                $users = array_filter($users, function (User $user) use ($role) {
-                    return in_array($role, $user->getRoles());
-                });
-            }
-
-            // Filtrar por búsqueda si se proporciona
-            if ($search) {
-                $search = strtolower($search);
-                $users = array_filter($users, function (User $user) use ($search) {
-                    return (
-                        str_contains(strtolower($user->getEmail()), $search) ||
-                        str_contains(strtolower($user->getUsername()), $search) ||
-                        str_contains(strtolower($user->getName()), $search) ||
-                        str_contains(strtolower($user->getLastName()), $search)
-                    );
-                });
-            }
 
             // Transformar usuarios en formato JSON
             $usersData = array_map(function (User $user) {
@@ -353,8 +332,13 @@ class AdminController extends AbstractController
                 'adminId' => $adminId,
                 'page' => $page,
                 'limit' => $limit,
+                'filtros' => [
+                    'search' => $search,
+                    'role' => $role,
+                    'profileType' => $profileType
+                ],
                 'totalUsers' => $total,
-                'filteredUsers' => count($usersData)
+                'returnedUsers' => count($usersData)
             ]);
 
             return $this->json([

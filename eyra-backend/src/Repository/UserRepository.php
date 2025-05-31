@@ -3,10 +3,10 @@
 namespace App\Repository;
 
 use App\Entity\User;
+use App\Enum\ProfileType;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
-
-
+use Doctrine\ORM\QueryBuilder;
 
 /**
  * @extends ServiceEntityRepository<User>
@@ -38,6 +38,79 @@ class UserRepository extends ServiceEntityRepository
 
         if ($flush) {
             $this->getEntityManager()->flush();
+        }
+    }
+
+    /**
+     * ! 31/05/2025 - Método para búsqueda avanzada de usuarios con filtros para el panel de administración
+     */
+    public function findUsersWithFilters(
+        ?string $search = null,
+        ?string $role = null,
+        ?ProfileType $profileType = null,
+        int $limit = 20,
+        int $offset = 0
+    ): array {
+        $qb = $this->createQueryBuilder('u');
+        
+        $this->applyFilters($qb, $search, $role, $profileType);
+        
+        return $qb
+            ->orderBy('u.id', 'ASC')
+            ->setMaxResults($limit)
+            ->setFirstResult($offset)
+            ->getQuery()
+            ->getResult();
+    }
+
+    /**
+     * ! 31/05/2025 - Método para contar usuarios con filtros aplicados
+     */
+    public function countUsersWithFilters(
+        ?string $search = null,
+        ?string $role = null,
+        ?ProfileType $profileType = null
+    ): int {
+        $qb = $this->createQueryBuilder('u')
+            ->select('COUNT(u.id)');
+        
+        $this->applyFilters($qb, $search, $role, $profileType);
+        
+        return (int) $qb->getQuery()->getSingleScalarResult();
+    }
+
+    /**
+     * ! 31/05/2025 - Método privado para aplicar filtros comunes a las consultas
+     */
+    private function applyFilters(
+        QueryBuilder $qb,
+        ?string $search = null,
+        ?string $role = null,
+        ?ProfileType $profileType = null
+    ): void {
+        // Filtro de búsqueda por texto
+        if ($search) {
+            $qb->andWhere(
+                $qb->expr()->orX(
+                    $qb->expr()->like('LOWER(u.email)', ':search'),
+                    $qb->expr()->like('LOWER(u.username)', ':search'),
+                    $qb->expr()->like('LOWER(u.name)', ':search'),
+                    $qb->expr()->like('LOWER(u.lastName)', ':search')
+                )
+            )
+            ->setParameter('search', '%' . strtolower($search) . '%');
+        }
+
+        // Filtro por tipo de perfil
+        if ($profileType) {
+            $qb->andWhere('u.profileType = :profileType')
+               ->setParameter('profileType', $profileType);
+        }
+
+        // Filtro por rol - utilizamos operador JSON para PostgreSQL
+        if ($role) {
+            $qb->andWhere('u.roles::text LIKE :role')
+               ->setParameter('role', '%"' . $role . '"%');
         }
     }
 

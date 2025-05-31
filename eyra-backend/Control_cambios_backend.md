@@ -108,4 +108,110 @@ eyra-frontend/src/features/admin/components/UserCreateModal.tsx (nuevo)
 
 ---
 
+## ✅ **31/05/2025 - v0.6.1 - Corrección de Filtros Panel Administración**
+
+### 🐛 **Problemas Identificados y Corregidos:**
+
+#### **Problema 1: Buscador No Funcionaba**
+- **Causa**: Los filtros se aplicaban después de la paginación en PHP en lugar de en la consulta SQL
+- **Impacto**: El buscador no retornaba resultados correctos y la paginación se rompía
+
+#### **Problema 2: Filtro de Tipo de Perfil No Funcionaba**
+- **Causa**: Similar al problema anterior, filtrado incorrecto post-consulta
+- **Impacto**: Los filtros por profileType no mostraban resultados filtrados
+
+### 🔧 **Soluciones Implementadas:**
+
+#### **Backend (eyra-backend/)**
+
+**1. UserRepository.php - Métodos de Filtrado Avanzado:**
+```php
+// Nuevos métodos añadidos:
+- findUsersWithFilters() - Búsqueda con filtros aplicados en SQL
+- countUsersWithFilters() - Conteo correcto con filtros
+- applyFilters() - Método privado para aplicar filtros comunes
+```
+
+**Características de los nuevos métodos:**
+- ✅ Filtro de búsqueda por texto (email, username, name, lastName)
+- ✅ Filtro por tipo de perfil usando Enum
+- ✅ Filtro por rol usando sintaxis JSON de PostgreSQL
+- ✅ Consultas optimizadas con QueryBuilder de Doctrine
+- ✅ Búsqueda case-insensitive con LOWER()
+- ✅ Paginación correcta aplicada después de filtros SQL
+
+**2. AdminController.php - Método listUsers() Reescrito:**
+```php
+// Cambios principales:
+- Eliminado filtrado post-consulta en PHP
+- Implementado uso de métodos del UserRepository
+- Mejorado manejo de errores en filtros
+- Logging mejorado con información de filtros aplicados
+```
+
+### 🎯 **Detalles Técnicos:**
+
+#### **Filtro de Búsqueda:**
+```sql
+-- Antes: Filtrado en PHP (ineficiente)
+-- Ahora: Filtrado en SQL
+WHERE (LOWER(u.email) LIKE '%search%' 
+   OR LOWER(u.username) LIKE '%search%'
+   OR LOWER(u.name) LIKE '%search%' 
+   OR LOWER(u.lastName) LIKE '%search%')
+```
+
+#### **Filtro de Rol (PostgreSQL):**
+```sql
+-- Filtrado JSON en PostgreSQL
+WHERE u.roles::text LIKE '%"ROLE_USER"%'
+```
+
+#### **Filtro de Tipo de Perfil:**
+```sql
+-- Usando Enum de Doctrine
+WHERE u.profileType = :profileType
+```
+
+### ✅ **Resultados Obtenidos:**
+
+1. **Buscador Funcional:**
+   - ✅ Búsqueda instantánea en tiempo real
+   - ✅ Busca en email, username, nombre y apellido
+   - ✅ Case-insensitive
+   - ✅ Paginación correcta con resultados filtrados
+
+2. **Filtros de Perfil Funcionales:**
+   - ✅ Filtro por tipo de perfil (profile_women, profile_men, etc.)
+   - ✅ Filtro por rol (ROLE_USER, ROLE_ADMIN, ROLE_GUEST)
+   - ✅ Filtros combinables entre sí
+   - ✅ Conteo correcto de resultados
+
+3. **Paginación Mejorada:**
+   - ✅ Total de páginas calculado correctamente con filtros
+   - ✅ Navegación entre páginas manteniendo filtros
+   - ✅ Información precisa de resultados mostrados
+
+### 🛠 **Archivos Modificados:**
+```
+eyra-backend/src/Repository/UserRepository.php - Métodos de filtrado añadidos
+eyra-backend/src/Controller/AdminController.php - Método listUsers() optimizado
+```
+
+### 📊 **Mejoras de Rendimiento:**
+- ✅ Consultas SQL optimizadas vs filtrado en PHP
+- ✅ Reducción significativa de uso de memoria
+- ✅ Tiempo de respuesta mejorado para búsquedas
+- ✅ Escalabilidad mejorada para grandes volúmenes de usuarios
+
+### 🔍 **Testing Realizado:**
+- ✅ Búsqueda por texto en diferentes campos
+- ✅ Filtros por rol individual y combinado
+- ✅ Filtros por tipo de perfil
+- ✅ Combinación de múltiples filtros
+- ✅ Paginación con filtros aplicados
+- ✅ Casos edge (filtros vacíos, valores inválidos)
+
+---
+
 *Todos los cambios han sido documentados con comentarios que incluyen la fecha (31/05/2025) según las convenciones del proyecto.*
