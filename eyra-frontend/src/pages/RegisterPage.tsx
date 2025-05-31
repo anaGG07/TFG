@@ -3,7 +3,6 @@ import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { ROUTES } from "../router/paths";
 import Blob from "../components/Blob";
-import GlassmorphicButton from "../components/Button";
 import { getRandomAvatarConfig } from '../components/avatarBuilder/randomAvatar';
 import { Eye, EyeOff, User, Mail, Calendar, Lock } from "lucide-react";
 import { toast } from "react-hot-toast";

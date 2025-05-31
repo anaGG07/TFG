@@ -225,7 +225,9 @@ export const defaultAvatarConfig: AvatarConfig = {
   glasses: "none",
   glassOpacity: "0.5",
   accessories: "none",
+  accessoryColor: "#FFD700",
   tattoos: "none",
+  tattooColor: "#000000",
   backgroundColor: "#ffffff",
 };
 
@@ -300,7 +302,9 @@ export const ensureValidAvatarConfig = (
     glasses: avatar.glasses || defaultAvatarConfig.glasses,
     glassOpacity: avatar.glassOpacity || defaultAvatarConfig.glassOpacity,
     accessories: avatar.accessories || defaultAvatarConfig.accessories,
+    accessoryColor: avatar.accessoryColor || defaultAvatarConfig.accessoryColor,
     tattoos: avatar.tattoos || defaultAvatarConfig.tattoos,
+    tattooColor: avatar.tattooColor || defaultAvatarConfig.tattooColor,
     backgroundColor:
       avatar.backgroundColor || defaultAvatarConfig.backgroundColor,
   };
@@ -342,7 +346,9 @@ export const getRandomAvatarConfig = (): AvatarConfig => {
     glasses: getRandomOption(AVATAR_OPTIONS.glasses).value,
     glassOpacity: getRandomOption(AVATAR_OPTIONS.glassOpacities).value,
     accessories: getRandomOption(AVATAR_OPTIONS.accessories).value,
+    accessoryColor: "#FFD700",
     tattoos: getRandomOption(AVATAR_OPTIONS.tattoos).value,
+    tattooColor: "#000000",
     backgroundColor: getRandomOption(AVATAR_OPTIONS.backgroundColors).value,
   };
 };

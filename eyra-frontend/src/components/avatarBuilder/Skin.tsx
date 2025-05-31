@@ -6,7 +6,7 @@ interface SkinProps {
 
 const Skin: React.FC<SkinProps> = ({ color }) => {
   return (
-    <g id="skin">
+    <g id="skin" transform="translate(0, -20)">
       {/* Cuerpo y cabeza centrados */}
       <path id="body" fill={color} d="M284 360l0 -15c0,-47 -39,-85 -106,-85l-8 0 0 -22c22,-10 37,-32 39,-57 7,-1 13,-7 13,-15l0 -15c0,-8 -6,-14 -13,-15l0 -8c0,-38 -31,-69 -69,-69l0 0c-38,0 -69,31 -69,69l0 8c-7,1 -13,7 -13,15l0 15c0,8 6,14 13,15 2,25 17,47 39,57l0 22 -8 0c-67,0 -106,38 -106,85l0 15 248 0z" />
       {/* Sombra del cuello centrada */}
