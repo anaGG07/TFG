@@ -7,6 +7,8 @@ import GlassmorphicButton from "../components/Button";
 import { getRandomAvatarConfig } from '../components/avatarBuilder/randomAvatar';
 import { Eye, EyeOff, User, Mail, Calendar, Lock } from "lucide-react";
 import { toast } from "react-hot-toast";
+import NeomorphicToast from "../components/ui/NeomorphicToast";
+import Button from "../components/Button";
 
 const RegisterPage = () => {
   const [username, setUsername] = useState("");
@@ -22,6 +24,7 @@ const RegisterPage = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [passwordStrength, setPasswordStrength] = useState(0);
+  const [activeToast, setActiveToast] = useState<string | null>(null);
 
   const { register } = useAuth();
   const navigate = useNavigate();
@@ -61,21 +64,80 @@ const RegisterPage = () => {
     setPasswordStrength(getPasswordStrength(password));
   }, [password]);
 
-  // Validación en tiempo real y toast para errores
-  useEffect(() => {
+  // Funciones de validación individuales para onBlur
+  const handleEmailBlur = () => {
     if (email && !validateEmail(email)) {
-      toast.error("Introduce un email válido");
+      if (activeToast !== "email") {
+        toast.custom((t) => (
+          <NeomorphicToast
+            message="Introduce un email válido"
+            variant="error"
+            onClose={() => {
+              toast.dismiss(t.id);
+              setActiveToast(null);
+            }}
+          />
+        ));
+        setActiveToast("email");
+      }
+    } else if (activeToast === "email") {
+      setActiveToast(null);
     }
+  };
+
+  const handlePasswordBlur = () => {
     if (password && password.length < 8) {
-      toast.error("La contraseña debe tener al menos 8 caracteres");
+      if (activeToast !== "password-length") {
+        toast.custom((t) => (
+          <NeomorphicToast
+            message="La contraseña debe tener al menos 8 caracteres"
+            variant="error"
+            onClose={() => {
+              toast.dismiss(t.id);
+              setActiveToast(null);
+            }}
+          />
+        ));
+        setActiveToast("password-length");
+      }
+    } else if (password && !isPasswordComplex(password)) {
+      if (activeToast !== "password-complex") {
+        toast.custom((t) => (
+          <NeomorphicToast
+            message="La contraseña debe tener mayúscula, minúscula, número y símbolo"
+            variant="error"
+            onClose={() => {
+              toast.dismiss(t.id);
+              setActiveToast(null);
+            }}
+          />
+        ));
+        setActiveToast("password-complex");
+      }
+    } else if (activeToast && activeToast.startsWith("password")) {
+      setActiveToast(null);
     }
-    if (password && !isPasswordComplex(password)) {
-      toast.error("La contraseña debe tener mayúscula, minúscula, número y símbolo");
-    }
+  };
+
+  const handleConfirmPasswordBlur = () => {
     if (confirmPassword && password !== confirmPassword) {
-      toast.error("Las contraseñas no coinciden");
+      if (activeToast !== "confirm-password") {
+        toast.custom((t) => (
+          <NeomorphicToast
+            message="Las contraseñas no coinciden"
+            variant="error"
+            onClose={() => {
+              toast.dismiss(t.id);
+              setActiveToast(null);
+            }}
+          />
+        ));
+        setActiveToast("confirm-password");
+      }
+    } else if (activeToast === "confirm-password") {
+      setActiveToast(null);
     }
-  }, [email, password, confirmPassword]);
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -196,6 +258,7 @@ const RegisterPage = () => {
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
+                  onBlur={handleEmailBlur}
                   className="w-full text-center pt-2 pl-8 px-4 text-[#E7E0D5] text-lg focus:outline-none focus:bg-none transition-all duration-300"
                   style={{
                     background: "transparent",
@@ -269,6 +332,7 @@ const RegisterPage = () => {
                   type={showPassword ? "text" : "password"}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
+                  onBlur={handlePasswordBlur}
                   className="w-full text-center pt-2 pl-8 pr-10 px-4 text-[#E7E0D5] text-lg focus:outline-none focus:bg-none transition-all duration-300"
                   style={{
                     background: "transparent",
@@ -314,6 +378,7 @@ const RegisterPage = () => {
                   type={showConfirmPassword ? "text" : "password"}
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
+                  onBlur={handleConfirmPasswordBlur}
                   className="w-full text-center pt-2 pl-8 pr-10 px-4 text-[#E7E0D5] text-lg focus:outline-none focus:bg-none transition-all duration-300"
                   style={{
                     background: "transparent",
@@ -393,68 +458,31 @@ const RegisterPage = () => {
           </div>
           {/* Botón con diseño moderno y control de términos */}
           <div className="flex justify-center mt-4">
-            <button
+            <Button
               type="submit"
               disabled={!isFormValid || isLoading}
-              className={`cursor-pointer group relative px-12 py-3 font-semibold text-base rounded-full overflow-hidden transition-all duration-300 transform active:scale-95 ${
-                isFormValid && !isLoading
-                  ? "hover:scale-105 shadow-[0_5px_10px_0_#00000079] hover:shadow-[0_4px_24px_0_#E7E0D540]"
-                  : "opacity-50 cursor-not-allowed transform-none hover:transform-none"
-              }`}
-              style={{
-                color: "#E7E0D5",
-              }}
+              isLoading={isLoading}
+              variant="primary"
+              size="large"
+              className="group"
             >
-              {/* Contenido del botón */}
-              <span className="relative z-10 flex items-center justify-center gap-2">
-                {isLoading ? (
-                  <>
-                    <svg
-                      className="animate-spin w-4 h-4"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                    >
-                      <circle
-                        className="opacity-25"
-                        cx="12"
-                        cy="12"
-                        r="10"
-                        stroke="currentColor"
-                        strokeWidth="4"
-                      />
-                      <path
-                        className="opacity-75"
-                        fill="currentColor"
-                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                      />
-                    </svg>
-                    Creando cuenta...
-                  </>
-                ) : (
-                  <>
-                    Crear cuenta
-                    <svg
-                      className={`w-4 h-4 transition-transform duration-300 ${
-                        isFormValid && !isLoading ? "group-hover:translate-x-1" : ""
-                      }`}
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M9 5l7 7-7 7"
-                      />
-                    </svg>
-                  </>
-                )}
-              </span>
-
-              {/* Sombra interna */}
-              <div className="absolute inset-0 rounded-full" />
-            </button>
+              Crear cuenta
+              <svg
+                className={`w-4 h-4 transition-transform duration-300 ${
+                  isFormValid && !isLoading ? "group-hover:translate-x-1" : ""
+                }`}
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M9 5l7 7-7 7"
+                />
+              </svg>
+            </Button>
           </div>
         </form>
 
