@@ -44,11 +44,46 @@ const ProfilePage: React.FC = () => {
 
   if (!user) return null;
 
-  // GARANTIZAR que siempre hay avatar válido
-  const avatarConfig =
-    user.avatar && typeof user.avatar === "object"
-      ? user.avatar
-      : defaultAvatarConfig;
+  // Solo usar default si NO hay avatar o está completamente vacío
+  const getAvatarConfig = () => {
+    // Si no hay objeto avatar en absoluto
+    if (!user.avatar || typeof user.avatar !== "object") {
+      console.log("No hay avatar object, usando default");
+      return defaultAvatarConfig;
+    }
+
+    // Si existe el objeto, verificar si tiene al menos UN campo con contenido
+    const hasAnyContent = Object.values(user.avatar).some(
+      (value) => value && typeof value === "string" && value.trim() !== ""
+    );
+
+    if (!hasAnyContent) {
+      console.log("Avatar sin contenido, usando default");
+      return defaultAvatarConfig;
+    }
+
+    
+    console.log("Usando avatar de BD:", user.avatar);
+    return user.avatar;
+  };
+
+  const avatarConfig = getAvatarConfig();
+
+  console.log('=== DEBUGGING AVATAR ===');
+  console.log('user.avatar:', user?.avatar);
+  console.log('typeof user.avatar:', typeof user?.avatar);
+  if (user?.avatar) {
+    console.log('Campos del avatar:');
+    Object.keys(user.avatar).forEach(key => {
+      const typedKey = key as keyof typeof user.avatar;
+      console.log(`${key}: "${user.avatar[typedKey]}"`);
+    });
+    console.log('¿Tiene contenido?', Object.values(user.avatar).some(value => 
+      value && typeof value === 'string' && value.trim() !== ''
+    ));
+  }
+  console.log('Avatar final usado:', avatarConfig);
+  console.log('========================');
 
   return (
     <div className="container mx-auto px-4 py-8">

@@ -116,6 +116,22 @@ const ProfileTabsModal: React.FC<ProfileTabsModalProps> = ({
   const [error, setError] = useState<string | null>(null);
   const [isAvatarBuilderOpen, setIsAvatarBuilderOpen] = useState(false);
 
+  const getAvatarConfig = () => {
+    if (!form.avatar || typeof form.avatar !== 'object') {
+      return defaultAvatarConfig;
+    }
+    
+    const hasAnyContent = Object.values(form.avatar).some(value => 
+      value && typeof value === 'string' && value.trim() !== ''
+    );
+    
+    if (!hasAnyContent) {
+      return defaultAvatarConfig;
+    }
+    
+    return form.avatar;
+  };
+
   // Sincroniza el estado local del formulario con el usuario global cada vez que el modal se abre o el usuario cambia
   useEffect(() => {
     if (isOpen && user) {
@@ -206,7 +222,7 @@ const ProfileTabsModal: React.FC<ProfileTabsModalProps> = ({
           {/* Avatar con icono de edición */}
           <div className="relative mb-6">
             <div className="w-28 h-28 rounded-full overflow-hidden flex items-center justify-center bg-gray-100">
-              <AvatarPreview config={form.avatar || defaultAvatarConfig} className="w-full h-full" />
+              <AvatarPreview config={getAvatarConfig()} className="w-full h-full" />
               <button
                 type="button"
                 onClick={() => setIsAvatarBuilderOpen(true)}
