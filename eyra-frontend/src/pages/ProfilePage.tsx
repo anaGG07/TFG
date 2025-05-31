@@ -1,11 +1,11 @@
-import React, { useState } from 'react';
-import { useAuth } from '../context/AuthContext';
-import { NeomorphicButton } from '../components/ui/NeomorphicComponents';
-import { motion } from 'framer-motion';
-import ProfileTabsModal from '../components/ProfileTabsModal';
-import { userService } from '../services/userService';
-import { toast } from 'react-hot-toast';
-import AvatarPreview from '../components/avatarBuilder/AvatarPreview';
+import React, { useState } from "react";
+import { useAuth } from "../context/AuthContext";
+import { NeomorphicButton } from "../components/ui/NeomorphicComponents";
+import { motion } from "framer-motion";
+import ProfileTabsModal from "../components/ProfileTabsModal";
+import { userService } from "../services/userService";
+import { toast } from "react-hot-toast";
+import AvatarPreview from "../components/avatarBuilder/AvatarPreview";
 
 const ProfilePage: React.FC = () => {
   const { user, checkAuth } = useAuth();
@@ -13,13 +13,12 @@ const ProfilePage: React.FC = () => {
 
   const handleSave = async (data: any) => {
     if (!user) return;
-    // Actualizar perfil
+    // Actualizar perfil SIN avatar (el avatar se guarda por separado)
     await userService.updateProfile({
       name: data.name,
       lastName: data.lastName,
       username: data.username,
       birthDate: data.birthDate,
-      avatar: data.avatar,
     });
     await userService.updateOnboarding({
       receiveAlerts: data.receiveAlerts,
@@ -29,12 +28,17 @@ const ProfilePage: React.FC = () => {
     });
     // Refrescar usuario desde backend para asegurar datos actualizados
     await checkAuth();
-    toast.custom(() => (
-      <div className="rounded-2xl px-6 py-4 shadow-xl bg-[#fff] border border-[#C62328]/20 flex items-center gap-3 animate-fade-in">
-        <span className="text-2xl">✅</span>
-        <span className="text-[#7a2323] font-semibold">¡Perfil actualizado con éxito!</span>
-      </div>
-    ), { duration: 3000 });
+    toast.custom(
+      () => (
+        <div className="rounded-2xl px-6 py-4 shadow-xl bg-[#fff] border border-[#C62328]/20 flex items-center gap-3 animate-fade-in">
+          <span className="text-2xl">✅</span>
+          <span className="text-[#7a2323] font-semibold">
+            ¡Perfil actualizado con éxito!
+          </span>
+        </div>
+      ),
+      { duration: 3000 }
+    );
   };
 
   if (!user) return null;
@@ -51,12 +55,12 @@ const ProfilePage: React.FC = () => {
         <div className="bg-white rounded-3xl shadow-lg p-8 mb-8">
           <div className="flex flex-col items-center gap-6">
             {/* Avatar */}
-            <div className="w-32 h-32 rounded-full overflow-hidden flex items-center justify-center">
+            <div className="w-32 h-32 rounded-full overflow-hidden flex items-center justify-center bg-gray-100">
               {user.avatar ? (
                 <AvatarPreview config={user.avatar} className="w-full h-full" />
               ) : (
                 <span className="text-4xl text-white font-bold">
-                  {user.username?.charAt(0)?.toUpperCase() || 'U'}
+                  {user.username?.charAt(0)?.toUpperCase() || "U"}
                 </span>
               )}
             </div>
