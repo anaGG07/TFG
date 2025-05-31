@@ -38,17 +38,6 @@ const RootContent = () => {
   // Determinar qué navegación mostrar basado en el rol
   const NavigationComponent = user?.roles?.includes("ROLE_ADMIN") ? AdminNavigation : CircularNavigation;
 
-  console.log("RootLayout: Navegación:", {
-    shouldShow: shouldShowNavigation,
-    path: location.pathname,
-    isAuthenticated,
-    onboardingCompleted: user?.onboardingCompleted,
-    userRoles: user?.roles,
-    userObject: user,
-    routeMatches: AUTHENTICATED_ROUTES.map(route => ({ route, matches: location.pathname.startsWith(route) })),
-    needsNavigationResult: needsNavigation(location.pathname),
-  });
-
   return (
     <CycleProvider>
       {shouldShowNavigation ? (

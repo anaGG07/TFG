@@ -162,7 +162,7 @@ const AdminIcon = ({ className }: { className?: string }) => (
   </svg>
 );
 
-const CircularNavigation: React.FC = () => {
+const AdminNavigation: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { user } = useAuth();
@@ -174,7 +174,7 @@ const CircularNavigation: React.FC = () => {
 
   const blobRef = useRef<HTMLDivElement>(null);
 
-  // Configuración de elementos de navegación con iconos SVG actualizados
+  // ! 31/05/2025 - Configuración específica para administradores con botón de admin visible
   const navigationItems: NavigationItem[] = [
     {
       id: "dashboard",
@@ -225,18 +225,27 @@ const CircularNavigation: React.FC = () => {
       route: "",
       color: "#360001",
     },
-    {
-      id: "admin",
-      label: "Administración",
-      icon: AdminIcon,
-      route: "/admin",
-      color: "#1A0001",
-    },
   ];
+
+  // ! 31/05/2025 - Botón de administración siempre visible para admins
+  const adminButton = {
+    id: "admin",
+    label: "Panel Admin",
+    icon: AdminIcon,
+    route: "/admin",
+    color: "#1A0001",
+  };
 
   // Detectar ruta actual y establecer índice
   useEffect(() => {
     const currentPath = location.pathname;
+    
+    // Verificar si estamos en el panel de admin
+    if (currentPath.startsWith('/admin')) {
+      setCurrentIndex(-1); // Índice especial para admin
+      return;
+    }
+    
     const index = navigationItems.findIndex(
       (item) => item.route === currentPath
     );
@@ -257,6 +266,12 @@ const CircularNavigation: React.FC = () => {
 
   // Manejar selección de item
   const selectItem = (index: number) => {
+    if (index === -1) {
+      // Admin button
+      navigate(adminButton.route);
+      return;
+    }
+    
     const item = navigationItems[index];
     if (item.id === "logout") {
       handleLogout();
@@ -275,17 +290,9 @@ const CircularNavigation: React.FC = () => {
       };
     }
 
-    // Si es el botón de admin, posición fija abajo
-    if (itemId === "admin") {
-      return {
-        x: 119,
-        y: 200,
-      };
-    }
-
-    // Para los demás elementos, calcular posición circular excluyendo la IA y admin
+    // Para los demás elementos, calcular posición circular excluyendo la IA
     const circularItems = navigationItems.filter(
-      (item) => item.id !== "ai-assistant" && item.id !== "admin"
+      (item) => item.id !== "ai-assistant"
     );
     const circularIndex = circularItems.findIndex(
       (item) => item.id === navigationItems[index].id
@@ -310,17 +317,31 @@ const CircularNavigation: React.FC = () => {
   // Determinar qué texto mostrar
   const getDisplayText = () => {
     if (!isVisible) {
-      return user?.name || "Usuario";
+      return user?.name || "Admin";
+    }
+    if (hoveredIndex === -1) {
+      return adminButton.label;
     }
     if (hoveredIndex !== null) {
       return navigationItems[hoveredIndex]?.label;
     }
+    if (currentIndex === -1) {
+      return adminButton.label;
+    }
     return navigationItems[currentIndex]?.label;
+  };
+
+  // Obtener color actual
+  const getCurrentColor = () => {
+    if (currentIndex === -1) {
+      return adminButton.color;
+    }
+    return navigationItems[currentIndex]?.color || "#C62328";
   };
 
   return (
     <div
-      className="fixed top-2 left-2 w-[250px] h-[250px] z-50"
+      className="fixed top-2 left-2 w-[250px] h-[300px] z-50"
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
     >
@@ -329,7 +350,7 @@ const CircularNavigation: React.FC = () => {
         <Blob
           width={250}
           height={250}
-          color={navigationItems[currentIndex]?.color || "#C62328"}
+          color={getCurrentColor()}
           radius={110}
         />
       </div>
@@ -370,6 +391,31 @@ const CircularNavigation: React.FC = () => {
           );
         })}
 
+      {/* ! 31/05/2025 - Botón de administración fijo en la parte inferior */}
+      <div
+        className={`absolute transition-all duration-300 ease-out transform
+        ${currentIndex === -1 ? "scale-110 z-30" : "scale-100 z-20"}
+        ${hoveredIndex === -1 ? "scale-125" : ""}`}
+        style={{
+          left: `${119 - 20}px`,
+          top: `${250}px`,
+          opacity: currentIndex === -1 || hoveredIndex === -1 ? 1 : 0.8,
+        }}
+        onMouseEnter={() => setHoveredIndex(-1)}
+        onMouseLeave={() => setHoveredIndex(null)}
+      >
+        <div
+          className={`w-14 h-14 rounded-full flex items-center justify-center text-white font-bold
+          ${currentIndex === -1 || hoveredIndex === -1 ? "bg-opacity-40 ring-2 ring-white ring-opacity-50" : "bg-opacity-20"}
+          cursor-pointer hover:bg-opacity-50 transition-all duration-200 shadow-lg
+        `}
+          style={{ backgroundColor: adminButton.color }}
+          onClick={() => selectItem(-1)}
+        >
+          <adminButton.icon className="w-12 h-12 text-white" />
+        </div>
+      </div>
+
       {/* Texto central dinámico - Solo cuando NO está visible el menú */}
       <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-30 pointer-events-none">
         <div className="text-center">
@@ -378,13 +424,13 @@ const CircularNavigation: React.FC = () => {
               isVisible ? "opacity-0" : "opacity-100"
             }`}
           >
-            {!isVisible ? user?.name || "Usuario" : ""}
+            {!isVisible ? user?.name || "Admin" : ""}
           </p>
         </div>
       </div>
 
       {/* Texto del elemento actual/hover */}
-      <div className="absolute top-60 left-1/2 transform -translate-x-1/2 mt-3">
+      <div className="absolute top-72 left-1/2 transform -translate-x-1/2 mt-3">
         <p
           className={`text-xl font-semibold text-[#C62328] capitalize drop-shadow-sm transition-all duration-300 text-center ${
             isVisible ? "opacity-100" : "opacity-0"
@@ -397,4 +443,4 @@ const CircularNavigation: React.FC = () => {
   );
 };
 
-export default CircularNavigation;
+export default AdminNavigation;
