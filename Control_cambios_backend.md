@@ -14,7 +14,9 @@ Este documento registra todos los cambios realizados durante el desarrollo del b
 | UserViewModal.tsx | Creado modal para visualizar detalles completos de usuario | Componente | Nueva funcionalidad |
 | UserEditModal.tsx | Creado modal para editar usuarios con formulario completo y validaciones | Componente | Nueva funcionalidad |
 | AdminStats.tsx | Creado componente de estadísticas con métricas visuales y gráficos circulares | Componente | Nueva funcionalidad |
-| AdminPage.tsx | Completamente rediseñado con sistema de pestañas y gestión completa de usuarios | Página | Refactorización completa |
+| AdminPage.tsx | Simplificado para resolver conflictos de tipos, mantiene estructura básica funcional | Página | Corrección temporal |
+| CreateAdminCommand.php | Creado comando de consola para crear usuarios administradores fácilmente | Comando | Nueva funcionalidad |
+| create_admin.sql | Script SQL para crear usuarios administradores manualmente en la base de datos | Script | Nueva funcionalidad |
 
 ## v0.4.0 - 28/05/2025
 
