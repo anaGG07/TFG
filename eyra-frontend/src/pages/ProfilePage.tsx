@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useAuth } from "../context/AuthContext";
-import { NeomorphicButton, NeomorphicCard } from "../components/ui/NeomorphicComponents";
+import { NeomorphicButton } from "../components/ui/NeomorphicComponents";
 import { motion, AnimatePresence } from "framer-motion";
 import { userService } from "../services/userService";
 import { toast } from "react-hot-toast";
@@ -115,12 +115,6 @@ const ProfilePage: React.FC = () => {
     try {
       const { avatar, currentPassword, newPassword, confirmPassword, ...formWithoutAvatar } = form;
       await userService.updateProfile(formWithoutAvatar);
-      await userService.updateOnboarding({
-        receiveAlerts: form.receiveAlerts,
-        receiveRecommendations: form.receiveRecommendations,
-        receiveWorkoutSuggestions: form.receiveWorkoutSuggestions,
-        receiveNutritionAdvice: form.receiveNutritionAdvice,
-      });
       await checkAuth();
       showCustomToast("¡Perfil actualizado con éxito!", "success");
     } catch (err: any) {
@@ -159,6 +153,26 @@ const ProfilePage: React.FC = () => {
     } catch (err: any) {
       showCustomToast(err.message || "Error al cambiar la contraseña", "error");
       setError(err.message || "Error al cambiar la contraseña");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Guardar preferencias de notificaciones
+  const handleSaveNotifications = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    try {
+      await userService.updateOnboardingPartial({
+        receiveAlerts: form.receiveAlerts,
+        receiveRecommendations: form.receiveRecommendations,
+        receiveWorkoutSuggestions: form.receiveWorkoutSuggestions,
+        receiveNutritionAdvice: form.receiveNutritionAdvice,
+      });
+      await checkAuth();
+      showCustomToast("¡Preferencias de notificaciones actualizadas!", "success");
+    } catch (err: any) {
+      showCustomToast(err.message || "Error al guardar las notificaciones", "error");
     } finally {
       setLoading(false);
     }
@@ -346,7 +360,7 @@ const ProfilePage: React.FC = () => {
                       form={form}
                       loading={loading}
                       handleChange={handleChange}
-                      handleSave={handleSave}
+                      handleSave={handleSaveNotifications}
                     />
                   </motion.div>
                 )}

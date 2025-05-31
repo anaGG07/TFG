@@ -496,4 +496,52 @@ class OnboardingController extends AbstractController
             ], 500);
         }
     }
+
+    /**
+     * Actualizar parcialmente el onboarding del usuario autenticado
+     */
+    #[Route('/onboarding', name: 'api_onboarding_update', methods: ['PUT'])]
+    public function updateOnboarding(Request $request, EntityManagerInterface $em): JsonResponse
+    {
+        /** @var User|null $user */
+        $user = $this->getUser();
+
+        if (!$user instanceof User) {
+            return $this->json(['message' => 'No autenticado'], 401);
+        }
+
+        $data = json_decode($request->getContent(), true);
+
+        $onboarding = $em->getRepository(Onboarding::class)->findOneBy(['user' => $user]);
+        if (!$onboarding) {
+            return $this->json(['message' => 'No existe registro de onboarding para este usuario'], 404);
+        }
+
+        $updatableFields = [
+            'receiveAlerts', 'receiveRecommendations', 'receiveWorkoutSuggestions', 'receiveNutritionAdvice',
+            'receiveCyclePhaseTips', 'shareCycleWithPartner', 'wantAiCompanion', 'allowParentalMonitoring',
+            'healthConcerns', 'commonSymptoms', 'accessCode', 'pronouns', 'isPersonal'
+        ];
+
+        foreach ($updatableFields as $field) {
+            if (array_key_exists($field, $data)) {
+                $setter = 'set' . ucfirst($field);
+                if (method_exists($onboarding, $setter)) {
+                    $onboarding->$setter($data[$field]);
+                }
+            }
+        }
+
+        $onboarding->setUpdatedAt(new \DateTime());
+        $em->persist($onboarding);
+        $em->flush();
+
+        return $this->json([
+            'message' => 'Onboarding actualizado correctamente',
+            'onboarding' => [
+                'id' => $onboarding->getId(),
+                // ...otros campos que quieras devolver
+            ]
+        ]);
+    }
 }

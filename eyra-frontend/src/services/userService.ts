@@ -44,4 +44,11 @@ export const userService = {
       body: data,
     });
   },
+
+  async updateOnboardingPartial(data: Partial<User["onboarding"]>): Promise<User> {
+    return apiFetch(API_ROUTES.AUTH.ONBOARDING, {
+      method: "PUT",
+      body: data,
+    });
+  },
 };
