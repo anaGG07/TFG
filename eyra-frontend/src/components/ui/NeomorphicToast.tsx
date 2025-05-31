@@ -7,6 +7,7 @@ interface NeomorphicToastProps {
   variant: "success" | "error";
   onClose?: () => void;
   subtitle?: string;
+  duration?: number; // en ms
 }
 
 const colors = {
@@ -30,7 +31,15 @@ const variants = {
   exit: { y: 100, opacity: 0, scale: 0.8, transition: { duration: 0.3 } },
 };
 
-const NeomorphicToast: React.FC<NeomorphicToastProps> = ({ message, variant, onClose, subtitle }) => {
+const NeomorphicToast: React.FC<NeomorphicToastProps> = ({ message, variant, onClose, subtitle, duration = 3000 }) => {
+  React.useEffect(() => {
+    if (!onClose) return;
+    const timer = setTimeout(() => {
+      onClose();
+    }, duration);
+    return () => clearTimeout(timer);
+  }, [onClose, duration]);
+
   return (
     <AnimatePresence>
       <motion.div

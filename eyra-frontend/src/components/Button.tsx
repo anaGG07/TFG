@@ -32,19 +32,20 @@ const Button: React.FC<ButtonProps> = ({
 
   const variantClasses = {
     primary: `
-      bg-white/15 border-white/20 text-[#E7E0D5] 
-      hover:bg-white/25 hover:border-white/30 hover:scale-105 hover:shadow-[0_8px_32px_rgba(231,224,213,0.2)]
-      active:scale-95 active:bg-white/20
-      focus:outline-none focus:ring-2 focus:ring-white/30
+      bg-[#e7e0d5]/30 border-[#e7e0d5]/60 text-[#e7e0d5]
+      hover:bg-[#e7e0d5]/50 hover:border-[#e7e0d5]/80 hover:scale-105 hover:shadow-[0_8px_32px_rgba(231,224,213,0.5)]
+      active:scale-95 active:bg-[#e7e0d5]/40
+      focus:outline-none focus:ring-2 focus:ring-[#e7e0d5]/60
+      shadow-[0_4px_24px_0_#E7E0D5] 
     `,
     secondary: `
-      bg-[#E7E0D5]/15 border-[#E7E0D5]/20 text-[#E7E0D5] 
+      bg-[#E7E0D5]/15 border-[#E7E0D5]/20 text-[#E7E0D5]
       hover:bg-[#E7E0D5]/25 hover:border-[#E7E0D5]/30 hover:scale-105 hover:shadow-[0_8px_32px_rgba(231,224,213,0.3)]
       active:scale-95 active:bg-[#E7E0D5]/20
       focus:outline-none focus:ring-2 focus:ring-[#E7E0D5]/30
     `,
     outline: `
-      bg-transparent border-[#E7E0D5]/40 text-[#E7E0D5] 
+      bg-transparent border-[#E7E0D5]/40 text-[#E7E0D5]
       hover:bg-white/10 hover:border-[#E7E0D5]/60 hover:scale-105 hover:shadow-[0_8px_32px_rgba(231,224,213,0.15)]
       active:scale-95 active:bg-white/5
       focus:outline-none focus:ring-2 focus:ring-[#E7E0D5]/30
