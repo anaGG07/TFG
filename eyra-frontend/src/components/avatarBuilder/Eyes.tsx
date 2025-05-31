@@ -4,27 +4,17 @@ const Eyes: React.FC<{ type: string }> = ({ type }) => {
   switch (type) {
     case "default":
       return (
-        <>
-          <ellipse cx="135" cy="170" rx="7" ry="7" fill="#222" />
-          <ellipse cx="185" cy="170" rx="7" ry="7" fill="#222" />
-        </>
+        <g>
+          <circle fill="#000000" fillOpacity="0.7" cx="148" cy="153" r="8" />
+          <circle fill="#000000" fillOpacity="0.7" cx="212" cy="153" r="8" />
+        </g>
       );
     case "dizzy":
       return (
-        <>
-          <path
-            d="M130 165 L140 175 M140 165 L130 175"
-            stroke="#222"
-            strokeWidth="3"
-            fill="none"
-          />
-          <path
-            d="M180 165 L190 175 M190 165 L180 175"
-            stroke="#222"
-            strokeWidth="3"
-            fill="none"
-          />
-        </>
+        <g>
+          <polygon fill="#000000" fillOpacity="0.7" stroke="#5F4A37" strokeWidth="0.9" points="139,141 146,149 154,141 157,145 150,152 157,160 154,163 146,156 139,163 135,160 143,152 135,145 " />
+          <polygon fill="#000000" fillOpacity="0.7" points="206,141 213,149 221,141 224,145 217,152 224,160 221,163 213,156 206,163 202,160 210,152 202,145 " />
+        </g>
       );
     case "eyeroll":
       return (
@@ -156,12 +146,7 @@ const Eyes: React.FC<{ type: string }> = ({ type }) => {
         </>
       );
     default:
-      return (
-        <>
-          <ellipse cx="135" cy="170" rx="7" ry="7" fill="#222" />
-          <ellipse cx="185" cy="170" rx="7" ry="7" fill="#222" />
-        </>
-      );
+      return null;
   }
 };
 

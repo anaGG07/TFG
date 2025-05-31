@@ -7,51 +7,79 @@ interface TattoosProps {
 
 const Tattoos: React.FC<TattoosProps> = ({ type, color }) => {
   switch (type) {
+    case "harry":
+      // Cicatriz Harry Potter (rayo en la frente)
+      return (
+        <path
+          d="M160 110 L165 115 L160 120 L165 125"
+          stroke={color}
+          strokeWidth="2"
+          fill="none"
+        />
+      );
+    case "airbender":
+      // Flecha en la frente
+      return (
+        <path
+          d="M160 100 L160 120 M155 110 L160 100 L165 110"
+          stroke={color}
+          strokeWidth="2"
+          fill="none"
+        />
+      );
+    case "krilin":
+      // Puntos en la frente
+      return (
+        <>
+          <circle cx="155" cy="110" r="2" fill={color} />
+          <circle cx="160" cy="108" r="2" fill={color} />
+          <circle cx="165" cy="110" r="2" fill={color} />
+        </>
+      );
+    case "front":
+      // Tatuaje frontal (línea decorativa)
+      return (
+        <path
+          d="M150 115 Q160 105 170 115"
+          stroke={color}
+          strokeWidth="2"
+          fill="none"
+        />
+      );
     case "tribal":
+      // Tribal lado izquierdo
       return (
         <path
-          d="M140 200 Q160 180 180 200 Q160 220 140 200"
+          d="M135 140 Q130 150 140 155 Q145 150 140 145"
           stroke={color}
           strokeWidth="2"
           fill="none"
         />
       );
-    case "dragon":
+    case "tribal2":
+      // Tribal lado derecho
       return (
         <path
-          d="M140 200 Q160 190 180 200 Q170 210 160 200 Q150 210 140 200"
+          d="M185 140 Q190 150 180 155 Q175 150 180 145"
           stroke={color}
           strokeWidth="2"
           fill="none"
         />
       );
-    case "skull":
+    case "throat":
+      // Tatuaje en la garganta
       return (
-        <path
-          d="M150 200 Q160 190 170 200 Q160 210 150 200"
+        <ellipse
+          cx="160"
+          cy="200"
+          rx="12"
+          ry="4"
+          fill="none"
           stroke={color}
           strokeWidth="2"
-          fill="none"
         />
       );
-    case "rose":
-      return (
-        <path
-          d="M150 200 Q160 190 170 200 Q160 210 150 200 M160 190 Q160 180 160 170"
-          stroke={color}
-          strokeWidth="2"
-          fill="none"
-        />
-      );
-    case "cross":
-      return (
-        <path
-          d="M160 190 L160 210 M150 200 L170 200"
-          stroke={color}
-          strokeWidth="2"
-          fill="none"
-        />
-      );
+    case "none":
     default:
       return null;
   }

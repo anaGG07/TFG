@@ -63,8 +63,14 @@ export const getRandomAvatarConfig = (): AvatarConfig => {
     // Accesorios aleatorios
     accessories: getRandomElement(AVATAR_OPTIONS.accessories).value,
 
+    // Color de accesorios aleatorio
+    accessoryColor: getRandomHex(),
+
     // Tatuajes aleatorios
     tattoos: getRandomElement(AVATAR_OPTIONS.tattoos).value,
+
+    // Color de tatuajes aleatorio
+    tattooColor: getRandomHex(),
 
     // Color de fondo aleatorio
     backgroundColor: getRandomElement(AVATAR_OPTIONS.backgroundColors).value,

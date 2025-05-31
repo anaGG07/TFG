@@ -4,33 +4,23 @@ const Mouth: React.FC<{ type: string }> = ({ type }) => {
   switch (type) {
     case "default":
       return (
-        <path
-          d="M145 205 Q160 215 175 205"
-          stroke="#7a2323"
-          strokeWidth="3"
-          fill="none"
-        />
+        <g>
+          <path fill="#000000" d="M180 217l0 0c10,0 17,-8 17,-18l0 0 -34 0 0 0c0,10 7,18 17,18z" />
+        </g>
       );
     case "twinkle":
       return (
-        <path
-          d="M145 205 Q160 215 175 205 M160 205 L160 210"
-          stroke="#7a2323"
-          strokeWidth="3"
-          fill="none"
-        />
+        <g>
+          <path fill="#000000" fillRule="nonzero" d="M162 200c-1,-2 0,-3 2,-3 1,-1 3,0 3,1 1,3 2,5 5,6 2,2 5,3 8,3 3,0 6,-1 8,-3 3,-1 4,-3 5,-6 0,-1 2,-2 3,-1 2,0 3,1 2,3 -1,3 -4,6 -7,9 -3,2 -7,3 -11,3 -4,0 -8,-1 -11,-3 -3,-3 -6,-6 -7,-9z" />
+        </g>
       );
     case "tongue":
       return (
-        <>
-          <path
-            d="M145 205 Q160 215 175 205"
-            stroke="#7a2323"
-            strokeWidth="3"
-            fill="none"
-          />
-          <ellipse cx="160" cy="215" rx="10" ry="5" fill="#E57373" />
-        </>
+        <g>
+          <path fill="#000000" d="M180 220l0 0c17,0 31,-10 31,-23l0 -1 -62 0 0 1c0,13 14,23 31,23z" />
+          <path fill="#FEFEFE" d="M199 196l-38 0 0 2c0,3 2,5 4,5l30 0c2,0 4,-2 4,-5l0 -2z" />
+          <path fill="#FF4F6D" d="M194 220l0 0c0,8 -6,15 -14,15l0 0c-8,0 -14,-7 -14,-15l0 0 0 -7c0,-4 4,-8 8,-8 3,0 5,1 6,2 1,-1 3,-2 6,-2 4,0 8,4 8,8l0 7z" />
+        </g>
       );
     case "smile":
       return (
@@ -117,14 +107,7 @@ const Mouth: React.FC<{ type: string }> = ({ type }) => {
         </>
       );
     default:
-      return (
-        <path
-          d="M145 205 Q160 215 175 205"
-          stroke="#7a2323"
-          strokeWidth="3"
-          fill="none"
-        />
-      );
+      return null;
   }
 };
 

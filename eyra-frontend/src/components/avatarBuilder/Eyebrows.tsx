@@ -4,88 +4,38 @@ const Eyebrows: React.FC<{ type: string }> = ({ type }) => {
   switch (type) {
     case "default":
       return (
-        <>
-          <path
-            d="M125 158 Q135 152 145 158"
-            stroke="#222"
-            strokeWidth="3"
-            fill="none"
-          />
-          <path
-            d="M175 158 Q185 152 195 158"
-            stroke="#222"
-            strokeWidth="3"
-            fill="none"
-          />
-        </>
+        <g>
+          <path fill="#000000" fillOpacity="0.7" fillRule="nonzero" d="M128 138c-1,1 -3,1 -4,0 -1,-1 -1,-2 0,-3 5,-6 10,-9 16,-11 6,-2 13,-2 20,0 2,0 3,2 2,3 0,2 -1,3 -3,2 -6,-1 -12,-2 -17,0 -5,1 -10,4 -14,9z" />
+          <path fill="#000000" fillOpacity="0.7" fillRule="nonzero" d="M232 138c1,1 2,1 3,0 2,-1 2,-2 1,-3 -5,-6 -11,-9 -17,-11 -6,-2 -13,-2 -20,0 -1,0 -2,2 -2,3 1,2 2,3 3,2 7,-1 13,-2 18,0 5,1 10,4 14,9z" />
+        </g>
       );
     case "default2":
       return (
-        <>
-          <path
-            d="M125 158 Q135 155 145 158"
-            stroke="#222"
-            strokeWidth="3"
-            fill="none"
-          />
-          <path
-            d="M175 158 Q185 155 195 158"
-            stroke="#222"
-            strokeWidth="3"
-            fill="none"
-          />
-        </>
+        <g>
+          <path fill="#000000" fillOpacity="0.7" fillRule="nonzero" d="M128 138c-1,1 -3,1 -4,0 -1,-1 -1,-2 0,-3 5,-6 10,-9 16,-11 6,-2 13,-2 20,0 2,0 3,2 2,3 0,2 -1,3 -3,2 -6,-1 -12,-2 -17,0 -5,1 -10,4 -14,9z" />
+          <path fill="#000000" fillOpacity="0.7" fillRule="nonzero" d="M232 138c1,1 2,1 3,0 2,-1 2,-2 1,-3 -5,-6 -11,-9 -17,-11 -6,-2 -13,-2 -20,0 -1,0 -2,2 -2,3 1,2 2,3 3,2 7,-1 13,-2 18,0 5,1 10,4 14,9z" />
+        </g>
       );
     case "raised":
       return (
-        <>
-          <path
-            d="M125 160 Q135 150 145 160"
-            stroke="#222"
-            strokeWidth="4"
-            fill="none"
-          />
-          <path
-            d="M175 160 Q185 150 195 160"
-            stroke="#222"
-            strokeWidth="4"
-            fill="none"
-          />
-        </>
+        <g>
+          <path fill="#000000" fillOpacity="0.7" fillRule="nonzero" d="M128 138c-1,1 -3,1 -4,0 -1,-1 -1,-2 0,-3 5,-6 10,-9 16,-11 6,-2 13,-2 20,0 2,0 3,2 2,3 0,2 -1,3 -3,2 -6,-1 -12,-2 -17,0 -5,1 -10,4 -14,9z" />
+          <path fill="#000000" fillOpacity="0.7" fillRule="nonzero" d="M232 138c1,1 2,1 3,0 2,-1 2,-2 1,-3 -5,-6 -11,-9 -17,-11 -6,-2 -13,-2 -20,0 -1,0 -2,2 -2,3 1,2 2,3 3,2 7,-1 13,-2 18,0 5,1 10,4 14,9z" />
+        </g>
       );
     case "sad":
       return (
-        <>
-          <path
-            d="M125 155 Q135 165 145 155"
-            stroke="#222"
-            strokeWidth="4"
-            fill="none"
-          />
-          <path
-            d="M175 155 Q185 165 195 155"
-            stroke="#222"
-            strokeWidth="4"
-            fill="none"
-          />
-        </>
+        <g>
+          <path fill="#000000" fillOpacity="0.7" fillRule="nonzero" d="M128 138c-1,1 -3,1 -4,0 -1,-1 -1,-2 0,-3 5,-6 10,-9 16,-11 6,-2 13,-2 20,0 2,0 3,2 2,3 0,2 -1,3 -3,2 -6,-1 -12,-2 -17,0 -5,1 -10,4 -14,9z" />
+          <path fill="#000000" fillOpacity="0.7" fillRule="nonzero" d="M232 138c1,1 2,1 3,0 2,-1 2,-2 1,-3 -5,-6 -11,-9 -17,-11 -6,-2 -13,-2 -20,0 -1,0 -2,2 -2,3 1,2 2,3 3,2 7,-1 13,-2 18,0 5,1 10,4 14,9z" />
+        </g>
       );
     case "sad2":
       return (
-        <>
-          <path
-            d="M125 155 Q135 165 145 155"
-            stroke="#222"
-            strokeWidth="3"
-            fill="none"
-          />
-          <path
-            d="M175 155 Q185 165 195 155"
-            stroke="#222"
-            strokeWidth="3"
-            fill="none"
-          />
-        </>
+        <g>
+          <path fill="#000000" fillOpacity="0.7" fillRule="nonzero" d="M128 138c-1,1 -3,1 -4,0 -1,-1 -1,-2 0,-3 5,-6 10,-9 16,-11 6,-2 13,-2 20,0 2,0 3,2 2,3 0,2 -1,3 -3,2 -6,-1 -12,-2 -17,0 -5,1 -10,4 -14,9z" />
+          <path fill="#000000" fillOpacity="0.7" fillRule="nonzero" d="M232 138c1,1 2,1 3,0 2,-1 2,-2 1,-3 -5,-6 -11,-9 -17,-11 -6,-2 -13,-2 -20,0 -1,0 -2,2 -2,3 1,2 2,3 3,2 7,-1 13,-2 18,0 5,1 10,4 14,9z" />
+        </g>
       );
     case "unibrow":
       return (
@@ -98,89 +48,34 @@ const Eyebrows: React.FC<{ type: string }> = ({ type }) => {
       );
     case "updown":
       return (
-        <>
-          <path
-            d="M125 160 Q135 150 145 160"
-            stroke="#222"
-            strokeWidth="4"
-            fill="none"
-          />
-          <path
-            d="M175 155 Q185 165 195 155"
-            stroke="#222"
-            strokeWidth="4"
-            fill="none"
-          />
-        </>
+        <g>
+          <path fill="#000000" fillOpacity="0.7" fillRule="nonzero" d="M128 138c-1,1 -3,1 -4,0 -1,-1 -1,-2 0,-3 5,-6 10,-9 16,-11 6,-2 13,-2 20,0 2,0 3,2 2,3 0,2 -1,3 -3,2 -6,-1 -12,-2 -17,0 -5,1 -10,4 -14,9z" />
+          <path fill="#000000" fillOpacity="0.7" fillRule="nonzero" d="M232 138c1,1 2,1 3,0 2,-1 2,-2 1,-3 -5,-6 -11,-9 -17,-11 -6,-2 -13,-2 -20,0 -1,0 -2,2 -2,3 1,2 2,3 3,2 7,-1 13,-2 18,0 5,1 10,4 14,9z" />
+        </g>
       );
     case "updown2":
       return (
-        <>
-          <path
-            d="M125 155 Q135 165 145 155"
-            stroke="#222"
-            strokeWidth="4"
-            fill="none"
-          />
-          <path
-            d="M175 160 Q185 150 195 160"
-            stroke="#222"
-            strokeWidth="4"
-            fill="none"
-          />
-        </>
+        <g>
+          <path fill="#000000" fillOpacity="0.7" fillRule="nonzero" d="M128 138c-1,1 -3,1 -4,0 -1,-1 -1,-2 0,-3 5,-6 10,-9 16,-11 6,-2 13,-2 20,0 2,0 3,2 2,3 0,2 -1,3 -3,2 -6,-1 -12,-2 -17,0 -5,1 -10,4 -14,9z" />
+          <path fill="#000000" fillOpacity="0.7" fillRule="nonzero" d="M232 138c1,1 2,1 3,0 2,-1 2,-2 1,-3 -5,-6 -11,-9 -17,-11 -6,-2 -13,-2 -20,0 -1,0 -2,2 -2,3 1,2 2,3 3,2 7,-1 13,-2 18,0 5,1 10,4 14,9z" />
+        </g>
       );
     case "angry":
       return (
-        <>
-          <path
-            d="M125 160 Q135 155 145 165"
-            stroke="#222"
-            strokeWidth="4"
-            fill="none"
-          />
-          <path
-            d="M175 165 Q185 155 195 160"
-            stroke="#222"
-            strokeWidth="4"
-            fill="none"
-          />
-        </>
+        <g>
+          <path fill="#000000" fillOpacity="0.7" fillRule="nonzero" d="M128 138c-1,1 -3,1 -4,0 -1,-1 -1,-2 0,-3 5,-6 10,-9 16,-11 6,-2 13,-2 20,0 2,0 3,2 2,3 0,2 -1,3 -3,2 -6,-1 -12,-2 -17,0 -5,1 -10,4 -14,9z" />
+          <path fill="#000000" fillOpacity="0.7" fillRule="nonzero" d="M232 138c1,1 2,1 3,0 2,-1 2,-2 1,-3 -5,-6 -11,-9 -17,-11 -6,-2 -13,-2 -20,0 -1,0 -2,2 -2,3 1,2 2,3 3,2 7,-1 13,-2 18,0 5,1 10,4 14,9z" />
+        </g>
       );
     case "angry2":
       return (
-        <>
-          <path
-            d="M125 160 Q135 155 145 165"
-            stroke="#222"
-            strokeWidth="3"
-            fill="none"
-          />
-          <path
-            d="M175 165 Q185 155 195 160"
-            stroke="#222"
-            strokeWidth="3"
-            fill="none"
-          />
-        </>
+        <g>
+          <path fill="#000000" fillOpacity="0.7" fillRule="nonzero" d="M128 138c-1,1 -3,1 -4,0 -1,-1 -1,-2 0,-3 5,-6 10,-9 16,-11 6,-2 13,-2 20,0 2,0 3,2 2,3 0,2 -1,3 -3,2 -6,-1 -12,-2 -17,0 -5,1 -10,4 -14,9z" />
+          <path fill="#000000" fillOpacity="0.7" fillRule="nonzero" d="M232 138c1,1 2,1 3,0 2,-1 2,-2 1,-3 -5,-6 -11,-9 -17,-11 -6,-2 -13,-2 -20,0 -1,0 -2,2 -2,3 1,2 2,3 3,2 7,-1 13,-2 18,0 5,1 10,4 14,9z" />
+        </g>
       );
     default:
-      return (
-        <>
-          <path
-            d="M125 158 Q135 152 145 158"
-            stroke="#222"
-            strokeWidth="3"
-            fill="none"
-          />
-          <path
-            d="M175 158 Q185 152 195 158"
-            stroke="#222"
-            strokeWidth="3"
-            fill="none"
-          />
-        </>
-      );
+      return null;
   }
 };
 

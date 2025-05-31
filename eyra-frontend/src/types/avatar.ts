@@ -18,7 +18,9 @@ export interface AvatarConfig {
   glasses: string;
   glassOpacity: string;
   accessories: string;
+  accessoryColor: string;
   tattoos: string;
+  tattooColor: string;
   backgroundColor: string;
 }
 
@@ -231,20 +233,22 @@ export const defaultAvatarConfig: AvatarConfig = {
  * Función para crear un avatar vacío/predeterminado
  */
 export const createEmptyAvatarConfig = (): AvatarConfig => ({
-  skinColor: "",
-  eyes: "",
-  eyebrows: "",
-  mouth: "",
-  hairStyle: "",
-  hairColor: "",
-  facialHair: "",
-  clothes: "",
-  fabricColor: "",
-  glasses: "",
-  glassOpacity: "",
-  accessories: "",
-  tattoos: "",
-  backgroundColor: "",
+  skinColor: "#F5D0A9",
+  eyes: "default",
+  eyebrows: "default",
+  mouth: "default",
+  hairStyle: "short",
+  hairColor: "#4A4A4A",
+  facialHair: "none",
+  clothes: "tshirt",
+  fabricColor: "#C62328",
+  glasses: "none",
+  glassOpacity: "0.8",
+  accessories: "none",
+  accessoryColor: "#FFD700",
+  tattoos: "none",
+  tattooColor: "#000000",
+  backgroundColor: "#E7E0D5",
 });
 
 /**

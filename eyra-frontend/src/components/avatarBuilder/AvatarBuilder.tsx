@@ -6,6 +6,7 @@ import {
   defaultAvatarConfig,
   AVATAR_OPTIONS,
 } from "../../types/avatar";
+import AvatarPreview from "./AvatarPreview";
 import {
   User,
   Eye,
@@ -51,6 +52,26 @@ const AvatarBuilder: React.FC<AvatarBuilderProps> = ({
 
   return (
     <div className="w-full flex flex-col gap-6 justify-center max-w-6xl mx-auto">
+      {/* Vista previa del avatar (opcional) */}
+      {showPreview && (
+        <div className="flex justify-center mb-6">
+          <div className="bg-[#f5ede6] rounded-2xl shadow-neomorphic p-6 max-w-md">
+            <div className="flex items-center gap-2 mb-4">
+              <User size={22} stroke="#C62328" />
+              <span className="font-bold text-lg text-[#7a2323]">
+                Vista previa
+              </span>
+            </div>
+            <div className="flex justify-center">
+              <AvatarPreview
+                config={config}
+                className="w-48 h-48 shadow-neomorphic rounded-xl"
+              />
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Sección 1: Características Faciales */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {/* Tarjeta: Piel y Ojos */}

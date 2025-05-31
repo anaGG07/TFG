@@ -50,8 +50,14 @@ const AvatarPreview: React.FC<AvatarPreviewProps> = ({ config, className }) => {
         type={safeValue(config.glasses, "none")}
         opacity={safeValue(config.glassOpacity, "0.8")}
       />
-      <Accessories type={safeValue(config.accessories, "none")} />
-      <Tattoos type={safeValue(config.tattoos, "none")} />
+      <Accessories 
+        type={safeValue(config.accessories, "none")} 
+        color={safeValue(config.accessoryColor, "#FFD700")}
+      />
+      <Tattoos 
+        type={safeValue(config.tattoos, "none")} 
+        color={safeValue(config.tattooColor, "#000000")}
+      />
     </svg>
   );
 };
