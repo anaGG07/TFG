@@ -1,7 +1,6 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useCycle } from "../../../context/CycleContext";
 import { CycleDay, CyclePhase } from "../../../types/domain";
-import { AddCycleDayModal } from "./AddCycleDayModal";
 import {
   format,
   startOfMonth,
@@ -22,13 +21,12 @@ import {
 } from "date-fns";
 import { es } from "date-fns/locale";
 import {
-  ChevronLeft,
-  ChevronRight,
   Calendar as CalendarIcon,
   Grid3X3,
   Rows3,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
-import { useCalendarData } from "../hooks/useCalendarData";
 
 type ViewType = "month" | "week" | "day";
 
@@ -37,12 +35,7 @@ interface CalendarProps {
 }
 
 export const CalendarContainer = ({ className = "" }: CalendarProps) => {
-  const { data, isLoading, error, refetch } = useCalendarData(
-    currentDate,
-    viewType
-  );
-  const { updateDay, addSymptom } = useCycle();
-  const calendarDays = data?.calendarDays || [];
+  const { calendarDays, isLoading, loadCalendarDays, addCycleDay } = useCycle();
 
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
@@ -50,17 +43,51 @@ export const CalendarContainer = ({ className = "" }: CalendarProps) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [viewType, setViewType] = useState<ViewType>("month");
 
+  // Cargar datos cuando cambia la fecha o vista
+  useEffect(() => {
+    const { start, end } = getDateRange();
+    const startStr = format(start, "yyyy-MM-dd");
+    const endStr = format(end, "yyyy-MM-dd");
+
+    if (loadCalendarDays) {
+      loadCalendarDays(startStr, endStr);
+    }
+  }, [currentDate, viewType, loadCalendarDays]);
+
+  // Función auxiliar para obtener rango de fechas
+  const getDateRange = () => {
+    switch (viewType) {
+      case "day":
+        return {
+          start: startOfDay(currentDate),
+          end: endOfDay(currentDate),
+        };
+      case "week":
+        return {
+          start: startOfDay(startOfWeek(currentDate, { weekStartsOn: 1 })),
+          end: endOfDay(endOfWeek(currentDate, { weekStartsOn: 1 })),
+        };
+      case "month":
+      default:
+        const monthStart = startOfMonth(currentDate);
+        const monthEnd = endOfMonth(currentDate);
+        return {
+          start: startOfDay(startOfWeek(monthStart, { weekStartsOn: 1 })),
+          end: endOfDay(endOfWeek(monthEnd, { weekStartsOn: 1 })),
+        };
+    }
+  };
   // Funciones de navegación
   const navigatePrevious = () => {
     switch (viewType) {
       case "day":
-        setCurrentDate((prev) => subDays(prev, 1));
+        setCurrentDate((prev) => startOfDay(subDays(prev, 1)));
         break;
       case "week":
-        setCurrentDate((prev) => subWeeks(prev, 1));
+        setCurrentDate((prev) => startOfDay(subWeeks(prev, 1)));
         break;
       case "month":
-        setCurrentDate((prev) => subMonths(prev, 1));
+        setCurrentDate((prev) => startOfDay(subMonths(prev, 1)));
         break;
     }
   };
@@ -68,38 +95,40 @@ export const CalendarContainer = ({ className = "" }: CalendarProps) => {
   const navigateNext = () => {
     switch (viewType) {
       case "day":
-        setCurrentDate((prev) => addDays(prev, 1));
+        setCurrentDate((prev) => startOfDay(addDays(prev, 1)));
         break;
       case "week":
-        setCurrentDate((prev) => addWeeks(prev, 1));
+        setCurrentDate((prev) => startOfDay(addWeeks(prev, 1)));
         break;
       case "month":
-        setCurrentDate((prev) => addMonths(prev, 1));
+        setCurrentDate((prev) => startOfDay(addMonths(prev, 1)));
         break;
     }
   };
 
   const goToToday = () => {
-    setCurrentDate(new Date());
+    setCurrentDate(startOfDay(new Date()));
   };
 
   // Generar días según la vista
   const generateViewDays = (): Date[] => {
     switch (viewType) {
       case "day":
-        return [currentDate];
+        return [startOfDay(currentDate)];
       case "week":
-        const weekStart = startOfWeek(currentDate, { weekStartsOn: 1 });
-        return eachDayOfInterval({
-          start: weekStart,
-          end: endOfWeek(currentDate, { weekStartsOn: 1 }),
-        });
+        const weekStart = startOfDay(
+          startOfWeek(currentDate, { weekStartsOn: 1 })
+        );
+        const weekEnd = endOfDay(endOfWeek(currentDate, { weekStartsOn: 1 }));
+        return eachDayOfInterval({ start: weekStart, end: weekEnd });
       case "month":
       default:
         const monthStart = startOfMonth(currentDate);
         const monthEnd = endOfMonth(currentDate);
-        const calendarStart = startOfWeek(monthStart, { weekStartsOn: 1 });
-        const calendarEnd = endOfWeek(monthEnd, { weekStartsOn: 1 });
+        const calendarStart = startOfDay(
+          startOfWeek(monthStart, { weekStartsOn: 1 })
+        );
+        const calendarEnd = endOfDay(endOfWeek(monthEnd, { weekStartsOn: 1 }));
         return eachDayOfInterval({ start: calendarStart, end: calendarEnd });
     }
   };
@@ -108,8 +137,9 @@ export const CalendarContainer = ({ className = "" }: CalendarProps) => {
   const handleDayClick = (date: Date) => {
     setSelectedDate(date);
     const formattedDate = format(date, "yyyy-MM-dd");
-    const dayData = calendarDays.find((day) => day.date === formattedDate);
-    setSelectedDayData(dayData || null);
+    const dayData =
+      calendarDays?.find((day) => day.date === formattedDate) || null;
+    setSelectedDayData(dayData);
   };
 
   // Abrir modal para añadir/editar datos
@@ -127,20 +157,19 @@ export const CalendarContainer = ({ className = "" }: CalendarProps) => {
   // Guardar datos del día
   const handleSaveDayData = async (formData: any) => {
     try {
-      if (selectedDate) {
+      if (selectedDate && addCycleDay) {
         const formattedDate = format(selectedDate, "yyyy-MM-dd");
-        await updateDay(formattedDate, formData);
 
-        if (formData.symptoms && formData.symptoms.length > 0) {
-          for (const symptom of formData.symptoms) {
-            await addSymptom({
-              entityType: "DAY",
-              entityId: parseInt(formattedDate.replace(/-/g, "")),
-              symptom,
-              intensity: formData.flowIntensity || 0,
-            });
-          }
-        }
+        await addCycleDay({
+          date: formattedDate,
+          phase: formData.phase || CyclePhase.MENSTRUAL,
+          flowIntensity: formData.flowIntensity || 0,
+          mood: formData.mood || [],
+          symptoms: formData.symptoms || [],
+          notes: formData.notes || "",
+        });
+
+        setIsModalOpen(false);
       }
     } catch (error) {
       console.error("Error al guardar datos:", error);
@@ -182,6 +211,22 @@ export const CalendarContainer = ({ className = "" }: CalendarProps) => {
 
   const viewDates = generateViewDays();
   const weekDays = ["L", "M", "X", "J", "V", "S", "D"];
+
+  // Verificar si hay datos de calendario
+  const safeCalendarDays = calendarDays || [];
+
+  if (isLoading) {
+    return (
+      <div
+        className={`bg-white rounded-lg shadow-lg p-8 flex items-center justify-center ${className}`}
+      >
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Cargando calendario...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div
@@ -303,7 +348,7 @@ export const CalendarContainer = ({ className = "" }: CalendarProps) => {
             >
               {viewDates.map((date) => {
                 const formattedDate = format(date, "yyyy-MM-dd");
-                const dayData = calendarDays.find(
+                const dayData = safeCalendarDays.find(
                   (day) => day.date === formattedDate
                 );
                 const isCurrentMonth = isSameMonth(date, currentDate);
@@ -379,7 +424,7 @@ export const CalendarContainer = ({ className = "" }: CalendarProps) => {
             >
               {viewDates.map((date) => {
                 const formattedDate = format(date, "yyyy-MM-dd");
-                const dayData = calendarDays.find(
+                const dayData = safeCalendarDays.find(
                   (day) => day.date === formattedDate
                 );
                 const isCurrentDay = isToday(date);
@@ -429,7 +474,7 @@ export const CalendarContainer = ({ className = "" }: CalendarProps) => {
           <div className="p-6 h-full overflow-auto">
             {(() => {
               const formattedDate = format(currentDate, "yyyy-MM-dd");
-              const dayData = calendarDays.find(
+              const dayData = safeCalendarDays.find(
                 (day) => day.date === formattedDate
               );
 
@@ -608,13 +653,80 @@ export const CalendarContainer = ({ className = "" }: CalendarProps) => {
 
       {/* Modal para añadir/editar datos */}
       {isModalOpen && selectedDate && (
-        <AddCycleDayModal
-          isOpen={isModalOpen}
-          onClose={handleCloseModal}
-          onSave={handleSaveDayData}
-          date={selectedDate}
-          initialData={selectedDayData || undefined}
-        />
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+            <h3 className="text-lg font-semibold mb-4">
+              {selectedDayData ? "Editar información" : "Añadir información"}
+            </h3>
+            <p className="text-gray-600 mb-4">
+              {format(selectedDate, "EEEE d MMMM yyyy", { locale: es })}
+            </p>
+
+            {/* Formulario básico para el modal */}
+            <div className="space-y-4 mb-6">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Intensidad del flujo
+                </label>
+                <select
+                  className="w-full p-2 border border-gray-300 rounded-md"
+                  defaultValue={selectedDayData?.flowIntensity || 0}
+                  id="flowIntensity"
+                >
+                  <option value={0}>Sin flujo</option>
+                  <option value={1}>Muy ligero</option>
+                  <option value={2}>Ligero</option>
+                  <option value={3}>Moderado</option>
+                  <option value={4}>Abundante</option>
+                  <option value={5}>Muy abundante</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Notas
+                </label>
+                <textarea
+                  className="w-full p-2 border border-gray-300 rounded-md"
+                  rows={3}
+                  placeholder="Notas sobre este día..."
+                  defaultValue={selectedDayData?.notes?.join(", ") || ""}
+                  id="notes"
+                />
+              </div>
+            </div>
+
+            <div className="flex gap-2 justify-end">
+              <button
+                onClick={handleCloseModal}
+                className="px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-50"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={() => {
+                  const flowSelect = document.getElementById(
+                    "flowIntensity"
+                  ) as HTMLSelectElement;
+                  const notesTextarea = document.getElementById(
+                    "notes"
+                  ) as HTMLTextAreaElement;
+
+                  handleSaveDayData({
+                    flowIntensity: parseInt(flowSelect.value),
+                    notes: notesTextarea.value,
+                    phase: CyclePhase.MENSTRUAL, // Por defecto
+                    symptoms: [],
+                    mood: [],
+                  });
+                }}
+                className="px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700"
+              >
+                Guardar
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

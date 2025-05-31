@@ -1,7 +1,7 @@
 import React from "react";
 import { CalendarContainer } from "../features/calendar/components/CalendarContainer";
 
-const CalendarPage = () => {
+const CalendarPage: React.FC = () => {
   return (
     <div className="calendar-page">
       <div className="container">

@@ -235,8 +235,17 @@ export const useCalendarStatistics = (data: CalendarData | null) => {
         days.filter((day) => day.symptoms && day.symptoms.length > 0).length /
         days.length;
 
+      // Días pasados vs futuros (aquí SÍ usamos today)
+      const todayStr = format(today, "yyyy-MM-dd");
+      const pastDays = days.filter((day) => day.date < todayStr).length;
+      const futureDays = days.filter((day) => day.date > todayStr).length;
+      const currentDay = days.find((day) => day.date === todayStr);
+
       return {
         totalDays: days.length,
+        pastDays,
+        futureDays,
+        hasCurrentDay: !!currentDay,
         phaseDistribution: phaseCount,
         topSymptoms: Object.entries(symptomCount)
           .sort(([, a], [, b]) => b - a)
