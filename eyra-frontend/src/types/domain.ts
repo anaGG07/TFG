@@ -39,6 +39,7 @@ export interface User {
   onboarding: {
     receiveAlerts: boolean;
     receiveRecommendations: boolean;
+    receiveCyclePhaseTips: boolean; 
     receiveWorkoutSuggestions: boolean;
     receiveNutritionAdvice: boolean;
     profileType: string;

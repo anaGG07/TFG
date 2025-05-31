@@ -35,10 +35,12 @@ const ProfilePage: React.FC = () => {
     username: user?.username || "",
     birthDate: user?.birthDate || "",
     avatar: user?.avatar || defaultAvatarConfig,
-    receiveAlerts: user?.onboarding?.receiveAlerts === undefined ? false : user.onboarding.receiveAlerts,
-    receiveRecommendations: user?.onboarding?.receiveRecommendations === undefined ? false : user.onboarding.receiveRecommendations,
-    receiveWorkoutSuggestions: user?.onboarding?.receiveWorkoutSuggestions === undefined ? false : user.onboarding.receiveWorkoutSuggestions,
-    receiveNutritionAdvice: user?.onboarding?.receiveNutritionAdvice === undefined ? false : user.onboarding.receiveNutritionAdvice,
+    receiveAlerts: user?.onboarding?.receiveAlerts ?? true,
+    receiveRecommendations: user?.onboarding?.receiveRecommendations ?? true,
+    receiveCyclePhaseTips: user?.onboarding?.receiveCyclePhaseTips ?? true, 
+    receiveWorkoutSuggestions:
+      user?.onboarding?.receiveWorkoutSuggestions ?? true,
+    receiveNutritionAdvice: user?.onboarding?.receiveNutritionAdvice ?? true,
     currentPassword: "",
     newPassword: "",
     confirmPassword: "",
@@ -56,10 +58,14 @@ const ProfilePage: React.FC = () => {
         username: user?.username || "",
         birthDate: user?.birthDate || "",
         avatar: user?.avatar || defaultAvatarConfig,
-        receiveAlerts: user?.onboarding?.receiveAlerts === undefined ? false : user.onboarding.receiveAlerts,
-        receiveRecommendations: user?.onboarding?.receiveRecommendations === undefined ? false : user.onboarding.receiveRecommendations,
-        receiveWorkoutSuggestions: user?.onboarding?.receiveWorkoutSuggestions === undefined ? false : user.onboarding.receiveWorkoutSuggestions,
-        receiveNutritionAdvice: user?.onboarding?.receiveNutritionAdvice === undefined ? false : user.onboarding.receiveNutritionAdvice,
+        receiveAlerts: user?.onboarding?.receiveAlerts ?? true,
+        receiveRecommendations:
+          user?.onboarding?.receiveRecommendations ?? true,
+        receiveCyclePhaseTips: user?.onboarding?.receiveCyclePhaseTips ?? true,
+        receiveWorkoutSuggestions:
+          user?.onboarding?.receiveWorkoutSuggestions ?? true,
+        receiveNutritionAdvice:
+          user?.onboarding?.receiveNutritionAdvice ?? true,
         currentPassword: "",
         newPassword: "",
         confirmPassword: "",
@@ -157,41 +163,55 @@ const ProfilePage: React.FC = () => {
   };
 
   // Guardar preferencias de notificaciones
-  const handleSaveNotifications = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    try {
-      await userService.updateOnboardingPartial({
-        receiveAlerts: form.receiveAlerts,
-        receiveRecommendations: form.receiveRecommendations,
-        receiveWorkoutSuggestions: form.receiveWorkoutSuggestions,
-        receiveNutritionAdvice: form.receiveNutritionAdvice,
-      });
-      await checkAuth();
-      showCustomToast("¡Preferencias de notificaciones actualizadas!", "success");
-    } catch (err: any) {
-      // Si el error es 404, intenta POST (crear onboarding)
-      if (err?.message?.includes("404")) {
-        try {
-          await userService.updateOnboarding({
-            receiveAlerts: form.receiveAlerts,
-            receiveRecommendations: form.receiveRecommendations,
-            receiveWorkoutSuggestions: form.receiveWorkoutSuggestions,
-            receiveNutritionAdvice: form.receiveNutritionAdvice,
-          });
-          await checkAuth();
-          showCustomToast("¡Preferencias de notificaciones guardadas!", "success");
-          return;
-        } catch (err2: any) {
-          showCustomToast(err2.message || "Error al guardar las notificaciones", "error");
-        }
-      } else {
-        showCustomToast(err.message || "Error al guardar las notificaciones", "error");
-      }
-    } finally {
-      setLoading(false);
-    }
-  };
+ const handleSaveNotifications = async (e: React.FormEvent) => {
+   e.preventDefault();
+   setLoading(true);
+   try {
+     await userService.updateOnboarding({
+       receiveAlerts: form.receiveAlerts,
+       receiveRecommendations: form.receiveRecommendations,
+       receiveCyclePhaseTips: form.receiveCyclePhaseTips, 
+       receiveWorkoutSuggestions: form.receiveWorkoutSuggestions,
+       receiveNutritionAdvice: form.receiveNutritionAdvice,
+     });
+     await checkAuth();
+     showCustomToast(
+       "¡Preferencias de notificaciones actualizadas!",
+       "success"
+     );
+   } catch (err: any) {
+     // Si el error es 404, intenta POST (crear onboarding)
+     if (err?.message?.includes("404")) {
+       try {
+         await userService.updateOnboarding({
+           receiveAlerts: form.receiveAlerts,
+           receiveRecommendations: form.receiveRecommendations,
+           receiveCyclePhaseTips: form.receiveCyclePhaseTips, 
+           receiveWorkoutSuggestions: form.receiveWorkoutSuggestions,
+           receiveNutritionAdvice: form.receiveNutritionAdvice,
+         });
+         await checkAuth();
+         showCustomToast(
+           "¡Preferencias de notificaciones guardadas!",
+           "success"
+         );
+         return;
+       } catch (err2: any) {
+         showCustomToast(
+           err2.message || "Error al guardar las notificaciones",
+           "error"
+         );
+       }
+     } else {
+       showCustomToast(
+         err.message || "Error al guardar las notificaciones",
+         "error"
+       );
+     }
+   } finally {
+     setLoading(false);
+   }
+ };
 
   // Renderizado
   return (
