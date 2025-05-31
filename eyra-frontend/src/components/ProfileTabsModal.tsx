@@ -4,6 +4,7 @@ import { NeomorphicButton, NeomorphicInput } from "./ui/NeomorphicComponents";
 import AvatarBuilderModal from "./avatarBuilder/AvatarBuilderModal";
 import AvatarPreview from "./avatarBuilder/AvatarPreview";
 import { userService } from "../services/userService";
+import { defaultAvatarConfig } from '../types/avatar';
 
 // Iconos SVG originales
 const PrivacyIcon = ({ selected }: { selected: boolean }) => (
@@ -205,7 +206,7 @@ const ProfileTabsModal: React.FC<ProfileTabsModalProps> = ({
           {/* Avatar con icono de edición */}
           <div className="relative mb-6">
             <div className="w-28 h-28 rounded-full overflow-hidden flex items-center justify-center bg-gray-100">
-              <AvatarPreview config={form.avatar} className="w-full h-full" />
+              <AvatarPreview config={form.avatar || defaultAvatarConfig} className="w-full h-full" />
               <button
                 type="button"
                 onClick={() => setIsAvatarBuilderOpen(true)}

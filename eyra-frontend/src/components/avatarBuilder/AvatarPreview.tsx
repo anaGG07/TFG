@@ -27,9 +27,10 @@ const AvatarPreview: React.FC<AvatarPreviewProps> = ({ config, className }) => {
     <svg
       width="100%"
       height="100%"
-      viewBox="0 0 320 320" 
+      viewBox="0 0 320 320"
       className={className}
-      preserveAspectRatio="xMidYMid meet" 
+      preserveAspectRatio="xMidYMid meet"
+      style={{ display: "block" }} // Asegurar que no hay problemas de display
     >
       <Background color={safeValue(config.backgroundColor, "#E7E0D5")} />
       <Skin color={safeValue(config.skinColor, "#F5D0A9")} />
