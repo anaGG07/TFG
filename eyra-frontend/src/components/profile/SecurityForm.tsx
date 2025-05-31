@@ -93,7 +93,7 @@ const SecurityForm: React.FC<SecurityFormProps> = ({ form, error, loading, handl
           autoComplete="new-password"
           required
           minLength={8}
-          pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$"
+          pattern={"^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[!@#$%^&*(),.?\":{}|<>])[A-Za-z\\d!@#$%^&*(),.?\":{}|<>]{8,}$"}
           title="La contraseña debe tener al menos 8 caracteres, una mayúscula, una minúscula, un número y un carácter especial"
         />
         {fieldErrors.newPassword && <span className="text-red-600 text-xs">{fieldErrors.newPassword}</span>}

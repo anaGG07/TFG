@@ -1,10 +1,12 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { ROUTES } from "../router/paths";
 import Blob from "../components/Blob";
 import GlassmorphicButton from "../components/Button";
 import { getRandomAvatarConfig } from '../components/avatarBuilder/randomAvatar';
+import { Eye, EyeOff, User, Mail, Calendar, Lock } from "lucide-react";
+import { toast } from "react-hot-toast";
 
 const RegisterPage = () => {
   const [username, setUsername] = useState("");
@@ -15,6 +17,11 @@ const RegisterPage = () => {
   const [acceptTerms, setAcceptTerms] = useState(false);
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [name, setName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [passwordStrength, setPasswordStrength] = useState(0);
 
   const { register } = useAuth();
   const navigate = useNavigate();
@@ -31,10 +38,49 @@ const RegisterPage = () => {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
+  // Validaciones en tiempo real
+  const validateEmail = (email: string) => /\S+@\S+\.\S+/.test(email);
+  const isPasswordComplex = (password: string) => {
+    const hasUpperCase = /[A-Z]/.test(password);
+    const hasLowerCase = /[a-z]/.test(password);
+    const hasNumbers = /\d/.test(password);
+    const hasSpecialChar = /[!@#$%^&*(),.?":{}|<>]/.test(password);
+    return hasUpperCase && hasLowerCase && hasNumbers && hasSpecialChar;
+  };
+  const getPasswordStrength = (password: string) => {
+    let strength = 0;
+    if (password.length >= 8) strength++;
+    if (/[A-Z]/.test(password)) strength++;
+    if (/[a-z]/.test(password)) strength++;
+    if (/\d/.test(password)) strength++;
+    if (/[!@#$%^&*(),.?":{}|<>]/.test(password)) strength++;
+    return strength;
+  };
+
+  useEffect(() => {
+    setPasswordStrength(getPasswordStrength(password));
+  }, [password]);
+
+  // Validación en tiempo real y toast para errores
+  useEffect(() => {
+    if (email && !validateEmail(email)) {
+      toast.error("Introduce un email válido");
+    }
+    if (password && password.length < 8) {
+      toast.error("La contraseña debe tener al menos 8 caracteres");
+    }
+    if (password && !isPasswordComplex(password)) {
+      toast.error("La contraseña debe tener mayúscula, minúscula, número y símbolo");
+    }
+    if (confirmPassword && password !== confirmPassword) {
+      toast.error("Las contraseñas no coinciden");
+    }
+  }, [email, password, confirmPassword]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!username || !email || !password || !confirmPassword || !birthDate) {
+    if (!username || !email || !password || !confirmPassword || !birthDate || !name || !lastName) {
       setError("Por favor completa todos los campos");
       return;
     }
@@ -57,8 +103,8 @@ const RegisterPage = () => {
         username,
         email,
         password,
-        name: username,
-        lastName: "Apellido",
+        name,
+        lastName,
         profileType: "profile_women",
         birthDate,
         avatar: getRandomAvatarConfig(),
@@ -72,6 +118,20 @@ const RegisterPage = () => {
       setIsLoading(false);
     }
   };
+
+  const isFormValid =
+    username &&
+    email &&
+    password &&
+    confirmPassword &&
+    birthDate &&
+    name &&
+    lastName &&
+    acceptTerms &&
+    validateEmail(email) &&
+    password.length >= 8 &&
+    isPasswordComplex(password) &&
+    password === confirmPassword;
 
   return (
     <div className="w-screen h-screen flex items-center justify-center bg-none p-4 relative overflow-hidden">
@@ -105,96 +165,185 @@ const RegisterPage = () => {
         <form
           onSubmit={handleSubmit}
           className="flex flex-col gap-2 pointer-events-auto"
+          autoComplete="off"
         >
-          <input
-            id="username"
-            type="text"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-            className="w-full text-center pt-2 px-4 text-[#E7E0D5] text-lg focus:outline-none focus:bg-none transition-all duration-300"
-            style={{
-              background: "transparent",
-              WebkitTextFillColor: "#E7E0D5",
-              WebkitBoxShadow: "0 0 0px 1000px transparent inset",
-              WebkitBackgroundClip: "text",
-              caretColor: "#E7E0D5",
-            }}
-            placeholder="Nombre de usuario"
-            required
-          />
-          <input
-            id="email"
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            className="w-full text-center pt-2 px-4 text-[#E7E0D5] text-lg focus:outline-none focus:bg-none transition-all duration-300"
-            style={{
-              background: "transparent",
-              WebkitTextFillColor: "#E7E0D5",
-              WebkitBoxShadow: "0 0 0px 1000px transparent inset",
-              WebkitBackgroundClip: "text",
-              caretColor: "#E7E0D5",
-            }}
-            placeholder="Email"
-            required
-          />
-          <div className="w-full flex justify-center">
-            <input
-              id="birthDate"
-              type="date"
-              value={birthDate}
-              onChange={(e) => setBirthDate(e.target.value)}
-              className="pt-2 pl-5 text-[#E7E0D5] text-lg focus:outline-none focus:bg-none transition-all duration-300 [color-scheme:dark]"
-              style={{
-                textAlign: "center",
-                width: "170px", // ancho fijo para centrarlo mejor
-                border: "none",
-                background: "transparent",
-              }}
-              required
-            />
+          <div className="flex flex-row gap-4 w-full">
+            <div className="flex flex-col gap-2 w-1/2">
+              <div className="relative">
+                <User className="absolute left-2 top-1/2 -translate-y-1/2 text-[#E7E0D5]" size={18} />
+                <input
+                  id="username"
+                  type="text"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  className="w-full text-center pt-2 pl-8 px-4 text-[#E7E0D5] text-lg focus:outline-none focus:bg-none transition-all duration-300"
+                  style={{
+                    background: "transparent",
+                    WebkitTextFillColor: "#E7E0D5",
+                    WebkitBoxShadow: "0 0 0px 1000px transparent inset",
+                    WebkitBackgroundClip: "text",
+                    caretColor: "#E7E0D5",
+                  }}
+                  placeholder="Nombre de usuario"
+                  required
+                  autoComplete="username"
+                />
+              </div>
+              <div className="relative">
+                <Mail className="absolute left-2 top-1/2 -translate-y-1/2 text-[#E7E0D5]" size={18} />
+                <input
+                  id="email"
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="w-full text-center pt-2 pl-8 px-4 text-[#E7E0D5] text-lg focus:outline-none focus:bg-none transition-all duration-300"
+                  style={{
+                    background: "transparent",
+                    WebkitTextFillColor: "#E7E0D5",
+                    WebkitBoxShadow: "0 0 0px 1000px transparent inset",
+                    WebkitBackgroundClip: "text",
+                    caretColor: "#E7E0D5",
+                  }}
+                  placeholder="Email"
+                  required
+                  autoComplete="email"
+                />
+              </div>
+              <div className="w-full flex justify-center relative">
+                <Calendar className="absolute left-2 top-1/2 -translate-y-1/2 text-[#E7E0D5]" size={18} />
+                <input
+                  id="birthDate"
+                  type="date"
+                  value={birthDate}
+                  onChange={(e) => setBirthDate(e.target.value)}
+                  className="pt-2 pl-8 text-[#E7E0D5] text-lg focus:outline-none focus:bg-none transition-all duration-300 [color-scheme:dark] w-full"
+                  style={{
+                    textAlign: "center",
+                    border: "none",
+                    background: "transparent",
+                  }}
+                  required
+                  autoComplete="bday"
+                />
+              </div>
+            </div>
+            <div className="flex flex-col gap-2 w-1/2">
+              <input
+                id="name"
+                type="text"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                className="w-full text-center pt-2 px-4 text-[#E7E0D5] text-lg focus:outline-none focus:bg-none transition-all duration-300"
+                style={{
+                  background: "transparent",
+                  WebkitTextFillColor: "#E7E0D5",
+                  WebkitBoxShadow: "0 0 0px 1000px transparent inset",
+                  WebkitBackgroundClip: "text",
+                  caretColor: "#E7E0D5",
+                }}
+                placeholder="Nombre"
+                required
+                autoComplete="given-name"
+              />
+              <input
+                id="lastName"
+                type="text"
+                value={lastName}
+                onChange={(e) => setLastName(e.target.value)}
+                className="w-full text-center pt-2 px-4 text-[#E7E0D5] text-lg focus:outline-none focus:bg-none transition-all duration-300"
+                style={{
+                  background: "transparent",
+                  WebkitTextFillColor: "#E7E0D5",
+                  WebkitBoxShadow: "0 0 0px 1000px transparent inset",
+                  WebkitBackgroundClip: "text",
+                  caretColor: "#E7E0D5",
+                }}
+                placeholder="Apellidos"
+                required
+                autoComplete="family-name"
+              />
+              <div className="relative">
+                <Lock className="absolute left-2 top-1/2 -translate-y-1/2 text-[#E7E0D5]" size={18} />
+                <input
+                  id="password"
+                  type={showPassword ? "text" : "password"}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="w-full text-center pt-2 pl-8 pr-10 px-4 text-[#E7E0D5] text-lg focus:outline-none focus:bg-none transition-all duration-300"
+                  style={{
+                    background: "transparent",
+                    WebkitTextFillColor: "#E7E0D5",
+                    WebkitBoxShadow: "0 0 0px 1000px transparent inset",
+                    WebkitBackgroundClip: "text",
+                    caretColor: "#E7E0D5",
+                  }}
+                  placeholder="Contraseña"
+                  autoComplete="new-password"
+                  required
+                />
+                <button
+                  type="button"
+                  className="absolute right-2 top-1/2 -translate-y-1/2 text-[#E7E0D5] focus:outline-none"
+                  tabIndex={-1}
+                  onClick={() => setShowPassword((v) => !v)}
+                  aria-label={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
+                  style={{ background: "none" }}
+                >
+                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                </button>
+              </div>
+              {/* Indicador de fuerza de contraseña */}
+              <div className="w-full h-2 rounded-full bg-[#E7E0D5]/30 mb-1">
+                <div
+                  className="h-2 rounded-full transition-all duration-300"
+                  style={{
+                    width: `${(passwordStrength / 5) * 100}%`,
+                    background:
+                      passwordStrength < 3
+                        ? "#C62328"
+                        : passwordStrength < 5
+                        ? "#e7b800"
+                        : "#7ac77a",
+                  }}
+                ></div>
+              </div>
+              <div className="relative">
+                <Lock className="absolute left-2 top-1/2 -translate-y-1/2 text-[#E7E0D5]" size={18} />
+                <input
+                  id="confirm-password"
+                  type={showConfirmPassword ? "text" : "password"}
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  className="w-full text-center pt-2 pl-8 pr-10 px-4 text-[#E7E0D5] text-lg focus:outline-none focus:bg-none transition-all duration-300"
+                  style={{
+                    background: "transparent",
+                    WebkitTextFillColor: "#E7E0D5",
+                    WebkitBoxShadow: "0 0 0px 1000px transparent inset",
+                    WebkitBackgroundClip: "text",
+                    caretColor: "#E7E0D5",
+                  }}
+                  placeholder="Confirmar contraseña"
+                  autoComplete="new-password"
+                  required
+                />
+                <button
+                  type="button"
+                  className="absolute right-2 top-1/2 -translate-y-1/2 text-[#E7E0D5] focus:outline-none"
+                  tabIndex={-1}
+                  onClick={() => setShowConfirmPassword((v) => !v)}
+                  aria-label={showConfirmPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
+                  style={{ background: "none" }}
+                >
+                  {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                </button>
+              </div>
+            </div>
           </div>
-          <input
-            id="password"
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className="w-full text-center pt-2 px-4 text-[#E7E0D5] text-lg focus:outline-none focus:bg-none transition-all duration-300"
-            style={{
-              background: "transparent",
-              WebkitTextFillColor: "#E7E0D5",
-              WebkitBoxShadow: "0 0 0px 1000px transparent inset",
-              WebkitBackgroundClip: "text",
-              caretColor: "#E7E0D5",
-            }}
-            placeholder="Contraseña"
-            autoComplete="new-password"
-            required
-          />
-          <input
-            id="confirm-password"
-            type="password"
-            value={confirmPassword}
-            onChange={(e) => setConfirmPassword(e.target.value)}
-            className="w-full text-center pt-2 mb-10 px-4 text-[#E7E0D5] text-lg focus:outline-none focus:bg-none transition-all duration-300"
-            style={{
-              background: "transparent",
-              WebkitTextFillColor: "#E7E0D5",
-              WebkitBoxShadow: "0 0 0px 1000px transparent inset",
-              WebkitBackgroundClip: "text",
-              caretColor: "#E7E0D5",
-            }}
-            placeholder="Confirmar contraseña"
-            autoComplete="new-password"
-            required
-          />
           <div className="flex items-center justify-center w-full mb-2">
             <div className="w-full max-w-md h-[2px] bg-[#E7E0D5]/30 relative overflow-hidden rounded-full">
               <span className="absolute inset-0 w-full h-full bg-gradient-to-r from-transparent via-[#E7E0D5] to-transparent animate-[shimmer_2s_infinite]"></span>
             </div>
           </div>
-          {/* Checkbox personalizado */}
-          
           {/* Checkbox personalizado */}
           <div className="flex items-start gap-3">
             <div
@@ -246,9 +395,9 @@ const RegisterPage = () => {
           <div className="flex justify-center mt-4">
             <button
               type="submit"
-              disabled={isLoading || !acceptTerms}
+              disabled={!isFormValid || isLoading}
               className={`cursor-pointer group relative px-12 py-3 font-semibold text-base rounded-full overflow-hidden transition-all duration-300 transform active:scale-95 ${
-                acceptTerms && !isLoading
+                isFormValid && !isLoading
                   ? "hover:scale-105 shadow-[0_5px_10px_0_#00000079] hover:shadow-[0_4px_24px_0_#E7E0D540]"
                   : "opacity-50 cursor-not-allowed transform-none hover:transform-none"
               }`}
@@ -286,9 +435,7 @@ const RegisterPage = () => {
                     Crear cuenta
                     <svg
                       className={`w-4 h-4 transition-transform duration-300 ${
-                        acceptTerms && !isLoading
-                          ? "group-hover:translate-x-1"
-                          : ""
+                        isFormValid && !isLoading ? "group-hover:translate-x-1" : ""
                       }`}
                       fill="none"
                       stroke="currentColor"
