@@ -75,15 +75,6 @@ interface NeomorphicCheckboxProps {
   compact?: boolean;
 }
 
-interface ErrorMessageProps {
-  message: string;
-}
-
-interface InfoMessageProps {
-  message: string;
-  className?: string;
-}
-
 interface StepHeaderProps {
   title: string;
   subtitle: string;
@@ -234,38 +225,6 @@ export const NeomorphicCheckbox: React.FC<NeomorphicCheckboxProps> = ({
     </div>
     {checked && <span className="text-[#5b0108] text-lg font-medium">✓</span>}
   </label>
-);
-
-export const ErrorMessage: React.FC<ErrorMessageProps> = ({ message }) => (
-  <div
-    className="mt-3 p-2 rounded-lg text-center"
-    style={{
-      background: "rgba(239, 68, 68, 0.1)",
-      border: "1px solid rgba(239, 68, 68, 0.2)",
-    }}
-  >
-    <p className="text-red-600 text-sm font-medium">{message}</p>
-  </div>
-);
-
-export const InfoMessage: React.FC<InfoMessageProps> = ({
-  message,
-  className = "",
-}) => (
-  <div
-    className={`p-3 rounded-xl text-center ${className}`}
-    style={{
-      background:
-        "linear-gradient(135deg, rgba(198, 35, 40, 0.05), rgba(157, 13, 11, 0.03))",
-      border: "1px solid rgba(198, 35, 40, 0.1)",
-      boxShadow: `
-        inset 2px 2px 4px rgba(198, 35, 40, 0.03),
-        inset -2px -2px 4px rgba(255, 255, 255, 0.8)
-      `,
-    }}
-  >
-    <p className="text-sm text-[#5b0108] italic">{message}</p>
-  </div>
 );
 
 export const StepHeader: React.FC<StepHeaderProps> = ({

@@ -1,22 +1,57 @@
 import React from "react";
 
-const Tattoos: React.FC<{ type: string }> = ({ type }) => {
+interface TattoosProps {
+  type: string;
+  color: string;
+}
+
+const Tattoos: React.FC<TattoosProps> = ({ type, color }) => {
   switch (type) {
-    case "star":
-      return (
-        <polygon
-          points="160,220 163,228 171,228 165,232 167,240 160,235 153,240 155,232 149,228 157,228"
-          fill="#FFD700"
-        />
-      );
-    case "heart":
+    case "tribal":
       return (
         <path
-          d="M160 225 Q165 220 170 225 Q170 230 160 240 Q150 230 150 225 Q155 220 160 225"
-          fill="#E57373"
+          d="M140 200 Q160 180 180 200 Q160 220 140 200"
+          stroke={color}
+          strokeWidth="2"
+          fill="none"
         />
       );
-    case "none":
+    case "dragon":
+      return (
+        <path
+          d="M140 200 Q160 190 180 200 Q170 210 160 200 Q150 210 140 200"
+          stroke={color}
+          strokeWidth="2"
+          fill="none"
+        />
+      );
+    case "skull":
+      return (
+        <path
+          d="M150 200 Q160 190 170 200 Q160 210 150 200"
+          stroke={color}
+          strokeWidth="2"
+          fill="none"
+        />
+      );
+    case "rose":
+      return (
+        <path
+          d="M150 200 Q160 190 170 200 Q160 210 150 200 M160 190 Q160 180 160 170"
+          stroke={color}
+          strokeWidth="2"
+          fill="none"
+        />
+      );
+    case "cross":
+      return (
+        <path
+          d="M160 190 L160 210 M150 200 L170 200"
+          stroke={color}
+          strokeWidth="2"
+          fill="none"
+        />
+      );
     default:
       return null;
   }

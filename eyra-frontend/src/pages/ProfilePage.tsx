@@ -104,6 +104,7 @@ const ProfilePage: React.FC = () => {
         <NeomorphicToast
           message={message}
           variant={variant}
+          duration={3500}
           onClose={() => toast.dismiss(t.id)}
         />
       ),

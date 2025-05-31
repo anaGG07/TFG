@@ -6,6 +6,7 @@ import { NeomorphicButton } from "../ui/NeomorphicComponents";
 import { userService } from "../../services/userService";
 import { useAuth } from "../../context/AuthContext";
 import { toast } from "react-hot-toast";
+import NeomorphicToast from "../ui/NeomorphicToast";
 
 interface AvatarBuilderModalProps {
   isOpen: boolean;
@@ -41,30 +42,30 @@ const AvatarBuilderModal: React.FC<AvatarBuilderModalProps> = ({
       onSave(config);
 
       toast.custom(
-        () => (
-          <div className="rounded-2xl px-6 py-4 shadow-xl bg-[#fff] border border-[#C62328]/20 flex items-center gap-3 animate-fade-in">
-            <span className="text-2xl">✅</span>
-            <span className="text-[#7a2323] font-semibold">
-              ¡Avatar actualizado con éxito!
-            </span>
-          </div>
+        (t) => (
+          <NeomorphicToast
+            message="¡Avatar actualizado con éxito!"
+            variant="success"
+            duration={3500}
+            onClose={() => toast.dismiss(t.id)}
+          />
         ),
-        { duration: 3000 }
+        { duration: 3500 }
       );
 
       onClose();
     } catch (error) {
       console.error("Error al guardar avatar:", error);
       toast.custom(
-        () => (
-          <div className="rounded-2xl px-6 py-4 shadow-xl bg-[#fff] border border-red-500/20 flex items-center gap-3 animate-fade-in">
-            <span className="text-2xl">❌</span>
-            <span className="text-red-600 font-semibold">
-              Error al guardar el avatar
-            </span>
-          </div>
+        (t) => (
+          <NeomorphicToast
+            message="Error al guardar el avatar"
+            variant="error"
+            duration={3500}
+            onClose={() => toast.dismiss(t.id)}
+          />
         ),
-        { duration: 3000 }
+        { duration: 3500 }
       );
     } finally {
       setSaving(false);

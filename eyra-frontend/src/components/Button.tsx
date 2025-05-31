@@ -22,7 +22,7 @@ const Button: React.FC<ButtonProps> = ({
   className = "",
 }) => {
   const baseClasses =
-    "relative overflow-hidden rounded-2xl font-semibold transition-all duration-300 ease-in-out transform backdrop-blur-md border cursor-pointer";
+    "relative overflow-hidden rounded-full font-semibold transition-all duration-300 ease-in-out transform backdrop-blur-md border cursor-pointer";
 
   const sizeClasses = {
     small: "px-6 py-2 text-sm",
@@ -32,11 +32,11 @@ const Button: React.FC<ButtonProps> = ({
 
   const variantClasses = {
     primary: `
-      bg-[#e7e0d5]/30 border-[#e7e0d5]/60 text-[#e7e0d5]
-      hover:bg-[#e7e0d5]/50 hover:border-[#e7e0d5]/80 hover:scale-105 hover:shadow-[0_8px_32px_rgba(231,224,213,0.5)]
-      active:scale-95 active:bg-[#e7e0d5]/40
+      bg-[#e7e0d5] border-[#e7e0d5] text-[#7a2323]
+      hover:bg-[#f5ede6] hover:border-[#e7e0d5] hover:scale-105 hover:shadow-[0_8px_32px_rgba(231,224,213,0.5)]
+      active:scale-95 active:bg-[#e7e0d5]/90
       focus:outline-none focus:ring-2 focus:ring-[#e7e0d5]/60
-      shadow-[0_4px_24px_0_#E7E0D5] 
+      shadow-[0_4px_24px_0_#E7E0D5]
     `,
     secondary: `
       bg-[#E7E0D5]/15 border-[#E7E0D5]/20 text-[#E7E0D5]
@@ -53,7 +53,7 @@ const Button: React.FC<ButtonProps> = ({
   };
 
   const disabledClasses =
-    "opacity-50 cursor-not-allowed transform-none hover:transform-none hover:bg-opacity-15";
+    "opacity-60 cursor-not-allowed transform-none hover:transform-none hover:bg-opacity-15";
 
   const finalClasses = `
     ${baseClasses}
@@ -70,7 +70,7 @@ const Button: React.FC<ButtonProps> = ({
       className={finalClasses}
     >
       {/* Efecto de brillo en hover */}
-      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-in-out" />
+      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-in-out rounded-full" />
 
       {/* Contenido del botón */}
       <span className="relative z-10 flex items-center justify-center gap-2">
@@ -103,7 +103,7 @@ const Button: React.FC<ButtonProps> = ({
       </span>
 
       {/* Borde interno sutil */}
-      <div className="absolute inset-0 rounded-2xl border border-white/10" />
+      <div className="absolute inset-0 rounded-full border border-white/10" />
     </button>
   );
 };

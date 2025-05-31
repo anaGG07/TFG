@@ -72,6 +72,7 @@ const RegisterPage = () => {
           <NeomorphicToast
             message="Introduce un email válido"
             variant="error"
+            duration={3500}
             onClose={() => {
               toast.dismiss(t.id);
               setActiveToast(null);
@@ -92,6 +93,7 @@ const RegisterPage = () => {
           <NeomorphicToast
             message="La contraseña debe tener al menos 8 caracteres"
             variant="error"
+            duration={3500}
             onClose={() => {
               toast.dismiss(t.id);
               setActiveToast(null);
@@ -106,6 +108,7 @@ const RegisterPage = () => {
           <NeomorphicToast
             message="La contraseña debe tener mayúscula, minúscula, número y símbolo"
             variant="error"
+            duration={3500}
             onClose={() => {
               toast.dismiss(t.id);
               setActiveToast(null);
@@ -126,6 +129,7 @@ const RegisterPage = () => {
           <NeomorphicToast
             message="Las contraseñas no coinciden"
             variant="error"
+            duration={3500}
             onClose={() => {
               toast.dismiss(t.id);
               setActiveToast(null);
