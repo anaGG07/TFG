@@ -10,6 +10,7 @@ import ProfileForm from "../components/profile/ProfileForm";
 import SecurityForm from "../components/profile/SecurityForm";
 import NotificationsForm from "../components/profile/NotificationsForm";
 import AvatarBuilderModal from "../components/avatarBuilder/AvatarBuilderModal";
+import { User as UserIcon, Lock, Bell } from "lucide-react";
 
 const tabList = [
   { key: "privacy", icon: "user", alt: "Perfil" },
@@ -18,15 +19,9 @@ const tabList = [
 ];
 
 const iconMap: Record<string, React.ReactNode> = {
-  user: (
-    <svg width="28" height="28" viewBox="0 0 32 32" fill="none"><circle cx="16" cy="13" r="5" stroke="#C62328" strokeWidth="2" fill="none" /><path d="M10 23c0-3 4-4 6-4s6 1 6 4" stroke="#C62328" strokeWidth="2" strokeLinecap="round" fill="none" /></svg>
-  ),
-  lock: (
-    <svg width="28" height="28" viewBox="0 0 32 32" fill="none"><rect x="9" y="15" width="14" height="8" rx="3" stroke="#C62328" strokeWidth="2" fill="none" /><path d="M12 15v-2a4 4 0 0 1 8 0v2" stroke="#C62328" strokeWidth="2" fill="none" /><circle cx="16" cy="19" r="2" stroke="#C62328" strokeWidth="2" fill="none" /></svg>
-  ),
-  bell: (
-    <svg width="28" height="28" viewBox="0 0 32 32" fill="none"><path d="M24 23H8m8 0v1a2 2 0 1 1-4 0v-1" stroke="#C62328" strokeWidth="2" strokeLinecap="round" fill="none" /><path d="M22 23V15a6 6 0 1 0-12 0v8" stroke="#C62328" strokeWidth="2" fill="none" /><circle cx="16" cy="10" r="1" fill="#C62328" /></svg>
-  ),
+  user: <UserIcon size={28} stroke="#C62328" strokeWidth={2.2} />,
+  lock: <Lock size={28} stroke="#C62328" strokeWidth={2.2} />,
+  bell: <Bell size={28} stroke="#C62328" strokeWidth={2.2} />,
 };
 
 const ProfilePage: React.FC = () => {
@@ -163,22 +158,31 @@ const ProfilePage: React.FC = () => {
             marginRight: 'auto',
           }} />
         </div>
-        {/* Avatar neumórfico circular */}
-        <motion.div
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.5 }}
-          className="flex items-center justify-center rounded-full shadow-lg"
-          style={{
-            width: 320,
-            height: 320,
-            background: form.avatar.backgroundColor || '#f5ede6',
-            boxShadow: '0 8px 32px #c6232822, 8px 8px 24px #e7e0d5, -8px -8px 24px #fff8',
-            border: '8px solid #ece5db',
-          }}
-        >
-          <AvatarPreview config={getAvatarConfig()} className="w-[220px] h-[220px]" />
-        </motion.div>
+        {/* Avatar neumórfico circular con pulso de luz */}
+        <div className="relative flex items-center justify-center">
+          <span className="absolute z-0 animate-avatar-pulse" style={{
+            width: 340,
+            height: 340,
+            borderRadius: '50%',
+            boxShadow: '0 0 0 0 #fff0, 0 0 32px 8px #fff6',
+            background: 'radial-gradient(circle, #fff8 0%, #fff0 70%)',
+            pointerEvents: 'none',
+          }} />
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.5 }}
+            className="flex items-center justify-center rounded-full shadow-lg relative z-10"
+            style={{
+              width: 320,
+              height: 320,
+              background: form.avatar.backgroundColor || '#f5ede6',
+              boxShadow: '0 8px 32px #c6232822, 8px 8px 24px #e7e0d5, -8px -8px 24px #fff8',
+            }}
+          >
+            <AvatarPreview config={getAvatarConfig()} className="w-[220px] h-[220px]" />
+          </motion.div>
+        </div>
         <NeomorphicButton
           variant="primary"
           onClick={() => setIsAvatarBuilderOpen(true)}
@@ -195,17 +199,15 @@ const ProfilePage: React.FC = () => {
           <p className="text-[#7a2323]/80">{user.email}</p>
           <p className="text-[#C62328] text-lg font-serif mt-2">Hoy es un gran día para cuidar de ti ✨</p>
         </div>
-        {/* Tabs de iconos */}
+        {/* Tabs de iconos mejorados */}
         <div className="flex justify-center gap-8 mb-6">
           {tabList.map((tab) => (
             <button
               key={tab.key}
-              className={`flex items-center justify-center w-14 h-14 rounded-full transition-all duration-200 ${
-                activeTab === tab.key
-                  ? "bg-[#F5E9E6] shadow-neomorphic border-2 border-[#C62328]"
-                  : "bg-transparent border-2 border-transparent"
-              } text-[#C62328] hover:bg-[#F5E9E6]/80`}
-              style={{ boxSizing: "border-box" }}
+              className={`flex items-center justify-center w-14 h-14 rounded-full transition-all duration-200 bg-transparent border-none shadow-none p-0 ${
+                activeTab === tab.key ? "scale-110" : "opacity-60 hover:opacity-100"
+              } text-[#C62328]`}
+              style={{ boxSizing: "border-box", background: 'none' }}
               onClick={() => setActiveTab(tab.key as any)}
               type="button"
               aria-label={tab.alt}
@@ -280,6 +282,17 @@ const ProfilePage: React.FC = () => {
           setIsAvatarBuilderOpen(false);
         }}
       />
+      {/* Añadir animación global para el pulso de luz */}
+      <style>{`
+      @keyframes avatar-pulse {
+        0% { box-shadow: 0 0 0 0 #fff0, 0 0 32px 8px #fff6; opacity: 0.7; }
+        50% { box-shadow: 0 0 0 16px #fff4, 0 0 48px 16px #fff6; opacity: 1; }
+        100% { box-shadow: 0 0 0 0 #fff0, 0 0 32px 8px #fff6; opacity: 0.7; }
+      }
+      .animate-avatar-pulse {
+        animation: avatar-pulse 2.8s infinite cubic-bezier(.4,0,.2,1);
+      }
+      `}</style>
     </div>
   );
 };
