@@ -9,7 +9,7 @@ import { defaultAvatarConfig } from "../types/avatar";
 import ProfileForm from "../components/profile/ProfileForm";
 import SecurityForm from "../components/profile/SecurityForm";
 import NotificationsForm from "../components/profile/NotificationsForm";
-import AvatarBuilderModal from "../components/avatarBuilder/AvatarBuilderModal";
+import AvatarBuilder from "../components/avatarBuilder/AvatarBuilder";
 import { User as UserIcon, Lock, Bell } from "lucide-react";
 
 const tabList = [
@@ -43,7 +43,8 @@ const ProfilePage: React.FC = () => {
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [isAvatarBuilderOpen, setIsAvatarBuilderOpen] = useState(false);
+  const [isEditingAvatar, setIsEditingAvatar] = useState(false);
+  const [tempAvatar, setTempAvatar] = useState(form.avatar);
 
   React.useEffect(() => {
     if (user) {
@@ -176,16 +177,19 @@ const ProfilePage: React.FC = () => {
             style={{
               width: 320,
               height: 320,
-              background: form.avatar.backgroundColor || '#f5ede6',
+              background: (isEditingAvatar ? tempAvatar.backgroundColor : form.avatar.backgroundColor) || '#f5ede6',
               boxShadow: '0 8px 32px #c6232822, 8px 8px 24px #e7e0d5, -8px -8px 24px #fff8',
             }}
           >
-            <AvatarPreview config={getAvatarConfig()} className="w-[220px] h-[220px]" />
+            <AvatarPreview config={isEditingAvatar ? tempAvatar : getAvatarConfig()} className="w-[220px] h-[220px]" />
           </motion.div>
         </div>
         <NeomorphicButton
           variant="primary"
-          onClick={() => setIsAvatarBuilderOpen(true)}
+          onClick={() => {
+            setTempAvatar(form.avatar);
+            setIsEditingAvatar(true);
+          }}
           className="mt-2 px-8 py-3 text-lg"
         >
           Editar avatar
@@ -199,89 +203,122 @@ const ProfilePage: React.FC = () => {
           <p className="text-[#7a2323]/80">{user.email}</p>
           <p className="text-[#C62328] text-lg font-serif mt-2">Hoy es un gran día para cuidar de ti ✨</p>
         </div>
-        {/* Tabs de iconos mejorados */}
-        <div className="flex justify-center gap-8 mb-6">
-          {tabList.map((tab) => (
-            <button
-              key={tab.key}
-              className={`flex items-center justify-center w-14 h-14 rounded-full transition-all duration-200 bg-transparent border-none shadow-none p-0 ${
-                activeTab === tab.key ? "scale-110" : "opacity-60 hover:opacity-100"
-              } text-[#C62328]`}
-              style={{ boxSizing: "border-box", background: 'none' }}
-              onClick={() => setActiveTab(tab.key as any)}
-              type="button"
-              aria-label={tab.alt}
-            >
-              {iconMap[tab.icon]}
-            </button>
-          ))}
-        </div>
-        {/* Contenido dinámico */}
-        <div className="w-full max-w-2xl min-h-[320px]">
-          <AnimatePresence mode="wait">
-            {activeTab === "privacy" && (
-              <motion.div
-                key="privacy"
-                initial={{ opacity: 0, x: 40 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -40 }}
-                transition={{ duration: 0.3 }}
+        {/* Tabs de iconos mejorados o editor de avatar */}
+        {isEditingAvatar ? (
+          <div className="w-full max-w-4xl bg-white rounded-3xl shadow-2xl p-8 animate-fade-in">
+            <h2 className="font-serif text-2xl font-bold text-[#7a2323] mb-6 text-center">Personaliza tu avatar</h2>
+            <AvatarBuilder
+              initialConfig={tempAvatar}
+              onChange={setTempAvatar}
+            />
+            <div className="flex gap-4 mt-8">
+              <NeomorphicButton
+                type="button"
+                variant="secondary"
+                onClick={() => setIsEditingAvatar(false)}
+                className="flex-1"
               >
-                <ProfileForm
-                  form={form}
-                  error={error}
-                  loading={loading}
-                  handleChange={handleChange}
-                  handleSave={handleSave}
-                />
-              </motion.div>
-            )}
-            {activeTab === "security" && (
-              <motion.div
-                key="security"
-                initial={{ opacity: 0, x: 40 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -40 }}
-                transition={{ duration: 0.3 }}
+                Cancelar
+              </NeomorphicButton>
+              <NeomorphicButton
+                type="button"
+                variant="primary"
+                className="flex-1"
+                onClick={async () => {
+                  setLoading(true);
+                  try {
+                    await userService.updateAvatar(tempAvatar);
+                    await checkAuth();
+                    setForm((prev) => ({ ...prev, avatar: tempAvatar }));
+                    setIsEditingAvatar(false);
+                    toast.success("¡Avatar actualizado con éxito!");
+                  } catch (error) {
+                    toast.error("Error al guardar el avatar");
+                  } finally {
+                    setLoading(false);
+                  }
+                }}
+                disabled={loading}
               >
-                <SecurityForm
-                  form={form}
-                  error={error}
-                  loading={loading}
-                  handleChange={handleChange}
-                  handlePasswordChange={handlePasswordChange}
-                />
-              </motion.div>
-            )}
-            {activeTab === "notifications" && (
-              <motion.div
-                key="notifications"
-                initial={{ opacity: 0, x: 40 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -40 }}
-                transition={{ duration: 0.3 }}
-              >
-                <NotificationsForm
-                  form={form}
-                  loading={loading}
-                  handleChange={handleChange}
-                  handleSave={handleSave}
-                />
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </div>
+                {loading ? "Guardando..." : "Guardar avatar"}
+              </NeomorphicButton>
+            </div>
+          </div>
+        ) : (
+          <>
+            <div className="flex justify-center gap-8 mb-6">
+              {tabList.map((tab) => (
+                <button
+                  key={tab.key}
+                  className={`flex items-center justify-center w-14 h-14 rounded-full transition-all duration-200 bg-transparent border-none shadow-none p-0 ${
+                    activeTab === tab.key ? "scale-110" : "opacity-60 hover:opacity-100"
+                  } text-[#C62328]`}
+                  style={{ boxSizing: "border-box", background: 'none' }}
+                  onClick={() => setActiveTab(tab.key as any)}
+                  type="button"
+                  aria-label={tab.alt}
+                >
+                  {iconMap[tab.icon]}
+                </button>
+              ))}
+            </div>
+            <div className="w-full max-w-2xl min-h-[320px]">
+              <AnimatePresence mode="wait">
+                {activeTab === "privacy" && (
+                  <motion.div
+                    key="privacy"
+                    initial={{ opacity: 0, x: 40 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -40 }}
+                    transition={{ duration: 0.3 }}
+                  >
+                    <ProfileForm
+                      form={form}
+                      error={error}
+                      loading={loading}
+                      handleChange={handleChange}
+                      handleSave={handleSave}
+                    />
+                  </motion.div>
+                )}
+                {activeTab === "security" && (
+                  <motion.div
+                    key="security"
+                    initial={{ opacity: 0, x: 40 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -40 }}
+                    transition={{ duration: 0.3 }}
+                  >
+                    <SecurityForm
+                      form={form}
+                      error={error}
+                      loading={loading}
+                      handleChange={handleChange}
+                      handlePasswordChange={handlePasswordChange}
+                    />
+                  </motion.div>
+                )}
+                {activeTab === "notifications" && (
+                  <motion.div
+                    key="notifications"
+                    initial={{ opacity: 0, x: 40 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -40 }}
+                    transition={{ duration: 0.3 }}
+                  >
+                    <NotificationsForm
+                      form={form}
+                      loading={loading}
+                      handleChange={handleChange}
+                      handleSave={handleSave}
+                    />
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+          </>
+        )}
       </div>
-      {/* Modal del editor de avatar */}
-      <AvatarBuilderModal
-        isOpen={isAvatarBuilderOpen}
-        onClose={() => setIsAvatarBuilderOpen(false)}
-        initialConfig={form.avatar}
-        onSave={(config) => {
-          setForm((prev) => ({ ...prev, avatar: config }));
-          setIsAvatarBuilderOpen(false);
-        }}
-      />
       {/* Añadir animación global para el pulso de luz */}
       <style>{`
       @keyframes avatar-pulse {
