@@ -10,42 +10,48 @@ interface SecurityFormProps {
 }
 
 const SecurityForm: React.FC<SecurityFormProps> = ({ form, error, loading, handleChange, handlePasswordChange }) => (
-  <form onSubmit={handlePasswordChange} className="flex flex-col gap-4 py-2 w-full">
-    <NeomorphicInput
-      id="currentPassword"
-      name="currentPassword"
-      type="password"
-      value={form.currentPassword || ""}
-      onChange={handleChange}
-      placeholder="Contraseña actual"
-      autoComplete="current-password"
-    />
-    <NeomorphicInput
-      id="newPassword"
-      name="newPassword"
-      type="password"
-      value={form.newPassword || ""}
-      onChange={handleChange}
-      placeholder="Nueva contraseña"
-      autoComplete="new-password"
-    />
-    <NeomorphicInput
-      id="confirmPassword"
-      name="confirmPassword"
-      type="password"
-      value={form.confirmPassword || ""}
-      onChange={handleChange}
-      placeholder="Confirmar nueva contraseña"
-      autoComplete="new-password"
-    />
+  <form onSubmit={handlePasswordChange} className="flex flex-col gap-4 py-2 w-full items-center">
+    <div className="w-full max-w-xs flex flex-col gap-2">
+      <NeomorphicInput
+        id="currentPassword"
+        name="currentPassword"
+        type="password"
+        value={form.currentPassword || ""}
+        onChange={handleChange}
+        placeholder="Contraseña actual"
+        autoComplete="current-password"
+      />
+    </div>
+    <div className="w-full max-w-xs flex flex-col gap-2">
+      <NeomorphicInput
+        id="newPassword"
+        name="newPassword"
+        type="password"
+        value={form.newPassword || ""}
+        onChange={handleChange}
+        placeholder="Nueva contraseña"
+        autoComplete="new-password"
+      />
+    </div>
+    <div className="w-full max-w-xs flex flex-col gap-2">
+      <NeomorphicInput
+        id="confirmPassword"
+        name="confirmPassword"
+        type="password"
+        value={form.confirmPassword || ""}
+        onChange={handleChange}
+        placeholder="Confirmar nueva contraseña"
+        autoComplete="new-password"
+      />
+    </div>
     {error && (
       <div className="text-red-600 text-center font-medium">{error}</div>
     )}
-    <div className="flex gap-4 mt-2 w-full">
+    <div className="flex gap-4 mt-2 w-full justify-center">
       <NeomorphicButton
         type="submit"
         variant="primary"
-        className="flex-1 border-2 border-transparent"
+        className="px-8 py-3 text-lg min-w-[180px] border-2 border-transparent"
         disabled={loading}
       >
         {loading ? "Guardando..." : "Guardar contraseña"}

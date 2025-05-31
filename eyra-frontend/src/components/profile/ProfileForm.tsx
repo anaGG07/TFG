@@ -10,8 +10,8 @@ interface ProfileFormProps {
 }
 
 const ProfileForm: React.FC<ProfileFormProps> = ({ form, error, loading, handleChange, handleSave }) => (
-  <form onSubmit={handleSave} className="flex flex-col gap-4 w-full items-center">
-    <div className="w-full max-w-md flex flex-col gap-2">
+  <form onSubmit={handleSave} className="grid grid-cols-1 md:grid-cols-2 gap-8 w-full items-start justify-center">
+    <div className="w-full max-w-xs flex flex-col gap-2 mx-auto">
       <label htmlFor="name" className="font-semibold text-[#7a2323] mb-1">Nombre</label>
       <NeomorphicInput
         id="name"
@@ -22,7 +22,7 @@ const ProfileForm: React.FC<ProfileFormProps> = ({ form, error, loading, handleC
         required
       />
     </div>
-    <div className="w-full max-w-md flex flex-col gap-2">
+    <div className="w-full max-w-xs flex flex-col gap-2 mx-auto">
       <label htmlFor="lastName" className="font-semibold text-[#7a2323] mb-1">Apellido</label>
       <NeomorphicInput
         id="lastName"
@@ -33,7 +33,7 @@ const ProfileForm: React.FC<ProfileFormProps> = ({ form, error, loading, handleC
         required
       />
     </div>
-    <div className="w-full max-w-md flex flex-col gap-2">
+    <div className="w-full max-w-xs flex flex-col gap-2 mx-auto">
       <label htmlFor="username" className="font-semibold text-[#7a2323] mb-1">Nombre de usuario</label>
       <NeomorphicInput
         id="username"
@@ -44,7 +44,7 @@ const ProfileForm: React.FC<ProfileFormProps> = ({ form, error, loading, handleC
         required
       />
     </div>
-    <div className="w-full max-w-md flex flex-col gap-2">
+    <div className="w-full max-w-xs flex flex-col gap-2 mx-auto">
       <label htmlFor="birthDate" className="font-semibold text-[#7a2323] mb-1">Fecha de nacimiento</label>
       <NeomorphicInput
         id="birthDate"
@@ -57,9 +57,9 @@ const ProfileForm: React.FC<ProfileFormProps> = ({ form, error, loading, handleC
       />
     </div>
     {error && (
-      <div className="text-red-600 text-center font-medium">{error}</div>
+      <div className="col-span-2 text-red-600 text-center font-medium">{error}</div>
     )}
-    <div className="flex gap-4 mt-2 w-full justify-center">
+    <div className="col-span-2 flex gap-4 mt-2 w-full justify-center">
       <NeomorphicButton
         type="submit"
         variant="primary"

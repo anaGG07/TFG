@@ -16,7 +16,7 @@ const notificationOptions = [
 ];
 
 const NotificationsForm: React.FC<NotificationsFormProps> = ({ form, loading, handleChange, handleSave }) => (
-  <form onSubmit={handleSave} className="flex flex-col gap-4 py-2 w-full">
+  <form onSubmit={handleSave} className="flex flex-col gap-4 py-2 w-full max-w-md mx-auto items-center">
     {notificationOptions.map((r) => (
       <label
         key={r.name}
@@ -48,7 +48,7 @@ const NotificationsForm: React.FC<NotificationsFormProps> = ({ form, loading, ha
       <NeomorphicButton
         type="submit"
         variant="primary"
-        className="max-w-xs w-full px-8 py-3 text-lg border-2 border-transparent"
+        className="max-w-xs w-full px-6 py-2 text-base border-2 border-transparent"
         disabled={loading}
       >
         {loading ? "Guardando..." : "Guardar cambios"}
