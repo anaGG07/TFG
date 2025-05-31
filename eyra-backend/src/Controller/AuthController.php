@@ -328,7 +328,12 @@ class AuthController extends AbstractController
                     'lastPeriodDate' => $onboarding->getLastPeriodDate() ? $onboarding->getLastPeriodDate()->format('Y-m-d') : null,
                     'averageCycleLength' => $onboarding->getAverageCycleLength(),
                     'averagePeriodLength' => $onboarding->getAveragePeriodLength(),
-                    'completed' => $onboarding->isCompleted()
+                    'completed' => $onboarding->isCompleted(),
+                    'receiveAlerts' => $onboarding->isReceiveAlerts(),
+                    'receiveRecommendations' => $onboarding->isReceiveRecommendations(),
+                    'receiveCyclePhaseTips' => $onboarding->isReceiveCyclePhaseTips(),
+                    'receiveWorkoutSuggestions' => $onboarding->isReceiveWorkoutSuggestions(),
+                    'receiveNutritionAdvice' => $onboarding->isReceiveNutritionAdvice(),
                 ];
             } else {
                 $onboardingData = [ 'completed' => false ];
