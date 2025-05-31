@@ -51,7 +51,7 @@ const AdminPage = () => {
   if (authLoading) {
     return (
       <div className="w-full h-full flex items-center justify-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#b91c1c]"></div>
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#d30006]"></div>
       </div>
     );
   }
@@ -75,11 +75,11 @@ const AdminPage = () => {
   ] as const;
 
   return (
-    <div className="w-full h-full bg-[#f8f9fa] overflow-auto">
+    <div className="w-full h-full  overflow-auto">
       <div className="max-w-7xl mx-auto p-6">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-4xl font-bold text-[#b91c1c] mb-2">
+          <h1 className="text-4xl font-bold text-[#bd30006] mb-2">
             Panel de Administración
           </h1>
           <p className="text-gray-600">
@@ -97,7 +97,7 @@ const AdminPage = () => {
                   onClick={() => setActiveTab(tab.id)}
                   className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors duration-200 ${
                     activeTab === tab.id
-                      ? 'border-[#b91c1c] text-[#b91c1c]'
+                      ? 'border-[#d30006] text-[#d30006]'
                       : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                   }`}
                 >
@@ -130,7 +130,7 @@ const AdminPage = () => {
               {/* Estadísticas simples */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
                 <div className="bg-[#fff1f1] p-6 rounded-lg border border-[#fecaca]">
-                  <h3 className="text-lg font-semibold text-[#b91c1c] mb-2">👥 Usuarios</h3>
+                  <h3 className="text-lg font-semibold text-[#d30006] mb-2">👥 Usuarios</h3>
                   {isLoadingStats ? (
                     <div className="animate-pulse">
                       <div className="h-8 bg-gray-200 rounded mb-2"></div>
@@ -139,7 +139,7 @@ const AdminPage = () => {
                   ) : (
                     <>
                       <p className="text-3xl font-bold text-[#991b1b]">{stats?.totalUsers.toLocaleString() || '0'}</p>
-                      <p className="text-sm text-[#b91c1c]">Total de usuarios</p>
+                      <p className="text-sm text-[#d30006]">Total de usuarios</p>
                     </>
                   )}
                 </div>
@@ -238,7 +238,7 @@ const AdminPage = () => {
                         const textColor = activity.color === 'green'
                           ? 'text-[#15803d]'
                           : activity.color === 'red'
-                          ? 'text-[#b91c1c]'
+                          ? 'text-[#d30006]'
                           : 'text-[#0369a1]';
                         
                         return (
