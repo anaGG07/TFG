@@ -139,6 +139,29 @@ const LogoutIcon = ({ className }: { className?: string }) => (
   </svg>
 );
 
+// Nuevo icono de Administración
+const AdminIcon = ({ className }: { className?: string }) => (
+  <svg
+    className={className}
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="white"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
+    <path d="M12 15v2" />
+    <path d="M12 3v4" />
+    <path d="M3 12h4" />
+    <path d="M17 12h4" />
+    <path d="M18.364 5.636l-2.828 2.828" />
+    <path d="M8.464 15.536l-2.828 2.828" />
+    <path d="M5.636 5.636l2.828 2.828" />
+    <path d="M15.536 15.536l2.828 2.828" />
+    <circle cx="12" cy="12" r="2" />
+  </svg>
+);
+
 const CircularNavigation: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -202,6 +225,13 @@ const CircularNavigation: React.FC = () => {
       route: "",
       color: "#360001",
     },
+    {
+      id: "admin",
+      label: "Administración",
+      icon: AdminIcon,
+      route: "/admin",
+      color: "#1A0001",
+    },
   ];
 
   // Detectar ruta actual y establecer índice
@@ -240,14 +270,22 @@ const CircularNavigation: React.FC = () => {
     // Si es el asistente IA, posición central
     if (itemId === "ai-assistant") {
       return {
-        x: 119, // Centro del blob
+        x: 119,
         y: 119,
       };
     }
 
-    // Para los demás elementos, calcular posición circular excluyendo la IA
+    // Si es el botón de admin, posición fija abajo
+    if (itemId === "admin") {
+      return {
+        x: 119,
+        y: 200,
+      };
+    }
+
+    // Para los demás elementos, calcular posición circular excluyendo la IA y admin
     const circularItems = navigationItems.filter(
-      (item) => item.id !== "ai-assistant"
+      (item) => item.id !== "ai-assistant" && item.id !== "admin"
     );
     const circularIndex = circularItems.findIndex(
       (item) => item.id === navigationItems[index].id

@@ -42,8 +42,7 @@ class UserRepository extends ServiceEntityRepository
     }
 
     /**
-     * ! 31/05/2025 - Método para búsqueda avanzada de usuarios con filtros para el panel de administración
-     * ! 31/05/2025 - Filtro por rol aplicado en PHP para mayor compatibilidad
+     * ! 31/05/2025 - Método simplificado para búsqueda de usuarios - Filtrado completo en PHP
      */
     public function findUsersWithFilters(
         ?string $search = null,
@@ -52,61 +51,99 @@ class UserRepository extends ServiceEntityRepository
         int $limit = 20,
         int $offset = 0
     ): array {
-        $qb = $this->createQueryBuilder('u');
+        // Obtener TODOS los usuarios sin filtros complejos
+        $qb = $this->createQueryBuilder('u')
+            ->orderBy('u.id', 'ASC');
         
-        // Aplicar filtros SQL (texto y tipo de perfil)
-        $this->applyFilters($qb, $search, null, $profileType); // No aplicamos rol en SQL
+        $users = $qb->getQuery()->getResult();
         
-        // Obtener todos los usuarios que coinciden con los otros filtros
-        $users = $qb
-            ->orderBy('u.id', 'ASC')
-            ->getQuery()
-            ->getResult();
+        // Aplicar TODOS los filtros en PHP para evitar errores SQL
+        $filteredUsers = [];
         
-        // Aplicar filtro por rol en PHP si es necesario
-        if ($role) {
-            $users = array_filter($users, function (User $user) use ($role) {
-                return in_array($role, $user->getRoles());
-            });
+        foreach ($users as $user) {
+            $includeUser = true;
+            
+            // Filtro por búsqueda de texto
+            if ($search && $includeUser) {
+                $searchLower = strtolower($search);
+                $includeUser = (
+                    str_contains(strtolower($user->getEmail() ?? ''), $searchLower) ||
+                    str_contains(strtolower($user->getUsername() ?? ''), $searchLower) ||
+                    str_contains(strtolower($user->getName() ?? ''), $searchLower) ||
+                    str_contains(strtolower($user->getLastName() ?? ''), $searchLower)
+                );
+            }
+            
+            // Filtro por tipo de perfil
+            if ($profileType && $includeUser) {
+                $includeUser = ($user->getProfileType() === $profileType);
+            }
+            
+            // Filtro por rol
+            if ($role && $includeUser) {
+                $userRoles = $user->getRoles();
+                $includeUser = in_array($role, $userRoles);
+            }
+            
+            if ($includeUser) {
+                $filteredUsers[] = $user;
+            }
         }
         
-        // Aplicar paginación manualmente
-        $users = array_slice($users, $offset, $limit);
-        
-        return array_values($users); // Reindexar array
+        // Aplicar paginación
+        return array_slice($filteredUsers, $offset, $limit);
     }
 
     /**
-     * ! 31/05/2025 - Método para contar usuarios con filtros aplicados
-     * ! 31/05/2025 - Filtro por rol aplicado en PHP para mayor compatibilidad
+     * ! 31/05/2025 - Método simplificado para contar usuarios - Filtrado completo en PHP
      */
     public function countUsersWithFilters(
         ?string $search = null,
         ?string $role = null,
         ?ProfileType $profileType = null
     ): int {
+        // Obtener TODOS los usuarios sin filtros complejos
         $qb = $this->createQueryBuilder('u');
+        $users = $qb->getQuery()->getResult();
         
-        // Aplicar filtros SQL (texto y tipo de perfil)
-        $this->applyFilters($qb, $search, null, $profileType); // No aplicamos rol en SQL
+        // Aplicar TODOS los filtros en PHP para evitar errores SQL
+        $filteredCount = 0;
         
-        // Obtener todos los usuarios que coinciden con los otros filtros
-        $users = $qb
-            ->getQuery()
-            ->getResult();
-        
-        // Aplicar filtro por rol en PHP si es necesario
-        if ($role) {
-            $users = array_filter($users, function (User $user) use ($role) {
-                return in_array($role, $user->getRoles());
-            });
+        foreach ($users as $user) {
+            $includeUser = true;
+            
+            // Filtro por búsqueda de texto
+            if ($search && $includeUser) {
+                $searchLower = strtolower($search);
+                $includeUser = (
+                    str_contains(strtolower($user->getEmail() ?? ''), $searchLower) ||
+                    str_contains(strtolower($user->getUsername() ?? ''), $searchLower) ||
+                    str_contains(strtolower($user->getName() ?? ''), $searchLower) ||
+                    str_contains(strtolower($user->getLastName() ?? ''), $searchLower)
+                );
+            }
+            
+            // Filtro por tipo de perfil
+            if ($profileType && $includeUser) {
+                $includeUser = ($user->getProfileType() === $profileType);
+            }
+            
+            // Filtro por rol
+            if ($role && $includeUser) {
+                $userRoles = $user->getRoles();
+                $includeUser = in_array($role, $userRoles);
+            }
+            
+            if ($includeUser) {
+                $filteredCount++;
+            }
         }
         
-        return count($users);
+        return $filteredCount;
     }
 
     /**
-     * ! 31/05/2025 - Método privado para aplicar filtros comunes a las consultas
+     * ! 31/05/2025 - Método privado simplificado - Ya no se usa para filtros complejos
      */
     private function applyFilters(
         QueryBuilder $qb,
@@ -114,27 +151,8 @@ class UserRepository extends ServiceEntityRepository
         ?string $role = null,
         ?ProfileType $profileType = null
     ): void {
-        // Filtro de búsqueda por texto
-        if ($search) {
-            $qb->andWhere(
-                $qb->expr()->orX(
-                    $qb->expr()->like('LOWER(u.email)', ':search'),
-                    $qb->expr()->like('LOWER(u.username)', ':search'),
-                    $qb->expr()->like('LOWER(u.name)', ':search'),
-                    $qb->expr()->like('LOWER(u.lastName)', ':search')
-                )
-            )
-            ->setParameter('search', '%' . strtolower($search) . '%');
-        }
-
-        // Filtro por tipo de perfil
-        if ($profileType) {
-            $qb->andWhere('u.profileType = :profileType')
-               ->setParameter('profileType', $profileType);
-        }
-
-        // Filtro por rol - aplicado en PHP para mayor compatibilidad
-        // Nota: El filtro por rol se aplica en PHP en los métodos principales
+        // Método mantenido para compatibilidad pero ya no se usa
+        // Los filtros ahora se aplican completamente en PHP
     }
 
     // Add custom query methods below as needed
