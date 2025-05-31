@@ -5,7 +5,7 @@ const Mouth: React.FC<{ type: string }> = ({ type }) => {
     case "default":
       return (
         <g>
-          <path fill="#000000" d="M160 217c10,0 17,-8 17,-18l-34 0c0,10 7,18 17,18z" />
+          <path fill="#000000" d="M180 217c10,0 17,-8 17,-18l0 0 -34 0 0 0c0,10 7,18 17,18z" />
         </g>
       );
     case "twinkle":
