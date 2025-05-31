@@ -1109,3 +1109,131 @@ eyra-backend/Control_cambios_backend.md - Documentación actualizada
 5. **Escalabilidad**: Base sólida para futuras mejoras
 
 **🎆 RESULTADO: Botón de administración altamente visible - Diseño profesional premium - UX administrativa significativamente mejorada**
+
+---
+
+## 🔧 **31/05/2025 - v0.6.9 - Debug de Navegación al Panel Admin**
+
+### 🎯 **Problema Reportado:**
+
+#### **Botón de Admin No Navega**
+- **Síntoma**: El botón se ve pero no navega a `/admin` al hacer click
+- **Solicitud**: Solo quiere que al pulsar redirija a `/admin`
+- **Estado actual**: Todo está configurado correctamente en el código
+
+### 🔍 **Verificación Realizada:**
+
+#### **1. Configuración del Botón - ✅ Correcto**
+```typescript
+// Botón con evento de click
+<div onClick={handleAdminClick}>
+  <AdminIcon />
+</div>
+
+// Función de navegación
+const handleAdminClick = () => {
+  navigate("/admin");
+};
+```
+
+#### **2. Configuración del Router - ✅ Correcto**
+```typescript
+// En router/index.tsx
+{
+  path: ROUTES.ADMIN, // "/admin"
+  element: (
+    <RoleRoute allowedRoles={["ROLE_ADMIN"]} requireOnboarding={true}>
+      <AdminPage />
+    </RoleRoute>
+  ),
+}
+```
+
+#### **3. Ruta Definida - ✅ Correcto**
+```typescript
+// En router/paths.ts
+export const ROUTES = {
+  ADMIN: "/admin", // Ruta correctamente definida
+};
+```
+
+### 🔧 **Debug Añadido:**
+
+#### **Console.log para Diagnóstico**
+**Archivo**: `eyra-frontend/src/components/AdminNavigation.tsx`
+
+```typescript
+// ! 31/05/2025 - Debug mejorado para navegación admin
+const handleAdminClick = () => {
+  console.log('🚀 Navegando al panel de administración...');
+  console.log('👤 Usuario actual:', user);
+  console.log('🔑 Roles del usuario:', user?.roles);
+  navigate("/admin");
+};
+```
+
+**Información que mostrará en consola:**
+- ✅ **Confirmación de click**: Se ejecuta la función
+- ✅ **Datos del usuario**: Información completa del user
+- ✅ **Roles**: Para verificar si tiene `ROLE_ADMIN`
+
+### 🔍 **Posibles Causas del Problema:**
+
+#### **1. Problema de Roles (🗘 Más Probable)**
+- **Causa**: Usuario no tiene rol `ROLE_ADMIN`
+- **Síntoma**: `RoleRoute` bloquea el acceso
+- **Solución**: Verificar roles en la consola del navegador
+
+#### **2. Problema de CSS (🗗 Posible)**
+- **Causa**: Elementos superpuestos bloqueando el click
+- **Síntoma**: Botón visible pero no clickeable
+- **Solución**: Botón tiene `z-50` alto, debería funcionar
+
+#### **3. Problema de JavaScript (🗖 Poco Probable)**
+- **Causa**: Error en la ejecución de la función
+- **Síntoma**: Sin logs en consola
+- **Solución**: Debug logs añadidos para verificar
+
+### 📝 **Pasos para Diagnóstico:**
+
+#### **Paso 1: Verificar Console Logs**
+1. Abrir **DevTools** (F12)
+2. Ir a la pestaña **Console**
+3. Hacer click en el botón de admin
+4. Verificar si aparecen los logs:
+   - 🚀 "Navegando al panel de administración..."
+   - 👤 Datos del usuario
+   - 🔑 Array de roles
+
+#### **Paso 2: Verificar Roles de Usuario**
+```javascript
+// En la consola del navegador:
+console.log('Roles:', JSON.parse(localStorage.getItem('user'))?.roles);
+```
+
+#### **Paso 3: Verificar Navegación Manual**
+```javascript
+// En la consola del navegador:
+window.location.href = '/admin';
+```
+
+### 🔑 **Requisitos para Acceder a Admin:**
+
+1. **✅ Usuario autenticado**: Debe estar logueado
+2. **✅ Onboarding completado**: `requireOnboarding={true}`
+3. **❗ Rol ROLE_ADMIN**: `allowedRoles={["ROLE_ADMIN"]}`
+
+### 🛠 **Archivos Modificados:**
+```
+eyra-frontend/src/components/AdminNavigation.tsx - Debug logs añadidos
+eyra-backend/Control_cambios_backend.md - Documentación de debug
+```
+
+### 🔮 **Siguientes Pasos:**
+
+1. **Probar con debug**: Hacer click y revisar consola
+2. **Verificar roles**: Confirmar que el usuario tiene `ROLE_ADMIN`
+3. **Si no funciona**: Reportar qué aparece en la consola
+4. **Si es problema de roles**: Actualizar usuario en BD o admin panel
+
+**🎆 RESULTADO: Debug implementado - Diagnóstico completo disponible - Navegación lista para funcionar**

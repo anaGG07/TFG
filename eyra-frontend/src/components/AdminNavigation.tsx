@@ -260,6 +260,9 @@ const AdminNavigation: React.FC = () => {
 
   // ! 31/05/2025 - Manejar click del botón admin
   const handleAdminClick = () => {
+    console.log('🚀 Navegando al panel de administración...');
+    console.log('👤 Usuario actual:', user);
+    console.log('🔑 Roles del usuario:', user?.roles);
     navigate("/admin");
   };
 
