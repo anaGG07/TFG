@@ -52,7 +52,7 @@ const AvatarPreview: React.FC<AvatarPreviewProps> = ({ config, className }) => {
       <Eyebrows type={safeValue(config.eyebrows, "default")} />
       <Mouth type={safeValue(config.mouth, "default")} />
       <FacialHair type={safeValue(config.facialHair, "none")} />
-      {/* Pelo delantero */}
+      {/* Pelo delantero (ahora después de la cara) */}
       <Hair
         style={safeValue(config.hairStyle, "short")}
         color={safeValue(config.hairColor, "#4A4A4A")}

@@ -10,8 +10,8 @@ const Accessories: React.FC<AccessoriesProps> = ({ type, color = "#FFD700" }) =>
     case "earring":
       return (
         <>
-          <circle cx="148" cy="176" r="9" fill={color} />
-          <circle cx="212" cy="176" r="9" fill={color} />
+          <circle cx="148" cy="155" r="6" fill={color} />
+          <circle cx="212" cy="155" r="6" fill={color} />
         </>
       );
     case "necklace":
