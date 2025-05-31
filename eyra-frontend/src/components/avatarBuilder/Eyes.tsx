@@ -5,42 +5,42 @@ const Eyes: React.FC<{ type: string }> = ({ type }) => {
     case "default":
       return (
         <g>
-          <circle fill="#000000" fillOpacity="0.7" cx="148" cy="153" r="8" />
-          <circle fill="#000000" fillOpacity="0.7" cx="212" cy="153" r="8" />
+          <circle fill="#000000" fillOpacity="0.7" cx="148" cy="173" r="8" />
+          <circle fill="#000000" fillOpacity="0.7" cx="212" cy="173" r="8" />
         </g>
       );
     case "dizzy":
       return (
         <g>
-          <polygon fill="#000000" fillOpacity="0.7" stroke="#5F4A37" strokeWidth="0.9" points="139,141 146,149 154,141 157,145 150,152 157,160 154,163 146,156 139,163 135,160 143,152 135,145 " />
-          <polygon fill="#000000" fillOpacity="0.7" points="206,141 213,149 221,141 224,145 217,152 224,160 221,163 213,156 206,163 202,160 210,152 202,145 " />
+          <polygon fill="#000000" fillOpacity="0.7" stroke="#5F4A37" strokeWidth="0.9" points="139,161 146,169 154,161 157,165 150,172 157,180 154,183 146,176 139,183 135,180 143,172 135,165 " />
+          <polygon fill="#000000" fillOpacity="0.7" points="206,161 213,169 221,161 224,165 217,172 224,180 221,183 213,176 206,183 202,180 210,172 202,165 " />
         </g>
       );
     case "eyeroll":
       return (
         <>
-          <ellipse cx="135" cy="170" rx="7" ry="3" fill="#222" />
-          <ellipse cx="185" cy="170" rx="7" ry="3" fill="#222" />
+          <ellipse cx="148" cy="190" rx="7" ry="3" fill="#222" />
+          <ellipse cx="212" cy="190" rx="7" ry="3" fill="#222" />
         </>
       );
     case "happy":
       return (
         <>
-          <ellipse cx="135" cy="170" rx="8" ry="6" fill="#222" />
-          <ellipse cx="185" cy="170" rx="8" ry="6" fill="#222" />
+          <ellipse cx="148" cy="190" rx="8" ry="6" fill="#222" />
+          <ellipse cx="212" cy="190" rx="8" ry="6" fill="#222" />
         </>
       );
     case "close":
       return (
         <>
           <path
-            d="M130 170 L140 170"
+            d="M143 190 L153 190"
             stroke="#222"
             strokeWidth="3"
             fill="none"
           />
           <path
-            d="M180 170 L190 170"
+            d="M207 190 L217 190"
             stroke="#222"
             strokeWidth="3"
             fill="none"
@@ -51,11 +51,11 @@ const Eyes: React.FC<{ type: string }> = ({ type }) => {
       return (
         <>
           <path
-            d="M135 170 Q137 165 139 170 Q141 175 139 180 Q137 185 135 180 Q133 175 135 170"
+            d="M148 190 Q150 185 152 190 Q154 195 152 200 Q150 205 148 200 Q146 195 148 190"
             fill="#E57373"
           />
           <path
-            d="M185 170 Q187 165 189 170 Q191 175 189 180 Q187 185 185 180 Q183 175 185 170"
+            d="M212 190 Q214 185 216 190 Q218 195 216 200 Q214 205 212 200 Q210 195 212 190"
             fill="#E57373"
           />
         </>
@@ -63,10 +63,10 @@ const Eyes: React.FC<{ type: string }> = ({ type }) => {
     case "side":
       return (
         <>
-          <ellipse cx="135" cy="170" rx="7" ry="7" fill="#222" />
-          <ellipse cx="185" cy="170" rx="7" ry="7" fill="#222" />
+          <ellipse cx="148" cy="190" rx="7" ry="7" fill="#222" />
+          <ellipse cx="212" cy="190" rx="7" ry="7" fill="#222" />
           <path
-            d="M135 170 L140 170 M185 170 L190 170"
+            d="M148 190 L153 190 M212 190 L217 190"
             stroke="#222"
             strokeWidth="2"
             fill="none"
@@ -77,25 +77,25 @@ const Eyes: React.FC<{ type: string }> = ({ type }) => {
       return (
         <>
           <path
-            d="M130 170 L140 170"
+            d="M143 190 L153 190"
             stroke="#222"
             strokeWidth="3"
             fill="none"
           />
-          <ellipse cx="185" cy="170" rx="7" ry="7" fill="#222" />
+          <ellipse cx="212" cy="190" rx="7" ry="7" fill="#222" />
         </>
       );
     case "squint":
       return (
         <>
           <path
-            d="M130 170 Q135 175 140 170"
+            d="M143 190 Q148 195 153 190"
             stroke="#222"
             strokeWidth="3"
             fill="none"
           />
           <path
-            d="M180 170 Q185 175 190 170"
+            d="M207 190 Q212 195 217 190"
             stroke="#222"
             strokeWidth="3"
             fill="none"
@@ -105,21 +105,21 @@ const Eyes: React.FC<{ type: string }> = ({ type }) => {
     case "surprised":
       return (
         <>
-          <circle cx="135" cy="170" r="7" fill="#222" />
-          <circle cx="185" cy="170" r="7" fill="#222" />
+          <circle cx="148" cy="190" r="7" fill="#222" />
+          <circle cx="212" cy="190" r="7" fill="#222" />
         </>
       );
     case "winkwacky":
       return (
         <>
           <path
-            d="M130 170 L140 170"
+            d="M143 190 L153 190"
             stroke="#222"
             strokeWidth="3"
             fill="none"
           />
           <path
-            d="M180 170 Q185 175 190 170"
+            d="M207 190 Q212 195 217 190"
             stroke="#222"
             strokeWidth="3"
             fill="none"
@@ -129,16 +129,16 @@ const Eyes: React.FC<{ type: string }> = ({ type }) => {
     case "cry":
       return (
         <>
-          <ellipse cx="135" cy="170" rx="7" ry="7" fill="#222" />
-          <ellipse cx="185" cy="170" rx="7" ry="7" fill="#222" />
+          <ellipse cx="148" cy="190" rx="7" ry="7" fill="#222" />
+          <ellipse cx="212" cy="190" rx="7" ry="7" fill="#222" />
           <path
-            d="M135 180 Q135 190 140 190"
+            d="M148 200 Q148 210 153 210"
             stroke="#222"
             strokeWidth="2"
             fill="none"
           />
           <path
-            d="M185 180 Q185 190 190 190"
+            d="M212 200 Q212 210 217 210"
             stroke="#222"
             strokeWidth="2"
             fill="none"

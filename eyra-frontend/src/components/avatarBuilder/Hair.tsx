@@ -3,14 +3,36 @@ import React from "react";
 interface HairProps {
   style: string;
   color: string;
+  isBack?: boolean;
 }
 
-const Hair: React.FC<HairProps> = ({ style, color }) => {
+const Hair: React.FC<HairProps> = ({ style, color, isBack = false }) => {
+  // Si es pelo trasero, solo renderizamos los estilos que tienen parte trasera
+  if (isBack) {
+    switch (style) {
+      case "longhair":
+      case "longhairbob":
+      case "longhaircurly":
+      case "longhaircurvy":
+      case "longhairdread":
+      case "longhairstraight":
+      case "longhairstraight2":
+        return (
+          <g>
+            <path fill={color} d="M71 174c3,-11 -13,-62 3,-94 17,-35 36,-48 83,-51 34,-3 68,-2 99,16 13,7 21,22 28,35 5,11 8,24 9,36 0,13 -6,24 -6,43 -1,32 39,33 39,62 0,40 -29,40 -28,56 1,20 28,25 28,55 0,11 -10,22 -18,28 -87,0 -174,0 -260,0 -14,-11 -15,-23 -14,-36 3,-18 25,-31 25,-49 0,-11 -25,-20 -25,-54 1,-29 37,-41 37,-47z" />
+          </g>
+        );
+      default:
+        return null;
+    }
+  }
+
+  // Pelo delantero
   switch (style) {
     case "longhair":
       return (
         <g>
-          <path fill={color} d="M71 174c3,-11 -13,-62 3,-94 17,-35 36,-48 83,-51 34,-3 68,-2 99,16 13,7 21,22 28,35 5,11 8,24 9,36 0,13 -6,24 -6,43 -1,32 39,33 39,62 0,40 -29,40 -28,56 1,20 28,25 28,55 0,11 -10,22 -18,28 -87,0 -174,0 -260,0 -14,-11 -15,-23 -14,-36 3,-18 25,-31 25,-49 0,-11 -25,-20 -25,-54 1,-29 37,-41 37,-47zm126 -85l-1 0c0,0 0,0 0,0l1 0z" />
+          <path fill={color} d="M126 89l-1 0c0,0 0,0 0,0l1 0z" />
         </g>
       );
     case "longhairbob":
@@ -28,7 +50,7 @@ const Hair: React.FC<HairProps> = ({ style, color }) => {
     case "longhaircurly":
       return (
         <g>
-          <path fill={color} d="M180 269c-23,0 -44,-7 -56,-18 -4,1 -8,1 -12,1 -38,0 -68,-27 -68,-60 0,-18 8,-34 22,-45 -12,-10 -15,-31 -7,-52 9,-20 27,-34 42,-33 2,-13 13,-25 29,-32 19,-8 38,-6 50,3 12,-9 31,-11 50,-3 16,7 27,19 29,32 15,-1 33,13 42,33 8,21 5,42 -7,52 14,11 22,27 22,45 0,33 -30,60 -68,60 -4,0 -8,0 -12,-1 -12,11 -33,18 -56,18zm-69 -137c0,0 0,0 0,0l0 -1 0 1zm138 -1l0 1c0,0 0,0 0,0l0 -1z" />
+          <path fill={color} d="M180 269c-23,0 -44,-7 -56,-18 -4,1 -8,1 -12,1 -38,0 -68,-27 -68,-60 0,-18 8,-34 22,-45 -12,-10 -15,-31 -7,-52 9,-20 27,-34 42,-33 2,-13 13,-25 29,-32 19,-8 38,-6 50,3 12,-9 31,-11 50,-3 16,7 27,19 29,32 15,-1 33,13 42,33 8,21 5,42 -7,52 14,11 22,27 22,45 0,33 -30,60 -68,60 -4,0 -8,0 -12,-1 -12,11 -33,18 -56,18z" />
         </g>
       );
     case "longhaircurvy":
@@ -44,24 +66,24 @@ const Hair: React.FC<HairProps> = ({ style, color }) => {
         </g>
       );
     case "nottoolong":
-      return <ellipse cx="160" cy="130" rx="55" ry="40" fill={color} />;
+      return <ellipse cx="180" cy="130" rx="55" ry="40" fill={color} />;
     case "miawallace":
       return (
         <path
-          d="M100 160 Q160 140 220 160 Q160 180 100 160"
+          d="M120 160 Q180 140 240 160 Q180 180 120 160"
           fill={color}
         />
       );
     case "longhairstraight":
     case "longhairstraight2":
-      return <ellipse cx="160" cy="160" rx="60" ry="60" fill={color} />;
+      return <ellipse cx="180" cy="160" rx="60" ry="60" fill={color} />;
     case "shorthairdreads":
     case "shorthairdreads2":
       return (
         <>
-          <ellipse cx="160" cy="110" rx="55" ry="30" fill={color} />
+          <ellipse cx="180" cy="110" rx="55" ry="30" fill={color} />
           <path
-            d="M120 110 L120 130 M140 110 L140 130 M160 110 L160 130 M180 110 L180 130 M200 110 L200 130"
+            d="M140 110 L140 130 M160 110 L160 130 M180 110 L180 130 M200 110 L200 130 M220 110 L220 130"
             stroke={color}
             strokeWidth="4"
           />
@@ -70,7 +92,7 @@ const Hair: React.FC<HairProps> = ({ style, color }) => {
     case "shorthairfrizzle":
       return (
         <ellipse
-          cx="160"
+          cx="180"
           cy="105"
           rx="60"
           ry="35"
@@ -81,7 +103,7 @@ const Hair: React.FC<HairProps> = ({ style, color }) => {
     case "shorthairshaggy":
       return (
         <path
-          d="M100 110 Q160 90 220 110 Q160 130 100 110"
+          d="M120 110 Q180 90 240 110 Q180 130 120 110"
           fill={color}
           style={{ filter: "blur(0.5px)" }}
         />
@@ -89,7 +111,7 @@ const Hair: React.FC<HairProps> = ({ style, color }) => {
     case "shorthaircurly":
       return (
         <ellipse
-          cx="160"
+          cx="180"
           cy="105"
           rx="60"
           ry="35"
@@ -98,20 +120,20 @@ const Hair: React.FC<HairProps> = ({ style, color }) => {
         />
       );
     case "shorthairflat":
-      return <ellipse cx="160" cy="110" rx="55" ry="25" fill={color} />;
+      return <ellipse cx="180" cy="110" rx="55" ry="25" fill={color} />;
     case "shorthairround":
-      return <ellipse cx="160" cy="110" rx="55" ry="30" fill={color} />;
+      return <ellipse cx="180" cy="110" rx="55" ry="30" fill={color} />;
     case "shorthairwaved":
       return (
         <path
-          d="M100 110 Q160 90 220 110 Q160 130 100 110"
+          d="M120 110 Q180 90 240 110 Q180 130 120 110"
           fill={color}
         />
       );
     case "shorthairsides":
       return (
         <path
-          d="M100 110 Q160 100 220 110 Q160 120 100 110"
+          d="M120 110 Q180 100 240 110 Q180 120 120 110"
           fill={color}
         />
       );

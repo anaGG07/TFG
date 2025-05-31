@@ -17,7 +17,7 @@ const Accessories: React.FC<AccessoriesProps> = ({ type, color = "#FFD700" }) =>
     case "necklace":
       return (
         <path
-          d="M150 220 Q160 230 170 220"
+          d="M150 220 Q180 230 210 220"
           stroke={color}
           strokeWidth="3"
           fill="none"
@@ -31,7 +31,7 @@ const Accessories: React.FC<AccessoriesProps> = ({ type, color = "#FFD700" }) =>
             fill={color}
           />
           <path
-            d="M166 220 L176 230 L166 240"
+            d="M206 220 L216 230 L206 240"
             fill={color}
           />
         </>
@@ -46,7 +46,7 @@ const Accessories: React.FC<AccessoriesProps> = ({ type, color = "#FFD700" }) =>
     case "scarf":
       return (
         <path
-          d="M150 220 Q160 240 170 220 Q160 260 150 220"
+          d="M150 220 Q180 240 210 220 Q180 260 150 220"
           fill={color}
         />
       );

@@ -25,7 +25,7 @@ const Mouth: React.FC<{ type: string }> = ({ type }) => {
     case "smile":
       return (
         <path
-          d="M145 200 Q160 220 175 200"
+          d="M145 200 Q180 220 215 200"
           stroke="#7a2323"
           strokeWidth="3"
           fill="none"
@@ -34,7 +34,7 @@ const Mouth: React.FC<{ type: string }> = ({ type }) => {
     case "serious":
       return (
         <path
-          d="M145 205 L175 205"
+          d="M145 205 L215 205"
           stroke="#7a2323"
           strokeWidth="3"
           fill="none"
@@ -42,12 +42,12 @@ const Mouth: React.FC<{ type: string }> = ({ type }) => {
       );
     case "scream":
       return (
-        <ellipse cx="160" cy="205" rx="15" ry="12" fill="#E57373" />
+        <ellipse cx="180" cy="205" rx="15" ry="12" fill="#E57373" />
       );
     case "sad":
       return (
         <path
-          d="M145 210 Q160 200 175 210"
+          d="M145 210 Q180 200 215 210"
           stroke="#7a2323"
           strokeWidth="3"
           fill="none"
@@ -56,7 +56,7 @@ const Mouth: React.FC<{ type: string }> = ({ type }) => {
     case "grimace":
       return (
         <path
-          d="M145 205 Q160 215 175 205 M145 210 L175 210"
+          d="M145 205 Q180 215 215 205 M145 210 L215 210"
           stroke="#7a2323"
           strokeWidth="3"
           fill="none"
@@ -65,7 +65,7 @@ const Mouth: React.FC<{ type: string }> = ({ type }) => {
     case "eating":
       return (
         <path
-          d="M145 205 Q160 215 175 205 M160 205 L160 215"
+          d="M145 205 Q180 215 215 205 M180 205 L180 215"
           stroke="#7a2323"
           strokeWidth="3"
           fill="none"
@@ -74,7 +74,7 @@ const Mouth: React.FC<{ type: string }> = ({ type }) => {
     case "disbelief":
       return (
         <path
-          d="M145 205 Q160 215 175 205 M160 205 L160 210 M150 210 L170 210"
+          d="M145 205 Q180 215 215 205 M180 205 L180 210 M170 210 L190 210"
           stroke="#7a2323"
           strokeWidth="3"
           fill="none"
@@ -83,7 +83,7 @@ const Mouth: React.FC<{ type: string }> = ({ type }) => {
     case "concerned":
       return (
         <path
-          d="M145 205 Q160 215 175 205 M160 205 L160 210"
+          d="M145 205 Q180 215 215 205 M180 205 L180 210"
           stroke="#7a2323"
           strokeWidth="3"
           fill="none"
@@ -93,13 +93,13 @@ const Mouth: React.FC<{ type: string }> = ({ type }) => {
       return (
         <>
           <path
-            d="M145 205 Q160 215 175 205"
+            d="M145 205 Q180 215 215 205"
             stroke="#7a2323"
             strokeWidth="3"
             fill="none"
           />
           <path
-            d="M160 215 Q160 225 170 225"
+            d="M180 215 Q180 225 190 225"
             stroke="#E57373"
             strokeWidth="3"
             fill="none"

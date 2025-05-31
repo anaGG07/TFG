@@ -26,7 +26,7 @@ const Tattoos: React.FC<TattoosProps> = ({ type, color }) => {
       // Línea decorativa centrada en la frente
       return (
         <path
-          d="M152 118 Q160 108 168 118"
+          d="M152 118 Q180 108 208 118"
           stroke={color}
           strokeWidth="2"
           fill="none"
@@ -46,7 +46,7 @@ const Tattoos: React.FC<TattoosProps> = ({ type, color }) => {
       // Tribal derecho, simétrico
       return (
         <path
-          d="M172 140 Q174 148 168 152 Q166 148 168 144"
+          d="M212 140 Q214 148 208 152 Q206 148 208 144"
           stroke={color}
           strokeWidth="2"
           fill="none"
@@ -56,7 +56,7 @@ const Tattoos: React.FC<TattoosProps> = ({ type, color }) => {
       // Garganta centrada
       return (
         <ellipse
-          cx="160"
+          cx="180"
           cy="200"
           rx="12"
           ry="4"

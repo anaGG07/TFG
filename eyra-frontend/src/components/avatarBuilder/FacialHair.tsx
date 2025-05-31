@@ -13,7 +13,7 @@ const FacialHair: React.FC<{ type: string }> = ({ type }) => {
     case "fancy":
       return (
         <path
-          d="M140 215 Q160 220 180 215 Q160 225 140 215 M160 215 L160 225"
+          d="M140 215 Q180 220 220 215 Q180 225 140 215 M160 215 L160 225"
           stroke="#7a2323"
           strokeWidth="3"
           fill="none"
@@ -22,7 +22,7 @@ const FacialHair: React.FC<{ type: string }> = ({ type }) => {
     case "magestic":
       return (
         <path
-          d="M140 215 Q160 220 180 215 Q160 225 140 215 M150 215 L150 225 M170 215 L170 225"
+          d="M140 215 Q180 220 220 215 Q180 225 140 215 M150 215 L150 225 M170 215 L170 225"
           stroke="#7a2323"
           strokeWidth="3"
           fill="none"
@@ -31,7 +31,7 @@ const FacialHair: React.FC<{ type: string }> = ({ type }) => {
     case "light":
       return (
         <path
-          d="M140 215 Q160 220 180 215"
+          d="M140 215 Q180 220 220 215"
           stroke="#7a2323"
           strokeWidth="2"
           fill="none"

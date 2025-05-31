@@ -26,6 +26,20 @@ const Skin: React.FC<SkinProps> = ({ color }) => (
       fillOpacity="0.2"
       d="M180 181c9,0 16,-4 16,-9l-32 0c0,5 7,9 16,9z"
     />
+    {/* Sombra de la mejilla izquierda */}
+    <path
+      id="cheek-left"
+      fill="#000000"
+      fillOpacity="0.1"
+      d="M140 190c-5,0 -10,-2 -13,-5 -3,-3 -5,-7 -5,-11 0,-4 2,-8 5,-11 3,-3 8,-5 13,-5 5,0 10,2 13,5 3,3 5,7 5,11 0,4 -2,8 -5,11 -3,3 -8,5 -13,5z"
+    />
+    {/* Sombra de la mejilla derecha */}
+    <path
+      id="cheek-right"
+      fill="#000000"
+      fillOpacity="0.1"
+      d="M220 190c-5,0 -10,-2 -13,-5 -3,-3 -5,-7 -5,-11 0,-4 2,-8 5,-11 3,-3 8,-5 13,-5 5,0 10,2 13,5 3,3 5,7 5,11 0,4 -2,8 -5,11 -3,3 -8,5 -13,5z"
+    />
   </g>
 );
 
