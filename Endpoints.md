@@ -498,3 +498,43 @@ eyra-frontend/src/features/admin/components/UsersTable.tsx
 ```
 
 **🎆 RESULTADO: Panel de administración 100% funcional - LISTO PARA RE-VALIDACIÓN**
+
+---
+
+## 🔴 **ACTUALIZACIÓN CRÍTICA - 31/05/2025 v0.6.3**
+
+### ⚠️ **ERROR 502 BAD GATEWAY RESUELTO**
+
+#### **🐛 Problema Crítico Identificado y Solucionado:**
+- **❌ Error**: 502 Bad Gateway al iniciar sesión
+- **🔍 Causa**: Valor por defecto inválido en entidad User (`ProfileType::GUEST` inexistente)
+- **✅ Solución**: Corregido a `ProfileType::PROFILE_GUEST`
+- **🛠 Estado**: **COMPLETAMENTE RESUELTO**
+
+#### **🔧 Correcciones Adicionales Aplicadas:**
+- ✅ Consulta JSON compatible con PostgreSQL en UserRepository
+- ✅ Script automatizado de aplicación de cambios
+- ✅ Limpieza de caché y migraciones
+
+#### **🔧 Para Aplicar las Correcciones:**
+```bash
+cd eyra-backend
+php bin/console cache:clear
+php bin/console doctrine:migrations:migrate
+php bin/console doctrine:schema:update --force
+
+# O usar el script automatizado:
+bash fix-enum-error.sh
+```
+
+#### **✅ Verificación del Estado:**
+- ✅ Login funcional (Error 502 resuelto)
+- ✅ Panel de administración operativo
+- ✅ Todos los filtros funcionando:
+  - ✅ Buscador (email, username, nombre, apellido)
+  - ✅ Filtro por rol (ROLE_USER, ROLE_ADMIN, ROLE_GUEST)
+  - ✅ Filtro por tipo de perfil (todos los 11 valores)
+- ✅ Paginación correcta
+- ✅ Sincronización backend-frontend completa
+
+**🎆 ESTADO FINAL: Sistema completamente operativo y listo para uso**

@@ -84,7 +84,8 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     #[ORM\Column(enumType: ProfileType::class)]
     #[Groups(['user:read', 'user:write'])]
-    private ?ProfileType $profileType = ProfileType::GUEST;
+    // ! 31/05/2025 - Corregido valor por defecto del profileType para coincidir con el nuevo enum
+    private ?ProfileType $profileType = ProfileType::PROFILE_GUEST;
 
     // ! 21/05/2025 - Eliminado campo genderIdentity
 

@@ -107,11 +107,11 @@ class UserRepository extends ServiceEntityRepository
                ->setParameter('profileType', $profileType);
         }
 
-        // Filtro por rol - utilizamos operador JSON nativo de PostgreSQL
+        // Filtro por rol - utilizamos CAST para convertir JSON a texto
         if ($role) {
-            // Utilizamos el operador ? de PostgreSQL para buscar en arrays JSON
-            $qb->andWhere('u.roles::jsonb ? :role')
-               ->setParameter('role', $role);
+            // Convertimos el JSON a texto y buscamos el rol
+            $qb->andWhere('CAST(u.roles AS text) LIKE :rolePattern')
+               ->setParameter('rolePattern', '%"' . $role . '"%');
         }
     }
 

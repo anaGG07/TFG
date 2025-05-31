@@ -343,3 +343,103 @@ eyra-frontend/src/features/admin/components/UsersTable.tsx - Labels corregidos
 ```
 
 **🎆 RESULTADO FINAL: Panel de administración 100% funcional con todos los filtros operativos**
+
+---
+
+## 🔴 **31/05/2025 - v0.6.3 - Corrección Crítica: Error 502 Bad Gateway**
+
+### 🐛 **Problema Crítico Identificado:**
+
+#### **Error 502 Bad Gateway al Iniciar Sesión**
+- **Causa Raíz**: Valor por defecto inválido en la entidad User
+- **Error específico**: `ProfileType::GUEST` no existía en el nuevo enum
+- **Impacto**: Backend completamente inaccesible, fallo total del sistema
+- **Momento**: Inmediatamente después de la v0.6.2
+
+### 🔧 **Causas del Error:**
+
+#### **1. Referencia a Enum Inexistente**
+**Archivo**: `eyra-backend/src/Entity/User.php`
+```php
+// ❌ ANTES (ERROR):
+private ?ProfileType $profileType = ProfileType::GUEST;
+
+// ✅ AHORA (CORREGIDO):
+private ?ProfileType $profileType = ProfileType::PROFILE_GUEST;
+```
+
+#### **2. Consulta SQL Incompatible**
+**Archivo**: `eyra-backend/src/Repository/UserRepository.php`
+```php
+// ❌ ANTES (ERROR PostgreSQL):
+$qb->andWhere('u.roles::jsonb ? :role')
+
+// ✅ AHORA (COMPATIBLE):
+$qb->andWhere('CAST(u.roles AS text) LIKE :rolePattern')
+   ->setParameter('rolePattern', '%"' . $role . '"%');
+```
+
+### ✅ **Soluciones Aplicadas:**
+
+#### **1. Corrección Valor Por Defecto en Entidad User**
+- **Problema**: `ProfileType::GUEST` no existía tras ampliar el enum
+- **Solución**: Cambiado a `ProfileType::PROFILE_GUEST`
+- **Resultado**: Entidad User se inicializa correctamente
+
+#### **2. Consulta JSON Compatible Multiplataforma**
+- **Problema**: Operador `?` de PostgreSQL no compatible con Doctrine
+- **Solución**: `CAST(u.roles AS text) LIKE` más compatible
+- **Resultado**: Filtros por rol funcionan sin errores
+
+#### **3. Script de Aplicación de Cambios**
+**Archivo**: `eyra-backend/fix-enum-error.sh`
+- Limpia caché de Symfony
+- Aplica migraciones
+- Actualiza esquema de base de datos
+- Verificación automática
+
+### 🔍 **Proceso de Resolución:**
+
+1. **Identificación**: Error 502 en endpoint `/api/profile`
+2. **Diagnóstico**: Referencia a enum inexistente en User.php
+3. **Corrección primaria**: Valor por defecto de profileType
+4. **Corrección secundaria**: Consulta SQL compatible
+5. **Verificación**: Script de aplicación de cambios
+6. **Testing**: Verificación de funcionalidad completa
+
+### ✅ **Estado Actual del Sistema:**
+
+- ✅ **Login funcional**: Error 502 resuelto
+- ✅ **Panel admin operativo**: Todos los filtros funcionan
+- ✅ **Enum sincronizado**: Backend-Frontend alineados
+- ✅ **Base de datos actualizada**: Migraciones aplicadas
+- ✅ **Consultas optimizadas**: SQL compatible multiplataforma
+
+### 🛠 **Archivos Corregidos:**
+```
+eyra-backend/src/Entity/User.php - Valor por defecto corregido
+eyra-backend/src/Repository/UserRepository.php - Consulta JSON compatible
+eyra-backend/fix-enum-error.sh - Script de aplicación (nuevo)
+```
+
+### 🔧 **Comandos para Aplicar:**
+```bash
+# Limpiar caché y aplicar cambios:
+cd eyra-backend
+php bin/console cache:clear
+php bin/console doctrine:migrations:migrate
+php bin/console doctrine:schema:update --force
+
+# O usar el script automatizado:
+bash fix-enum-error.sh
+```
+
+### 📊 **Lecciones Aprendidas:**
+
+1. **Cambios de Enum**: Siempre verificar todas las referencias antes de modificar
+2. **Valores por Defecto**: Comprobar valores por defecto en entidades
+3. **Consultas SQL**: Usar sintaxis compatible multiplataforma
+4. **Testing Incremental**: Probar cada cambio antes del siguiente
+5. **Scripts de Aplicación**: Automatizar aplicación de cambios críticos
+
+**🎆 RESULTADO: Sistema completamente operativo - Error 502 resuelto - Panel admin 100% funcional**
