@@ -8,9 +8,10 @@ import { AvatarConfig, defaultAvatarConfig } from '../../types/avatar';
 interface AvatarBuilderProps {
   onChange?: (config: AvatarConfig) => void;
   initialConfig?: AvatarConfig;
+  showPreview?: boolean;
 }
 
-const AvatarBuilder: React.FC<AvatarBuilderProps> = ({ onChange, initialConfig }) => {
+const AvatarBuilder: React.FC<AvatarBuilderProps> = ({ onChange, initialConfig, showPreview = true }) => {
   const [config, setConfig] = useState<AvatarConfig>(initialConfig || defaultAvatarConfig);
 
   useEffect(() => {
@@ -27,9 +28,11 @@ const AvatarBuilder: React.FC<AvatarBuilderProps> = ({ onChange, initialConfig }
 
   return (
     <div className="flex flex-col md:flex-row gap-8">
-      <div className="w-64 h-64 mx-auto">
-        <AvatarPreview config={config} className="w-full h-full" />
-      </div>
+      {showPreview && (
+        <div className="w-64 h-64 mx-auto">
+          <AvatarPreview config={config} className="w-full h-full" />
+        </div>
+      )}
       <div className="flex flex-col gap-4">
         <button
           type="button"

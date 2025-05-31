@@ -11,6 +11,7 @@ import SecurityForm from "../components/profile/SecurityForm";
 import NotificationsForm from "../components/profile/NotificationsForm";
 import AvatarBuilder from "../components/avatarBuilder/AvatarBuilder";
 import { User as UserIcon, Lock, Bell } from "lucide-react";
+import { getRandomAvatarConfig } from "../components/avatarBuilder/randomAvatar";
 
 const tabList = [
   { key: "privacy", icon: "user", alt: "Perfil" },
@@ -205,25 +206,28 @@ const ProfilePage: React.FC = () => {
         </div>
         {/* Tabs de iconos mejorados o editor de avatar */}
         {isEditingAvatar ? (
-          <div className="w-full max-w-4xl bg-white rounded-3xl shadow-2xl p-8 animate-fade-in">
-            <h2 className="font-serif text-2xl font-bold text-[#7a2323] mb-6 text-center">Personaliza tu avatar</h2>
-            <AvatarBuilder
-              initialConfig={tempAvatar}
-              onChange={setTempAvatar}
-            />
-            <div className="flex gap-4 mt-8">
+          <div className="w-full max-w-4xl flex flex-col gap-8 animate-fade-in" style={{background: 'none', boxShadow: 'none', borderRadius: 0, padding: 0}}>
+            <h2 className="font-serif text-2xl font-bold text-[#7a2323] mb-2 text-center">Personaliza tu avatar</h2>
+            <div className="w-full flex flex-col gap-6">
+              <AvatarBuilder
+                initialConfig={tempAvatar}
+                onChange={setTempAvatar}
+                showPreview={false}
+              />
+            </div>
+            <div className="flex flex-row flex-wrap gap-4 justify-center mt-4">
               <NeomorphicButton
                 type="button"
                 variant="secondary"
                 onClick={() => setIsEditingAvatar(false)}
-                className="flex-1"
+                className="min-w-[160px] px-8 py-3 text-lg"
               >
                 Cancelar
               </NeomorphicButton>
               <NeomorphicButton
                 type="button"
                 variant="primary"
-                className="flex-1"
+                className="min-w-[160px] px-8 py-3 text-lg"
                 onClick={async () => {
                   setLoading(true);
                   try {
@@ -241,6 +245,17 @@ const ProfilePage: React.FC = () => {
                 disabled={loading}
               >
                 {loading ? "Guardando..." : "Guardar avatar"}
+              </NeomorphicButton>
+              <NeomorphicButton
+                type="button"
+                variant="primary"
+                className="min-w-[160px] px-8 py-3 text-lg bg-[#C62328] text-white"
+                onClick={() => {
+                  const random = getRandomAvatarConfig();
+                  setTempAvatar(random);
+                }}
+              >
+                Aleatorio
               </NeomorphicButton>
             </div>
           </div>
