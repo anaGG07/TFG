@@ -113,9 +113,6 @@ const SecurityForm: React.FC<SecurityFormProps> = ({ form, error, loading, handl
         />
         {fieldErrors.confirmPassword && <span className="text-red-600 text-xs">{fieldErrors.confirmPassword}</span>}
       </div>
-      {error && (
-        <div className="text-red-600 text-center font-medium">{error}</div>
-      )}
       <div className="flex gap-4 mt-2 w-full justify-center">
         <NeomorphicButton
           type="submit"

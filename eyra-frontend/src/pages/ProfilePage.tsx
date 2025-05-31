@@ -12,6 +12,7 @@ import NotificationsForm from "../components/profile/NotificationsForm";
 import AvatarBuilder from "../components/avatarBuilder/AvatarBuilder";
 import { User as UserIcon, Lock, Bell } from "lucide-react";
 import { getRandomAvatarConfig } from "../components/avatarBuilder/randomAvatar";
+import { Alert } from "../components/ui/Alert";
 
 const tabList = [
   { key: "privacy", icon: "user", alt: "Perfil" },
@@ -90,6 +91,22 @@ const ProfilePage: React.FC = () => {
     }));
   };
 
+  // Utilidad para mostrar toast personalizado
+  const showCustomToast = (message: string, variant: 'success' | 'error') => {
+    toast.custom(
+      (t) => (
+        <Alert
+          variant={variant}
+          className="shadow-xl border-2 border-[#C62328]/20 animate-fade-in min-w-[320px] max-w-xs"
+          onClose={() => toast.dismiss(t.id)}
+        >
+          {message}
+        </Alert>
+      ),
+      { duration: 3500 }
+    );
+  };
+
   // Guardar perfil y notificaciones
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -105,8 +122,9 @@ const ProfilePage: React.FC = () => {
         receiveNutritionAdvice: form.receiveNutritionAdvice,
       });
       await checkAuth();
-      toast.success("¡Perfil actualizado con éxito!");
+      showCustomToast("¡Perfil actualizado con éxito!", "success");
     } catch (err: any) {
+      showCustomToast(err.message || "Error al guardar los cambios", "error");
       setError(err.message || "Error al guardar los cambios");
     } finally {
       setLoading(false);
@@ -118,10 +136,12 @@ const ProfilePage: React.FC = () => {
     e.preventDefault();
     setError(null);
     if (!form.currentPassword || !form.newPassword || !form.confirmPassword) {
+      showCustomToast("Por favor, completa todos los campos.", "error");
       setError("Por favor, completa todos los campos.");
       return;
     }
     if (form.newPassword !== form.confirmPassword) {
+      showCustomToast("La nueva contraseña y la confirmación no coinciden.", "error");
       setError("La nueva contraseña y la confirmación no coinciden.");
       return;
     }
@@ -135,8 +155,9 @@ const ProfilePage: React.FC = () => {
         newPassword: "",
         confirmPassword: "",
       }));
-      toast.success("¡Contraseña actualizada!");
+      showCustomToast("¡Contraseña actualizada!", "success");
     } catch (err: any) {
+      showCustomToast(err.message || "Error al cambiar la contraseña", "error");
       setError(err.message || "Error al cambiar la contraseña");
     } finally {
       setLoading(false);
@@ -235,9 +256,9 @@ const ProfilePage: React.FC = () => {
                     await checkAuth();
                     setForm((prev) => ({ ...prev, avatar: tempAvatar }));
                     setIsEditingAvatar(false);
-                    toast.success("¡Avatar actualizado con éxito!");
-                  } catch (error) {
-                    toast.error("Error al guardar el avatar");
+                    showCustomToast("¡Avatar actualizado con éxito!", "success");
+                  } catch (error: any) {
+                    showCustomToast("Error al guardar el avatar", "error");
                   } finally {
                     setLoading(false);
                   }

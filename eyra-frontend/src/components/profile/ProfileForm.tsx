@@ -15,20 +15,9 @@ interface ProfileFormProps {
 }
 
 const ProfileForm: React.FC<ProfileFormProps> = ({ form, error, loading, handleChange, handleSave }) => {
-  // Validación de formato de username
+  // Solo validar longitud máxima de username
   const isUsernameValid = (username: string) => {
-    return /^[A-Za-z0-9_-]{3,30}$/.test(username);
-  };
-
-  // Comprobación de unicidad de username
-  const checkUsernameUnique = async (username: string) => {
-    try {
-      const res = await fetch(`/api/check-username?username=${encodeURIComponent(username)}`);
-      const data = await res.json();
-      return data.isUnique;
-    } catch {
-      return false;
-    }
+    return username.length <= 255;
   };
 
   const [fieldErrors, setFieldErrors] = React.useState<Record<string, string>>({});
@@ -49,12 +38,7 @@ const ProfileForm: React.FC<ProfileFormProps> = ({ form, error, loading, handleC
     if (!form.username.trim()) {
       newErrors.username = 'El nombre de usuario es obligatorio';
     } else if (!isUsernameValid(form.username)) {
-      newErrors.username = 'Solo letras, números, guiones y guiones bajos (3-30 caracteres)';
-    } else {
-      const isUnique = await checkUsernameUnique(form.username);
-      if (!isUnique) {
-        newErrors.username = 'El nombre de usuario ya está en uso';
-      }
+      newErrors.username = 'No puede superar 255 caracteres';
     }
     if (!form.birthDate) {
       newErrors.birthDate = 'La fecha de nacimiento es obligatoria';
@@ -127,10 +111,8 @@ const ProfileForm: React.FC<ProfileFormProps> = ({ form, error, loading, handleC
           onChange={handleChange}
           placeholder="Nombre de usuario"
           required
-          minLength={3}
-          maxLength={30}
-          pattern="[A-Za-z0-9_-]+"
-          title="Solo letras, números, guiones y guiones bajos"
+          maxLength={255}
+          title="Máximo 255 caracteres"
         />
         {fieldErrors.username && <span className="text-red-600 text-xs">{fieldErrors.username}</span>}
       </div>
@@ -148,9 +130,6 @@ const ProfileForm: React.FC<ProfileFormProps> = ({ form, error, loading, handleC
         />
         {fieldErrors.birthDate && <span className="text-red-600 text-xs">{fieldErrors.birthDate}</span>}
       </div>
-      {error && (
-        <div className="col-span-2 text-red-600 text-center font-medium">{error}</div>
-      )}
       <div className="col-span-2 flex justify-center">
         <NeomorphicButton
           type="submit"

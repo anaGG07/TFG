@@ -43,9 +43,10 @@ export const RegisterForm = () => {
     return hasUpperCase && hasLowerCase && hasNumbers && hasSpecialChar;
   };
 
-  // Validación de formato de username
+  // Eliminar validación de formato y unicidad de username
+  // Solo validar longitud máxima
   const isUsernameValid = (username: string) => {
-    return /^[A-Za-z0-9_-]{3,30}$/.test(username);
+    return username.length <= 255;
   };
 
   // Comprobación de unicidad de username
@@ -85,12 +86,7 @@ export const RegisterForm = () => {
     if (!formData.username) {
       newErrors.username = 'El nombre de usuario es obligatorio';
     } else if (!isUsernameValid(formData.username)) {
-      newErrors.username = 'Solo letras, números, guiones y guiones bajos (3-30 caracteres)';
-    } else {
-      const isUnique = await checkUsernameUnique(formData.username);
-      if (!isUnique) {
-        newErrors.username = 'El nombre de usuario ya está en uso';
-      }
+      newErrors.username = 'No puede superar 255 caracteres';
     }
     if (!formData.name) {
       newErrors.name = 'El nombre es obligatorio';
