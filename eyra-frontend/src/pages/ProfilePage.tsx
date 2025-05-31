@@ -220,7 +220,7 @@ const ProfilePage: React.FC = () => {
                 type="button"
                 variant="secondary"
                 onClick={() => setIsEditingAvatar(false)}
-                className="min-w-[160px] px-8 py-3 text-lg"
+                className="min-w-[160px] px-8 py-3 text-lg bg-[#7a2323] text-white shadow-neomorphic font-semibold border border-[#a88] hover:bg-[#a23] hover:text-white transition-colors"
               >
                 Cancelar
               </NeomorphicButton>

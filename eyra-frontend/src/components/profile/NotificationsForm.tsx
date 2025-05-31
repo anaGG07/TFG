@@ -44,11 +44,11 @@ const NotificationsForm: React.FC<NotificationsFormProps> = ({ form, loading, ha
         <span className="text-[#7a2323] text-sm font-medium">{r.label}</span>
       </label>
     ))}
-    <div className="flex gap-4 mt-2 w-full">
+    <div className="flex justify-center mt-4 w-full">
       <NeomorphicButton
         type="submit"
         variant="primary"
-        className="flex-1 border-2 border-transparent"
+        className="max-w-xs w-full px-8 py-3 text-lg border-2 border-transparent"
         disabled={loading}
       >
         {loading ? "Guardando..." : "Guardar cambios"}
