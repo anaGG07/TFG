@@ -167,7 +167,7 @@ const ProfilePage: React.FC = () => {
    e.preventDefault();
    setLoading(true);
    try {
-     await userService.updateOnboarding({
+     await userService.updateOnboardingPartial({
        receiveAlerts: form.receiveAlerts,
        receiveRecommendations: form.receiveRecommendations,
        receiveCyclePhaseTips: form.receiveCyclePhaseTips, 
