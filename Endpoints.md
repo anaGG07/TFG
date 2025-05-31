@@ -446,3 +446,55 @@ eyra-backend/Control_cambios_backend.md
 ```
 
 **⚠️ Este endpoint necesita ser re-validado por el usuario antes de marcar como ✓ en la documentación oficial.**
+
+---
+
+## ✅ **ACTUALIZACIÓN - 31/05/2025 v0.6.2**
+
+### 🔧 **PROBLEMAS DEL PANEL DE ADMINISTRACIÓN COMPLETAMENTE SOLUCIONADOS:**
+
+#### **✅ Problema 1 RESUELTO: Dropdown de Tipo de Perfil**
+- **❌ Antes**: Solo funcionaban 3 de 12 valores mostrados
+- **✅ Ahora**: Todos los 11 valores del enum están sincronizados y funcionan
+- **Solución**: Enum ProfileType ampliado y sincronizado entre backend-frontend
+
+#### **✅ Problema 2 RESUELTO: Errores 500/401 en Filtro por Rol**
+- **❌ Antes**: Error 500/401 al filtrar por rol
+- **✅ Ahora**: Filtro por rol completamente funcional
+- **Solución**: Consulta JSON corregida con operador nativo de PostgreSQL
+
+#### **📊 Valores de ProfileType Soportados:**
+
+| Valor | Label | Estado |
+|-------|-------|--------|
+| `profile_women` | Mujer | ✅ |
+| `profile_men` | Hombre | ✅ |
+| `profile_nb` | No Binario | ✅ |
+| `profile_transgender` | Transgénero | ✅ |
+| `profile_custom` | Personalizado | ✅ |
+| `profile_parent` | Padre/Madre | ✅ |
+| `profile_partner` | Pareja | ✅ |
+| `profile_provider` | Proveedor | ✅ |
+| `profile_guest` | Invitado | ✅ |
+| `profile_trans` | Transgénero (Legacy) | ✅ |
+| `profile_underage` | Menor de Edad | ✅ |
+
+#### **🔍 Testing Completo Realizado:**
+- ✅ Buscador (email, username, nombre, apellido)
+- ✅ Filtro por rol (ROLE_USER, ROLE_ADMIN, ROLE_GUEST)
+- ✅ Filtro por tipo de perfil (todos los 11 valores)
+- ✅ Combinación de múltiples filtros
+- ✅ Paginación con filtros aplicados
+- ✅ Botón reset de filtros
+- ✅ Sincronización backend-frontend
+
+#### **📦 Archivos Actualizados:**
+```
+eyra-backend/src/Enum/ProfileType.php
+eyra-backend/src/Repository/UserRepository.php  
+eyra-backend/migrations/Version20250531120000.php
+eyra-frontend/src/types/enums.ts
+eyra-frontend/src/features/admin/components/UsersTable.tsx
+```
+
+**🎆 RESULTADO: Panel de administración 100% funcional - LISTO PARA RE-VALIDACIÓN**

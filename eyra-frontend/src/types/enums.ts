@@ -1,5 +1,6 @@
-// ! 31/05/2025 - Actualizados ProfileTypes según documentación de endpoints
+// ! 31/05/2025 - Actualizados ProfileTypes según el enum del backend corregido
 export enum ProfileType {
+  // Tipos principales de perfil
   PROFILE_WOMEN = 'profile_women',
   PROFILE_MEN = 'profile_men',
   PROFILE_NB = 'profile_nb',
@@ -9,10 +10,10 @@ export enum ProfileType {
   PROFILE_PARTNER = 'profile_partner',
   PROFILE_PROVIDER = 'profile_provider',
   PROFILE_GUEST = 'profile_guest',
-  // Mantenemos los antiguos para compatibilidad
-  USER = 'USER',
-  GUEST = 'GUEST',
-  ADMIN = 'ADMIN'
+  
+  // Compatibilidad con valores antiguos
+  PROFILE_TRANS = 'profile_trans',
+  PROFILE_UNDERAGE = 'profile_underage'
 }
 
 export enum HormoneType {

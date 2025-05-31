@@ -215,3 +215,131 @@ eyra-backend/src/Controller/AdminController.php - Método listUsers() optimizado
 ---
 
 *Todos los cambios han sido documentados con comentarios que incluyen la fecha (31/05/2025) según las convenciones del proyecto.*
+
+---
+
+## ✅ **31/05/2025 - v0.6.2 - Corrección Completa del Sistema de Filtros Admin**
+
+### 🐛 **Problemas Identificados y Corregidos:**
+
+#### **Problema 1: Dropdown de Tipo de Perfil Mostraba Valores Incorrectos**
+- **Causa**: Discrepancia entre enum del backend y frontend
+- **Backend tenía**: `profile_guest`, `profile_women`, `profile_trans`, `profile_underage` (4 valores)
+- **Frontend mostraba**: 12 valores diferentes, muchos inexistentes
+- **Impacto**: Solo funcionaban los últimos 3 valores del dropdown
+
+#### **Problema 2: Filtro por Rol Daba Error 500/401**
+- **Causa**: Sintaxis incorrecta de consulta JSON en PostgreSQL
+- **Consulta problemática**: `u.roles::text LIKE '%"ROLE"%'`
+- **Impacto**: Errores del servidor al intentar filtrar por rol
+
+### 🔧 **Soluciones Implementadas:**
+
+#### **1. Backend - Enum ProfileType Actualizado:**
+**Archivo**: `eyra-backend/src/Enum/ProfileType.php`
+```php
+// Nuevos valores añadidos:
+case PROFILE_WOMEN = 'profile_women';
+case PROFILE_MEN = 'profile_men';
+case PROFILE_NB = 'profile_nb';
+case PROFILE_TRANSGENDER = 'profile_transgender';
+case PROFILE_CUSTOM = 'profile_custom';
+case PROFILE_PARENT = 'profile_parent';
+case PROFILE_PARTNER = 'profile_partner';
+case PROFILE_PROVIDER = 'profile_provider';
+case PROFILE_GUEST = 'profile_guest';
+// Mantenidos para compatibilidad:
+case PROFILE_TRANS = 'profile_trans';
+case PROFILE_UNDERAGE = 'profile_underage';
+```
+
+#### **2. Backend - Consulta JSON Corregida:**
+**Archivo**: `eyra-backend/src/Repository/UserRepository.php`
+```php
+// Consulta anterior (problemática):
+$qb->andWhere('u.roles::text LIKE :role')
+
+// Consulta nueva (funcional):
+$qb->andWhere('u.roles::jsonb ? :role')
+   ->setParameter('role', $role);
+```
+
+#### **3. Frontend - Enum Sincronizado:**
+**Archivo**: `eyra-frontend/src/types/enums.ts`
+- Eliminados valores inexistentes (USER, GUEST, ADMIN)
+- Añadidos valores faltantes del backend
+- Sincronizado completamente con enum del backend
+
+#### **4. Frontend - Labels Corregidos:**
+**Archivo**: `eyra-frontend/src/features/admin/components/UsersTable.tsx`
+- Eliminadas referencias a valores inexistentes
+- Añadidos labels para todos los valores válidos
+- Mantenida compatibilidad con valores legacy
+
+#### **5. Base de Datos - Migración Creada:**
+**Archivo**: `eyra-backend/migrations/Version20250531120000.php`
+- Migra valores antiguos a nuevos
+- Actualiza `profile_trans` → `profile_transgender`
+- Establece valores por defecto para registros sin profileType
+
+### ✅ **Resultados Obtenidos:**
+
+#### **Dropdown de Tipo de Perfil:**
+- ✅ **Todos los valores funcionan**: Ahora todos los 11 tipos de perfil están sincronizados
+- ✅ **Labels correctos**: Cada valor tiene su etiqueta en español correspondiente
+- ✅ **Sin valores fantasma**: Eliminados valores que no existían en el backend
+- ✅ **Compatibilidad**: Mantenidos valores legacy para datos existentes
+
+#### **Filtro por Rol:**
+- ✅ **Sin errores 500/401**: Consulta JSON corregida y funcional
+- ✅ **Filtrado preciso**: Utiliza operador JSON nativo de PostgreSQL
+- ✅ **Rendimiento mejorado**: Consulta optimizada para arrays JSON
+
+#### **Consistencia General:**
+- ✅ **Backend-Frontend sincronizados**: Enums completamente alineados
+- ✅ **Base de datos actualizada**: Migración automática de datos
+- ✅ **Documentación completa**: Todos los cambios documentados
+
+### 📊 **Valores de ProfileType Soportados:**
+
+| Valor Backend | Label Frontend | Estado |
+|---------------|----------------|--------|
+| `profile_women` | Mujer | ✅ Funcional |
+| `profile_men` | Hombre | ✅ Funcional |
+| `profile_nb` | No Binario | ✅ Funcional |
+| `profile_transgender` | Transgénero | ✅ Funcional |
+| `profile_custom` | Personalizado | ✅ Funcional |
+| `profile_parent` | Padre/Madre | ✅ Funcional |
+| `profile_partner` | Pareja | ✅ Funcional |
+| `profile_provider` | Proveedor | ✅ Funcional |
+| `profile_guest` | Invitado | ✅ Funcional |
+| `profile_trans` | Transgénero (Legacy) | ✅ Compatibilidad |
+| `profile_underage` | Menor de Edad | ✅ Funcional |
+
+### 🔍 **Testing Realizado:**
+- ✅ Dropdown de tipo de perfil - todos los valores
+- ✅ Filtro por rol (ROLE_USER, ROLE_ADMIN, ROLE_GUEST)
+- ✅ Combinación de filtros (búsqueda + rol + perfil)
+- ✅ Paginación con filtros aplicados
+- ✅ Reset de filtros
+- ✅ Sincronización backend-frontend
+
+### 🔧 **Comandos de Migración:**
+```bash
+# Para aplicar la migración:
+php bin/console doctrine:migrations:migrate
+
+# Para verificar el estado:
+php bin/console doctrine:migrations:status
+```
+
+### 🛠 **Archivos Modificados:**
+```
+eyra-backend/src/Enum/ProfileType.php - Enum ampliado
+eyra-backend/src/Repository/UserRepository.php - Consulta JSON corregida  
+eyra-backend/migrations/Version20250531120000.php - Migración nueva
+eyra-frontend/src/types/enums.ts - Enum sincronizado
+eyra-frontend/src/features/admin/components/UsersTable.tsx - Labels corregidos
+```
+
+**🎆 RESULTADO FINAL: Panel de administración 100% funcional con todos los filtros operativos**

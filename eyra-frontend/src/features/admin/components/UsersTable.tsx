@@ -14,6 +14,7 @@ interface UsersTableProps {
   onRefresh?: () => void;
 }
 
+// ! 31/05/2025 - Corregidas las etiquetas del ProfileType para coincidir con el enum del backend
 const ProfileTypeLabels: Record<string, string> = {
   [ProfileType.PROFILE_WOMEN]: 'Mujer',
   [ProfileType.PROFILE_MEN]: 'Hombre',
@@ -24,9 +25,9 @@ const ProfileTypeLabels: Record<string, string> = {
   [ProfileType.PROFILE_PARTNER]: 'Pareja',
   [ProfileType.PROFILE_PROVIDER]: 'Proveedor',
   [ProfileType.PROFILE_GUEST]: 'Invitado',
-  [ProfileType.USER]: 'Usuario',
-  [ProfileType.GUEST]: 'Invitado',
-  [ProfileType.ADMIN]: 'Administrador',
+  // Compatibilidad con valores antiguos
+  [ProfileType.PROFILE_TRANS]: 'Transgénero (Legacy)',
+  [ProfileType.PROFILE_UNDERAGE]: 'Menor de Edad',
 };
 
 const RoleLabels: Record<string, string> = {
