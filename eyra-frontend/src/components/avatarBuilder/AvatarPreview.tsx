@@ -1,16 +1,16 @@
-import React from 'react';
-import { AvatarConfig } from '../../types/avatar';
-import Background from './Background';
-import Skin from './Skin';
-import Hair from './Hair';
-import Eyes from './Eyes';
-import Eyebrows from './Eyebrows';
-import Mouth from './Mouth';
-import FacialHair from './FacialHair';
-import Clothes from './Clothes';
-import Glasses from './Glasses';
-import Accessories from './Accessories';
-import Tattoos from './Tattoos';
+import React from "react";
+import { AvatarConfig } from "../../types/avatar";
+import Background from "./Background";
+import Skin from "./Skin";
+import Hair from "./Hair";
+import Eyes from "./Eyes";
+import Eyebrows from "./Eyebrows";
+import Mouth from "./Mouth";
+import FacialHair from "./FacialHair";
+import Clothes from "./Clothes";
+import Glasses from "./Glasses";
+import Accessories from "./Accessories";
+import Tattoos from "./Tattoos";
 
 interface AvatarPreviewProps {
   config: AvatarConfig;
@@ -19,7 +19,13 @@ interface AvatarPreviewProps {
 
 const AvatarPreview: React.FC<AvatarPreviewProps> = ({ config, className }) => {
   return (
-    <svg width="100%" height="100%" viewBox="0 0 320 320" className={className} preserveAspectRatio="xMidYMid slice">
+    <svg
+      width="100%"
+      height="100%"
+      viewBox="0 0 320 320"
+      className={className}
+      preserveAspectRatio="xMidYMid meet" // Cambiado de "slice" a "meet" para evitar cortes
+    >
       <Background color={config.backgroundColor} />
       <Skin color={config.skinColor} />
       <Hair style={config.hairStyle} color={config.hairColor} />
@@ -35,4 +41,4 @@ const AvatarPreview: React.FC<AvatarPreviewProps> = ({ config, className }) => {
   );
 };
 
-export default AvatarPreview; 
+export default AvatarPreview;

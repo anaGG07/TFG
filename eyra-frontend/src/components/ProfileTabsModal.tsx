@@ -3,37 +3,82 @@ import { motion, AnimatePresence } from "framer-motion";
 import { NeomorphicButton, NeomorphicInput } from "./ui/NeomorphicComponents";
 import AvatarBuilderModal from "./avatarBuilder/AvatarBuilderModal";
 import AvatarPreview from "./avatarBuilder/AvatarPreview";
-import { userService } from '../services/userService';
+import { userService } from "../services/userService";
 
 // Iconos SVG originales
 const PrivacyIcon = ({ selected }: { selected: boolean }) => (
   <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
     {selected && <circle cx="16" cy="16" r="15" fill="#F5E9E6" />}
-    <circle cx="16" cy="13" r="5" stroke="#C62328" strokeWidth="2" fill={selected ? '#fff' : 'none'} />
-    <path d="M10 23c0-3 4-4 6-4s6 1 6 4" stroke="#C62328" strokeWidth="2" strokeLinecap="round" fill={selected ? '#fff' : 'none'} />
+    <circle
+      cx="16"
+      cy="13"
+      r="5"
+      stroke="#C62328"
+      strokeWidth="2"
+      fill={selected ? "#fff" : "none"}
+    />
+    <path
+      d="M10 23c0-3 4-4 6-4s6 1 6 4"
+      stroke="#C62328"
+      strokeWidth="2"
+      strokeLinecap="round"
+      fill={selected ? "#fff" : "none"}
+    />
   </svg>
 );
 const SecurityIcon = ({ selected }: { selected: boolean }) => (
   <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
     {selected && <circle cx="16" cy="16" r="15" fill="#F5E9E6" />}
-    <rect x="9" y="15" width="14" height="8" rx="3" stroke="#C62328" strokeWidth="2" fill={selected ? '#fff' : 'none'} />
-    <path d="M12 15v-2a4 4 0 0 1 8 0v2" stroke="#C62328" strokeWidth="2" fill="none" />
-    <circle cx="16" cy="19" r="2" stroke="#C62328" strokeWidth="2" fill={selected ? '#fff' : 'none'} />
+    <rect
+      x="9"
+      y="15"
+      width="14"
+      height="8"
+      rx="3"
+      stroke="#C62328"
+      strokeWidth="2"
+      fill={selected ? "#fff" : "none"}
+    />
+    <path
+      d="M12 15v-2a4 4 0 0 1 8 0v2"
+      stroke="#C62328"
+      strokeWidth="2"
+      fill="none"
+    />
+    <circle
+      cx="16"
+      cy="19"
+      r="2"
+      stroke="#C62328"
+      strokeWidth="2"
+      fill={selected ? "#fff" : "none"}
+    />
   </svg>
 );
 const NotificationsIcon = ({ selected }: { selected: boolean }) => (
   <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
     {selected && <circle cx="16" cy="16" r="15" fill="#F5E9E6" />}
-    <path d="M24 23H8m8 0v1a2 2 0 1 1-4 0v-1" stroke="#C62328" strokeWidth="2" strokeLinecap="round" fill="none" />
-    <path d="M22 23V15a6 6 0 1 0-12 0v8" stroke="#C62328" strokeWidth="2" fill={selected ? '#fff' : 'none'} />
+    <path
+      d="M24 23H8m8 0v1a2 2 0 1 1-4 0v-1"
+      stroke="#C62328"
+      strokeWidth="2"
+      strokeLinecap="round"
+      fill="none"
+    />
+    <path
+      d="M22 23V15a6 6 0 1 0-12 0v8"
+      stroke="#C62328"
+      strokeWidth="2"
+      fill={selected ? "#fff" : "none"}
+    />
     <circle cx="16" cy="10" r="1" fill="#C62328" />
   </svg>
 );
 
 const tabList = [
-  { key: 'privacy', label: 'Privacidad', icon: PrivacyIcon },
-  { key: 'security', label: 'Seguridad', icon: SecurityIcon },
-  { key: 'notifications', label: 'Notificaciones', icon: NotificationsIcon },
+  { key: "privacy", label: "Privacidad", icon: PrivacyIcon },
+  { key: "security", label: "Seguridad", icon: SecurityIcon },
+  { key: "notifications", label: "Notificaciones", icon: NotificationsIcon },
 ];
 
 interface ProfileTabsModalProps {
@@ -43,21 +88,28 @@ interface ProfileTabsModalProps {
   onSave: (data: any) => Promise<void>;
 }
 
-const ProfileTabsModal: React.FC<ProfileTabsModalProps> = ({ isOpen, onClose, user, onSave }) => {
-  const [activeTab, setActiveTab] = useState<'privacy' | 'security' | 'notifications'>('privacy');
+const ProfileTabsModal: React.FC<ProfileTabsModalProps> = ({
+  isOpen,
+  onClose,
+  user,
+  onSave,
+}) => {
+  const [activeTab, setActiveTab] = useState<
+    "privacy" | "security" | "notifications"
+  >("privacy");
   const [form, setForm] = useState({
-    name: user?.name || '',
-    lastName: user?.lastName || '',
-    username: user?.username || '',
-    birthDate: user?.birthDate || '',
-    avatar: user?.avatar || {},
+    name: user?.name || "",
+    lastName: user?.lastName || "",
+    username: user?.username || "",
+    birthDate: user?.birthDate || "",
+    avatar: user?.avatar || {}, // Avatar solo para mostrar, no se incluye en el guardado
     receiveAlerts: user?.receiveAlerts ?? true,
     receiveRecommendations: user?.receiveRecommendations ?? true,
     receiveWorkoutSuggestions: user?.receiveWorkoutSuggestions ?? true,
     receiveNutritionAdvice: user?.receiveNutritionAdvice ?? true,
-    currentPassword: '',
-    newPassword: '',
-    confirmPassword: '',
+    currentPassword: "",
+    newPassword: "",
+    confirmPassword: "",
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -67,25 +119,28 @@ const ProfileTabsModal: React.FC<ProfileTabsModalProps> = ({ isOpen, onClose, us
   useEffect(() => {
     if (isOpen && user) {
       setForm({
-        name: user?.name || '',
-        lastName: user?.lastName || '',
-        username: user?.username || '',
-        birthDate: user?.birthDate || '',
+        name: user?.name || "",
+        lastName: user?.lastName || "",
+        username: user?.username || "",
+        birthDate: user?.birthDate || "",
         avatar: user?.avatar || {},
         receiveAlerts: user?.receiveAlerts ?? true,
         receiveRecommendations: user?.receiveRecommendations ?? true,
         receiveWorkoutSuggestions: user?.receiveWorkoutSuggestions ?? true,
         receiveNutritionAdvice: user?.receiveNutritionAdvice ?? true,
-        currentPassword: '',
-        newPassword: '',
-        confirmPassword: '',
+        currentPassword: "",
+        newPassword: "",
+        confirmPassword: "",
       });
     }
   }, [isOpen, user]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type, checked } = e.target;
-    setForm((prev) => ({ ...prev, [name]: type === 'checkbox' ? checked : value }));
+    setForm((prev) => ({
+      ...prev,
+      [name]: type === "checkbox" ? checked : value,
+    }));
   };
 
   const handleSave = async (e: React.FormEvent) => {
@@ -93,10 +148,12 @@ const ProfileTabsModal: React.FC<ProfileTabsModalProps> = ({ isOpen, onClose, us
     setLoading(true);
     setError(null);
     try {
-      await onSave(form);
+      // Crear copia del form SIN el avatar (se guarda por separado)
+      const { avatar, ...formWithoutAvatar } = form;
+      await onSave(formWithoutAvatar);
       onClose();
     } catch (err: any) {
-      setError(err.message || 'Error al guardar los cambios');
+      setError(err.message || "Error al guardar los cambios");
     } finally {
       setLoading(false);
     }
@@ -111,18 +168,18 @@ const ProfileTabsModal: React.FC<ProfileTabsModalProps> = ({ isOpen, onClose, us
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
-        style={{ background: 'rgba(231, 224, 213, 0.7)' }}
+        style={{ background: "rgba(231, 224, 213, 0.7)" }}
       >
         {/* Overlay */}
         <div className="absolute inset-0" onClick={onClose} />
         {/* Modal */}
         <motion.div
           className="relative bg-[#fff] rounded-3xl shadow-2xl p-6 w-full max-w-xl mx-4 flex flex-col items-center min-h-[600px] md:min-h-[650px]"
-          style={{ maxHeight: '90vh' }}
+          style={{ maxHeight: "90vh" }}
           initial={{ scale: 0.95, y: 40, opacity: 0 }}
           animate={{ scale: 1, y: 0, opacity: 1 }}
           exit={{ scale: 0.95, y: 40, opacity: 0 }}
-          transition={{ duration: 0.3, ease: 'easeOut' }}
+          transition={{ duration: 0.3, ease: "easeOut" }}
         >
           {/* Botón cerrar */}
           <button
@@ -130,14 +187,24 @@ const ProfileTabsModal: React.FC<ProfileTabsModalProps> = ({ isOpen, onClose, us
             onClick={onClose}
             className="absolute top-4 right-4 text-[#C62328] hover:text-[#7a2323] transition-colors z-10"
           >
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            <svg
+              className="w-6 h-6"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M6 18L18 6M6 6l12 12"
+              />
             </svg>
           </button>
 
           {/* Avatar con icono de edición */}
           <div className="relative mb-6">
-            <div className="w-28 h-28 rounded-full overflow-hidden flex items-center justify-center">
+            <div className="w-28 h-28 rounded-full overflow-hidden flex items-center justify-center bg-gray-100">
               <AvatarPreview config={form.avatar} className="w-full h-full" />
               <button
                 type="button"
@@ -146,7 +213,16 @@ const ProfileTabsModal: React.FC<ProfileTabsModalProps> = ({ isOpen, onClose, us
                 style={{ zIndex: 2 }}
                 aria-label="Editar avatar"
               >
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <svg
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
                   <path d="M12 20h9" />
                   <path d="M16.5 3.5a2.121 2.121 0 1 1 3 3L7 19l-4 1 1-4 12.5-12.5z" />
                 </svg>
@@ -156,11 +232,15 @@ const ProfileTabsModal: React.FC<ProfileTabsModalProps> = ({ isOpen, onClose, us
 
           {/* Pestañas solo iconos */}
           <div className="flex justify-center gap-8 mb-4 w-full">
-            {tabList.map((tab, idx) => (
+            {tabList.map((tab) => (
               <button
                 key={tab.key}
-                className={`flex items-center justify-center w-14 h-14 rounded-full transition-all duration-200 ${activeTab === tab.key ? 'bg-[#F5E9E6] shadow-neomorphic border-2 border-[#C62328]' : 'bg-transparent border-2 border-transparent'} text-[#C62328] hover:bg-[#F5E9E6]/80`}
-                style={{ boxSizing: 'border-box' }}
+                className={`flex items-center justify-center w-14 h-14 rounded-full transition-all duration-200 ${
+                  activeTab === tab.key
+                    ? "bg-[#F5E9E6] shadow-neomorphic border-2 border-[#C62328]"
+                    : "bg-transparent border-2 border-transparent"
+                } text-[#C62328] hover:bg-[#F5E9E6]/80`}
+                style={{ boxSizing: "border-box" }}
                 onClick={() => setActiveTab(tab.key as any)}
                 type="button"
                 aria-label={tab.label}
@@ -173,7 +253,7 @@ const ProfileTabsModal: React.FC<ProfileTabsModalProps> = ({ isOpen, onClose, us
           {/* Contenido de pestañas */}
           <div className="w-full flex-1">
             <AnimatePresence mode="wait">
-              {activeTab === 'privacy' && (
+              {activeTab === "privacy" && (
                 <motion.form
                   key="privacy"
                   initial={{ opacity: 0, x: 40 }}
@@ -216,7 +296,11 @@ const ProfileTabsModal: React.FC<ProfileTabsModalProps> = ({ isOpen, onClose, us
                     type="date"
                     required
                   />
-                  {error && <div className="text-red-600 text-center font-medium">{error}</div>}
+                  {error && (
+                    <div className="text-red-600 text-center font-medium">
+                      {error}
+                    </div>
+                  )}
                   <div className="flex gap-4 mt-2 w-full">
                     <NeomorphicButton
                       type="button"
@@ -232,12 +316,12 @@ const ProfileTabsModal: React.FC<ProfileTabsModalProps> = ({ isOpen, onClose, us
                       className="flex-1 border-2 border-transparent"
                       disabled={loading}
                     >
-                      {loading ? 'Guardando...' : 'Guardar cambios'}
+                      {loading ? "Guardando..." : "Guardar cambios"}
                     </NeomorphicButton>
                   </div>
                 </motion.form>
               )}
-              {activeTab === 'security' && (
+              {activeTab === "security" && (
                 <motion.form
                   key="security"
                   initial={{ opacity: 0, x: 40 }}
@@ -248,24 +332,38 @@ const ProfileTabsModal: React.FC<ProfileTabsModalProps> = ({ isOpen, onClose, us
                   onSubmit={async (e) => {
                     e.preventDefault();
                     setError(null);
-                    if (!form.currentPassword || !form.newPassword || !form.confirmPassword) {
-                      setError('Por favor, completa todos los campos.');
+                    if (
+                      !form.currentPassword ||
+                      !form.newPassword ||
+                      !form.confirmPassword
+                    ) {
+                      setError("Por favor, completa todos los campos.");
                       return;
                     }
                     if (form.newPassword !== form.confirmPassword) {
-                      setError('La nueva contraseña y la confirmación no coinciden.');
+                      setError(
+                        "La nueva contraseña y la confirmación no coinciden."
+                      );
                       return;
                     }
                     setLoading(true);
                     try {
-                      if (typeof userService.changePassword === 'function') {
-                        await userService.changePassword(form.currentPassword, form.newPassword);
+                      if (typeof userService.changePassword === "function") {
+                        await userService.changePassword(
+                          form.currentPassword,
+                          form.newPassword
+                        );
                       }
                       setError(null);
-                      setForm((prev) => ({ ...prev, currentPassword: '', newPassword: '', confirmPassword: '' }));
+                      setForm((prev) => ({
+                        ...prev,
+                        currentPassword: "",
+                        newPassword: "",
+                        confirmPassword: "",
+                      }));
                       // Puedes mostrar un toast aquí si quieres
                     } catch (err: any) {
-                      setError(err.message || 'Error al cambiar la contraseña');
+                      setError(err.message || "Error al cambiar la contraseña");
                     } finally {
                       setLoading(false);
                     }
@@ -275,7 +373,7 @@ const ProfileTabsModal: React.FC<ProfileTabsModalProps> = ({ isOpen, onClose, us
                     id="currentPassword"
                     name="currentPassword"
                     type="password"
-                    value={form.currentPassword || ''}
+                    value={form.currentPassword || ""}
                     onChange={handleChange}
                     placeholder="Contraseña actual"
                     autoComplete="current-password"
@@ -284,7 +382,7 @@ const ProfileTabsModal: React.FC<ProfileTabsModalProps> = ({ isOpen, onClose, us
                     id="newPassword"
                     name="newPassword"
                     type="password"
-                    value={form.newPassword || ''}
+                    value={form.newPassword || ""}
                     onChange={handleChange}
                     placeholder="Nueva contraseña"
                     autoComplete="new-password"
@@ -293,12 +391,16 @@ const ProfileTabsModal: React.FC<ProfileTabsModalProps> = ({ isOpen, onClose, us
                     id="confirmPassword"
                     name="confirmPassword"
                     type="password"
-                    value={form.confirmPassword || ''}
+                    value={form.confirmPassword || ""}
                     onChange={handleChange}
                     placeholder="Confirmar nueva contraseña"
                     autoComplete="new-password"
                   />
-                  {error && <div className="text-red-600 text-center font-medium">{error}</div>}
+                  {error && (
+                    <div className="text-red-600 text-center font-medium">
+                      {error}
+                    </div>
+                  )}
                   <div className="flex gap-4 mt-2 w-full">
                     <NeomorphicButton
                       type="button"
@@ -314,12 +416,12 @@ const ProfileTabsModal: React.FC<ProfileTabsModalProps> = ({ isOpen, onClose, us
                       className="flex-1 border-2 border-transparent"
                       disabled={loading}
                     >
-                      {loading ? 'Guardando...' : 'Guardar contraseña'}
+                      {loading ? "Guardando..." : "Guardar contraseña"}
                     </NeomorphicButton>
                   </div>
                 </motion.form>
               )}
-              {activeTab === 'notifications' && (
+              {activeTab === "notifications" && (
                 <motion.form
                   key="notifications"
                   initial={{ opacity: 0, x: 40 }}
@@ -329,16 +431,28 @@ const ProfileTabsModal: React.FC<ProfileTabsModalProps> = ({ isOpen, onClose, us
                   className="flex flex-col gap-4 py-2 w-full"
                   onSubmit={handleSave}
                 >
-                  {[{
-                    name: 'receiveAlerts', label: 'Alertas importantes'
-                  }, {
-                    name: 'receiveRecommendations', label: 'Recomendaciones'
-                  }, {
-                    name: 'receiveWorkoutSuggestions', label: 'Ejercicio'
-                  }, {
-                    name: 'receiveNutritionAdvice', label: 'Nutrición'
-                  }].map((r) => (
-                    <label key={r.name} className="flex items-center gap-2 cursor-pointer select-none">
+                  {[
+                    {
+                      name: "receiveAlerts",
+                      label: "Alertas importantes",
+                    },
+                    {
+                      name: "receiveRecommendations",
+                      label: "Recomendaciones",
+                    },
+                    {
+                      name: "receiveWorkoutSuggestions",
+                      label: "Ejercicio",
+                    },
+                    {
+                      name: "receiveNutritionAdvice",
+                      label: "Nutrición",
+                    },
+                  ].map((r) => (
+                    <label
+                      key={r.name}
+                      className="flex items-center gap-2 cursor-pointer select-none"
+                    >
                       <input
                         type="checkbox"
                         name={r.name}
@@ -347,14 +461,24 @@ const ProfileTabsModal: React.FC<ProfileTabsModalProps> = ({ isOpen, onClose, us
                         className="sr-only"
                       />
                       <span
-                        className={`w-10 h-6 rounded-full flex items-center transition-all duration-200 ${form[r.name as keyof typeof form] ? 'bg-[#C62328]/80' : 'bg-[#f0e8dc]'}`}
-                        style={{ boxShadow: 'inset 2px 2px 6px #c6232822' }}
+                        className={`w-10 h-6 rounded-full flex items-center transition-all duration-200 ${
+                          form[r.name as keyof typeof form]
+                            ? "bg-[#C62328]/80"
+                            : "bg-[#f0e8dc]"
+                        }`}
+                        style={{ boxShadow: "inset 2px 2px 6px #c6232822" }}
                       >
                         <span
-                          className={`block w-5 h-5 rounded-full bg-white shadow-md transition-all duration-200 ${form[r.name as keyof typeof form] ? 'translate-x-4' : 'translate-x-0'}`}
+                          className={`block w-5 h-5 rounded-full bg-white shadow-md transition-all duration-200 ${
+                            form[r.name as keyof typeof form]
+                              ? "translate-x-4"
+                              : "translate-x-0"
+                          }`}
                         />
                       </span>
-                      <span className="text-[#7a2323] text-sm font-medium">{r.label}</span>
+                      <span className="text-[#7a2323] text-sm font-medium">
+                        {r.label}
+                      </span>
                     </label>
                   ))}
                   <div className="flex gap-4 mt-2 w-full">
@@ -372,7 +496,7 @@ const ProfileTabsModal: React.FC<ProfileTabsModalProps> = ({ isOpen, onClose, us
                       className="flex-1 border-2 border-transparent"
                       disabled={loading}
                     >
-                      {loading ? 'Guardando...' : 'Guardar cambios'}
+                      {loading ? "Guardando..." : "Guardar cambios"}
                     </NeomorphicButton>
                   </div>
                 </motion.form>
@@ -380,12 +504,14 @@ const ProfileTabsModal: React.FC<ProfileTabsModalProps> = ({ isOpen, onClose, us
             </AnimatePresence>
           </div>
 
-          {/* Modales secundarios */}
+          {/* Modal del constructor de avatar */}
           <AvatarBuilderModal
             isOpen={isAvatarBuilderOpen}
             onClose={() => setIsAvatarBuilderOpen(false)}
             initialConfig={form.avatar}
             onSave={(config) => {
+              // Solo actualizar el estado local para mostrar el avatar actualizado
+              // El avatar ya se guardó en backend dentro de AvatarBuilderModal
               setForm((prev) => ({ ...prev, avatar: config }));
               setIsAvatarBuilderOpen(false);
             }}
@@ -396,4 +522,4 @@ const ProfileTabsModal: React.FC<ProfileTabsModalProps> = ({ isOpen, onClose, us
   );
 };
 
-export default ProfileTabsModal; 
+export default ProfileTabsModal;
