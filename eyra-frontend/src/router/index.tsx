@@ -96,7 +96,7 @@ export const router = createBrowserRouter([
         ),
       },
       {
-        path: "/library",
+        path: ROUTES.LIBRARY,
         element: (
           <ProtectedRoute requireOnboarding={true}>
             <LibraryPage />

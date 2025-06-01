@@ -42,20 +42,30 @@ const Eyes: React.FC<{ type: string; color?: string }> = ({ type, color = "#0000
       return (
         <g>
           {/* Ojo izquierdo */}
-          <path d="M135 143 Q135 137 140 137 Q145 137 145 143 Q145 148 140 153 Q135 148 135 143 Z" fill="#E57373" />
-          <path d="M140 137 Q140 133 144 133 Q148 133 148 137 Q148 141 144 145 Q140 141 140 137 Z" fill="#E57373" />
+          <path d="M140 143
+            C140 139, 145 137, 147 140
+            C149 143, 145 148, 140 151
+            C135 148, 131 143, 133 140
+            C135 137, 140 139, 140 143
+            Z" fill="#E57373" />
           {/* Ojo derecho */}
-          <path d="M215 143 Q215 137 220 137 Q225 137 225 143 Q225 148 220 153 Q215 148 215 143 Z" fill="#E57373" />
-          <path d="M220 137 Q220 133 224 133 Q228 133 228 137 Q228 141 224 145 Q220 141 220 137 Z" fill="#E57373" />
+          <path d="M220 143
+            C220 139, 225 137, 227 140
+            C229 143, 225 148, 220 151
+            C215 148, 211 143, 213 140
+            C215 137, 220 139, 220 143
+            Z" fill="#E57373" />
         </g>
       );
     case "side":
       return (
         <g>
-          <ellipse cx="145" cy="143" rx="10" ry="10" fill={color} />
-          <ellipse cx="215" cy="143" rx="10" ry="10" fill={color} />
-          <ellipse cx="149" cy="143" rx="4" ry="4" fill="#fff" />
-          <ellipse cx="219" cy="143" rx="4" ry="4" fill="#fff" />
+          {/* Ojo izquierdo */}
+          <ellipse cx="140" cy="143" rx="12" ry="8" fill={color} />
+          <ellipse cx="145" cy="139" rx="3" ry="3" fill="#fff" />
+          {/* Ojo derecho */}
+          <ellipse cx="220" cy="143" rx="12" ry="8" fill={color} />
+          <ellipse cx="225" cy="139" rx="3" ry="3" fill="#fff" />
         </g>
       );
     case "wink":
@@ -75,15 +85,35 @@ const Eyes: React.FC<{ type: string; color?: string }> = ({ type, color = "#0000
     case "squint":
       return (
         <g>
-          <path d="M140 143 Q148 148 156 143" stroke={color} strokeWidth="4" fill="none" />
-          <path d="M204 143 Q212 148 220 143" stroke={color} strokeWidth="4" fill="none" />
+          <defs>
+            <clipPath id="squintEyeClip">
+              <rect x="124" y="127" width="32" height="16" />
+            </clipPath>
+            <clipPath id="squintEyeClipR">
+              <rect x="204" y="127" width="32" height="16" />
+            </clipPath>
+          </defs>
+          {/* Ojo izquierdo */}
+          <g clipPath="url(#squintEyeClip)">
+            <circle cx="140" cy="143" r="16" fill="#fff" />
+            <circle cx="140" cy="143" r="8" fill="#555" />
+          </g>
+          {/* Ojo derecho */}
+          <g clipPath="url(#squintEyeClipR)">
+            <circle cx="220" cy="143" r="16" fill="#fff" />
+            <circle cx="220" cy="143" r="8" fill="#555" />
+          </g>
         </g>
       );
     case "surprised":
       return (
         <g>
-          <ellipse cx="148" cy="143" rx="8" ry="8" fill={color} />
-          <ellipse cx="212" cy="143" rx="8" ry="8" fill={color} />
+          {/* Ojo izquierdo */}
+          <circle cx="140" cy="143" r="16" fill="#fff" stroke="#444" strokeWidth="2" />
+          <circle cx="140" cy="143" r="8" fill="#555" />
+          {/* Ojo derecho */}
+          <circle cx="220" cy="143" r="16" fill="#fff" stroke="#444" strokeWidth="2" />
+          <circle cx="220" cy="143" r="8" fill="#555" />
         </g>
       );
     case "winkwacky":

@@ -10,4 +10,5 @@ export const ROUTES = {
   CALENDAR: "/calendar",
   TRACKING: "/tracking",
   SETTINGS: "/settings",
+  LIBRARY: "/library",
 };
