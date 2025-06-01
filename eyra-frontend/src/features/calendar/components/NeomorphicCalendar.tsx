@@ -1,4 +1,4 @@
-// src/features/calendar/components/NeomorphicCalendar.tsx - REFACTORIZACIÓN PROFESIONAL
+// src/features/calendar/components/NeomorphicCalendar.tsx - VERSION CORREGIDA
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -21,19 +21,14 @@ import {
   Rows3,
   ChevronLeft,
   ChevronRight,
-  Plus,
-  Moon,
   Sparkles,
 } from "lucide-react";
 
-// USAR HOOKS EXISTENTES
+// IMPORTS CORRECTOS
 import { useCalendarData } from "../hooks/useCalendarData";
-
-// USAR COMPONENTES EXISTENTES
+import { useCycle } from "../../../context/CycleContext"; 
 import { AddCycleDayModal } from "./AddCycleDayModal";
 import Button from "../../../components/Button";
-
-// USAR CONFIGURACIÓN EXTRAÍDA
 import { CycleDay, CyclePhase } from "../../../types/domain";
 
 type ViewType = "month" | "week" | "day";
@@ -231,11 +226,13 @@ export const NeomorphicCalendar: React.FC<NeomorphicCalendarProps> = ({
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  // USAR HOOK EXISTENTE PARA DATOS
+  // HOOKS CORRECTOS
   const { data: calendarData, isLoading } = useCalendarData(
     currentDate,
     viewType
   );
+  const { addCycleDay } = useCycle(); 
+
   const calendarDays = calendarData?.calendarDays || [];
 
   // FUNCIONES DE NAVEGACIÓN SIMPLIFICADAS
@@ -263,7 +260,6 @@ export const NeomorphicCalendar: React.FC<NeomorphicCalendarProps> = ({
 
   // GENERAR DÍAS USANDO LÓGICA EXISTENTE
   const generateViewDays = (): Date[] => {
-    // Reutilizar lógica del useCalendarData hook
     if (viewType === "day") {
       return [startOfDay(currentDate)];
     }
@@ -307,6 +303,32 @@ export const NeomorphicCalendar: React.FC<NeomorphicCalendarProps> = ({
       case "month":
       default:
         return format(currentDate, "MMMM yyyy", { locale: es });
+    }
+  };
+
+  // FUNCIÓN PARA MAPEAR DATOS DEL MODAL AL FORMATO ESPERADO
+  const handleModalSave = async (modalData: any) => {
+    if (!selectedDate || !addCycleDay) {
+      console.error(
+        "No hay fecha seleccionada o función addCycleDay disponible"
+      );
+      return;
+    }
+
+    try {
+      // MAPEO CORRECTO DE DATOS
+      await addCycleDay({
+        date: format(selectedDate, "yyyy-MM-dd"),
+        flowIntensity: modalData.hasPeriod ? modalData.flowIntensity : 0,
+        notes: modalData.notes || "",
+        phase: CyclePhase.MENSTRUAL, // Se puede mejorar para detectar la fase automáticamente
+        symptoms: modalData.symptoms || [],
+        mood: modalData.mood || [],
+      });
+
+      setIsModalOpen(false);
+    } catch (error) {
+      console.error("Error al guardar el día del ciclo:", error);
     }
   };
 
@@ -457,18 +479,15 @@ export const NeomorphicCalendar: React.FC<NeomorphicCalendarProps> = ({
             </motion.div>
           )}
 
-          {/* Otras vistas simplificadas... */}
+          {/* Otras vistas se pueden añadir aquí */}
         </AnimatePresence>
       </div>
 
-      {/* USAR MODAL EXISTENTE */}
+      {/* MODAL CONECTADO CORRECTAMENTE */}
       <AddCycleDayModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        onSave={async (data) => {
-          console.log("Guardando datos:", data);
-          setIsModalOpen(false);
-        }}
+        onSave={handleModalSave} // FUNCIÓN CORREGIDA
         date={selectedDate || new Date()}
       />
     </div>
