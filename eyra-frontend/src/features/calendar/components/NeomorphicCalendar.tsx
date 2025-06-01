@@ -217,6 +217,8 @@ export const NeomorphicCalendar: React.FC<NeomorphicCalendarProps> = ({
 
   const calendarDays = calendarData?.calendarDays || [];
 
+  console.log("calendarDays:", calendarDays);
+
   // NAVEGACION
   const navigatePrevious = () => {
     const newDate =
