@@ -468,6 +468,86 @@ export const NeomorphicCalendar: React.FC<NeomorphicCalendarProps> = ({
               </div>
             </motion.div>
           )}
+
+          {/* VISTA SEMANA */}
+          {viewType === "week" && (
+            <motion.div
+              key="week"
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 1.05 }}
+              className="h-full flex flex-col w-full"
+            >
+              <div className="grid grid-cols-7 gap-x-2 gap-y-1 mb-1 flex-shrink-0 w-full">
+                {weekDays.map((day) => (
+                  <div
+                    key={day}
+                    className="text-center text-base font-semibold text-[#7a2323] py-1"
+                  >
+                    {day}
+                  </div>
+                ))}
+              </div>
+              <div className="grid grid-cols-7 gap-x-2 gap-y-2 flex-1 h-full w-full">
+                {viewDates.map((date, index) => {
+                  const formattedDate = format(date, "yyyy-MM-dd");
+                  const dayData = calendarDays.find(
+                    (day) => day.date.slice(0, 10) === formattedDate
+                  );
+                  const isCurrentDay = isToday(date);
+                  return (
+                    <motion.div
+                      key={formattedDate}
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: index * 0.01 }}
+                      className="w-full h-full"
+                    >
+                      <NeomorphicDayCell
+                        date={date}
+                        dayData={dayData}
+                        isCurrentMonth={true}
+                        isToday={isCurrentDay}
+                        onClick={handleDayClick}
+                        isSelected={false}
+                      />
+                    </motion.div>
+                  );
+                })}
+              </div>
+            </motion.div>
+          )}
+
+          {/* VISTA DÍA */}
+          {viewType === "day" && (
+            <motion.div
+              key="day"
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 1.05 }}
+              className="h-full flex flex-col w-full items-center justify-center"
+            >
+              {viewDates.map((date) => {
+                const formattedDate = format(date, "yyyy-MM-dd");
+                const dayData = calendarDays.find(
+                  (day) => day.date.slice(0, 10) === formattedDate
+                );
+                const isCurrentDay = isToday(date);
+                return (
+                  <div key={formattedDate} className="w-full max-w-xs mx-auto">
+                    <NeomorphicDayCell
+                      date={date}
+                      dayData={dayData}
+                      isCurrentMonth={true}
+                      isToday={isCurrentDay}
+                      onClick={handleDayClick}
+                      isSelected={true}
+                    />
+                  </div>
+                );
+              })}
+            </motion.div>
+          )}
         </AnimatePresence>
       </div>
 
