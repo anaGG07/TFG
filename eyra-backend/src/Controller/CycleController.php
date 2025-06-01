@@ -22,7 +22,7 @@ use Doctrine\ORM\EntityManagerInterface;
 // ! 20/05/2025 - Actualización completa del controlador para implementar endpoints CRUD faltantes
 // ! 23/05/2025 - Actualizado para trabajar con el nuevo modelo basado en fases
 
-#[Route('//cycles')]
+#[Route('/cycles')]
 class CycleController extends AbstractController
 {
     public function __construct(

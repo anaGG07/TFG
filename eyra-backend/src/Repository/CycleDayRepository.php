@@ -49,7 +49,7 @@ class CycleDayRepository extends ServiceEntityRepository
     {
         $cacheKey = "days_phase_{$cyclePhase->getId()}_range_{$startDate->format('Ymd')}_{$endDate->format('Ymd')}";
 
-        return $this->createQueryBuilder('cd')
+        $results = $this->createQueryBuilder('cd')
             ->andWhere('cd.cyclePhase = :cyclePhase')
             ->andWhere('cd.date >= :startDate')
             ->andWhere('cd.date <= :endDate')
@@ -60,6 +60,17 @@ class CycleDayRepository extends ServiceEntityRepository
             ->getQuery()
             ->enableResultCache(3600, $cacheKey) // Cache durante 1 hora
             ->getResult();
+
+        // Filtrar para que solo haya un día por fecha (el primero encontrado)
+        $uniqueDays = [];
+        foreach ($results as $day) {
+            $dateKey = $day->getDate()->format('Y-m-d');
+            if (!isset($uniqueDays[$dateKey])) {
+                $uniqueDays[$dateKey] = $day;
+            }
+        }
+
+        return array_values($uniqueDays);
     }
 
     /**
