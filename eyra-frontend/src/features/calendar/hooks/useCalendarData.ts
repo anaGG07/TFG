@@ -8,6 +8,8 @@ import {
   startOfWeek,
   endOfWeek,
 } from "date-fns";
+import { apiFetch } from "../../../utils/httpClient";
+import { API_ROUTES } from "../../../config/apiRoutes";
 
 interface CalendarData {
   userCycles: any[];
@@ -63,29 +65,12 @@ export const useCalendarData = (
       setError(null);
 
       try {
-        const token = localStorage.getItem("token");
-        if (!token) {
-          throw new Error("Token de autenticación no encontrado");
-        }
-
         const startStr = format(startDate, "yyyy-MM-dd");
         const endStr = format(endDate, "yyyy-MM-dd");
 
-        const response = await fetch(
-          `/api/cycles/calendar?start=${startStr}&end=${endStr}`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-              "Content-Type": "application/json",
-            },
-          }
+        const result = await apiFetch<CalendarData>(
+          `${API_ROUTES.CYCLES.CALENDAR}?start=${startStr}&end=${endStr}`
         );
-
-        if (!response.ok) {
-          throw new Error(`Error del servidor: ${response.status}`);
-        }
-
-        const result = await response.json();
 
         // Procesar datos para el formato esperado
         const processedData: CalendarData = {
@@ -275,12 +260,8 @@ export const useCalendarPredictions = (data: CalendarData | null) => {
 
     const generatePredictions = async () => {
       try {
-        const token = localStorage.getItem("token");
-        if (!token) return;
-
         const response = await fetch("/api/cycles/prediction-details", {
           headers: {
-            Authorization: `Bearer ${token}`,
             "Content-Type": "application/json",
           },
         });
