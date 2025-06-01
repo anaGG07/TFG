@@ -314,13 +314,14 @@ export const NeomorphicCalendar: React.FC<NeomorphicCalendarProps> = ({
   // Obtener la fase actual y la siguiente fase
   const getCurrentPhaseInfo = (date: Date) => {
     const formattedDate = format(date, "yyyy-MM-dd");
-    const dayData = calendarDays.find(day => day.date === formattedDate);
+    // Normalizo la comparación de fechas para ignorar la hora
+    const dayData = calendarDays.find(day => day.date.slice(0, 10) === formattedDate);
     
     if (!dayData) return { currentPhase: undefined, nextPhaseDate: undefined };
 
     // Encontrar el siguiente día con una fase diferente
     const nextPhaseDay = calendarDays.find(day => 
-      day.date > formattedDate && day.phase !== dayData.phase
+      day.date.slice(0, 10) > formattedDate && day.phase !== dayData.phase
     );
 
     return {
