@@ -63,11 +63,11 @@ const Eyes: React.FC<{ type: string; color?: string }> = ({ type, color = "#0000
       return (
         <g>
           {/* Ojo izquierdo */}
-          <ellipse cx="140" cy="143" rx="13" ry="11" fill="#fff" />
-          <circle cx="146" cy="139" r="5" fill="#222" />
+          <circle cx="140" cy="143" r="16" fill="#fff" />
+          <circle cx="147" cy="139" r="7" fill="#222" />
           {/* Ojo derecho */}
-          <ellipse cx="220" cy="143" rx="13" ry="11" fill="#fff" />
-          <circle cx="226" cy="139" r="5" fill="#222" />
+          <circle cx="220" cy="143" r="16" fill="#fff" />
+          <circle cx="227" cy="139" r="7" fill="#222" />
         </g>
       );
     case "wink":
@@ -76,16 +76,16 @@ const Eyes: React.FC<{ type: string; color?: string }> = ({ type, color = "#0000
           {/* Ojo izquierdo cerrado */}
           <path d="M134 143 Q140 148 146 143" stroke={color} strokeWidth="4" strokeLinecap="round" fill="none" />
           {/* Ojo derecho abierto */}
-          <ellipse cx="220" cy="143" rx="10" ry="10" fill="#fff" />
-          <circle cx="220" cy="143" r="5" fill="#222" />
+          <circle cx="220" cy="143" r="16" fill="#fff" />
+          <circle cx="220" cy="143" r="7" fill="#222" />
         </g>
       );
     case "wink2":
       return (
         <g>
           {/* Ojo izquierdo abierto */}
-          <ellipse cx="140" cy="143" rx="10" ry="10" fill="#fff" />
-          <circle cx="140" cy="143" r="5" fill="#222" />
+          <circle cx="140" cy="143" r="16" fill="#fff" />
+          <circle cx="140" cy="143" r="7" fill="#222" />
           {/* Ojo derecho cerrado */}
           <path d="M214 143 Q220 148 226 143" stroke={color} strokeWidth="4" strokeLinecap="round" fill="none" />
         </g>
@@ -128,9 +128,9 @@ const Eyes: React.FC<{ type: string; color?: string }> = ({ type, color = "#0000
       return (
         <g>
           <circle cx="140" cy="143" r="16" fill="#fff" />
-          <circle cx="140" cy="143" r="10" fill="#222" />
+          <circle cx="140" cy="143" r="7" fill="#222" />
           <circle cx="220" cy="143" r="16" fill="#fff" />
-          <circle cx="220" cy="143" r="10" fill="#222" />
+          <circle cx="220" cy="143" r="7" fill="#222" />
         </g>
       );
     case "tear":
@@ -147,19 +147,19 @@ const Eyes: React.FC<{ type: string; color?: string }> = ({ type, color = "#0000
       return (
         <g>
           {/* Ojo izquierdo */}
-          <path d="M128 143 Q140 135 152 143 Q140 145 128 143 Z" fill="#fff" stroke={color} strokeWidth="2" />
-          <ellipse cx="140" cy="142" rx="5" ry="7" fill="#222" />
+          <circle cx="140" cy="143" r="16" fill="#fff" />
+          <circle cx="140" cy="143" r="7" fill="#222" />
           {/* Pestañas ojo izquierdo */}
-          <path d="M132 140 Q130 137 134 138" stroke={color} strokeWidth="2" fill="none" />
-          <path d="M138 137 Q137 134 141 136" stroke={color} strokeWidth="2" fill="none" />
-          <path d="M146 137 Q149 134 147 139" stroke={color} strokeWidth="2" fill="none" />
+          <path d="M130 135 Q135 130 140 137" stroke={color} strokeWidth="2" fill="none" />
+          <path d="M135 132 Q137 127 142 135" stroke={color} strokeWidth="2" fill="none" />
+          <path d="M145 132 Q147 127 150 137" stroke={color} strokeWidth="2" fill="none" />
           {/* Ojo derecho */}
-          <path d="M208 143 Q220 135 232 143 Q220 145 208 143 Z" fill="#fff" stroke={color} strokeWidth="2" />
-          <ellipse cx="220" cy="142" rx="5" ry="7" fill="#222" />
+          <circle cx="220" cy="143" r="16" fill="#fff" />
+          <circle cx="220" cy="143" r="7" fill="#222" />
           {/* Pestañas ojo derecho */}
-          <path d="M212 140 Q210 137 214 138" stroke={color} strokeWidth="2" fill="none" />
-          <path d="M218 137 Q217 134 221 136" stroke={color} strokeWidth="2" fill="none" />
-          <path d="M226 137 Q229 134 227 139" stroke={color} strokeWidth="2" fill="none" />
+          <path d="M210 135 Q215 130 220 137" stroke={color} strokeWidth="2" fill="none" />
+          <path d="M215 132 Q217 127 222 135" stroke={color} strokeWidth="2" fill="none" />
+          <path d="M225 132 Q227 127 230 137" stroke={color} strokeWidth="2" fill="none" />
         </g>
       );
     default:
