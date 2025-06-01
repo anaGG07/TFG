@@ -454,7 +454,7 @@ export const NeomorphicCalendar: React.FC<NeomorphicCalendarProps> = ({
       </motion.div>
 
       {/* CONTENIDO DEL CALENDARIO COMPACTO */}
-      <div className="flex-1 min-h-0 overflow-hidden flex flex-col items-center justify-center">
+      <div className="flex-1 min-h-0 overflow-hidden flex flex-col items-center justify-center w-full px-4">
         <AnimatePresence mode="wait">
           {viewType === "month" && (
             <motion.div
@@ -462,10 +462,10 @@ export const NeomorphicCalendar: React.FC<NeomorphicCalendarProps> = ({
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 1.05 }}
-              className="h-full flex flex-col w-full max-w-4xl mx-auto"
+              className="h-full flex flex-col w-full"
             >
               {/* DIAS DE LA SEMANA COMPACTOS */}
-              <div className="grid grid-cols-7 gap-x-2 gap-y-1 mb-1 flex-shrink-0">
+              <div className="grid grid-cols-7 gap-x-2 gap-y-1 mb-1 flex-shrink-0 w-full">
                 {weekDays.map((day) => (
                   <div
                     key={day}
@@ -477,7 +477,7 @@ export const NeomorphicCalendar: React.FC<NeomorphicCalendarProps> = ({
               </div>
 
               {/* GRID DE DIAS AMPLIO Y CUADRADO */}
-              <div className="grid grid-cols-7 grid-rows-6 gap-x-2 gap-y-2 flex-1 h-full">
+              <div className="grid grid-cols-7 grid-rows-6 gap-x-2 gap-y-2 flex-1 h-full w-full">
                 {viewDates.map((date, index) => {
                   const formattedDate = format(date, "yyyy-MM-dd");
                   const dayData = calendarDays.find(
