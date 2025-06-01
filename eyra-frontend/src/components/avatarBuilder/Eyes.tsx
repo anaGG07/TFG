@@ -5,8 +5,10 @@ const Eyes: React.FC<{ type: string; color?: string }> = ({ type, color = "#0000
     case "default":
       return (
         <g>
-          <circle cx="140" cy="143" r="10" fill={color} />
-          <circle cx="220" cy="143" r="10" fill={color} />
+          <circle cx="140" cy="143" r="16" fill="#fff" />
+          <circle cx="140" cy="143" r="7" fill="#222" />
+          <circle cx="220" cy="143" r="16" fill="#fff" />
+          <circle cx="220" cy="143" r="7" fill="#222" />
         </g>
       );
     case "dizzy":
@@ -125,15 +127,19 @@ const Eyes: React.FC<{ type: string; color?: string }> = ({ type, color = "#0000
     case "big":
       return (
         <g>
-          <ellipse cx="140" cy="143" rx="13" ry="13" fill={color} />
-          <ellipse cx="220" cy="143" rx="13" ry="13" fill={color} />
+          <circle cx="140" cy="143" r="16" fill="#fff" />
+          <circle cx="140" cy="143" r="10" fill="#222" />
+          <circle cx="220" cy="143" r="16" fill="#fff" />
+          <circle cx="220" cy="143" r="10" fill="#222" />
         </g>
       );
     case "tear":
       return (
         <g>
-          <circle cx="140" cy="143" r="10" fill={color} />
-          <circle cx="220" cy="143" r="10" fill={color} />
+          <circle cx="140" cy="143" r="16" fill="#fff" />
+          <circle cx="140" cy="143" r="7" fill="#222" />
+          <circle cx="220" cy="143" r="16" fill="#fff" />
+          <circle cx="220" cy="143" r="7" fill="#222" />
           <path d="M130 150 Q134 158 140 154" stroke="#6fd3fb" strokeWidth="4" fill="none" />
         </g>
       );
