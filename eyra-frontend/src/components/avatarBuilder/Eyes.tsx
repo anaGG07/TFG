@@ -41,8 +41,12 @@ const Eyes: React.FC<{ type: string; color?: string }> = ({ type, color = "#0000
     case "hearts":
       return (
         <g>
-          <path d="M140 143 Q140 138 145 138 Q150 138 150 143 Q150 148 145 153 Q140 148 140 143" fill="#E57373" stroke="#E57373" strokeWidth="2" />
-          <path d="M220 143 Q220 138 225 138 Q230 138 230 143 Q230 148 225 153 Q220 148 220 143" fill="#E57373" stroke="#E57373" strokeWidth="2" />
+          {/* Ojo izquierdo */}
+          <path d="M135 143 Q135 137 140 137 Q145 137 145 143 Q145 148 140 153 Q135 148 135 143 Z" fill="#E57373" />
+          <path d="M140 137 Q140 133 144 133 Q148 133 148 137 Q148 141 144 145 Q140 141 140 137 Z" fill="#E57373" />
+          {/* Ojo derecho */}
+          <path d="M215 143 Q215 137 220 137 Q225 137 225 143 Q225 148 220 153 Q215 148 215 143 Z" fill="#E57373" />
+          <path d="M220 137 Q220 133 224 133 Q228 133 228 137 Q228 141 224 145 Q220 141 220 137 Z" fill="#E57373" />
         </g>
       );
     case "side":
