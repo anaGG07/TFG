@@ -1,3 +1,4 @@
+// src/features/calendar/components/NeomorphicCalendar.tsx - CORRECCIÓN VISUAL COMPLETA
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -27,7 +28,7 @@ import {
   Sparkles,
 } from "lucide-react";
 
-// IMPORTS CORRECTOS
+// ✅ IMPORTS CORRECTOS
 import { useCalendarData } from "../hooks/useCalendarData";
 import { useCycle } from "../../../context/CycleContext";
 import { AddCycleDayModal } from "./AddCycleDayModal";
@@ -40,7 +41,7 @@ interface NeomorphicCalendarProps {
   className?: string;
 }
 
-// CONFIGURACIÓN DE FASES CON COLORES MEJORADOS
+// ✅ CONFIGURACIÓN DE FASES CON COLORES MEJORADOS
 const phaseConfig = {
   [CyclePhase.MENSTRUAL]: {
     color: "from-red-200 to-red-300",
@@ -76,7 +77,7 @@ const phaseConfig = {
   },
 };
 
-// COMPONENTE DAY CELL MEJORADO CON ASPECTOS VISUALES CORREGIDOS
+// ✅ COMPONENTE DAY CELL MEJORADO CON ASPECTOS VISUALES CORREGIDOS
 const NeomorphicDayCell: React.FC<{
   date: Date;
   dayData?: CycleDay;
@@ -101,10 +102,10 @@ const NeomorphicDayCell: React.FC<{
         ${isCurrentMonth ? "text-gray-900" : "text-gray-400"}
         ${isToday ? "ring-2 ring-[#7a2323] ring-opacity-50" : ""}
         
-        ${/* HACER CELDAS MÁS CUADRADAS */ ""}
-        aspect-square rounded-xl
+        ${/* ✅ HACER CELDAS MÁS CUADRADAS PERO COMPACTAS */ ""}
+        aspect-square rounded-lg
         
-        ${/* APLICAR COLORES DE FASE */ ""}
+        ${/* ✅ APLICAR COLORES DE FASE */ ""}
         ${
           phaseStyle
             ? `${phaseStyle.bgColor} ${phaseStyle.borderColor} border-2`
@@ -117,16 +118,16 @@ const NeomorphicDayCell: React.FC<{
             : "shadow-[inset_2px_2px_6px_rgba(199,191,180,0.3),inset_-2px_-2px_6px_rgba(255,255,255,0.7)]"
         }
         ${isHovered ? "shadow-[2px_2px_12px_rgba(122,35,35,0.15)]" : ""}
-        flex flex-col items-center justify-center p-2 min-h-[60px]
+        flex flex-col items-center justify-center p-1 min-h-[45px]
       `}
       initial={false}
       animate={isSelected ? { scale: 0.95 } : { scale: 1 }}
     >
-      {/* DÍA DEL MES CON MEJOR CONTRASTE */}
+      {/* ✅ DÍA DEL MES MÁS COMPACTO */}
       <motion.div
         className={`
-          text-sm font-semibold mb-1
-          ${isToday ? "text-[#7a2323] font-bold text-base" : ""}
+          text-xs font-semibold mb-0.5
+          ${isToday ? "text-[#7a2323] font-bold text-sm" : ""}
           ${!isCurrentMonth ? "opacity-50" : ""}
           ${phaseStyle ? phaseStyle.textColor : "text-gray-800"}
         `}
@@ -136,13 +137,13 @@ const NeomorphicDayCell: React.FC<{
         {format(date, "d")}
       </motion.div>
 
-      {/* INDICADORES DE FLUJO MEJORADOS */}
+      {/* ✅ INDICADORES DE FLUJO COMPACTOS */}
       {dayData?.flowIntensity && dayData.flowIntensity > 0 && (
-        <motion.div className="flex gap-0.5 mb-1">
+        <motion.div className="flex gap-0.5 mb-0.5">
           {[...Array(5)].map((_, i) => (
             <motion.div
               key={i}
-              className={`w-1.5 h-1.5 rounded-full ${
+              className={`w-1 h-1 rounded-full ${
                 i < dayData.flowIntensity! ? "bg-red-600" : "bg-red-200"
               }`}
               animate={{
@@ -159,50 +160,50 @@ const NeomorphicDayCell: React.FC<{
         </motion.div>
       )}
 
-      {/* EMOJI DE FASE MÁS VISIBLE */}
+      {/* ✅ EMOJI DE FASE COMPACTO */}
       {dayData?.phase && (
         <motion.div
-          className="text-sm opacity-80"
+          className="text-xs opacity-70"
           initial={{ opacity: 0, y: 5 }}
-          animate={{ opacity: 0.8, y: 0 }}
+          animate={{ opacity: 0.7, y: 0 }}
           transition={{ delay: 0.2 }}
         >
           {phaseConfig[dayData.phase].icon}
         </motion.div>
       )}
 
-      {/* INDICADORES DE SÍNTOMAS MEJORADOS */}
+      {/* ✅ INDICADORES COMPACTOS */}
       {dayData?.symptoms && dayData.symptoms.length > 0 && (
         <motion.div
-          className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-orange-500 rounded-full border border-white"
+          className="absolute -bottom-0.5 -right-0.5 w-2 h-2 bg-orange-500 rounded-full border border-white"
           animate={{ scale: [1, 1.2, 1] }}
           transition={{ duration: 2, repeat: Infinity }}
         />
       )}
 
-      {/* INDICADORES DE ÁNIMO MEJORADOS */}
+      {/* ✅ INDICADORES DE ÁNIMO COMPACTOS */}
       {dayData?.mood && dayData.mood.length > 0 && (
         <motion.div
-          className="absolute -top-0.5 -left-0.5 w-3 h-3 bg-purple-500 rounded-full border border-white"
+          className="absolute -top-0.5 -left-0.5 w-2 h-2 bg-purple-500 rounded-full border border-white"
           animate={{ scale: [1, 1.2, 1] }}
           transition={{ duration: 2, repeat: Infinity, delay: 0.5 }}
         />
       )}
 
-      {/* INDICADOR DE HOY MÁS VISIBLE */}
+      {/* ✅ INDICADOR DE HOY COMPACTO */}
       {isToday && (
         <motion.div
-          className="absolute -top-1 -right-1 w-4 h-4 bg-[#7a2323] rounded-full border-2 border-white"
+          className="absolute -top-1 -right-1 w-3 h-3 bg-[#7a2323] rounded-full border border-white"
           animate={{ scale: [1, 1.3, 1] }}
           transition={{ duration: 1.5, repeat: Infinity }}
         />
       )}
 
-      {/* EFECTO DE HOVER MEJORADO */}
+      {/* ✅ EFECTO DE HOVER MEJORADO */}
       <AnimatePresence>
         {isHovered && (
           <motion.div
-            className="absolute inset-0 bg-gradient-to-br from-white/30 to-transparent rounded-xl"
+            className="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent rounded-lg"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -213,7 +214,7 @@ const NeomorphicDayCell: React.FC<{
   );
 };
 
-// COMPONENTE SELECTOR DE VISTA (sin cambios)
+// ✅ COMPONENTE SELECTOR DE VISTA (sin cambios)
 const ViewSelector: React.FC<{
   viewType: ViewType;
   onViewChange: (view: ViewType) => void;
@@ -254,13 +255,13 @@ const ViewSelector: React.FC<{
 export const NeomorphicCalendar: React.FC<NeomorphicCalendarProps> = ({
   className = "",
 }) => {
-  // ESTADO SIMPLE
+  // ✅ ESTADO SIMPLE
   const [currentDate, setCurrentDate] = useState(startOfDay(new Date()));
   const [viewType, setViewType] = useState<ViewType>("month");
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  // HOOKS CORRECTOS
+  // ✅ HOOKS CORRECTOS
   const { data: calendarData, isLoading } = useCalendarData(
     currentDate,
     viewType
@@ -269,7 +270,7 @@ export const NeomorphicCalendar: React.FC<NeomorphicCalendarProps> = ({
 
   const calendarDays = calendarData?.calendarDays || [];
 
-  // NAVEGACIÓN
+  // ✅ NAVEGACIÓN
   const navigatePrevious = () => {
     const newDate =
       viewType === "day"
@@ -292,7 +293,7 @@ export const NeomorphicCalendar: React.FC<NeomorphicCalendarProps> = ({
 
   const goToToday = () => setCurrentDate(startOfDay(new Date()));
 
-  // GENERAR DÍAS CORREGIDO - INCLUYE DÍAS ANTERIORES Y POSTERIORES
+  // ✅ GENERAR DÍAS CORREGIDO - INCLUYE DÍAS ANTERIORES Y POSTERIORES
   const generateViewDays = (): Date[] => {
     if (viewType === "day") {
       return [startOfDay(currentDate)];
@@ -304,7 +305,7 @@ export const NeomorphicCalendar: React.FC<NeomorphicCalendarProps> = ({
       return eachDayOfInterval({ start, end });
     }
 
-    // VISTA MES - INCLUYE DÍAS DEL MES ANTERIOR Y SIGUIENTE
+    // ✅ VISTA MES - INCLUYE DÍAS DEL MES ANTERIOR Y SIGUIENTE
     const monthStart = startOfMonth(currentDate);
     const monthEnd = endOfMonth(currentDate);
 
@@ -338,7 +339,7 @@ export const NeomorphicCalendar: React.FC<NeomorphicCalendarProps> = ({
     }
   };
 
-  // MAPEO DE DATOS DEL MODAL
+  // ✅ MAPEO DE DATOS DEL MODAL
   const handleModalSave = async (modalData: any) => {
     if (!selectedDate || !addCycleDay) {
       console.error(
@@ -388,9 +389,9 @@ export const NeomorphicCalendar: React.FC<NeomorphicCalendarProps> = ({
         maxHeight: "calc(100vh - 120px)",
       }}
     >
-      {/* HEADER */}
+      {/* ✅ HEADER COMPACTO */}
       <motion.div
-        className="flex-shrink-0 mb-3"
+        className="flex-shrink-0 mb-2"
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6 }}
@@ -433,12 +434,12 @@ export const NeomorphicCalendar: React.FC<NeomorphicCalendarProps> = ({
           <ViewSelector viewType={viewType} onViewChange={setViewType} />
         </div>
 
-        {/* LEYENDA MEJORADA */}
-        <motion.div className="flex flex-wrap gap-4 mt-3">
+        {/* ✅ LEYENDA COMPACTA */}
+        <motion.div className="flex flex-wrap gap-3 mt-2">
           {Object.entries(phaseConfig).map(([phase, config]) => (
-            <div key={phase} className="flex items-center gap-2 text-xs">
+            <div key={phase} className="flex items-center gap-1 text-xs">
               <div
-                className={`w-4 h-4 rounded-full ${config.bgColor} ${config.borderColor} border-2`}
+                className={`w-3 h-3 rounded-full ${config.bgColor} ${config.borderColor} border`}
               />
               <span className="text-[#7a2323] capitalize font-medium">
                 {config.description}
@@ -448,7 +449,7 @@ export const NeomorphicCalendar: React.FC<NeomorphicCalendarProps> = ({
         </motion.div>
       </motion.div>
 
-      {/* CONTENIDO DEL CALENDARIO */}
+      {/* ✅ CONTENIDO DEL CALENDARIO */}
       <div className="flex-1 min-h-0 overflow-hidden">
         <AnimatePresence mode="wait">
           {viewType === "month" && (
@@ -459,20 +460,23 @@ export const NeomorphicCalendar: React.FC<NeomorphicCalendarProps> = ({
               exit={{ opacity: 0, scale: 1.05 }}
               className="h-full flex flex-col"
             >
-              {/* DÍAS DE LA SEMANA */}
-              <div className="grid grid-cols-7 gap-2 mb-3 flex-shrink-0">
+              {/* ✅ DÍAS DE LA SEMANA COMPACTOS */}
+              <div className="grid grid-cols-7 gap-1 mb-2 flex-shrink-0">
                 {weekDays.map((day) => (
                   <div
                     key={day}
-                    className="text-center text-sm font-semibold text-[#7a2323] py-2"
+                    className="text-center text-sm font-semibold text-[#7a2323] py-1"
                   >
                     {day}
                   </div>
                 ))}
               </div>
 
-              {/* GRID DE DÍAS MEJORADO */}
-              <div className="grid grid-cols-7 gap-2 flex-1">
+              {/* ✅ GRID DE DÍAS COMPACTO PARA VER TODO EL MES */}
+              <div
+                className="grid grid-cols-7 gap-1 flex-1"
+                style={{ height: "auto" }}
+              >
                 {viewDates.map((date, index) => {
                   const formattedDate = format(date, "yyyy-MM-dd");
                   const dayData = calendarDays.find(
@@ -506,7 +510,7 @@ export const NeomorphicCalendar: React.FC<NeomorphicCalendarProps> = ({
         </AnimatePresence>
       </div>
 
-      {/* MODAL */}
+      {/* ✅ MODAL */}
       <AddCycleDayModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}

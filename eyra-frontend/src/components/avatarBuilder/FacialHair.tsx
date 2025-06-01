@@ -12,12 +12,10 @@ const FacialHair: React.FC<{ type: string; color?: string }> = ({ type, color = 
       );
     case "fancy":
       return (
-        <path
-          d="M140 215 Q180 220 220 215 Q180 225 140 215 M160 215 L160 225"
-          stroke={color}
-          strokeWidth="3"
-          fill="none"
-        />
+        <g>
+          <path d="M120 210 Q140 200 160 210 Q150 205 140 210 Q130 215 120 210 Z" fill={color} />
+          <path d="M220 210 Q200 200 180 210 Q190 205 200 210 Q210 215 220 210 Z" fill={color} />
+        </g>
       );
     case "magestic":
       return (
