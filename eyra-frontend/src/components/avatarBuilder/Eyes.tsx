@@ -27,8 +27,8 @@ const Eyes: React.FC<{ type: string; color?: string }> = ({ type, color = "#0000
     case "happy":
       return (
         <g>
-          <path d="M132 143 Q140 150 148 143" stroke={color} strokeWidth="4" strokeLinecap="round" fill="none" />
-          <path d="M212 143 Q220 150 228 143" stroke={color} strokeWidth="4" strokeLinecap="round" fill="none" />
+          <path d="M132 143 Q140 136 148 143" stroke={color} strokeWidth="4" strokeLinecap="round" fill="none" />
+          <path d="M212 143 Q220 136 228 143" stroke={color} strokeWidth="4" strokeLinecap="round" fill="none" />
         </g>
       );
     case "close":
@@ -64,7 +64,7 @@ const Eyes: React.FC<{ type: string; color?: string }> = ({ type, color = "#0000
     case "wink2":
       return (
         <g>
-          <ellipse cx="140" cy="143" rx="10" ry="10" fill={color} />
+          <circle cx="140" cy="143" r="10" fill={color} />
           <path d="M214 143 Q220 148 226 143" stroke={color} strokeWidth="4" strokeLinecap="round" fill="none" />
         </g>
       );

@@ -82,9 +82,9 @@ export const router = createBrowserRouter([
       {
         path: ROUTES.CALENDAR,
         element: (
-          <PublicOnlyRoute>
+          <ProtectedRoute requireOnboarding={true}>
             <CalendarPage />
-          </PublicOnlyRoute>
+          </ProtectedRoute>
         ),
       },
       {
