@@ -5,8 +5,8 @@ const Eyes: React.FC<{ type: string; color?: string }> = ({ type, color = "#0000
     case "default":
       return (
         <g>
-          <circle fill={color} fillOpacity="0.7" cx="148" cy="143" r="8" />
-          <circle fill={color} fillOpacity="0.7" cx="212" cy="143" r="8" />
+          <circle cx="140" cy="143" r="10" fill={color} />
+          <circle cx="220" cy="143" r="10" fill={color} />
         </g>
       );
     case "dizzy":
@@ -85,6 +85,20 @@ const Eyes: React.FC<{ type: string; color?: string }> = ({ type, color = "#0000
           <ellipse cx="212" cy="143" rx="7" ry="7" fill={color} />
           <path d="M140 153 Q144 163 150 163" stroke="#6fd3fb" strokeWidth="4" fill="none" />
         </>
+      );
+    case "cross":
+      // Ojos en X (muerto)
+      return (
+        <g>
+          <g>
+            <line x1="132" y1="135" x2="148" y2="151" stroke={color} strokeWidth="6" strokeLinecap="round" />
+            <line x1="148" y1="135" x2="132" y2="151" stroke={color} strokeWidth="6" strokeLinecap="round" />
+          </g>
+          <g>
+            <line x1="212" y1="135" x2="228" y2="151" stroke={color} strokeWidth="6" strokeLinecap="round" />
+            <line x1="228" y1="135" x2="212" y2="151" stroke={color} strokeWidth="6" strokeLinecap="round" />
+          </g>
+        </g>
       );
     default:
       return null;
