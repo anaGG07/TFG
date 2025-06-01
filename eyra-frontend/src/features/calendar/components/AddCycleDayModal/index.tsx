@@ -1,4 +1,8 @@
 import React, { useState } from 'react';
+import { format } from 'date-fns';
+import { es } from 'date-fns/locale';
+import { CyclePhase } from '../../../../types/domain';
+import { phaseConfig } from '../../config/phaseConfig';
 
 interface CycleDayFormData {
   date: string;
@@ -9,6 +13,7 @@ interface CycleDayFormData {
   symptoms: string[];
   mood: string[];
   notes: string;
+  phase?: CyclePhase;
 }
 
 interface AddCycleDayModalProps {
@@ -17,6 +22,8 @@ interface AddCycleDayModalProps {
   onSave: (data: CycleDayFormData) => void;
   date: Date;
   initialData?: Partial<CycleDayFormData>;
+  currentPhase?: CyclePhase;
+  nextPhaseDate?: Date;
 }
 
 const symptomOptions = [
@@ -52,7 +59,9 @@ export const AddCycleDayModal: React.FC<AddCycleDayModalProps> = ({
   onClose,
   onSave,
   date,
-  initialData = {}
+  initialData = {},
+  currentPhase,
+  nextPhaseDate
 }) => {
   const [formData, setFormData] = useState<CycleDayFormData>({
     date: date.toISOString().split('T')[0],
@@ -62,7 +71,8 @@ export const AddCycleDayModal: React.FC<AddCycleDayModalProps> = ({
     painLevel: initialData.painLevel || 0,
     symptoms: initialData.symptoms || [],
     mood: initialData.mood || [],
-    notes: initialData.notes || ''
+    notes: initialData.notes || '',
+    phase: initialData.phase || currentPhase
   });
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -115,7 +125,7 @@ export const AddCycleDayModal: React.FC<AddCycleDayModalProps> = ({
         <div className="p-6">
           <div className="flex justify-between items-center mb-6">
             <h2 className="text-2xl font-serif text-eyraRed">
-              {initialData.date ? 'Editar día' : 'Añadir día'} - {date.toLocaleDateString('es', { day: 'numeric', month: 'long' })}
+              {initialData.date ? 'Editar día' : 'Añadir día'} - {format(date, "d 'de' MMMM", { locale: es })}
             </h2>
             <button 
               onClick={onClose}
@@ -126,6 +136,26 @@ export const AddCycleDayModal: React.FC<AddCycleDayModalProps> = ({
               </svg>
             </button>
           </div>
+
+          {/* Información de la fase actual */}
+          {currentPhase && (
+            <div className="mb-6 p-4 rounded-lg bg-gradient-to-r from-gray-50 to-gray-100 border border-gray-200">
+              <h3 className="text-lg font-medium text-gray-800 mb-2">Fase del ciclo</h3>
+              <div className="flex items-center gap-3">
+                <div className={`w-12 h-12 rounded-full ${phaseConfig[currentPhase].gradient} flex items-center justify-center text-2xl`}>
+                  {phaseConfig[currentPhase].icon}
+                </div>
+                <div>
+                  <p className="font-medium text-gray-900">{phaseConfig[currentPhase].description}</p>
+                  {nextPhaseDate && (
+                    <p className="text-sm text-gray-600">
+                      Próxima fase: {format(nextPhaseDate, "d 'de' MMMM", { locale: es })}
+                    </p>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
 
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Periodo menstrual */}

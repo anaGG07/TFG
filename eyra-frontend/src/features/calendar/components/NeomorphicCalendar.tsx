@@ -101,22 +101,19 @@ const NeomorphicDayCell: React.FC<{
         relative overflow-hidden cursor-pointer transition-all duration-200
         ${isCurrentMonth ? "text-gray-900" : "text-gray-400"}
         ${isToday ? "ring-2 ring-[#7a2323] ring-opacity-50" : ""}
-        
-        h-12 w-full rounded-lg
-        
+        w-full h-full rounded-lg
         ${
           phaseStyle
             ? `${phaseStyle.bgColor} ${phaseStyle.borderColor} border-2`
             : "bg-[#e7e0d5] border border-gray-200"
         }
-        
         ${
           isSelected
             ? "shadow-inner shadow-[#7a2323]/20"
             : "shadow-[inset_1px_1px_3px_rgba(199,191,180,0.3),inset_-1px_-1px_3px_rgba(255,255,255,0.7)]"
         }
         ${isHovered ? "shadow-[1px_1px_6px_rgba(122,35,35,0.15)]" : ""}
-        flex flex-col items-center justify-center p-1
+        flex flex-col items-center justify-center
       `}
       initial={false}
       animate={isSelected ? { scale: 0.95 } : { scale: 1 }}
@@ -348,7 +345,7 @@ export const NeomorphicCalendar: React.FC<NeomorphicCalendarProps> = ({
         date: format(selectedDate, "yyyy-MM-dd"),
         flowIntensity: modalData.hasPeriod ? modalData.flowIntensity : 0,
         notes: modalData.notes || "",
-        phase: CyclePhase.MENSTRUAL,
+        phase: modalData.phase || CyclePhase.MENSTRUAL,
         symptoms: modalData.symptoms || [],
         mood: modalData.mood || [],
       });
@@ -357,6 +354,24 @@ export const NeomorphicCalendar: React.FC<NeomorphicCalendarProps> = ({
     } catch (error) {
       console.error("Error al guardar el día del ciclo:", error);
     }
+  };
+
+  // Obtener la fase actual y la siguiente fase
+  const getCurrentPhaseInfo = (date: Date) => {
+    const formattedDate = format(date, "yyyy-MM-dd");
+    const dayData = calendarDays.find(day => day.date === formattedDate);
+    
+    if (!dayData) return { currentPhase: undefined, nextPhaseDate: undefined };
+
+    // Encontrar el siguiente día con una fase diferente
+    const nextPhaseDay = calendarDays.find(day => 
+      day.date > formattedDate && day.phase !== dayData.phase
+    );
+
+    return {
+      currentPhase: dayData.phase,
+      nextPhaseDate: nextPhaseDay ? new Date(nextPhaseDay.date) : undefined
+    };
   };
 
   const viewDates = generateViewDays();
@@ -439,7 +454,7 @@ export const NeomorphicCalendar: React.FC<NeomorphicCalendarProps> = ({
       </motion.div>
 
       {/* CONTENIDO DEL CALENDARIO COMPACTO */}
-      <div className="flex-1 min-h-0 overflow-hidden">
+      <div className="flex-1 min-h-0 overflow-hidden flex flex-col items-center justify-center">
         <AnimatePresence mode="wait">
           {viewType === "month" && (
             <motion.div
@@ -447,22 +462,22 @@ export const NeomorphicCalendar: React.FC<NeomorphicCalendarProps> = ({
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 1.05 }}
-              className="h-full flex flex-col"
+              className="h-full flex flex-col w-full max-w-4xl mx-auto"
             >
               {/* DIAS DE LA SEMANA COMPACTOS */}
-              <div className="grid grid-cols-7 gap-1 mb-1 flex-shrink-0">
+              <div className="grid grid-cols-7 gap-x-2 gap-y-1 mb-1 flex-shrink-0">
                 {weekDays.map((day) => (
                   <div
                     key={day}
-                    className="text-center text-xs font-semibold text-[#7a2323] py-1"
+                    className="text-center text-base font-semibold text-[#7a2323] py-1"
                   >
                     {day}
                   </div>
                 ))}
               </div>
 
-              {/* GRID DE DIAS COMPACTO */}
-              <div className="grid grid-cols-7 gap-1 flex-1">
+              {/* GRID DE DIAS AMPLIO Y CUADRADO */}
+              <div className="grid grid-cols-7 grid-rows-6 gap-x-2 gap-y-2 flex-1 h-full">
                 {viewDates.map((date, index) => {
                   const formattedDate = format(date, "yyyy-MM-dd");
                   const dayData = calendarDays.find(
@@ -477,7 +492,7 @@ export const NeomorphicCalendar: React.FC<NeomorphicCalendarProps> = ({
                       initial={{ opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: index * 0.005 }}
-                      className="h-12"
+                      className="w-full h-full"
                     >
                       <NeomorphicDayCell
                         date={date}
@@ -502,6 +517,7 @@ export const NeomorphicCalendar: React.FC<NeomorphicCalendarProps> = ({
         onClose={() => setIsModalOpen(false)}
         onSave={handleModalSave}
         date={selectedDate || new Date()}
+        {...(selectedDate ? getCurrentPhaseInfo(selectedDate) : {})}
       />
     </div>
   );
