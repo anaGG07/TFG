@@ -53,10 +53,9 @@ export const AVATAR_OPTIONS = {
     { value: "wink2", name: "Guiño 2" },
     { value: "squint", name: "Entrecerrados" },
     { value: "surprised", name: "Sorprendido" },
-    { value: "winkwacky", name: "Guiño loco" },
-    { value: "cry", name: "Llorando" },
     { value: "big", name: "Grandes" },
-    { value: "tear", name: "Con lágrima" }
+    { value: "tear", name: "Con lágrima" },
+    { value: "feminine", name: "Femenino" },
   ],
 
   // Cejas - del código de referencia
