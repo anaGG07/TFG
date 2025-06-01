@@ -29,19 +29,37 @@ const Eyes: React.FC<{ type: string; color?: string }> = ({ type, color = "#0000
           <path d="M204 146 Q212 153 220 146" stroke={color} strokeWidth="4" fill="none" />
         </>
       );
-    case "close":
+    case "small":
+      // Ojos pequeños
       return (
-        <>
-          <path d="M140 143 Q148 148 156 143" stroke={color} strokeWidth="4" fill="none" />
-          <path d="M204 143 Q212 148 220 143" stroke={color} strokeWidth="4" fill="none" />
-        </>
+        <g>
+          <circle cx="140" cy="143" r="5" fill={color} />
+          <circle cx="220" cy="143" r="5" fill={color} />
+        </g>
+      );
+    case "close":
+      // Ojos cerrados (línea curva corta)
+      return (
+        <g>
+          <path d="M134 143 Q140 148 146 143" stroke={color} strokeWidth="4" strokeLinecap="round" fill="none" />
+          <path d="M214 143 Q220 148 226 143" stroke={color} strokeWidth="4" strokeLinecap="round" fill="none" />
+        </g>
+      );
+    case "close2":
+      // Ojos cerrados 2 (línea curva más abierta)
+      return (
+        <g>
+          <path d="M134 146 Q140 151 146 146" stroke={color} strokeWidth="4" strokeLinecap="round" fill="none" />
+          <path d="M214 146 Q220 151 226 146" stroke={color} strokeWidth="4" strokeLinecap="round" fill="none" />
+        </g>
       );
     case "hearts":
+      // Ojos de corazón
       return (
-        <>
-          <path d="M148 143 Q148 138 153 138 Q158 138 158 143 Q158 148 153 153 Q148 148 148 143" fill="#E57373" />
-          <path d="M212 143 Q212 138 217 138 Q222 138 222 143 Q222 148 217 153 Q212 148 212 143" fill="#E57373" />
-        </>
+        <g>
+          <path d="M140 143 Q140 138 145 138 Q150 138 150 143 Q150 148 145 153 Q140 148 140 143" fill="#E57373" />
+          <path d="M220 143 Q220 138 225 138 Q230 138 230 143 Q230 148 225 153 Q220 148 220 143" fill="#E57373" />
+        </g>
       );
     case "side":
       return (
@@ -51,11 +69,20 @@ const Eyes: React.FC<{ type: string; color?: string }> = ({ type, color = "#0000
         </>
       );
     case "wink":
+      // Ojo izquierdo cerrado, derecho abierto
       return (
-        <>
-          <path d="M140 143 Q148 148 156 143" stroke={color} strokeWidth="4" fill="none" />
-          <ellipse cx="212" cy="143" rx="7" ry="7" fill={color} />
-        </>
+        <g>
+          <path d="M134 143 Q140 148 146 143" stroke={color} strokeWidth="4" strokeLinecap="round" fill="none" />
+          <ellipse cx="220" cy="143" rx="10" ry="10" fill={color} />
+        </g>
+      );
+    case "wink2":
+      // Ojo derecho cerrado, izquierdo abierto
+      return (
+        <g>
+          <ellipse cx="140" cy="143" rx="10" ry="10" fill={color} />
+          <path d="M214 143 Q220 148 226 143" stroke={color} strokeWidth="4" strokeLinecap="round" fill="none" />
+        </g>
       );
     case "squint":
       return (
@@ -98,6 +125,23 @@ const Eyes: React.FC<{ type: string; color?: string }> = ({ type, color = "#0000
             <line x1="212" y1="135" x2="228" y2="151" stroke={color} strokeWidth="6" strokeLinecap="round" />
             <line x1="228" y1="135" x2="212" y2="151" stroke={color} strokeWidth="6" strokeLinecap="round" />
           </g>
+        </g>
+      );
+    case "big":
+      // Ojos grandes
+      return (
+        <g>
+          <ellipse cx="140" cy="143" rx="13" ry="13" fill={color} />
+          <ellipse cx="220" cy="143" rx="13" ry="13" fill={color} />
+        </g>
+      );
+    case "tear":
+      // Ojos normales con lágrima azul
+      return (
+        <g>
+          <circle cx="140" cy="143" r="10" fill={color} />
+          <circle cx="220" cy="143" r="10" fill={color} />
+          <path d="M130 150 Q134 158 140 154" stroke="#6fd3fb" strokeWidth="4" fill="none" />
         </g>
       );
     default:
