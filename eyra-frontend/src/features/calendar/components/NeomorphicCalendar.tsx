@@ -46,30 +46,35 @@ interface NeomorphicCalendarProps {
   className?: string;
 }
 
+// Configuración mejorada de fases menstruales
 const phaseConfig = {
   [CyclePhase.MENSTRUAL]: {
-    color: "from-red-100 to-red-200",
-    shadow: "shadow-red-200/50",
-    icon: "🔴",
-    gradient: "bg-gradient-to-br from-red-50 via-red-100 to-red-150",
+    color: "from-red-200 to-red-300",
+    shadow: "shadow-red-300/50",
+    icon: "🩸",
+    gradient: "bg-gradient-to-br from-red-100 via-red-200 to-red-300",
+    description: "Menstruación",
   },
   [CyclePhase.FOLICULAR]: {
-    color: "from-yellow-100 to-yellow-200",
-    shadow: "shadow-yellow-200/50",
+    color: "from-green-200 to-green-300",
+    shadow: "shadow-green-300/50",
     icon: "🌱",
-    gradient: "bg-gradient-to-br from-yellow-50 via-yellow-100 to-yellow-150",
+    gradient: "bg-gradient-to-br from-green-100 via-green-200 to-green-300",
+    description: "Fase folicular",
   },
   [CyclePhase.OVULACION]: {
-    color: "from-blue-100 to-blue-200",
-    shadow: "shadow-blue-200/50",
-    icon: "💙",
-    gradient: "bg-gradient-to-br from-blue-50 via-blue-100 to-blue-150",
+    color: "from-blue-200 to-blue-300",
+    shadow: "shadow-blue-300/50",
+    icon: "🥚",
+    gradient: "bg-gradient-to-br from-blue-100 via-blue-200 to-blue-300",
+    description: "Ovulación",
   },
   [CyclePhase.LUTEA]: {
-    color: "from-green-100 to-green-200",
-    shadow: "shadow-green-200/50",
-    icon: "🌿",
-    gradient: "bg-gradient-to-br from-green-50 via-green-100 to-green-150",
+    color: "from-yellow-200 to-yellow-300",
+    shadow: "shadow-yellow-300/50",
+    icon: "🌙",
+    gradient: "bg-gradient-to-br from-yellow-100 via-yellow-200 to-yellow-300",
+    description: "Fase lútea",
   },
 };
 
@@ -100,7 +105,7 @@ const NeomorphicDayCell: React.FC<{
       onHoverEnd={() => setIsHovered(false)}
       className={`
         ${baseClasses}
-        bg-[#e7e0d5] rounded-2xl
+        bg-[#e7e0d5] rounded-xl
         ${phaseStyle ? `bg-gradient-to-br ${phaseStyle.color}` : "bg-[#e7e0d5]"}
         ${
           isSelected
@@ -108,7 +113,7 @@ const NeomorphicDayCell: React.FC<{
             : "shadow-[inset_2px_2px_6px_rgba(199,191,180,0.3),inset_-2px_-2px_6px_rgba(255,255,255,0.7)]"
         }
         ${isHovered ? "shadow-[2px_2px_12px_rgba(122,35,35,0.15)]" : ""}
-        aspect-square flex flex-col items-center justify-center p-1 min-h-[60px]
+        flex flex-col items-center justify-center p-1 h-full min-h-[50px]
       `}
       initial={false}
       animate={isSelected ? { scale: 0.95 } : { scale: 1 }}
@@ -126,21 +131,21 @@ const NeomorphicDayCell: React.FC<{
         {format(date, "d")}
       </motion.div>
 
-      {/* Indicadores de flujo */}
+      {/* Indicadores de flujo mejorados */}
       {dayData?.flowIntensity && dayData.flowIntensity > 0 && (
-        <motion.div
-          className="flex gap-0.5 mb-1"
-          initial={{ opacity: 0, scale: 0 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ delay: 0.1 }}
-        >
-          {[...Array(Math.min(dayData.flowIntensity, 5))].map((_, i) => (
+        <motion.div className="flex gap-0.5 mb-1">
+          {[...Array(5)].map((_, i) => (
             <motion.div
               key={i}
-              className="w-1 h-1 rounded-full bg-red-500"
-              animate={{ scale: [1, 1.2, 1] }}
+              className={`w-1 h-1 rounded-full ${
+                i < dayData.flowIntensity! ? "bg-red-600" : "bg-red-200"
+              }`}
+              animate={{
+                scale: i < dayData.flowIntensity! ? [1, 1.3, 1] : 1,
+                opacity: i < dayData.flowIntensity! ? 1 : 0.3,
+              }}
               transition={{
-                duration: 1,
+                duration: 1.5,
                 repeat: Infinity,
                 delay: i * 0.1,
               }}
@@ -161,11 +166,29 @@ const NeomorphicDayCell: React.FC<{
         </motion.div>
       )}
 
+      {/* Indicador de síntomas */}
+      {dayData?.symptoms && dayData.symptoms.length > 0 && (
+        <motion.div
+          className="absolute -bottom-0.5 -right-0.5 w-2 h-2 bg-orange-400 rounded-full"
+          animate={{ scale: [1, 1.2, 1] }}
+          transition={{ duration: 2, repeat: Infinity }}
+        />
+      )}
+
+      {/* Indicador de estado de ánimo */}
+      {dayData?.mood && dayData.mood.length > 0 && (
+        <motion.div
+          className="absolute -top-0.5 -left-0.5 w-2 h-2 bg-purple-400 rounded-full"
+          animate={{ scale: [1, 1.2, 1] }}
+          transition={{ duration: 2, repeat: Infinity, delay: 0.5 }}
+        />
+      )}
+
       {/* Efecto de hover */}
       <AnimatePresence>
         {isHovered && (
           <motion.div
-            className="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent rounded-2xl"
+            className="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent rounded-xl"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -190,7 +213,7 @@ const ViewSelector: React.FC<{
   onViewChange: (view: ViewType) => void;
 }> = ({ viewType, onViewChange }) => {
   return (
-    <div className="bg-[#e7e0d5] rounded-2xl p-2 shadow-[inset_2px_2px_6px_rgba(199,191,180,0.3),inset_-2px_-2px_6px_rgba(255,255,255,0.7)]">
+    <div className="bg-[#e7e0d5] rounded-xl p-1 shadow-[inset_2px_2px_6px_rgba(199,191,180,0.3),inset_-2px_-2px_6px_rgba(255,255,255,0.7)]">
       <div className="flex gap-1">
         {[
           { type: "month" as ViewType, icon: Grid3X3, label: "Mes" },
@@ -201,7 +224,7 @@ const ViewSelector: React.FC<{
             key={type}
             onClick={() => onViewChange(type)}
             className={`
-              relative px-4 py-2 rounded-xl font-medium text-sm transition-all duration-300
+              relative px-3 py-1 rounded-lg font-medium text-xs transition-all duration-300
               ${
                 viewType === type
                   ? "bg-[#7a2323] text-[#e7e0d5] shadow-[2px_2px_8px_rgba(122,35,35,0.3)]"
@@ -212,14 +235,14 @@ const ViewSelector: React.FC<{
             whileTap={{ scale: 0.95 }}
             animate={viewType === type ? { y: [-1, 0] } : {}}
           >
-            <div className="flex items-center gap-2">
-              <Icon className="w-4 h-4" />
+            <div className="flex items-center gap-1">
+              <Icon className="w-3 h-3" />
               <span>{label}</span>
             </div>
             {viewType === type && (
               <motion.div
                 layoutId="activeTab"
-                className="absolute inset-0 bg-[#7a2323] rounded-xl -z-10"
+                className="absolute inset-0 bg-[#7a2323] rounded-lg -z-10"
                 transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
               />
             )}
@@ -333,9 +356,7 @@ export const NeomorphicCalendar: React.FC<NeomorphicCalendarProps> = ({
 
   if (isLoading) {
     return (
-      <div
-        className={`flex items-center justify-center h-[calc(100vh-200px)] ${className}`}
-      >
+      <div className="flex items-center justify-center h-full">
         <motion.div
           animate={{ rotate: 360 }}
           transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
@@ -348,19 +369,25 @@ export const NeomorphicCalendar: React.FC<NeomorphicCalendarProps> = ({
   }
 
   return (
-    <div className={`h-[calc(100vh-200px)] flex flex-col ${className}`}>
-      {/* Header */}
+    <div
+      className={`h-full flex flex-col ${className}`}
+      style={{
+        maxWidth: "calc(100vw - 320px)",
+        maxHeight: "calc(100vh - 120px)",
+      }}
+    >
+      {/* Header compacto */}
       <motion.div
-        className="flex-shrink-0 mb-6"
+        className="flex-shrink-0 mb-3"
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6 }}
       >
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-          {/* Título y navegación */}
-          <div className="flex items-center gap-4">
+        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3">
+          {/* Título y navegación en una sola línea */}
+          <div className="flex items-center gap-3">
             <motion.h2
-              className="text-2xl font-serif text-[#7a2323] capitalize min-w-0"
+              className="text-xl font-serif text-[#7a2323] capitalize"
               key={getViewTitle()}
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
@@ -369,49 +396,54 @@ export const NeomorphicCalendar: React.FC<NeomorphicCalendarProps> = ({
               {getViewTitle()}
             </motion.h2>
 
-            <div className="flex gap-2">
+            {/* Navegación más compacta */}
+            <div className="flex gap-1">
               <motion.button
                 onClick={navigatePrevious}
-                className="p-3 rounded-2xl bg-[#e7e0d5] text-[#7a2323] shadow-[inset_2px_2px_6px_rgba(199,191,180,0.3),inset_-2px_-2px_6px_rgba(255,255,255,0.7)] hover:shadow-[2px_2px_8px_rgba(122,35,35,0.15)]"
+                className="p-2 rounded-xl bg-[#e7e0d5] text-[#7a2323] shadow-[inset_2px_2px_6px_rgba(199,191,180,0.3),inset_-2px_-2px_6px_rgba(255,255,255,0.7)] hover:shadow-[2px_2px_8px_rgba(122,35,35,0.15)]"
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
               >
-                <ChevronLeft className="w-5 h-5" />
+                <ChevronLeft className="w-4 h-4" />
               </motion.button>
 
-              <Button onClick={goToToday} size="small">
+              <Button
+                onClick={goToToday}
+                size="small"
+                className="text-xs px-3 py-1"
+              >
                 Hoy
               </Button>
 
               <motion.button
                 onClick={navigateNext}
-                className="p-3 rounded-2xl bg-[#e7e0d5] text-[#7a2323] shadow-[inset_2px_2px_6px_rgba(199,191,180,0.3),inset_-2px_-2px_6px_rgba(255,255,255,0.7)] hover:shadow-[2px_2px_8px_rgba(122,35,35,0.15)]"
+                className="p-2 rounded-xl bg-[#e7e0d5] text-[#7a2323] shadow-[inset_2px_2px_6px_rgba(199,191,180,0.3),inset_-2px_-2px_6px_rgba(255,255,255,0.7)] hover:shadow-[2px_2px_8px_rgba(122,35,35,0.15)]"
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
               >
-                <ChevronRight className="w-5 h-5" />
+                <ChevronRight className="w-4 h-4" />
               </motion.button>
             </div>
           </div>
 
-          {/* Selector de vista */}
+          {/* Selector de vista más compacto */}
           <ViewSelector viewType={viewType} onViewChange={setViewType} />
         </div>
 
-        {/* Leyenda de fases */}
+        {/* Leyenda más compacta */}
         <motion.div
-          className="flex flex-wrap gap-4 mt-4"
+          className="flex flex-wrap gap-3 mt-3"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.3 }}
         >
           {Object.entries(phaseConfig).map(([phase, config]) => (
-            <div key={phase} className="flex items-center gap-2 text-sm">
+            <div key={phase} className="flex items-center gap-1 text-xs">
               <div
-                className={`w-4 h-4 rounded-full bg-gradient-to-br ${config.color}`}
+                className={`w-3 h-3 rounded-full bg-gradient-to-br ${config.color}`}
               />
               <span className="text-[#7a2323] capitalize">
-                {phase.toLowerCase()}
+                {config.description}
               </span>
             </div>
           ))}
@@ -419,7 +451,7 @@ export const NeomorphicCalendar: React.FC<NeomorphicCalendarProps> = ({
       </motion.div>
 
       {/* Contenido del calendario */}
-      <div className="flex-1 min-h-0">
+      <div className="flex-1 min-h-0 overflow-hidden">
         <AnimatePresence mode="wait">
           {viewType === "month" && (
             <motion.div
@@ -431,21 +463,24 @@ export const NeomorphicCalendar: React.FC<NeomorphicCalendarProps> = ({
               className="h-full flex flex-col"
             >
               {/* Días de la semana */}
-              <div className="grid grid-cols-7 gap-2 mb-4 flex-shrink-0">
+              <div className="grid grid-cols-7 gap-1 mb-2 flex-shrink-0">
                 {weekDays.map((day) => (
                   <div
                     key={day}
-                    className="text-center text-sm font-medium text-[#7a2323] py-2"
+                    className="text-center text-xs lg:text-sm font-medium text-[#7a2323] py-1"
                   >
                     {day}
                   </div>
                 ))}
               </div>
 
-              {/* Grid de días - altura fija para evitar scroll */}
+              {/* Grid de días con altura calculada */}
               <div
-                className="grid grid-cols-7 gap-2 flex-1"
-                style={{ height: "calc(100% - 60px)" }}
+                className="grid grid-cols-7 gap-1 flex-1"
+                style={{
+                  gridTemplateRows: "repeat(6, minmax(0, 1fr))",
+                  maxHeight: "calc(100vh - 300px)",
+                }}
               >
                 {viewDates.map((date, index) => {
                   const formattedDate = format(date, "yyyy-MM-dd");
@@ -463,7 +498,7 @@ export const NeomorphicCalendar: React.FC<NeomorphicCalendarProps> = ({
                       key={formattedDate}
                       initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: index * 0.02 }}
+                      transition={{ delay: index * 0.01 }}
                       className="h-full"
                     >
                       <NeomorphicDayCell
@@ -481,6 +516,7 @@ export const NeomorphicCalendar: React.FC<NeomorphicCalendarProps> = ({
             </motion.div>
           )}
 
+          {/* Vista semanal y diaria mantienen la misma estructura pero más compactas */}
           {viewType === "week" && (
             <motion.div
               key="week"
@@ -490,7 +526,7 @@ export const NeomorphicCalendar: React.FC<NeomorphicCalendarProps> = ({
               transition={{ duration: 0.3 }}
               className="h-full"
             >
-              <div className="grid grid-cols-7 gap-4 h-full">
+              <div className="grid grid-cols-7 gap-2 h-full">
                 {viewDates.map((date, index) => {
                   const formattedDate = format(date, "yyyy-MM-dd");
                   const dayData = safeCalendarDays.find(
@@ -506,7 +542,7 @@ export const NeomorphicCalendar: React.FC<NeomorphicCalendarProps> = ({
                       transition={{ delay: index * 0.1 }}
                       className="flex flex-col"
                     >
-                      <div className="text-center mb-3">
+                      <div className="text-center mb-2">
                         <div className="text-xs text-[#7a2323] opacity-70">
                           {format(date, "EEE", { locale: es })}
                         </div>
@@ -522,7 +558,7 @@ export const NeomorphicCalendar: React.FC<NeomorphicCalendarProps> = ({
                       </div>
                       <div
                         className={`
-                          flex-1 p-4 rounded-2xl cursor-pointer transition-all duration-300
+                          flex-1 p-3 rounded-xl cursor-pointer transition-all duration-300
                           ${
                             dayData?.phase
                               ? `bg-gradient-to-br ${
@@ -598,21 +634,21 @@ export const NeomorphicCalendar: React.FC<NeomorphicCalendarProps> = ({
                         shadow-[8px_8px_24px_rgba(122,35,35,0.1)] border-none
                       `}
                     >
-                      <div className="p-8">
+                      <div className="p-6">
                         {dayData ? (
                           <motion.div
-                            className="space-y-6"
+                            className="space-y-4"
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
                             transition={{ delay: 0.2 }}
                           >
                             {dayData.phase && (
                               <div className="text-center">
-                                <div className="text-4xl mb-2">
+                                <div className="text-3xl mb-2">
                                   {phaseConfig[dayData.phase].icon}
                                 </div>
-                                <h3 className="text-xl font-serif text-[#7a2323] capitalize">
-                                  Fase {dayData.phase.toLowerCase()}
+                                <h3 className="text-lg font-serif text-[#7a2323]">
+                                  {phaseConfig[dayData.phase].description}
                                 </h3>
                               </div>
                             )}
@@ -688,19 +724,19 @@ export const NeomorphicCalendar: React.FC<NeomorphicCalendarProps> = ({
                           </motion.div>
                         ) : (
                           <motion.div
-                            className="text-center py-8"
+                            className="text-center py-6"
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
                           >
-                            <Moon className="w-12 h-12 text-[#7a2323] opacity-50 mx-auto mb-4" />
-                            <p className="text-[#7a2323] opacity-70 mb-4">
+                            <Moon className="w-10 h-10 text-[#7a2323] opacity-50 mx-auto mb-3" />
+                            <p className="text-[#7a2323] opacity-70 mb-3">
                               No hay información para este día
                             </p>
                           </motion.div>
                         )}
 
                         <motion.div
-                          className="mt-6 flex justify-center"
+                          className="mt-4 flex justify-center"
                           initial={{ opacity: 0, y: 20 }}
                           animate={{ opacity: 1, y: 0 }}
                           transition={{ delay: 0.6 }}
@@ -711,6 +747,7 @@ export const NeomorphicCalendar: React.FC<NeomorphicCalendarProps> = ({
                               setSelectedDayData(dayData || null);
                               setIsModalOpen(true);
                             }}
+                            size="small"
                           >
                             <Plus className="w-4 h-4 mr-2" />
                             {dayData
@@ -728,7 +765,7 @@ export const NeomorphicCalendar: React.FC<NeomorphicCalendarProps> = ({
         </AnimatePresence>
       </div>
 
-      {/* Modal neomorphic */}
+      {/* Modal neomorphic mejorado */}
       <AnimatePresence>
         {isModalOpen && selectedDate && (
           <motion.div
@@ -743,12 +780,12 @@ export const NeomorphicCalendar: React.FC<NeomorphicCalendarProps> = ({
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.9, y: 20 }}
               transition={{ type: "spring", duration: 0.5 }}
-              className="bg-[#e7e0d5] rounded-3xl p-8 max-w-md w-full shadow-[8px_8px_32px_rgba(122,35,35,0.15)] border border-white/20"
+              className="bg-[#e7e0d5] rounded-3xl p-6 max-w-md w-full shadow-[8px_8px_32px_rgba(122,35,35,0.15)] border border-white/20"
               onClick={(e) => e.stopPropagation()}
             >
-              <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center justify-between mb-4">
                 <motion.h3
-                  className="text-xl font-serif text-[#7a2323]"
+                  className="text-lg font-serif text-[#7a2323]"
                   initial={{ opacity: 0, x: -20 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: 0.1 }}
@@ -759,7 +796,7 @@ export const NeomorphicCalendar: React.FC<NeomorphicCalendarProps> = ({
                 </motion.h3>
                 <motion.button
                   onClick={() => setIsModalOpen(false)}
-                  className="p-2 rounded-2xl bg-[#e7e0d5] text-[#7a2323] shadow-[inset_2px_2px_6px_rgba(199,191,180,0.3),inset_-2px_-2px_6px_rgba(255,255,255,0.7)] hover:shadow-[2px_2px_8px_rgba(122,35,35,0.15)]"
+                  className="p-2 rounded-xl bg-[#e7e0d5] text-[#7a2323] shadow-[inset_2px_2px_6px_rgba(199,191,180,0.3),inset_-2px_-2px_6px_rgba(255,255,255,0.7)] hover:shadow-[2px_2px_8px_rgba(122,35,35,0.15)]"
                   whileHover={{ scale: 1.1 }}
                   whileTap={{ scale: 0.9 }}
                 >
@@ -768,7 +805,7 @@ export const NeomorphicCalendar: React.FC<NeomorphicCalendarProps> = ({
               </div>
 
               <motion.p
-                className="text-[#7a2323] opacity-70 mb-6"
+                className="text-[#7a2323] opacity-70 mb-4"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 0.7 }}
                 transition={{ delay: 0.2 }}
@@ -776,16 +813,16 @@ export const NeomorphicCalendar: React.FC<NeomorphicCalendarProps> = ({
                 {format(selectedDate, "EEEE d MMMM yyyy", { locale: es })}
               </motion.p>
 
-              <div className="space-y-6">
+              <div className="space-y-4">
                 <motion.div
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.3 }}
                 >
-                  <label className="block text-sm font-medium text-[#7a2323] mb-3">
+                  <label className="block text-sm font-medium text-[#7a2323] mb-2">
                     Intensidad del flujo
                   </label>
-                  <div className="bg-[#e7e0d5] rounded-2xl p-4 shadow-[inset_2px_2px_6px_rgba(199,191,180,0.3),inset_-2px_-2px_6px_rgba(255,255,255,0.7)]">
+                  <div className="bg-[#e7e0d5] rounded-xl p-3 shadow-[inset_2px_2px_6px_rgba(199,191,180,0.3),inset_-2px_-2px_6px_rgba(255,255,255,0.7)]">
                     <select
                       className="w-full bg-transparent text-[#7a2323] focus:outline-none"
                       defaultValue={selectedDayData?.flowIntensity || 0}
@@ -806,10 +843,10 @@ export const NeomorphicCalendar: React.FC<NeomorphicCalendarProps> = ({
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.4 }}
                 >
-                  <label className="block text-sm font-medium text-[#7a2323] mb-3">
+                  <label className="block text-sm font-medium text-[#7a2323] mb-2">
                     Notas personales
                   </label>
-                  <div className="bg-[#e7e0d5] rounded-2xl p-4 shadow-[inset_2px_2px_6px_rgba(199,191,180,0.3),inset_-2px_-2px_6px_rgba(255,255,255,0.7)]">
+                  <div className="bg-[#e7e0d5] rounded-xl p-3 shadow-[inset_2px_2px_6px_rgba(199,191,180,0.3),inset_-2px_-2px_6px_rgba(255,255,255,0.7)]">
                     <textarea
                       className="w-full bg-transparent text-[#7a2323] placeholder-[#7a2323]/50 focus:outline-none resize-none"
                       rows={3}
@@ -822,14 +859,14 @@ export const NeomorphicCalendar: React.FC<NeomorphicCalendarProps> = ({
               </div>
 
               <motion.div
-                className="flex gap-3 mt-8"
+                className="flex gap-3 mt-6"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.5 }}
               >
                 <button
                   onClick={() => setIsModalOpen(false)}
-                  className="flex-1 p-3 rounded-2xl bg-[#e7e0d5] text-[#7a2323] shadow-[inset_2px_2px_6px_rgba(199,191,180,0.3),inset_-2px_-2px_6px_rgba(255,255,255,0.7)] hover:shadow-[2px_2px_8px_rgba(122,35,35,0.15)] transition-all duration-300 font-medium"
+                  className="flex-1 p-3 rounded-xl bg-[#e7e0d5] text-[#7a2323] shadow-[inset_2px_2px_6px_rgba(199,191,180,0.3),inset_-2px_-2px_6px_rgba(255,255,255,0.7)] hover:shadow-[2px_2px_8px_rgba(122,35,35,0.15)] transition-all duration-300 font-medium"
                 >
                   Cancelar
                 </button>
@@ -855,7 +892,7 @@ export const NeomorphicCalendar: React.FC<NeomorphicCalendarProps> = ({
 
                     setIsModalOpen(false);
                   }}
-                  className="flex-1 p-3 rounded-2xl bg-[#7a2323] text-[#e7e0d5] shadow-[2px_2px_8px_rgba(122,35,35,0.3)] hover:shadow-[4px_4px_12px_rgba(122,35,35,0.4)] transition-all duration-300 font-medium"
+                  className="flex-1 p-3 rounded-xl bg-[#7a2323] text-[#e7e0d5] shadow-[2px_2px_8px_rgba(122,35,35,0.3)] hover:shadow-[4px_4px_12px_rgba(122,35,35,0.4)] transition-all duration-300 font-medium"
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                 >

@@ -1,4 +1,4 @@
-import { ReactNode } from 'react';
+import { ReactNode } from "react";
 
 interface CardProps {
   children: ReactNode;
@@ -17,27 +17,43 @@ export const Card = ({
   title,
   subtitle,
   footer,
-  className = '',
-  bodyClassName = '',
-  headerClassName = '',
-  footerClassName = '',
+  className = "",
+  bodyClassName = "",
+  headerClassName = "",
+  footerClassName = "",
   noPadding = false,
 }: CardProps) => {
   return (
-    <div className={`bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden ${className}`}>
+    <div
+      className={`
+      bg-[#e7e0d5] rounded-2xl overflow-hidden
+      shadow-[inset_2px_2px_6px_rgba(199,191,180,0.3),inset_-2px_-2px_6px_rgba(255,255,255,0.7)]
+      hover:shadow-[2px_2px_12px_rgba(122,35,35,0.15)]
+      transition-all duration-300
+      ${className}
+    `}
+    >
       {(title || subtitle) && (
-        <div className={`px-6 py-4 border-b ${headerClassName}`}>
-          {title && <h3 className="text-xl font-serif text-primary-DEFAULT">{title}</h3>}
-          {subtitle && <p className="mt-1 text-sm text-gray-600">{subtitle}</p>}
+        <div
+          className={`px-6 py-4 border-b border-[#7a2323]/10 ${headerClassName}`}
+        >
+          {title && (
+            <h3 className="text-xl font-serif text-[#7a2323]">{title}</h3>
+          )}
+          {subtitle && (
+            <p className="mt-1 text-sm text-[#7a2323]/70">{subtitle}</p>
+          )}
         </div>
       )}
-      
-      <div className={`${noPadding ? '' : 'px-6 py-4'} ${bodyClassName}`}>
+
+      <div className={`${noPadding ? "" : "px-6 py-4"} ${bodyClassName}`}>
         {children}
       </div>
-      
+
       {footer && (
-        <div className={`px-6 py-4 bg-gray-50 border-t border-gray-200 ${footerClassName}`}>
+        <div
+          className={`px-6 py-4 bg-[#f5ede6] border-t border-[#7a2323]/10 ${footerClassName}`}
+        >
           {footer}
         </div>
       )}

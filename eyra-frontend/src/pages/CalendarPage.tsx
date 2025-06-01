@@ -3,19 +3,17 @@ import { NeomorphicCalendar } from "../features/calendar/components/NeomorphicCa
 
 const CalendarPage: React.FC = () => {
   return (
-    <div className="h-screen overflow-hidden bg-[#e7e0d5] flex flex-col">
-      {/* Header fijo */}
-      <div className="flex-shrink-0 px-6 pt-6 pb-2">
-        <h1 className="text-3xl font-serif text-[#7a2323] mb-2">Calendario</h1>
-        <p className="text-[#7a2323]/70 text-sm max-w-3xl">
-          Registra y visualiza tu ciclo menstrual, síntomas y recibe
-          recomendaciones personalizadas. Este calendario te ayudará a entender
-          mejor los patrones de tu ciclo.
+    <div className="h-screen overflow-hidden bg-[#e7e0d5] flex flex-col max-w-[calc(100vw-300px)]">
+      {/* Header más compacto para maximizar espacio del calendario */}
+      <div className="flex-shrink-0 px-4 pt-4 pb-2">
+        <h1 className="text-2xl font-serif text-[#7a2323] mb-1">Calendario</h1>
+        <p className="text-[#7a2323]/70 text-xs max-w-2xl">
+          Registra y visualiza tu ciclo menstrual
         </p>
       </div>
 
-      {/* Calendario - ocupa el resto del espacio sin scroll */}
-      <div className="flex-1 min-h-0 px-6 pb-6">
+      {/* Calendario con altura fija para evitar overflow */}
+      <div className="flex-1 min-h-0 px-4 pb-4">
         <NeomorphicCalendar />
       </div>
     </div>
