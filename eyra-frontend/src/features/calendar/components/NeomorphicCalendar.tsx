@@ -34,48 +34,13 @@ import { useCycle } from "../../../context/CycleContext";
 import { AddCycleDayModal } from "./AddCycleDayModal";
 import Button from "../../../components/Button";
 import { CycleDay, CyclePhase } from "../../../types/domain";
+import { phaseConfig } from "../config/phaseConfig";
 
 type ViewType = "month" | "week" | "day";
 
 interface NeomorphicCalendarProps {
   className?: string;
 }
-
-// CONFIGURACION DE FASES CON COLORES
-const phaseConfig = {
-  [CyclePhase.MENSTRUAL]: {
-    color: "from-red-200 to-red-300",
-    bgColor: "bg-red-100",
-    borderColor: "border-red-300",
-    textColor: "text-red-800",
-    icon: "🩸",
-    description: "Menstruación",
-  },
-  [CyclePhase.FOLICULAR]: {
-    color: "from-green-200 to-green-300",
-    bgColor: "bg-green-100",
-    borderColor: "border-green-300",
-    textColor: "text-green-800",
-    icon: "🌱",
-    description: "Fase folicular",
-  },
-  [CyclePhase.OVULACION]: {
-    color: "from-blue-200 to-blue-300",
-    bgColor: "bg-blue-100",
-    borderColor: "border-blue-300",
-    textColor: "text-blue-800",
-    icon: "🥚",
-    description: "Ovulación",
-  },
-  [CyclePhase.LUTEA]: {
-    color: "from-yellow-200 to-yellow-300",
-    bgColor: "bg-yellow-100",
-    borderColor: "border-yellow-300",
-    textColor: "text-yellow-800",
-    icon: "🌙",
-    description: "Fase lútea",
-  },
-};
 
 // COMPONENTE DAY CELL COMPACTO
 const NeomorphicDayCell: React.FC<{
@@ -102,11 +67,7 @@ const NeomorphicDayCell: React.FC<{
         ${isCurrentMonth ? "text-gray-900" : "text-gray-400"}
         ${isToday ? "ring-2 ring-[#7a2323] ring-opacity-50" : ""}
         w-full h-full rounded-lg
-        ${
-          phaseStyle
-            ? `${phaseStyle.bgColor} ${phaseStyle.borderColor} border-2`
-            : "bg-[#e7e0d5] border border-gray-200"
-        }
+        ${phaseStyle ? phaseStyle.gradient : "bg-[#e7e0d5]"}
         ${
           isSelected
             ? "shadow-inner shadow-[#7a2323]/20"
@@ -124,13 +85,19 @@ const NeomorphicDayCell: React.FC<{
           text-xs font-semibold
           ${isToday ? "text-[#7a2323] font-bold text-sm" : ""}
           ${!isCurrentMonth ? "opacity-50" : ""}
-          ${phaseStyle ? phaseStyle.textColor : "text-gray-800"}
+          text-gray-800
         `}
         animate={isToday ? { scale: [1, 1.1, 1] } : {}}
         transition={{ duration: 2, repeat: Infinity }}
       >
         {format(date, "d")}
       </motion.div>
+      {/* ICONO DE FASE SIEMPRE VISIBLE */}
+      {dayData?.phase && (
+        <div className="absolute bottom-1 right-1 text-lg opacity-80 pointer-events-none">
+          {phaseConfig[dayData.phase].icon}
+        </div>
+      )}
 
       {/* INDICADORES DE FLUJO MUY PEQUENOS */}
       {dayData?.flowIntensity && dayData.flowIntensity > 0 && (
@@ -150,18 +117,6 @@ const NeomorphicDayCell: React.FC<{
               }}
             />
           ))}
-        </motion.div>
-      )}
-
-      {/* EMOJI DE FASE PEQUENO */}
-      {dayData?.phase && (
-        <motion.div
-          className="text-xs opacity-60 absolute bottom-0.5 left-0.5"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 0.6 }}
-          transition={{ delay: 0.2 }}
-        >
-          {phaseConfig[dayData.phase].icon}
         </motion.div>
       )}
 
@@ -443,7 +398,7 @@ export const NeomorphicCalendar: React.FC<NeomorphicCalendarProps> = ({
           {Object.entries(phaseConfig).map(([phase, config]) => (
             <div key={phase} className="flex items-center gap-1 text-xs">
               <div
-                className={`w-2.5 h-2.5 rounded-full ${config.bgColor} ${config.borderColor} border`}
+                className={`w-2.5 h-2.5 rounded-full ${config.gradient} border`}
               />
               <span className="text-[#7a2323] capitalize font-medium">
                 {config.description}

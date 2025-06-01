@@ -25,7 +25,7 @@ export interface AvatarConfig {
 }
 
 /**
- * OPCIONES DISPONIBLES - Basadas en el código de referencia
+ * OPCIONES DISPONIBLES - Basadas en el código de referencia HTML original
  */
 
 export const AVATAR_OPTIONS = {
@@ -44,18 +44,16 @@ export const AVATAR_OPTIONS = {
   eyes: [
     { value: "default", name: "Normal" },
     { value: "dizzy", name: "Mareado" },
-    { value: "blank", name: "Ojos en blanco" },
+    { value: "eyeroll", name: "Ojos en blanco" },
     { value: "happy", name: "Feliz" },
     { value: "close", name: "Cerrados" },
     { value: "hearts", name: "Corazones" },
     { value: "side", name: "De lado" },
     { value: "wink", name: "Guiño" },
-    { value: "wink2", name: "Guiño 2" },
     { value: "squint", name: "Entrecerrados" },
     { value: "surprised", name: "Sorprendido" },
-    { value: "big", name: "Grandes" },
-    { value: "tear", name: "Con lágrima" },
-    { value: "feminine", name: "Femenino" },
+    { value: "winkwacky", name: "Guiño loco" },
+    { value: "cry", name: "Con lágrima" },
   ],
 
   // Cejas - del código de referencia
@@ -75,6 +73,7 @@ export const AVATAR_OPTIONS = {
   // Bocas - del código de referencia
   mouths: [
     { value: "default", name: "Normal" },
+    { value: "vomit", name: "Vomitando" },
     { value: "twinkle", name: "Brillante" },
     { value: "tongue", name: "Lengua fuera" },
     { value: "smile", name: "Sonrisa" },
@@ -85,10 +84,9 @@ export const AVATAR_OPTIONS = {
     { value: "eating", name: "Comiendo" },
     { value: "disbelief", name: "Incredulidad" },
     { value: "concerned", name: "Preocupada" },
-    { value: "vomit", name: "Vomitando" },
   ],
 
-  // Estilos de cabello - del código de referencia
+  // ESTILOS DE CABELLO - ACTUALIZADOS PARA COINCIDIR CON EL HTML ORIGINAL
   hairStyles: [
     { value: "longhair", name: "Largo" },
     { value: "longhairbob", name: "Bob largo" },
@@ -135,13 +133,11 @@ export const AVATAR_OPTIONS = {
 
   // Ropa - del código de referencia
   clothes: [
-    { value: "vneck", name: "Cuello en V" },
-    { value: "sweater", name: "Suéter" },
-    { value: "hoodie", name: "Sudadera con capucha" },
-    { value: "overall", name: "Overol" },
     { value: "blazer", name: "Blazer" },
-    { value: "shirt", name: "Camisa" },
-    { value: "jacket", name: "Chaqueta" },
+    { value: "sweater", name: "Suéter" },
+    { value: "vneck", name: "Cuello en V" },
+    { value: "overall", name: "Overol" },
+    { value: "hoodie", name: "Sudadera con capucha" },
   ],
 
   // Colores de tela - del código de referencia
@@ -167,8 +163,8 @@ export const AVATAR_OPTIONS = {
     { value: "fancy", name: "Elegantes" },
     { value: "old", name: "Vintage" },
     { value: "nerd", name: "De empollón" },
-    { value: "round", name: "Redondas" },
-    { value: "square", name: "Cuadradas" },
+    { value: "fancy2", name: "Elegantes 2" },
+    { value: "harry", name: "Estilo Harry Potter" },
   ],
 
   // Opacidades de cristales - del código de referencia
@@ -195,14 +191,10 @@ export const AVATAR_OPTIONS = {
   // Accesorios - del código de referencia
   accessories: [
     { value: "none", name: "Ninguno" },
-    { value: "earring", name: "Pendiente" },
-    { value: "necklace", name: "Collar" },
-    { value: "bowtie", name: "Corbata de lazo" },
-    { value: "tie", name: "Corbata" },
-    { value: "scarf", name: "Bufanda" },
-    { value: "glasses", name: "Gafas" },
-    { value: "sunglasses", name: "Gafas de sol" },
-    { value: "hat", name: "Sombrero" },
+    { value: "earphones", name: "Auriculares" },
+    { value: "earring1", name: "Pendiente 1" },
+    { value: "earring2", name: "Pendiente 2" },
+    { value: "earring3", name: "Pendiente 3" },
   ],
 
   // Colores de fondo - del código de referencia
@@ -247,10 +239,10 @@ export const createEmptyAvatarConfig = (): AvatarConfig => ({
   eyes: "default",
   eyebrows: "default",
   mouth: "default",
-  hairStyle: "short",
+  hairStyle: "longhair",
   hairColor: "#4A4A4A",
   facialHair: "none",
-  clothes: "tshirt",
+  clothes: "hoodie",
   fabricColor: "#C62328",
   glasses: "none",
   glassOpacity: "0.8",
