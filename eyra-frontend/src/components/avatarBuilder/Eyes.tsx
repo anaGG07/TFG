@@ -144,6 +144,16 @@ const Eyes: React.FC<{ type: string; color?: string }> = ({ type, color = "#0000
           <path d="M130 150 Q134 158 140 154" stroke="#6fd3fb" strokeWidth="4" fill="none" />
         </g>
       );
+    case "blank":
+      // Ojos en blanco (idénticos a CodePen)
+      return (
+        <g>
+          <circle cx="140" cy="143" r="16" fill="#fff" stroke="#444" strokeWidth="2" />
+          <circle cx="220" cy="143" r="16" fill="#fff" stroke="#444" strokeWidth="2" />
+          <circle cx="134" cy="137" r="7" fill="#555" />
+          <circle cx="214" cy="137" r="7" fill="#555" />
+        </g>
+      );
     default:
       return null;
   }
