@@ -25,58 +25,57 @@ const Eyes: React.FC<{ type: string; color?: string }> = ({ type, color = "#0000
     case "happy":
       return (
         <>
-          <ellipse cx="148" cy="143" rx="8" ry="6" fill={color} />
-          <ellipse cx="212" cy="143" rx="8" ry="6" fill={color} />
+          <path d="M140 146 Q148 153 156 146" stroke={color} strokeWidth="4" fill="none" />
+          <path d="M204 146 Q212 153 220 146" stroke={color} strokeWidth="4" fill="none" />
         </>
       );
     case "close":
       return (
         <>
-          <path d="M143 143 L153 143" stroke={color} strokeWidth="3" fill="none" />
-          <path d="M207 143 L217 143" stroke={color} strokeWidth="3" fill="none" />
+          <path d="M140 143 Q148 148 156 143" stroke={color} strokeWidth="4" fill="none" />
+          <path d="M204 143 Q212 148 220 143" stroke={color} strokeWidth="4" fill="none" />
         </>
       );
     case "hearts":
       return (
         <>
-          <path d="M148 143 Q150 138 152 143 Q154 148 152 153 Q150 158 148 153 Q146 148 148 143" fill={color} />
-          <path d="M212 143 Q214 138 216 143 Q218 148 216 153 Q214 158 212 153 Q210 148 212 143" fill={color} />
+          <path d="M148 143 Q148 138 153 138 Q158 138 158 143 Q158 148 153 153 Q148 148 148 143" fill="#E57373" />
+          <path d="M212 143 Q212 138 217 138 Q222 138 222 143 Q222 148 217 153 Q212 148 212 143" fill="#E57373" />
         </>
       );
     case "side":
       return (
         <>
-          <ellipse cx="148" cy="143" rx="7" ry="7" fill={color} />
-          <ellipse cx="212" cy="143" rx="7" ry="7" fill={color} />
-          <path d="M148 143 L153 143 M212 143 L217 143" stroke={color} strokeWidth="2" fill="none" />
+          <ellipse cx="145" cy="143" rx="7" ry="7" fill={color} />
+          <ellipse cx="209" cy="143" rx="7" ry="7" fill={color} />
         </>
       );
     case "wink":
       return (
         <>
-          <path d="M143 143 L153 143" stroke={color} strokeWidth="3" fill="none" />
+          <path d="M140 143 Q148 148 156 143" stroke={color} strokeWidth="4" fill="none" />
           <ellipse cx="212" cy="143" rx="7" ry="7" fill={color} />
         </>
       );
     case "squint":
       return (
         <>
-          <path d="M143 143 Q148 148 153 143" stroke={color} strokeWidth="3" fill="none" />
-          <path d="M207 143 Q212 148 217 143" stroke={color} strokeWidth="3" fill="none" />
+          <path d="M140 143 Q148 148 156 143" stroke={color} strokeWidth="4" fill="none" />
+          <path d="M204 143 Q212 148 220 143" stroke={color} strokeWidth="4" fill="none" />
         </>
       );
     case "surprised":
       return (
         <>
-          <circle cx="148" cy="143" r="7" fill={color} />
-          <circle cx="212" cy="143" r="7" fill={color} />
+          <ellipse cx="148" cy="143" rx="8" ry="8" fill={color} />
+          <ellipse cx="212" cy="143" rx="8" ry="8" fill={color} />
         </>
       );
     case "winkwacky":
       return (
         <>
-          <path d="M143 143 L153 143" stroke={color} strokeWidth="3" fill="none" />
-          <path d="M207 143 Q212 148 217 143" stroke={color} strokeWidth="3" fill="none" />
+          <circle cx="148" cy="143" r="7" fill={color} />
+          <path d="M207 143 Q212 148 217 143" stroke={color} strokeWidth="4" fill="none" />
         </>
       );
     case "cry":
@@ -84,8 +83,7 @@ const Eyes: React.FC<{ type: string; color?: string }> = ({ type, color = "#0000
         <>
           <ellipse cx="148" cy="143" rx="7" ry="7" fill={color} />
           <ellipse cx="212" cy="143" rx="7" ry="7" fill={color} />
-          <path d="M148 153 Q148 163 153 163" stroke={color} strokeWidth="2" fill="none" />
-          <path d="M212 153 Q212 163 217 163" stroke={color} strokeWidth="2" fill="none" />
+          <path d="M140 153 Q144 163 150 163" stroke="#6fd3fb" strokeWidth="4" fill="none" />
         </>
       );
     default:
