@@ -46,9 +46,7 @@ export const AVATAR_OPTIONS = {
     { value: "dizzy", name: "Mareado" },
     { value: "blank", name: "Ojos en blanco" },
     { value: "happy", name: "Feliz" },
-    { value: "small", name: "Pequeños" },
     { value: "close", name: "Cerrados" },
-    { value: "close2", name: "Cerrados 2" },
     { value: "hearts", name: "Corazones" },
     { value: "side", name: "De lado" },
     { value: "wink", name: "Guiño" },
@@ -57,7 +55,6 @@ export const AVATAR_OPTIONS = {
     { value: "surprised", name: "Sorprendido" },
     { value: "winkwacky", name: "Guiño loco" },
     { value: "cry", name: "Llorando" },
-    { value: "cross", name: "En X" },
     { value: "big", name: "Grandes" },
     { value: "tear", name: "Con lágrima" }
   ],

@@ -18,24 +18,17 @@ const Eyes: React.FC<{ type: string; color?: string }> = ({ type, color = "#0000
     case "blank":
       return (
         <g>
-          <circle cx="140" cy="143" r="16" fill="#fff" stroke="#444" strokeWidth="2" />
-          <circle cx="220" cy="143" r="16" fill="#fff" stroke="#444" strokeWidth="2" />
+          <circle cx="140" cy="143" r="16" fill="#fff" />
+          <circle cx="220" cy="143" r="16" fill="#fff" />
           <circle cx="134" cy="137" r="7" fill="#555" />
           <circle cx="214" cy="137" r="7" fill="#555" />
         </g>
       );
     case "happy":
       return (
-        <>
-          <path d="M140 146 Q148 153 156 146" stroke={color} strokeWidth="4" fill="none" />
-          <path d="M204 146 Q212 153 220 146" stroke={color} strokeWidth="4" fill="none" />
-        </>
-      );
-    case "small":
-      return (
         <g>
-          <circle cx="140" cy="143" r="5" fill={color} />
-          <circle cx="220" cy="143" r="5" fill={color} />
+          <path d="M132 143 Q140 150 148 143" stroke={color} strokeWidth="4" strokeLinecap="round" fill="none" />
+          <path d="M212 143 Q220 150 228 143" stroke={color} strokeWidth="4" strokeLinecap="round" fill="none" />
         </g>
       );
     case "close":
@@ -45,26 +38,21 @@ const Eyes: React.FC<{ type: string; color?: string }> = ({ type, color = "#0000
           <path d="M214 143 Q220 148 226 143" stroke={color} strokeWidth="4" strokeLinecap="round" fill="none" />
         </g>
       );
-    case "close2":
-      return (
-        <g>
-          <path d="M134 146 Q140 151 146 146" stroke={color} strokeWidth="4" strokeLinecap="round" fill="none" />
-          <path d="M214 146 Q220 151 226 146" stroke={color} strokeWidth="4" strokeLinecap="round" fill="none" />
-        </g>
-      );
     case "hearts":
       return (
         <g>
-          <path d="M140 143 Q140 138 145 138 Q150 138 150 143 Q150 148 145 153 Q140 148 140 143" fill="#E57373" />
-          <path d="M220 143 Q220 138 225 138 Q230 138 230 143 Q230 148 225 153 Q220 148 220 143" fill="#E57373" />
+          <path d="M140 143 Q140 138 145 138 Q150 138 150 143 Q150 148 145 153 Q140 148 140 143" fill="#E57373" stroke="#E57373" strokeWidth="2" />
+          <path d="M220 143 Q220 138 225 138 Q230 138 230 143 Q230 148 225 153 Q220 148 220 143" fill="#E57373" stroke="#E57373" strokeWidth="2" />
         </g>
       );
     case "side":
       return (
-        <>
-          <ellipse cx="145" cy="143" rx="7" ry="7" fill={color} />
-          <ellipse cx="209" cy="143" rx="7" ry="7" fill={color} />
-        </>
+        <g>
+          <ellipse cx="145" cy="143" rx="10" ry="10" fill={color} />
+          <ellipse cx="215" cy="143" rx="10" ry="10" fill={color} />
+          <ellipse cx="149" cy="143" rx="4" ry="4" fill="#fff" />
+          <ellipse cx="219" cy="143" rx="4" ry="4" fill="#fff" />
+        </g>
       );
     case "wink":
       return (
@@ -82,44 +70,31 @@ const Eyes: React.FC<{ type: string; color?: string }> = ({ type, color = "#0000
       );
     case "squint":
       return (
-        <>
+        <g>
           <path d="M140 143 Q148 148 156 143" stroke={color} strokeWidth="4" fill="none" />
           <path d="M204 143 Q212 148 220 143" stroke={color} strokeWidth="4" fill="none" />
-        </>
+        </g>
       );
     case "surprised":
       return (
-        <>
+        <g>
           <ellipse cx="148" cy="143" rx="8" ry="8" fill={color} />
           <ellipse cx="212" cy="143" rx="8" ry="8" fill={color} />
-        </>
+        </g>
       );
     case "winkwacky":
       return (
-        <>
+        <g>
           <circle cx="148" cy="143" r="7" fill={color} />
           <path d="M207 143 Q212 148 217 143" stroke={color} strokeWidth="4" fill="none" />
-        </>
+        </g>
       );
     case "cry":
       return (
-        <>
+        <g>
           <ellipse cx="148" cy="143" rx="7" ry="7" fill={color} />
           <ellipse cx="212" cy="143" rx="7" ry="7" fill={color} />
           <path d="M140 153 Q144 163 150 163" stroke="#6fd3fb" strokeWidth="4" fill="none" />
-        </>
-      );
-    case "cross":
-      return (
-        <g>
-          <g>
-            <line x1="132" y1="135" x2="148" y2="151" stroke={color} strokeWidth="6" strokeLinecap="round" />
-            <line x1="148" y1="135" x2="132" y2="151" stroke={color} strokeWidth="6" strokeLinecap="round" />
-          </g>
-          <g>
-            <line x1="212" y1="135" x2="228" y2="151" stroke={color} strokeWidth="6" strokeLinecap="round" />
-            <line x1="228" y1="135" x2="212" y2="151" stroke={color} strokeWidth="6" strokeLinecap="round" />
-          </g>
         </g>
       );
     case "big":
