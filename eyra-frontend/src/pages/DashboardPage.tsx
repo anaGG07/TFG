@@ -26,12 +26,12 @@ const DashboardPage: React.FC = () => {
     insights,
   });
 
-  // Función para obtener el estado del ciclo
+  // CORREGIDO: Función para obtener el estado del ciclo usando la estructura real del backend
   const getCycleStatus = () => {
     if (!user?.onboarding?.completed) return "Pendiente configuración";
-    if (!currentCycle) return "Sin ciclo activo";
+    if (!currentCycle || !currentCycle.currentPhase) return "Sin ciclo activo";
 
-    const phase = currentCycle.phase;
+    const currentPhase = currentCycle.currentPhase;
     const dayNumber = todayData?.dayNumber || 0;
 
     const phaseNames: { [key: string]: string } = {
@@ -41,7 +41,8 @@ const DashboardPage: React.FC = () => {
       lutea: "Fase Lútea",
     };
 
-    return `${phaseNames[phase] || phase} - Día ${dayNumber}`;
+    const phaseName = phaseNames[currentPhase.phase] || currentPhase.phase;
+    return `${phaseName} - Día ${dayNumber}`;
   };
 
   // Función para obtener el conteo de síntomas del día
@@ -50,19 +51,21 @@ const DashboardPage: React.FC = () => {
     return todayData.symptoms.length;
   };
 
-  // Función para obtener el próximo período estimado
+  // CORREGIDO: Función para obtener el próximo período estimado usando predicciones
   const getNextPeriodInfo = () => {
-    if (!currentCycle?.estimatedNextStart) return "No disponible";
+    // Nota: El backend actual no devuelve estimatedNextStart en /cycles/current
+    // Necesitarías llamar a /cycles/predict para obtener esta información
+    if (!currentCycle) return "No disponible";
 
-    const nextDate = new Date(currentCycle.estimatedNextStart);
-    const today = new Date();
-    const diffTime = nextDate.getTime() - today.getTime();
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    // Temporal: mostrar información basada en la fase actual
+    const currentPhase = currentCycle.currentPhase;
+    if (!currentPhase) return "No disponible";
 
-    if (diffDays < 0) return "Esperado";
-    if (diffDays === 0) return "Hoy";
-    if (diffDays === 1) return "Mañana";
-    return `En ${diffDays} días`;
+    if (currentPhase.phase === "menstrual") {
+      return "En curso";
+    }
+
+    return "Calculando...";
   };
 
   // Función para obtener tendencia de regularidad
@@ -74,6 +77,21 @@ const DashboardPage: React.FC = () => {
     if (regularity >= 60) return "Regular";
     if (regularity >= 40) return "Irregular";
     return "Muy irregular";
+  };
+
+  // CORREGIDO: Función para obtener la intensidad del flujo
+  const getFlowIntensityText = () => {
+    if (!todayData || todayData.flowIntensity === null) return null;
+
+    const intensityMap: { [key: number]: string } = {
+      1: "Ligero",
+      2: "Moderado",
+      3: "Abundante",
+      4: "Muy abundante",
+      5: "Extremo",
+    };
+
+    return intensityMap[todayData.flowIntensity] || "No definido";
   };
 
   // Componentes del dashboard - Memoizados para evitar recreación
@@ -100,7 +118,7 @@ const DashboardPage: React.FC = () => {
             </div>
             <div className="flex-1 space-y-4">
               <p className="text-primary-dark text-center text-sm leading-relaxed font-medium">
-                {currentCycle
+                {currentCycle && currentCycle.currentPhase
                   ? "Información de tu ciclo actual"
                   : "Configura tu ciclo menstrual"}
               </p>
@@ -127,7 +145,7 @@ const DashboardPage: React.FC = () => {
                       Estado: {isLoading ? "Cargando..." : getCycleStatus()}
                     </p>
                   </div>
-                  {currentCycle && (
+                  {currentCycle && currentCycle.currentPhase && (
                     <div className="flex items-center justify-between">
                       <span className="text-xs text-primary-dark">
                         Próximo período:
@@ -193,11 +211,11 @@ const DashboardPage: React.FC = () => {
                     {isLoading ? "..." : `${getTodaySymptoms()} síntomas hoy`}
                   </span>
                 </div>
-                {todayData && todayData.flowIntensity && (
+                {todayData && getFlowIntensityText() && (
                   <div className="mt-2 flex items-center justify-between">
                     <span className="text-xs text-primary-dark">Flujo:</span>
-                    <span className="text-xs text-primary font-bold capitalize">
-                      {todayData.flowIntensity}
+                    <span className="text-xs text-primary font-bold">
+                      {getFlowIntensityText()}
                     </span>
                   </div>
                 )}
@@ -333,16 +351,18 @@ const DashboardPage: React.FC = () => {
                         : "No hay recordatorios pendientes"}
                     </p>
                   </div>
-                  {insights && insights.recommendations.length > 0 && (
-                    <div className="mt-2">
-                      <p className="text-xs text-primary-dark mb-1">
-                        Recomendación:
-                      </p>
-                      <p className="text-xs text-primary font-semibold">
-                        {insights.recommendations[0]}
-                      </p>
-                    </div>
-                  )}
+                  {insights &&
+                    insights.recommendations &&
+                    insights.recommendations.length > 0 && (
+                      <div className="mt-2">
+                        <p className="text-xs text-primary-dark mb-1">
+                          Recomendación:
+                        </p>
+                        <p className="text-xs text-primary font-semibold">
+                          {insights.recommendations[0]}
+                        </p>
+                      </div>
+                    )}
                 </div>
               </div>
             </div>
@@ -393,7 +413,7 @@ const DashboardPage: React.FC = () => {
                       }}
                     ></div>
                     <p className="text-xs text-primary-dark font-semibold">
-                      {currentCycle
+                      {currentCycle && currentCycle.currentPhase
                         ? "Contenido personalizado"
                         : "Explora contenido personalizado"}
                     </p>

@@ -4,35 +4,33 @@ import { useAuth } from "../context/AuthContext";
 import { apiFetch } from "../utils/httpClient";
 import { API_ROUTES } from "../config/apiRoutes";
 
-// Interfaces para los datos del dashboard
-export interface CycleData {
-  id: number;
+// CORREGIDO: Interfaces que coinciden con la respuesta real del backend
+export interface CyclePhase {
   phase: string;
-  cycleId: string;
   startDate: string;
   endDate?: string;
-  estimatedNextStart: string;
-  averageCycleLength: number;
-  averageDuration: number;
-  cycleDays?: Array<{
-    id: number;
-    date: string;
-    dayNumber: number;
-  }>;
+  cycleId: string;
+  notes?: string;
+}
+
+export interface CurrentCycleData {
+  cycleId: string;
+  phases: {
+    [key: string]: CyclePhase; // menstrual, folicular, ovulacion, lutea
+  };
+  currentPhase: CyclePhase | null;
 }
 
 export interface TodayData {
   id: number;
   date: string;
   dayNumber: number;
-  cyclePhase: {
-    id: number;
-    phase: string;
-  };
   symptoms: any[];
   notes: any[];
   mood: any[];
-  flowIntensity: string | null;
+  flowIntensity: number | null;
+  hormoneLevels: any[];
+  // NOTA: cyclePhase no viene en la respuesta actual del backend
 }
 
 export interface CycleStatistics {
@@ -52,6 +50,11 @@ export interface CycleStatistics {
   regularity: number;
   cycleLengthVariation: number;
   monthsAnalyzed: number;
+  cyclesByMonth: Array<{
+    year: number;
+    month: number;
+    count: number;
+  }>;
 }
 
 export interface NotificationData {
@@ -68,7 +71,7 @@ export interface InsightsSummary {
 }
 
 export interface DashboardData {
-  currentCycle: CycleData | null;
+  currentCycle: CurrentCycleData | null;
   todayData: TodayData | null;
   statistics: CycleStatistics | null;
   notifications: NotificationData;
@@ -98,14 +101,14 @@ export const useDashboardData = () => {
     setData((prev) => ({ ...prev, isLoading: true, error: null }));
 
     try {
-      // SOLO ejecutar las llamadas que funcionan correctamente
+      // Ejecutar llamadas con interfaces corregidas
       const [
         currentCycleResponse,
         todayResponse,
         statisticsResponse,
         insightsResponse,
       ] = await Promise.allSettled([
-        apiFetch<CycleData>(API_ROUTES.CYCLES.CURRENT),
+        apiFetch<CurrentCycleData>(API_ROUTES.CYCLES.CURRENT),
         apiFetch<TodayData>(API_ROUTES.CYCLES.TODAY),
         apiFetch<CycleStatistics>(API_ROUTES.CYCLES.STATISTICS + "?months=6"),
         apiFetch<InsightsSummary>(
@@ -130,7 +133,7 @@ export const useDashboardData = () => {
       const insights =
         insightsResponse.status === "fulfilled" ? insightsResponse.value : null;
 
-      // TEMPORAL: Simular datos de notificaciones hasta que el endpoint funcione
+      // Simular datos de notificaciones hasta que el endpoint funcione
       const notificationsData = {
         total: 0,
         unread: 0,

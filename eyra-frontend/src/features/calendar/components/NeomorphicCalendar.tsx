@@ -444,6 +444,8 @@ export const NeomorphicCalendar: React.FC<NeomorphicCalendarProps> = ({
                   const isCurrentMonth = isSameMonth(date, currentDate);
                   const isCurrentDay = isToday(date);
 
+                  console.log("Celda:", formattedDate, "dayData:", dayData);
+
                   return (
                     <motion.div
                       key={formattedDate}
