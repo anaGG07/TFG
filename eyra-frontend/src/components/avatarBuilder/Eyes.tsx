@@ -146,18 +146,18 @@ const Eyes: React.FC<{ type: string; color?: string }> = ({ type, color = "#0000
     case "feminine":
       return (
         <g>
-          {/* Ojo izquierdo rasgado */}
-          <path d="M126 143 Q140 135 154 143 Q150 147 140 149 Q130 147 126 143 Z" fill="#fff" stroke={color} strokeWidth="2" />
-          <ellipse cx="140" cy="144" rx="7" ry="8" fill="#222" />
-          {/* Pestañas superiores marcadas */}
-          <path d="M126 143 Q120 135 135 137" stroke={color} strokeWidth="3" strokeLinecap="round" fill="none" />
+          {/* Ojo izquierdo tipo almendra */}
+          <path d="M126 143 Q140 133 154 143 Q140 153 126 143 Z" fill="#fff" stroke={color} strokeWidth="2" />
+          <circle cx="140" cy="143" r="7" fill="#222" />
+          {/* Pestañas superiores */}
           <path d="M154 143 Q160 135 145 137" stroke={color} strokeWidth="3" strokeLinecap="round" fill="none" />
-          {/* Ojo derecho rasgado */}
-          <path d="M206 143 Q220 135 234 143 Q230 147 220 149 Q210 147 206 143 Z" fill="#fff" stroke={color} strokeWidth="2" />
-          <ellipse cx="220" cy="144" rx="7" ry="8" fill="#222" />
-          {/* Pestañas superiores marcadas */}
-          <path d="M206 143 Q200 135 215 137" stroke={color} strokeWidth="3" strokeLinecap="round" fill="none" />
+          <path d="M154 143 Q162 140 148 143" stroke={color} strokeWidth="2" strokeLinecap="round" fill="none" />
+          {/* Ojo derecho tipo almendra */}
+          <path d="M206 143 Q220 133 234 143 Q220 153 206 143 Z" fill="#fff" stroke={color} strokeWidth="2" />
+          <circle cx="220" cy="143" r="7" fill="#222" />
+          {/* Pestañas superiores */}
           <path d="M234 143 Q240 135 225 137" stroke={color} strokeWidth="3" strokeLinecap="round" fill="none" />
+          <path d="M234 143 Q242 140 228 143" stroke={color} strokeWidth="2" strokeLinecap="round" fill="none" />
         </g>
       );
     default:
