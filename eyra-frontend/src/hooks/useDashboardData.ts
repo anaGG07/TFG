@@ -98,18 +98,16 @@ export const useDashboardData = () => {
     setData((prev) => ({ ...prev, isLoading: true, error: null }));
 
     try {
-      // Ejecutar todas las llamadas en paralelo para mejor rendimiento
+      // SOLO ejecutar las llamadas que funcionan correctamente
       const [
         currentCycleResponse,
         todayResponse,
         statisticsResponse,
-        notificationsResponse,
         insightsResponse,
       ] = await Promise.allSettled([
         apiFetch<CycleData>(API_ROUTES.CYCLES.CURRENT),
         apiFetch<TodayData>(API_ROUTES.CYCLES.TODAY),
         apiFetch<CycleStatistics>(API_ROUTES.CYCLES.STATISTICS + "?months=6"),
-        apiFetch<{ totalUnread: number }>(API_ROUTES.NOTIFICATIONS.COUNT),
         apiFetch<InsightsSummary>(
           API_ROUTES.CYCLES.RECOMMENDATIONS + "?limit=3"
         ),
@@ -129,17 +127,15 @@ export const useDashboardData = () => {
           ? statisticsResponse.value
           : null;
 
-      const notificationsData =
-        notificationsResponse.status === "fulfilled"
-          ? {
-              total: 0,
-              unread: notificationsResponse.value.totalUnread || 0,
-              highPriority: 0,
-            }
-          : { total: 0, unread: 0, highPriority: 0 };
-
       const insights =
         insightsResponse.status === "fulfilled" ? insightsResponse.value : null;
+
+      // TEMPORAL: Simular datos de notificaciones hasta que el endpoint funcione
+      const notificationsData = {
+        total: 0,
+        unread: 0,
+        highPriority: 0,
+      };
 
       setData({
         currentCycle,
@@ -149,6 +145,13 @@ export const useDashboardData = () => {
         insights,
         isLoading: false,
         error: null,
+      });
+
+      console.log("Dashboard data loaded successfully:", {
+        currentCycle: !!currentCycle,
+        todayData: !!todayData,
+        statistics: !!statistics,
+        insights: !!insights,
       });
     } catch (error) {
       console.error("Error fetching dashboard data:", error);
