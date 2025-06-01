@@ -88,7 +88,7 @@ export interface MenstrualCycle {
 }
 
 export interface CycleDay {
-  id: number;
+  id: string;
   date: string;
   dayNumber: number;
   phase: CyclePhase;

@@ -21,6 +21,7 @@
         "symfony/dotenv": "7.2.*",
         "symfony/flex": "^2",
         "symfony/framework-bundle": "7.2.*",
+        "symfony/mailer": "7.2.*",
         "symfony/monolog-bundle": "^3.10",
         "symfony/property-access": "7.2.*",
         "symfony/property-info": "7.2.*",
@@ -40,7 +41,10 @@
             "symfony/runtime": true
         },
         "bump-after-update": true,
-        "sort-packages": true
+        "sort-packages": true,
+        "platform": {
+            "ext-sodium": "7.2"
+        }
     },
     "autoload": {
         "psr-4": {

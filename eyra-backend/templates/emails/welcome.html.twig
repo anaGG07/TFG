@@ -1,0 +1,44 @@
+{% extends 'emails/base.html.twig' %}
+
+{% block title %}¡Bienvenida a EYRA!{% endblock %}
+
+{% block content %}
+    <div class="greeting">
+        ¡Bienvenida {{ userName }}!
+    </div>
+    
+    <div class="content">
+        <p>Nos emociona tenerte como parte de la comunidad EYRA. Has dado el primer paso hacia una mejor comprensión y cuidado de tu salud femenina.</p>
+        
+        <h3 style="color: #F15B5B; margin-top: 30px;">¿Qué puedes hacer ahora?</h3>
+        
+        <ul style="list-style: none; padding: 0;">
+            <li style="margin-bottom: 15px;">
+                <span style="color: #F15B5B; font-weight: bold;">📅</span> 
+                <strong>Completa tu perfil:</strong> Añade información sobre tu ciclo para obtener predicciones más precisas
+            </li>
+            <li style="margin-bottom: 15px;">
+                <span style="color: #F15B5B; font-weight: bold;">🔮</span> 
+                <strong>Registra tu ciclo:</strong> Comienza a registrar tu período y síntomas
+            </li>
+            <li style="margin-bottom: 15px;">
+                <span style="color: #F15B5B; font-weight: bold;">💡</span> 
+                <strong>Explora insights:</strong> Descubre patrones únicos en tu ciclo menstrual
+            </li>
+            <li style="margin-bottom: 15px;">
+                <span style="color: #F15B5B; font-weight: bold;">🤖</span> 
+                <strong>Consulta con IA:</strong> Haz preguntas sobre salud femenina a nuestro asistente
+            </li>
+        </ul>
+        
+        <div class="info-box">
+            <strong>💜 Tu privacidad es nuestra prioridad:</strong> Toda tu información personal y datos de salud están protegidos con los más altos estándares de seguridad.
+        </div>
+        
+        <p>Si tienes alguna pregunta o necesitas ayuda para comenzar, no dudes en contactarnos. Estamos aquí para acompañarte en este viaje.</p>
+        
+        <p style="text-align: center; margin-top: 30px;">
+            <a href="{{ dashboardUrl }}" class="button">Comenzar mi viaje con EYRA</a>
+        </p>
+    </div>
+{% endblock %}

@@ -1,0 +1,63 @@
+{% extends 'emails/base.html.twig' %}
+
+{% block title %}EYRA - Recordatorio de tu ciclo{% endblock %}
+
+{% block content %}
+    <div class="greeting">
+        ¡Hola {{ userName }}!
+    </div>
+    
+    <div class="content">
+        {% if cycleInfo.type == 'period_coming' %}
+            <p>Según tus registros, tu próximo período debería comenzar aproximadamente el <strong>{{ cycleInfo.expectedDate|date('d/m/Y') }}</strong>.</p>
+            
+            <div class="info-box">
+                <strong>📅 Recordatorio:</strong> Faltan aproximadamente {{ cycleInfo.daysUntil }} días para tu próximo período.
+            </div>
+            
+            <h3 style="color: #F15B5B;">💼 Lista de preparación:</h3>
+            <ul>
+                <li>Asegúrate de tener suficientes productos menstruales</li>
+                <li>Considera llevar una bolsita de emergencia contigo</li>
+                <li>Si tomas analgésicos para cólicos, tenlos a mano</li>
+                <li>Planifica actividades relajantes para esos días</li>
+            </ul>
+            
+        {% elseif cycleInfo.type == 'ovulation_coming' %}
+            <p>Según tus registros, tu ventana fértil comenzará aproximadamente el <strong>{{ cycleInfo.expectedDate|date('d/m/Y') }}</strong>.</p>
+            
+            <div class="info-box">
+                <strong>🌸 Ventana fértil:</strong> Los próximos días serán tus días más fértiles del ciclo.
+            </div>
+            
+            <h3 style="color: #F15B5B;">💡 Durante tu ventana fértil:</h3>
+            <ul>
+                <li>Es normal sentir más energía y confianza</li>
+                <li>Tu libido puede estar más alta</li>
+                <li>Es un buen momento para actividades sociales</li>
+                <li>Si buscas embarazo, estos son los días clave</li>
+            </ul>
+            
+        {% elseif cycleInfo.type == 'late_period' %}
+            <p>Hemos notado que tu período se ha retrasado {{ cycleInfo.daysLate }} días respecto a la fecha esperada.</p>
+            
+            <div class="info-box">
+                <strong>🤔 ¿Período tardío?</strong> Los retrasos ocasionales son normales y pueden deberse a estrés, cambios en la rutina, o fluctuaciones hormonales naturales.
+            </div>
+            
+            <p><strong>¿Qué puedes hacer?</strong></p>
+            <ul>
+                <li>Mantén la calma - los retrasos ocasionales son normales</li>
+                <li>Registra cualquier síntoma que experimentes</li>
+                <li>Si el retraso continúa, considera consultar con un profesional</li>
+                <li>Si hay posibilidad de embarazo, considera hacer una prueba</li>
+            </ul>
+        {% endif %}
+        
+        <p style="text-align: center; margin-top: 30px;">
+            <a href="{{ calendarUrl }}" class="button">Ver mi calendario</a>
+        </p>
+        
+        <p><strong>Recuerda:</strong> Estos son cálculos basados en tus registros anteriores. Cada cuerpo es único y puede haber variaciones naturales.</p>
+    </div>
+{% endblock %}

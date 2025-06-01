@@ -7,6 +7,8 @@ import {
   endOfMonth,
   startOfWeek,
   endOfWeek,
+  addDays,
+  isBefore,
 } from "date-fns";
 import { apiFetch } from "../../../utils/httpClient";
 import { API_ROUTES } from "../../../config/apiRoutes";
@@ -106,11 +108,73 @@ export const useCalendarData = (
     // Extraer días de los ciclos del usuario
     if (result.userCycles) {
       result.userCycles.forEach((cycle: any) => {
+        // Mapear días existentes por fecha
+        const existingDays: Record<string, any> = {};
         if (cycle.filteredCycleDays) {
-          days.push(...cycle.filteredCycleDays.map((day: any) => ({
-            ...day,
-            phase: cycle.phase
-          })));
+          cycle.filteredCycleDays.forEach((day: any) => {
+            const dateKey = day.date.slice(0, 10);
+            existingDays[dateKey] = { ...day, phase: cycle.phase };
+          });
+        }
+        // Si el ciclo tiene fases explícitas
+        if (cycle.phases && Array.isArray(cycle.phases)) {
+          cycle.phases.forEach((phase: any) => {
+            let current = new Date(phase.startDate);
+            const end = new Date(phase.endDate);
+            let dayNumber = 1;
+            while (isBefore(current, end)) {
+              const dateStr = format(current, "yyyy-MM-dd");
+              if (existingDays[dateStr]) {
+                days.push({
+                  ...existingDays[dateStr],
+                  id: String(existingDays[dateStr].id),
+                });
+              } else {
+                days.push({
+                  id: `${cycle.id}_${phase.phase}_${dateStr}`,
+                  date: dateStr,
+                  dayNumber,
+                  phase: phase.phase,
+                  flowIntensity: undefined,
+                  symptoms: [],
+                  mood: [],
+                  notes: [],
+                });
+              }
+              current = addDays(current, 1);
+              dayNumber++;
+            }
+          });
+        } else if (cycle.startDate && cycle.endDate && cycle.phase) {
+          // Fallback: si no hay fases, usar el rango del ciclo y la fase principal
+          let current = new Date(cycle.startDate);
+          const end = new Date(cycle.endDate);
+          let dayNumber = 1;
+          while (isBefore(current, end)) {
+            const dateStr = format(current, "yyyy-MM-dd");
+            if (existingDays[dateStr]) {
+              days.push({
+                ...existingDays[dateStr],
+                id: String(existingDays[dateStr].id),
+              });
+            } else {
+              days.push({
+                id: `${cycle.id}_${cycle.phase}_${dateStr}`,
+                date: dateStr,
+                dayNumber,
+                phase: cycle.phase,
+                flowIntensity: undefined,
+                symptoms: [],
+                mood: [],
+                notes: [],
+              });
+            }
+            current = addDays(current, 1);
+            dayNumber++;
+          }
+        } else {
+          // Si no hay fases ni rango, solo los días existentes
+          Object.values(existingDays).forEach((d) => days.push(d));
         }
       });
     }

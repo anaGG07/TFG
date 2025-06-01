@@ -3,8 +3,11 @@
 namespace App\Controller;
 
 use App\Entity\User;
+use App\Entity\PasswordResetToken;
 use App\Enum\ProfileType;
 use App\Repository\UserRepository;
+use App\Repository\PasswordResetTokenRepository;
+use App\Service\EmailService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -24,13 +27,15 @@ use Psr\Log\LoggerInterface;
 class AuthController extends AbstractController
 {
     private LoggerInterface $logger;
-   
+
     public function __construct(
         private UserRepository $userRepository,
+        private PasswordResetTokenRepository $passwordResetTokenRepository,
         private EntityManagerInterface $entityManager,
         private UserPasswordHasherInterface $passwordHasher,
         private ValidatorInterface $validator,
         private TokenService $tokenService,
+        private EmailService $emailService,
         LoggerInterface $logger
     ) {
         $this->logger = $logger;
@@ -62,19 +67,19 @@ class AuthController extends AbstractController
 
             // Crear nuevo usuario
             $user = new User();
-           
+
             // Establecer campos obligatorios
             $user->setEmail((string)$data['email']);
             $user->setUsername((string)$data['username']);
             $user->setName((string)$data['name']);
             $user->setLastName((string)$data['lastName']);
-           
+
             // Hashear la contraseña
             $hashedPassword = $this->passwordHasher->hashPassword($user, (string)$data['password']);
             $user->setPassword($hashedPassword);
-           
+
             // ! 21/05/2025 - Eliminada configuración del campo genderIdentity
-           
+
             if (isset($data['birthDate']) && is_string($data['birthDate'])) {
                 try {
                     $birthDate = new DateTime($data['birthDate']);
@@ -90,7 +95,7 @@ class AuthController extends AbstractController
                     ], 400);
                 }
             }
-           
+
             if (isset($data['profileType']) && is_string($data['profileType'])) {
                 try {
                     $profileType = ProfileType::from($data['profileType']);
@@ -110,7 +115,7 @@ class AuthController extends AbstractController
 
             // Inicializar onboardingCompleted como falso
             $user->setOnboardingCompleted(false);
-           
+
             // ! 28/05/2025 - Inicializar avatar con plantilla vacía si no se proporciona
             if (isset($data['avatar'])) {
                 try {
@@ -133,8 +138,7 @@ class AuthController extends AbstractController
                     // Si ya es un array, usarlo directamente
                     else if (is_array($data['avatar'])) {
                         $user->setAvatar($data['avatar']);
-                    }
-                    else {
+                    } else {
                         $this->logger->error('Tipo de dato incorrecto para avatar', [
                             'tipo' => gettype($data['avatar'])
                         ]);
@@ -154,23 +158,22 @@ class AuthController extends AbstractController
                 }
             } else {
                 // Establecer el avatar predeterminado vacío
-                $randomAvatar = [
-                    "skinColor" => "#F5D0A9",
-                    "eyes" => "default",
-                    "eyebrows" => "default",
-                    "mouth" => "default",
-                    "hairStyle" => "short",
-                    "hairColor" => "#4A4A4A",
-                    "facialHair" => "none",
-                    "clothes" => "tshirt",
-                    "fabricColor" => "#C62328",
-                    "glasses" => "none",
-                    "glassOpacity" => "0.8",
-                    "accessories" => "none",
-                    "tattoos" => "none",
-                    "backgroundColor" => "#E7E0D5"
-                ];
-                $user->setAvatar($randomAvatar);
+                $user->setAvatar([
+                    "skinColor" => "",
+                    "eyes" => "",
+                    "eyebrows" => "",
+                    "mouth" => "",
+                    "hairStyle" => "",
+                    "hairColor" => "",
+                    "facialHair" => "",
+                    "clothes" => "",
+                    "fabricColor" => "",
+                    "glasses" => "",
+                    "glassOpacity" => "",
+                    "accessories" => "",
+                    "tattoos" => "",
+                    "backgroundColor" => ""
+                ]);
             }
 
             // Validar el usuario
@@ -189,6 +192,12 @@ class AuthController extends AbstractController
             // Guardar en base de datos
             $this->entityManager->persist($user);
             $this->entityManager->flush();
+
+            // ! 29/05/2025 - Enviar email de bienvenida al registrarse
+            $this->emailService->sendWelcomeEmail(
+                $user->getEmail(),
+                $user->getName()
+            );
 
             $this->logger->info('Usuario registrado exitosamente', [
                 'userId' => $user->getId(),
@@ -220,17 +229,17 @@ class AuthController extends AbstractController
         try {
             // Crear respuesta
             $response = new JsonResponse(['message' => 'Sesión cerrada con éxito']);
-           
+
             // Eliminar cookies adaptadas según el origen de la solicitud
             $isSecureConnection = $request->isSecure();
             $hostname = $request->getHost();
-           
+
             // Log para depuración
             $this->logger->info('Eliminando cookies en logout', [
                 'host' => $hostname,
                 'isSecure' => $isSecureConnection
             ]);
-           
+
             // Eliminar cookie JWT
             $response->headers->setCookie(
                 new Cookie(
@@ -245,7 +254,7 @@ class AuthController extends AbstractController
                     $isSecureConnection ? 'Strict' : 'Lax' // SameSite adaptado
                 )
             );
-           
+
             $this->logger->info('Sesión cerrada con éxito');
             return $response;
         } catch (Exception $e) {
@@ -253,7 +262,7 @@ class AuthController extends AbstractController
                 'exception' => $e,
                 'trace' => $e->getTraceAsString()
             ]);
-           
+
             return $this->json(['message' => 'Error en el cierre de sesión'], 500);
         }
     }
@@ -281,7 +290,7 @@ class AuthController extends AbstractController
                 'exception' => $e,
                 'trace' => $e->getTraceAsString()
             ]);
-           
+
             return $this->json(['message' => 'Error al cerrar todas las sesiones'], 500);
         }
     }
@@ -299,16 +308,16 @@ class AuthController extends AbstractController
                 'cookies' => array_keys($request->cookies->all()),
                 'token_cookie' => $request->cookies->has('jwt_token') ? 'presente' : 'ausente'
             ]);
-           
+
             /** @var User|null $user */
             $user = $this->getUser();
-           
+
             $this->logger->info('AuthController::getProfile - Estado de autenticación', [
                 'user_authenticated' => $user !== null,
                 'user_id' => $user ? $user->getId() : 'null',
                 'user_email' => $user ? $user->getEmail() : 'null'
             ]);
-           
+
             if (!$user instanceof User) {
                 $this->logger->warning('AuthController::getProfile - Usuario no autenticado');
                 $elapsed = round((microtime(true) - $start) * 1000);
@@ -317,7 +326,7 @@ class AuthController extends AbstractController
             }
 
             $this->logger->info('AuthController::getProfile - Devolviendo perfil usuario: ' . $user->getEmail());
-           
+
             $onboarding = $user->getOnboarding();
             $onboardingData = null;
             if ($onboarding) {
@@ -328,15 +337,10 @@ class AuthController extends AbstractController
                     'lastPeriodDate' => $onboarding->getLastPeriodDate() ? $onboarding->getLastPeriodDate()->format('Y-m-d') : null,
                     'averageCycleLength' => $onboarding->getAverageCycleLength(),
                     'averagePeriodLength' => $onboarding->getAveragePeriodLength(),
-                    'completed' => $onboarding->isCompleted(),
-                    'receiveAlerts' => $onboarding->isReceiveAlerts(),
-                    'receiveRecommendations' => $onboarding->isReceiveRecommendations(),
-                    'receiveCyclePhaseTips' => $onboarding->isReceiveCyclePhaseTips(),
-                    'receiveWorkoutSuggestions' => $onboarding->isReceiveWorkoutSuggestions(),
-                    'receiveNutritionAdvice' => $onboarding->isReceiveNutritionAdvice(),
+                    'completed' => $onboarding->isCompleted()
                 ];
             } else {
-                $onboardingData = [ 'completed' => false ];
+                $onboardingData = ['completed' => false];
             }
             $response = $this->json([
                 'user' => [
@@ -392,17 +396,17 @@ class AuthController extends AbstractController
             if (isset($data['username']) && is_string($data['username'])) {
                 $user->setUsername($data['username']);
             }
-           
+
             if (isset($data['name']) && is_string($data['name'])) {
                 $user->setName($data['name']);
             }
-           
+
             if (isset($data['lastName']) && is_string($data['lastName'])) {
                 $user->setLastName($data['lastName']);
             }
-           
+
             // ! 21/05/2025 - Eliminada actualización del campo genderIdentity
-           
+
             if (isset($data['birthDate']) && is_string($data['birthDate'])) {
                 try {
                     $birthDate = new DateTime($data['birthDate']);
@@ -418,7 +422,7 @@ class AuthController extends AbstractController
                     ], 400);
                 }
             }
-           
+
             // ! 28/05/2025 - Añadido manejo del campo avatar en actualización de perfil
             if (isset($data['avatar'])) {
                 try {
@@ -441,8 +445,7 @@ class AuthController extends AbstractController
                     // Si ya es un array, usarlo directamente
                     else if (is_array($data['avatar'])) {
                         $user->setAvatar($data['avatar']);
-                    }
-                    else {
+                    } else {
                         $this->logger->error('Tipo de dato incorrecto para avatar en actualización', [
                             'tipo' => gettype($data['avatar'])
                         ]);
@@ -495,7 +498,7 @@ class AuthController extends AbstractController
                 'exception' => $e,
                 'trace' => $e->getTraceAsString()
             ]);
-           
+
             return $this->json(['message' => 'Error al actualizar perfil'], 500);
         }
     }
@@ -549,11 +552,12 @@ class AuthController extends AbstractController
                 'exception' => $e,
                 'trace' => $e->getTraceAsString()
             ]);
-           
+
             return $this->json(['message' => 'Error al cambiar contraseña'], 500);
         }
     }
 
+    // ! 29/05/2025 - Implementación completa del endpoint de solicitud de reset de contraseña
     #[Route('/password-reset', name: 'api_request_password_reset', methods: ['POST'])]
     public function requestPasswordReset(Request $request): JsonResponse
     {
@@ -566,24 +570,116 @@ class AuthController extends AbstractController
             }
 
             $user = $this->userRepository->findOneBy(['email' => $data['email']]);
-           
-            // Por seguridad, no revelamos si el email existe o no
-            $this->logger->info('Solicitud de reset de contraseña', [
-                'email' => $data['email'],
-                'encontrado' => $user !== null
-            ]);
-           
-            // Aquí implementarías el envío de email con un token
-            // Por ahora, solo devolvemos una respuesta de éxito
-           
-            return $this->json(['message' => 'Si la dirección existe, recibirás un email con instrucciones'], 200);
+
+            // Por seguridad, siempre devolvemos la misma respuesta
+            if ($user) {
+                // Invalidar tokens anteriores del usuario
+                $this->passwordResetTokenRepository->invalidateTokensByUser($user);
+
+                // Crear nuevo token
+                $resetToken = new PasswordResetToken();
+                $resetToken->setUser($user);
+                $resetToken->setToken(bin2hex(random_bytes(32))); // Token seguro de 64 caracteres
+
+                $this->entityManager->persist($resetToken);
+                $this->entityManager->flush();
+
+                // Enviar email con el token
+                $emailSent = $this->emailService->sendPasswordResetEmail(
+                    $user->getEmail(),
+                    $user->getName(),
+                    $resetToken->getToken()
+                );
+
+                $this->logger->info('Token de reset de contraseña creado', [
+                    'email' => $data['email'],
+                    'userId' => $user->getId(),
+                    'tokenId' => $resetToken->getId(),
+                    'emailSent' => $emailSent
+                ]);
+            } else {
+                $this->logger->info('Solicitud de reset para email no existente', [
+                    'email' => $data['email']
+                ]);
+            }
+
+            return $this->json([
+                'message' => 'Si la dirección existe, recibirás un email con instrucciones para restablecer tu contraseña'
+            ], 200);
         } catch (Exception $e) {
             $this->logger->error('Error en solicitud de reset de contraseña: ' . $e->getMessage(), [
                 'exception' => $e,
                 'trace' => $e->getTraceAsString()
             ]);
-           
+
             return $this->json(['message' => 'Error al procesar la solicitud'], 500);
+        }
+    }
+
+    // ! 29/05/2025 - Nuevo endpoint para confirmar el reset de contraseña
+    #[Route('/password-reset/confirm', name: 'api_confirm_password_reset', methods: ['POST'])]
+    public function confirmPasswordReset(Request $request): JsonResponse
+    {
+        try {
+            $data = json_decode($request->getContent(), true);
+
+            // Verificar campos requeridos
+            if (!isset($data['token'], $data['newPassword'])) {
+                $this->logger->warning('Intento de confirmación de reset con datos incompletos');
+                return $this->json([
+                    'message' => 'Faltan campos requeridos',
+                    'required' => ['token', 'newPassword']
+                ], 400);
+            }
+
+            // Buscar token válido
+            $resetToken = $this->passwordResetTokenRepository->findValidTokenByToken($data['token']);
+
+            if (!$resetToken) {
+                $this->logger->warning('Intento de usar token inválido o expirado', [
+                    'token' => substr($data['token'], 0, 8) . '...'
+                ]);
+                return $this->json([
+                    'message' => 'Token inválido o expirado'
+                ], 400);
+            }
+
+            $user = $resetToken->getUser();
+
+            // Validar longitud mínima de contraseña
+            if (strlen($data['newPassword']) < 6) {
+                return $this->json([
+                    'message' => 'La contraseña debe tener al menos 6 caracteres'
+                ], 400);
+            }
+
+            // Actualizar contraseña
+            $newHashedPassword = $this->passwordHasher->hashPassword($user, (string)$data['newPassword']);
+            $user->setPassword($newHashedPassword);
+
+            // Marcar token como usado
+            $resetToken->setUsed(true);
+
+            // Invalidar todos los demás tokens del usuario
+            $this->passwordResetTokenRepository->invalidateTokensByUser($user);
+
+            $this->entityManager->flush();
+
+            $this->logger->info('Contraseña restablecida con éxito', [
+                'userId' => $user->getId(),
+                'tokenId' => $resetToken->getId()
+            ]);
+
+            return $this->json([
+                'message' => 'Contraseña restablecida con éxito. Ya puedes iniciar sesión con tu nueva contraseña.'
+            ], 200);
+        } catch (Exception $e) {
+            $this->logger->error('Error al confirmar reset de contraseña: ' . $e->getMessage(), [
+                'exception' => $e,
+                'trace' => $e->getTraceAsString()
+            ]);
+
+            return $this->json(['message' => 'Error al restablecer la contraseña'], 500);
         }
     }
 }

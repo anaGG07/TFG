@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}EYRA{% endblock %}</title>
+    <style>
+        /* ! 29/05/2025 - Estilos base para emails de EYRA */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333333;
+            margin: 0;
+            padding: 0;
+            background-color: #FFF5F5;
+        }
+        .email-container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #ffffff;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+        .email-header {
+            background: linear-gradient(135deg, #FF8383, #F15B5B);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        .logo {
+            font-size: 32px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        .tagline {
+            font-size: 16px;
+            opacity: 0.9;
+        }
+        .email-body {
+            padding: 40px 30px;
+        }
+        .greeting {
+            font-size: 20px;
+            color: #F15B5B;
+            margin-bottom: 20px;
+        }
+        .content {
+            font-size: 16px;
+            margin-bottom: 30px;
+        }
+        .button {
+            display: inline-block;
+            background-color: #F15B5B;
+            color: white;
+            padding: 15px 30px;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 600;
+            margin: 20px 0;
+            text-align: center;
+        }
+        .button:hover {
+            background-color: #d43e3e;
+        }
+        .info-box {
+            background-color: #FFE6E6;
+            border-left: 4px solid #FF8383;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+        .email-footer {
+            background-color: #f8f9fa;
+            padding: 30px;
+            text-align: center;
+            font-size: 14px;
+            color: #666;
+        }
+        .social-links {
+            margin: 20px 0;
+        }
+        .social-links a {
+            display: inline-block;
+            margin: 0 10px;
+            color: #F15B5B;
+            text-decoration: none;
+        }
+        @media only screen and (max-width: 600px) {
+            .email-container {
+                margin: 10px;
+                border-radius: 8px;
+            }
+            .email-header, .email-body, .email-footer {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="email-container">
+        <div class="email-header">
+            <div class="logo">EYRA</div>
+            <div class="tagline">Tu compañera de salud femenina</div>
+        </div>
+        
+        <div class="email-body">
+            {% block content %}{% endblock %}
+        </div>
+        
+        <div class="email-footer">
+            <p>Este email fue enviado desde EYRA Club</p>
+            <div class="social-links">
+                <a href="https://eyraclub.es">Sitio Web</a> |
+                <a href="mailto:support@eyraclub.es">Soporte</a>
+            </div>
+            <p style="font-size: 12px; margin-top: 20px;">
+                Si no solicitaste este email, puedes ignorarlo de forma segura.<br>
+                © {{ 'now'|date('Y') }} EYRA Club. Todos los derechos reservados.
+            </p>
+        </div>
+    </div>
+</body>
+</html>
