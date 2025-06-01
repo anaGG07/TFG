@@ -27,10 +27,10 @@ use Psr\Log\LoggerInterface;
 class AuthController extends AbstractController
 {
     private LoggerInterface $logger;
+    private PasswordResetTokenRepository $passwordResetTokenRepository;
 
     public function __construct(
         private UserRepository $userRepository,
-        private PasswordResetTokenRepository $passwordResetTokenRepository,
         private EntityManagerInterface $entityManager,
         private UserPasswordHasherInterface $passwordHasher,
         private ValidatorInterface $validator,
@@ -39,6 +39,7 @@ class AuthController extends AbstractController
         LoggerInterface $logger
     ) {
         $this->logger = $logger;
+        $this->passwordResetTokenRepository = $entityManager->getRepository(PasswordResetToken::class);
     }
 
     #[Route('/register', name: 'api_register', methods: ['POST'])]
