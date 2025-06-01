@@ -44,16 +44,22 @@ export const AVATAR_OPTIONS = {
   eyes: [
     { value: "default", name: "Normal" },
     { value: "dizzy", name: "Mareado" },
-    { value: "eyeroll", name: "Ojos en blanco" },
+    { value: "blank", name: "Ojos en blanco" },
     { value: "happy", name: "Feliz" },
+    { value: "small", name: "Pequeños" },
     { value: "close", name: "Cerrados" },
+    { value: "close2", name: "Cerrados 2" },
     { value: "hearts", name: "Corazones" },
     { value: "side", name: "De lado" },
     { value: "wink", name: "Guiño" },
+    { value: "wink2", name: "Guiño 2" },
     { value: "squint", name: "Entrecerrados" },
     { value: "surprised", name: "Sorprendido" },
     { value: "winkwacky", name: "Guiño loco" },
     { value: "cry", name: "Llorando" },
+    { value: "cross", name: "En X" },
+    { value: "big", name: "Grandes" },
+    { value: "tear", name: "Con lágrima" }
   ],
 
   // Cejas - del código de referencia
@@ -138,6 +144,8 @@ export const AVATAR_OPTIONS = {
     { value: "hoodie", name: "Sudadera con capucha" },
     { value: "overall", name: "Overol" },
     { value: "blazer", name: "Blazer" },
+    { value: "shirt", name: "Camisa" },
+    { value: "jacket", name: "Chaqueta" },
   ],
 
   // Colores de tela - del código de referencia
@@ -163,8 +171,8 @@ export const AVATAR_OPTIONS = {
     { value: "fancy", name: "Elegantes" },
     { value: "old", name: "Vintage" },
     { value: "nerd", name: "De empollón" },
-    { value: "fancy2", name: "Elegantes 2" },
-    { value: "harry", name: "Estilo Harry Potter" },
+    { value: "round", name: "Redondas" },
+    { value: "square", name: "Cuadradas" },
   ],
 
   // Opacidades de cristales - del código de referencia
@@ -191,10 +199,14 @@ export const AVATAR_OPTIONS = {
   // Accesorios - del código de referencia
   accessories: [
     { value: "none", name: "Ninguno" },
-    { value: "earphones", name: "Auriculares" },
-    { value: "earring1", name: "Pendiente 1" },
-    { value: "earring2", name: "Pendiente 2" },
-    { value: "earring3", name: "Pendiente 3" },
+    { value: "earring", name: "Pendiente" },
+    { value: "necklace", name: "Collar" },
+    { value: "bowtie", name: "Corbata de lazo" },
+    { value: "tie", name: "Corbata" },
+    { value: "scarf", name: "Bufanda" },
+    { value: "glasses", name: "Gafas" },
+    { value: "sunglasses", name: "Gafas de sol" },
+    { value: "hat", name: "Sombrero" },
   ],
 
   // Colores de fondo - del código de referencia
