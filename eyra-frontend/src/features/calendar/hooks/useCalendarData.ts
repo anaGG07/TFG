@@ -107,7 +107,10 @@ export const useCalendarData = (
     if (result.userCycles) {
       result.userCycles.forEach((cycle: any) => {
         if (cycle.filteredCycleDays) {
-          days.push(...cycle.filteredCycleDays);
+          days.push(...cycle.filteredCycleDays.map((day: any) => ({
+            ...day,
+            phase: cycle.phase
+          })));
         }
       });
     }
