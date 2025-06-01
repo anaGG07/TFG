@@ -109,7 +109,7 @@ export const useDashboardData = () => {
         apiFetch<CycleData>(API_ROUTES.CYCLES.CURRENT),
         apiFetch<TodayData>(API_ROUTES.CYCLES.TODAY),
         apiFetch<CycleStatistics>(API_ROUTES.CYCLES.STATISTICS + "?months=6"),
-        apiFetch<{ totalUnread: number }>(API_ROUTES.NOTIFICATIONS.UNREAD),
+        apiFetch<{ totalUnread: number }>(API_ROUTES.NOTIFICATIONS.COUNT),
         apiFetch<InsightsSummary>(
           API_ROUTES.CYCLES.RECOMMENDATIONS + "?limit=3"
         ),

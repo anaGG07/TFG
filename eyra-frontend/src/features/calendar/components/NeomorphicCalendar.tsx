@@ -437,7 +437,7 @@ export const NeomorphicCalendar: React.FC<NeomorphicCalendarProps> = ({
                 {viewDates.map((date, index) => {
                   const formattedDate = format(date, "yyyy-MM-dd");
                   const dayData = calendarDays.find(
-                    (day) => day.date === formattedDate
+                    (day) => day.date.slice(0, 10) === formattedDate
                   );
                   const isCurrentMonth = isSameMonth(date, currentDate);
                   const isCurrentDay = isToday(date);

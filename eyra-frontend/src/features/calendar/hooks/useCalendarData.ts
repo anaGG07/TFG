@@ -260,15 +260,9 @@ export const useCalendarPredictions = (data: CalendarData | null) => {
 
     const generatePredictions = async () => {
       try {
-        const response = await fetch("/api/cycles/prediction-details", {
-          headers: {
-            "Content-Type": "application/json",
-          },
-        });
-
-        if (response.ok) {
-          const result = await response.json();
-          setPredictions(result);
+        const response = await apiFetch(API_ROUTES.CYCLES.PREDICTION_DETAILS);
+        if (response) {
+          setPredictions(response);
         }
       } catch (error) {
         console.error("Error al obtener predicciones:", error);
