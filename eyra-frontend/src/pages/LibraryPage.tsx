@@ -191,23 +191,44 @@ const TentButton = ({
   const getCategoryTitle = (id: string) => {
     switch (id) {
       case "history":
-        return "Mnemósine"; // Diosa griega de la memoria
+        return {
+          name: "Mnemósine",
+          description: "Historias reales de la menstruación en civilizaciones antiguas"
+        };
       case "science":
-        return "Atenea"; // Diosa griega de la sabiduría y conocimiento
+        return {
+          name: "Atenea", 
+          description: "Papers científicos y estudios sobre el ciclo menstrual"
+        };
       case "phases":
-        return "Selene"; // Diosa griega de la luna y los ciclos
+        return {
+          name: "Selene",
+          description: "Mitología y creencias ancestrales sobre la menstruación"
+        };
       case "inclusivity":
-        return "Iris"; // Diosa griega del arco iris, diversidad y mensajes
+        return {
+          name: "Artemisa",
+          description: "Productos naturales y remedios para el bienestar menstrual"
+        };
       case "maternity":
-        return "Deméter"; // Diosa griega de la fertilidad y maternidad
+        return {
+          name: "Deméter",
+          description: "Rituales, ceremonias y tradiciones del ciclo femenino"
+        };
       case "wisdom":
-        return "Hestia"; // Diosa griega del hogar y la sabiduría doméstica
+        return {
+          name: "Hestia",
+          description: "Sabiduría ancestral y enseñanzas de mujeres sabias"
+        };
       default:
-        return "Refugio";
+        return {
+          name: "Refugio",
+          description: "Tu espacio sagrado de conocimiento"
+        };
     }
   };
 
-  const title = getCategoryTitle(categoryId);
+  const titleData = getCategoryTitle(categoryId);
 
   return (
     <div className="relative w-full h-full flex items-center justify-center library-tent-container">
@@ -231,8 +252,8 @@ const TentButton = ({
           <path
             d={
               isHovered
-                ? "M 150 40 L 30 200 L 110 200 Z"
-                : "M 150 40 L 50 200 L 150 200 Z"
+                ? "M 150 50 L 30 200 L 110 200 Z"
+                : "M 150 50 L 50 200 L 150 200 Z"
             }
             fill={isHovered ? "rgba(198, 35, 40, 0.12)" : "rgba(198, 35, 40, 0.06)"}
             stroke="#C62328"
@@ -244,8 +265,8 @@ const TentButton = ({
           <path
             d={
               isHovered
-                ? "M 150 40 L 190 200 L 270 200 Z"
-                : "M 150 40 L 150 200 L 250 200 Z"
+                ? "M 150 50 L 190 200 L 270 200 Z"
+                : "M 150 50 L 150 200 L 250 200 Z"
             }
             fill={isHovered ? "rgba(198, 35, 40, 0.18)" : "rgba(198, 35, 40, 0.09)"}
             stroke="#C62328"
@@ -253,35 +274,56 @@ const TentButton = ({
             className="transition-all duration-500 ease-in-out drop-shadow-sm"
           />
 
+          {/* Línea central de la tienda - solo desde el pico hasta la base */}
+          <line
+            x1="150"
+            y1="50"
+            x2="150"
+            y2="200"
+            stroke="#C62328"
+            strokeWidth="3"
+            className="transition-all duration-300"
+          />
+
           {/* Interior visible cuando se abre */}
           {isHovered && (
             <g className="transition-all duration-500">
               {/* Sin fondo interior rosa */}
               
-              {/* Foco central más difuminado con pulso */}
+              {/* Ente misterioso más grande y difuminado */}
               <defs>
-                <radialGradient id={`glow-${categoryId}`} cx="50%" cy="50%" r="50%">
-                  <stop offset="0%" stopColor="#C62328" stopOpacity="0.4" />
-                  <stop offset="50%" stopColor="#C62328" stopOpacity="0.2" />
+                <radialGradient id={`glow-${categoryId}`} cx="50%" cy="50%" r="60%">
+                  <stop offset="0%" stopColor="#C62328" stopOpacity="0.3" />
+                  <stop offset="30%" stopColor="#C62328" stopOpacity="0.15" />
+                  <stop offset="60%" stopColor="#C62328" stopOpacity="0.05" />
                   <stop offset="100%" stopColor="#C62328" stopOpacity="0" />
                 </radialGradient>
               </defs>
               <circle
                 cx="150"
-                cy="120"
-                r="35"
+                cy="135"
+                r="50"
                 fill={`url(#glow-${categoryId})`}
                 className="animate-pulse"
-                style={{ filter: "blur(8px)" }}
+                style={{ filter: "blur(12px)" }}
               />
               <circle
                 cx="150"
-                cy="120"
-                r="20"
+                cy="135"
+                r="30"
                 fill="#C62328"
-                opacity="0.3"
+                opacity="0.2"
                 className="animate-pulse"
-                style={{ animationDelay: "0.5s", filter: "blur(4px)" }}
+                style={{ animationDelay: "0.5s", filter: "blur(6px)" }}
+              />
+              <circle
+                cx="150"
+                cy="135"
+                r="15"
+                fill="#C62328"
+                opacity="0.15"
+                className="animate-pulse"
+                style={{ animationDelay: "1s", filter: "blur(3px)" }}
               />
             </g>
           )}
@@ -289,17 +331,20 @@ const TentButton = ({
 
         </svg>
 
-        {/* Línea base expandible - pegada a la base de la tienda */}
+        {/* Línea base expandible - separada un poquito más */}
         <div
-          className={`absolute bottom-[85px] left-1/2 transform -translate-x-1/2 h-1 bg-gradient-to-r from-transparent via-[#C62328] to-transparent transition-all duration-500 rounded-full ${
+          className={`absolute bottom-[75px] left-1/2 transform -translate-x-1/2 h-1 bg-gradient-to-r from-transparent via-[#C62328] to-transparent transition-all duration-500 rounded-full ${
             isHovered ? "w-5/6 opacity-100 shadow-lg" : "w-3/5 opacity-50"
           }`}
         />
 
-        {/* Título mitológico debajo de la línea */}
-        <div className="absolute bottom-[65px] left-1/2 transform -translate-x-1/2 text-center">
-          <p className="text-sm font-serif font-bold text-[#7a2323] whitespace-nowrap">
-            {title}
+        {/* Título y descripción mitológicos */}
+        <div className="absolute bottom-[20px] left-1/2 transform -translate-x-1/2 text-center max-w-[200px]">
+          <p className="text-lg font-serif font-bold text-[#7a2323] whitespace-nowrap mb-1">
+            {titleData.name}
+          </p>
+          <p className="text-xs font-sans text-[#5b0108] leading-tight">
+            {titleData.description}
           </p>
         </div>
 
