@@ -382,7 +382,7 @@ const CategoryCard = ({
   const config = getCategoryConfig(categoryId);
 
   return (
-    <div className={`flex flex-col h-full p-4 ${!isExpanded ? 'library-tent-container' : ''}`}>
+    <div className={`flex flex-col h-full ${!isExpanded ? '' : 'p-4'}`}>
       {!isExpanded ? (
         // Vista compacta - botón de tienda
         <TentButton categoryId={categoryId} onClick={onToggle || (() => {})} />
@@ -554,7 +554,7 @@ const LibraryPage: React.FC = () => {
         animate={{ y: 0, opacity: 1 }}
         transition={{ delay: 0.4, duration: 0.6 }}
       >
-        <DraggableGrid items={libraryItems} onItemsChange={handleItemsChange} />
+        <DraggableGrid items={libraryItems} onItemsChange={handleItemsChange} isLibrary={true} />
       </motion.div>
 
       {/* Partículas flotantes de fondo para efecto mágico */}
