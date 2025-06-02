@@ -207,7 +207,6 @@ const TentButton = ({
     }
   };
 
-  const data = libraryData[categoryId];
   const title = getCategoryTitle(categoryId);
 
   return (
@@ -257,37 +256,32 @@ const TentButton = ({
           {/* Interior visible cuando se abre */}
           {isHovered && (
             <g className="transition-all duration-500">
-              {/* Fondo interior */}
-              <path
-                d="M 150 40 L 110 200 L 190 200 Z"
-                fill="rgba(252, 231, 243, 0.7)"
-                className="transition-all duration-500"
-              />
+              {/* Sin fondo interior rosa */}
               
-              {/* Foco central difuminado con pulso */}
+              {/* Foco central más difuminado con pulso */}
               <defs>
                 <radialGradient id={`glow-${categoryId}`} cx="50%" cy="50%" r="50%">
-                  <stop offset="0%" stopColor="#C62328" stopOpacity="0.8" />
-                  <stop offset="70%" stopColor="#C62328" stopOpacity="0.3" />
+                  <stop offset="0%" stopColor="#C62328" stopOpacity="0.4" />
+                  <stop offset="50%" stopColor="#C62328" stopOpacity="0.2" />
                   <stop offset="100%" stopColor="#C62328" stopOpacity="0" />
                 </radialGradient>
               </defs>
               <circle
                 cx="150"
                 cy="120"
-                r="25"
+                r="35"
                 fill={`url(#glow-${categoryId})`}
                 className="animate-pulse"
-                style={{ filter: "blur(3px)" }}
+                style={{ filter: "blur(8px)" }}
               />
               <circle
                 cx="150"
                 cy="120"
-                r="15"
+                r="20"
                 fill="#C62328"
-                opacity="0.6"
+                opacity="0.3"
                 className="animate-pulse"
-                style={{ animationDelay: "0.5s" }}
+                style={{ animationDelay: "0.5s", filter: "blur(4px)" }}
               />
             </g>
           )}
@@ -295,31 +289,21 @@ const TentButton = ({
 
         </svg>
 
-        {/* Línea base expandible - más pegada a la tienda */}
+        {/* Línea base expandible - pegada a la base de la tienda */}
         <div
-          className={`absolute bottom-2 left-1/2 transform -translate-x-1/2 h-1 bg-gradient-to-r from-transparent via-[#C62328] to-transparent transition-all duration-500 rounded-full ${
+          className={`absolute bottom-[85px] left-1/2 transform -translate-x-1/2 h-1 bg-gradient-to-r from-transparent via-[#C62328] to-transparent transition-all duration-500 rounded-full ${
             isHovered ? "w-5/6 opacity-100 shadow-lg" : "w-3/5 opacity-50"
           }`}
         />
 
         {/* Título mitológico debajo de la línea */}
-        <div className="absolute bottom-[-24px] left-1/2 transform -translate-x-1/2 text-center">
+        <div className="absolute bottom-[65px] left-1/2 transform -translate-x-1/2 text-center">
           <p className="text-sm font-serif font-bold text-[#7a2323] whitespace-nowrap">
             {title}
           </p>
         </div>
 
-        {/* Badge de contenido nuevo */}
-        {data?.newCount > 0 && (
-          <div className="absolute top-6 right-6">
-            <div className={`relative transition-all duration-300 ${
-              isHovered ? "scale-125" : "scale-100"
-            }`}>
-              <div className="w-4 h-4 rounded-full bg-[#C62328] shadow-lg" />
-              <div className="absolute inset-0 w-4 h-4 rounded-full bg-[#C62328] animate-ping opacity-40" />
-            </div>
-          </div>
-        )}
+
       </button>
     </div>
   );
