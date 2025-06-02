@@ -279,7 +279,7 @@ const CycleVisual: React.FC<CycleVisualProps> = ({ expanded = true }) => {
             <circle cx={50 + 45 * Math.sin((angle * Math.PI) / 180)} cy={50 - 45 * Math.cos((angle * Math.PI) / 180)} r={7} fill={COLORS.marker} stroke="#fff" strokeWidth={2} />
           </svg>
           {/* SVG de útero centrado */}
-          <img src="/img/uteroRojo.svg" alt="Útero" style={{ position: 'absolute', left: 20, top: 30, width: 60, height: 40, zIndex: 2, pointerEvents: 'none' }} />
+          <img src="../../../public/img/UteroRojo.svg"alt="Útero" style={{ position: 'absolute', left: 20, top: 30, width: 60, height: 40, zIndex: 2, pointerEvents: 'none' }} />
         </div>
         {/* Datos a la derecha, con mejor jerarquía visual */}
         <div style={{ marginLeft: 28, display: 'flex', flexDirection: 'column', justifyContent: 'center', minWidth: 0 }}>

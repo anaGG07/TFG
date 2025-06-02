@@ -274,10 +274,10 @@ const TentButton = ({
         aria-label={`Acceder a categoría ${categoryId}`}
       >
         {/* Tienda de campaña - más centrada */}
-        <div className="flex-1 flex items-center justify-center w-full">
+        <div className="flex items-center justify-center w-full">
           <svg
             width="85%"
-            height="65%"
+            height="55%"
             viewBox="0 0 300 180"
             className={`transition-all duration-500 ${
               isClicked ? "scale-95" : "scale-100"
@@ -288,7 +288,7 @@ const TentButton = ({
               d={
                 isHovered
                   ? "M 150 15 L 30 150 L 110 150 Z"
-                  : "M 150 15 L 50 150 L 150 150 Z"
+                  : "M 148 15 L 50 150 L 148 150 Z"
               }
               fill={isHovered ? "rgba(198, 35, 40, 0.12)" : "rgba(198, 35, 40, 0.06)"}
               stroke="#C62328"
@@ -303,7 +303,7 @@ const TentButton = ({
               d={
                 isHovered
                   ? "M 150 15 L 190 150 L 270 150 Z"
-                  : "M 150 15 L 150 150 L 250 150 Z"
+                  : "M 152 15 L 152 150 L 250 150 Z"
               }
               fill={isHovered ? "rgba(198, 35, 40, 0.18)" : "rgba(198, 35, 40, 0.09)"}
               stroke="#C62328"
