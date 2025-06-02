@@ -74,6 +74,23 @@ const MoodIcons: Record<string, (color: string) => React.ReactElement> = {
       <path d="M16 12l2 2" />
     </svg>
   ),
+  tranquila: (color) => (
+    <svg width="32" height="32" viewBox="0 0 32 32" fill="none" stroke={color} strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="16" cy="16" r="13" />
+      <path d="M11 20c2 2 8 2 10 0" />
+      <path d="M12 14c0-1.2 2-1.2 2 0" />
+      <path d="M20 14c0-1.2 2-1.2 2 0" />
+    </svg>
+  ),
+  sensible: (color) => (
+    <svg width="32" height="32" viewBox="0 0 32 32" fill="none" stroke={color} strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="16" cy="16" r="13" />
+      <path d="M11 22c1.5-2 7.5-2 9 0" />
+      <circle cx="12" cy="14" r="1.2" fill={color} />
+      <circle cx="20" cy="14" r="1.2" fill={color} />
+      <path d="M21.5 16.5c0 1 .7 1.5 1.2 2" stroke={color} strokeWidth="1.2" />
+    </svg>
+  ),
 };
 
 // Iconos SVG para síntomas (estilo lineal)

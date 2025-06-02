@@ -171,9 +171,108 @@ const ArticlePreview = ({ article }: { article: LibraryContent }) => (
   </motion.div>
 );
 
-// Componente SOLO para contenido expandido (SIN TIENDA)
+// Componente para cada "icono" del grid tipo app store
+const ContentCard = ({ article, index }: { article: LibraryContent, index: number }) => (
+  <motion.div
+    className="aspect-square cursor-pointer group relative overflow-hidden"
+    style={{
+      background: "linear-gradient(145deg, #fafaf9, #e7e5e4)",
+      borderRadius: "16px",
+      border: "1px solid rgba(91, 1, 8, 0.08)",
+      boxShadow: `
+        8px 8px 16px rgba(91, 1, 8, 0.06),
+        -8px -8px 16px rgba(255, 255, 255, 0.4)
+      `,
+    }}
+    whileHover={{
+      scale: 1.05,
+      boxShadow: `
+        12px 12px 24px rgba(91, 1, 8, 0.1),
+        -12px -12px 24px rgba(255, 255, 255, 0.6)
+      `,
+    }}
+    whileTap={{ scale: 0.95 }}
+    initial={{ opacity: 0, y: 20 }}
+    animate={{ opacity: 1, y: 0 }}
+    transition={{ delay: index * 0.05, duration: 0.3 }}
+  >
+    {/* Badge nuevo */}
+    {article.isNew && (
+      <div className="absolute top-2 right-2 z-10">
+        <div className="bg-[#C62328] text-white text-xs px-2 py-1 rounded-full font-medium">
+          Nuevo
+        </div>
+      </div>
+    )}
+
+    {/* Contenido de la tarjeta */}
+    <div className="p-4 h-full flex flex-col justify-between">
+      {/* Icono/Ilustración */}
+      <div className="flex-shrink-0 mb-3">
+        <div 
+          className="w-8 h-8 rounded-lg flex items-center justify-center"
+          style={{
+            background: getTypeColor(article.type),
+            boxShadow: "inset 2px 2px 4px rgba(0,0,0,0.1)"
+          }}
+        >
+          {getTypeIcon(article.type)}
+        </div>
+      </div>
+
+      {/* Título */}
+      <div className="flex-1 mb-2">
+        <h4 className="text-sm font-semibold text-[#5b0108] leading-tight line-clamp-2 group-hover:text-[#C62328] transition-colors">
+          {article.title}
+        </h4>
+      </div>
+
+      {/* Footer con tags y tiempo */}
+      <div className="flex-shrink-0">
+        <div className="flex items-center justify-between">
+          <span className="text-xs bg-[#e7e0d5] text-[#5b0108] px-2 py-1 rounded-lg">
+            {article.tags[0]}
+          </span>
+          <span className="text-xs text-[#a62c2c] font-medium">
+            {article.readTime}
+          </span>
+        </div>
+      </div>
+    </div>
+  </motion.div>
+);
+
+// Funciones helper para iconos y colores
+const getTypeColor = (type: string) => {
+  switch (type) {
+    case "historical": return "linear-gradient(135deg, #C62328, #9d0d0b)";
+    case "research": return "linear-gradient(135deg, #2563eb, #1d4ed8)";
+    case "advice": return "linear-gradient(135deg, #059669, #047857)";
+    case "campaign": return "linear-gradient(135deg, #dc2626, #b91c1c)";
+    default: return "linear-gradient(135deg, #6b7280, #4b5563)";
+  }
+};
+
+const getTypeIcon = (type: string) => {
+  const iconStyle = { width: "16px", height: "16px", color: "white" };
+  switch (type) {
+    case "historical":
+      return <svg style={iconStyle} fill="currentColor" viewBox="0 0 20 20"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>;
+    case "research":
+      return <svg style={iconStyle} fill="currentColor" viewBox="0 0 20 20"><path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"/><path fillRule="evenodd" d="M4 5a2 2 0 012-2v1a1 1 0 001 1h6a1 1 0 001-1V3a2 2 0 012 2v6a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 2a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z" clipRule="evenodd"/></svg>;
+    case "advice":
+      return <svg style={iconStyle} fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd"/></svg>;
+    default:
+      return <svg style={iconStyle} fill="currentColor" viewBox="0 0 20 20"><path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3z"/></svg>;
+  }
+};
+
+// Componente SOLO para contenido expandido (SIN TIENDA) - REDISEÑADO
 const ExpandedContent = ({ categoryId }: { categoryId: string }) => {
   const data = libraryData[categoryId];
+  const [searchTerm, setSearchTerm] = useState("");
+  const [currentPage, setCurrentPage] = useState(0);
+  const itemsPerPage = 8; // 4x2 grid
   
   const getCategoryTitle = (id: string) => {
     switch (id) {
@@ -216,41 +315,152 @@ const ExpandedContent = ({ categoryId }: { categoryId: string }) => {
   const titleData = getCategoryTitle(categoryId);
   const config = getCategoryConfig(categoryId);
 
+  // Filtrar artículos según búsqueda
+  const filteredArticles = data.articles.filter(article =>
+    article.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    article.tags.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase()))
+  );
+
+  // Calcular paginación
+  const totalPages = Math.ceil(filteredArticles.length / itemsPerPage);
+  const currentArticles = filteredArticles.slice(
+    currentPage * itemsPerPage,
+    (currentPage + 1) * itemsPerPage
+  );
+
+  // Navegación de páginas
+  const nextPage = () => {
+    if (currentPage < totalPages - 1) {
+      setCurrentPage(currentPage + 1);
+    }
+  };
+
+  const prevPage = () => {
+    if (currentPage > 0) {
+      setCurrentPage(currentPage - 1);
+    }
+  };
+
   return (
     <div className="h-full flex flex-col p-8">
-      <div className="flex items-center justify-between mb-6 flex-shrink-0">
-        <div>
-          <h3 className="text-2xl font-serif font-bold text-[#7a2323]">
+      {/* Header */}
+      <div className="flex-shrink-0 mb-6">
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+        >
+          <h3 className="text-3xl font-serif font-bold text-[#7a2323] mb-2">
             {titleData.name}
           </h3>
-          <p className="text-sm text-[#5b0108]">
+          <p className="text-base text-[#5b0108] mb-4">
             {data.totalCount} {config.unitLabel} • {data.newCount} nuevos
           </p>
-        </div>
-      </div>
+        </motion.div>
 
-      <div className="flex-1 overflow-auto space-y-4">
-        <AnimatePresence>
-          {data.articles.map((article, index) => (
-            <motion.div
-              key={article.id}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: index * 0.1 }}
-            >
-              <ArticlePreview article={article} />
-            </motion.div>
-          ))}
-        </AnimatePresence>
-
-        <motion.button
-          className="w-full py-3 bg-[#C62328] text-white rounded-xl font-medium hover:bg-[#9d0d0b] transition-colors"
-          whileHover={{ scale: 1.02 }}
-          whileTap={{ scale: 0.98 }}
+        {/* Buscador */}
+        <motion.div
+          className="relative"
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ delay: 0.2, duration: 0.3 }}
         >
-          Ver todos los {config.unitLabel} ({data.totalCount})
-        </motion.button>
+          <input
+            type="text"
+            placeholder="Buscar artículos, temas, etiquetas..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-full px-4 py-3 rounded-xl border border-[#C62328]/20 focus:border-[#C62328]/40 focus:outline-none bg-white/50 backdrop-blur-sm text-[#5b0108] placeholder-[#a62c2c]/60"
+            style={{
+              boxShadow: `
+                inset 4px 4px 8px rgba(91, 1, 8, 0.06),
+                inset -4px -4px 8px rgba(255, 255, 255, 0.6)
+              `,
+            }}
+          />
+          <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+            <svg className="w-5 h-5 text-[#a62c2c]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+            </svg>
+          </div>
+        </motion.div>
       </div>
+
+      {/* Grid de contenido */}
+      <div className="flex-1 overflow-hidden">
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={currentPage}
+            className="grid grid-cols-4 gap-4 h-full"
+            initial={{ opacity: 0, x: 50 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -50 }}
+            transition={{ duration: 0.3 }}
+          >
+            {currentArticles.map((article, index) => (
+              <ContentCard key={article.id} article={article} index={index} />
+            ))}
+          </motion.div>
+        </AnimatePresence>
+      </div>
+
+      {/* Paginación */}
+      {totalPages > 1 && (
+        <motion.div
+          className="flex-shrink-0 flex items-center justify-center gap-4 mt-6"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.4, duration: 0.3 }}
+        >
+          <motion.button
+            onClick={prevPage}
+            disabled={currentPage === 0}
+            className={`p-3 rounded-full ${
+              currentPage === 0
+                ? "opacity-40 cursor-not-allowed"
+                : "hover:bg-[#C62328]/10 cursor-pointer"
+            } transition-all duration-200`}
+            whileHover={currentPage > 0 ? { scale: 1.1 } : {}}
+            whileTap={currentPage > 0 ? { scale: 0.9 } : {}}
+          >
+            <svg className="w-6 h-6 text-[#C62328]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7"/>
+            </svg>
+          </motion.button>
+
+          <div className="flex items-center gap-2">
+            {Array.from({ length: totalPages }, (_, i) => (
+              <motion.button
+                key={i}
+                onClick={() => setCurrentPage(i)}
+                className={`w-3 h-3 rounded-full transition-all duration-200 ${
+                  i === currentPage
+                    ? "bg-[#C62328] scale-125"
+                    : "bg-[#C62328]/30 hover:bg-[#C62328]/50"
+                }`}
+                whileHover={{ scale: i === currentPage ? 1.25 : 1.1 }}
+                whileTap={{ scale: 0.9 }}
+              />
+            ))}
+          </div>
+
+          <motion.button
+            onClick={nextPage}
+            disabled={currentPage === totalPages - 1}
+            className={`p-3 rounded-full ${
+              currentPage === totalPages - 1
+                ? "opacity-40 cursor-not-allowed"
+                : "hover:bg-[#C62328]/10 cursor-pointer"
+            } transition-all duration-200`}
+            whileHover={currentPage < totalPages - 1 ? { scale: 1.1 } : {}}
+            whileTap={currentPage < totalPages - 1 ? { scale: 0.9 } : {}}
+          >
+            <svg className="w-6 h-6 text-[#C62328]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7"/>
+            </svg>
+          </motion.button>
+        </motion.div>
+      )}
     </div>
   );
 };
@@ -746,35 +956,44 @@ const LibraryPage: React.FC = () => {
       animate={{ opacity: 1 }}
       transition={{ duration: 0.5 }}
     >
-      {/* Header sutil de la biblioteca - reducido el padding */}
+      {/* Header sutil de la biblioteca - centrado respecto a su columna */}
       <motion.div
         className="absolute top-0 left-0 right-0 z-10 p-4"
         initial={{ y: -20, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ delay: 0.2, duration: 0.6 }}
       >
-        <div className="flex items-center justify-center">
-          <motion.div
-            className="bg-white/30 backdrop-blur-sm rounded-2xl px-6 py-3 flex items-center gap-3"
-            style={{
-              border: "1px solid rgba(198, 35, 40, 0.2)",
-              boxShadow: `
-                8px 8px 16px rgba(91, 1, 8, 0.1),
-                -8px -8px 16px rgba(255, 255, 255, 0.6)
-              `,
-            }}
-            whileHover={{ scale: 1.02 }}
-            transition={{ duration: 0.2 }}
-          >
-            <div className="text-center">
-              <h1 className="text-lg font-serif font-bold text-[#7a2323] leading-none">
-                RED TENT
-              </h1>
-              <p className="text-xs text-[#5b0108] leading-none mt-1">
-                Conocimiento y sabiduría femenina
-              </p>
-            </div>
-          </motion.div>
+        <div className="grid grid-cols-3 gap-8 px-8">
+          {/* Columna vacía izquierda */}
+          <div></div>
+          
+          {/* Columna central con header */}
+          <div className="flex justify-center">
+            <motion.div
+              className="bg-white/30 backdrop-blur-sm rounded-2xl px-6 py-3 flex items-center gap-3"
+              style={{
+                border: "1px solid rgba(198, 35, 40, 0.2)",
+                boxShadow: `
+                  8px 8px 16px rgba(91, 1, 8, 0.1),
+                  -8px -8px 16px rgba(255, 255, 255, 0.6)
+                `,
+              }}
+              whileHover={{ scale: 1.02 }}
+              transition={{ duration: 0.2 }}
+            >
+              <div className="text-center">
+                <h1 className="text-lg font-serif font-bold text-[#7a2323] leading-none">
+                  RED TENT
+                </h1>
+                <p className="text-xs text-[#5b0108] leading-none mt-1">
+                  Conocimiento y sabiduría femenina
+                </p>
+              </div>
+            </motion.div>
+          </div>
+          
+          {/* Columna vacía derecha */}
+          <div></div>
         </div>
       </motion.div>
 
