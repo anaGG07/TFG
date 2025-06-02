@@ -242,8 +242,8 @@ const TentButton = ({
         {/* Tienda de campaña que ocupa todo el espacio */}
         <svg
           width="90%"
-          height="75%"
-          viewBox="0 0 300 240"
+          height="60%"
+          viewBox="0 0 300 220"
           className={`transition-all duration-500 ${
             isClicked ? "scale-95" : "scale-100"
           }`}
@@ -252,8 +252,8 @@ const TentButton = ({
           <path
             d={
               isHovered
-                ? "M 150 50 L 30 200 L 110 200 Z"
-                : "M 150 50 L 50 200 L 150 200 Z"
+                ? "M 150 30 L 30 180 L 110 180 Z"
+                : "M 150 30 L 50 180 L 150 180 Z"
             }
             fill={isHovered ? "rgba(198, 35, 40, 0.12)" : "rgba(198, 35, 40, 0.06)"}
             stroke="#C62328"
@@ -265,8 +265,8 @@ const TentButton = ({
           <path
             d={
               isHovered
-                ? "M 150 50 L 190 200 L 270 200 Z"
-                : "M 150 50 L 150 200 L 250 200 Z"
+                ? "M 150 30 L 190 180 L 270 180 Z"
+                : "M 150 30 L 150 180 L 250 180 Z"
             }
             fill={isHovered ? "rgba(198, 35, 40, 0.18)" : "rgba(198, 35, 40, 0.09)"}
             stroke="#C62328"
@@ -274,24 +274,27 @@ const TentButton = ({
             className="transition-all duration-500 ease-in-out drop-shadow-sm"
           />
 
-          {/* Línea central de la tienda - solo desde el pico hasta la base */}
-          <line
-            x1="150"
-            y1="50"
-            x2="150"
-            y2="200"
-            stroke="#C62328"
-            strokeWidth="3"
-            className="transition-all duration-300"
-          />
+          {/* Línea central de la tienda - solo cuando NO está en hover */}
+          {!isHovered && (
+            <line
+              x1="150"
+              y1="30"
+              x2="150"
+              y2="180"
+              stroke="#C62328"
+              strokeWidth="3"
+              className="transition-all duration-300"
+            />
+          )}
 
           {/* Interior visible cuando se abre */}
           {isHovered && (
             <g className="transition-all duration-500">
-              {/* Sin fondo interior rosa */}
-              
-              {/* Ente misterioso más grande y difuminado */}
+              {/* Clip path para mantener el círculo dentro de la tienda */}
               <defs>
+                <clipPath id={`tent-clip-${categoryId}`}>
+                  <path d="M 150 30 L 110 180 L 190 180 Z" />
+                </clipPath>
                 <radialGradient id={`glow-${categoryId}`} cx="50%" cy="50%" r="60%">
                   <stop offset="0%" stopColor="#C62328" stopOpacity="0.3" />
                   <stop offset="30%" stopColor="#C62328" stopOpacity="0.15" />
@@ -299,51 +302,55 @@ const TentButton = ({
                   <stop offset="100%" stopColor="#C62328" stopOpacity="0" />
                 </radialGradient>
               </defs>
-              <circle
-                cx="150"
-                cy="135"
-                r="50"
-                fill={`url(#glow-${categoryId})`}
-                className="animate-pulse"
-                style={{ filter: "blur(12px)" }}
-              />
-              <circle
-                cx="150"
-                cy="135"
-                r="30"
-                fill="#C62328"
-                opacity="0.2"
-                className="animate-pulse"
-                style={{ animationDelay: "0.5s", filter: "blur(6px)" }}
-              />
-              <circle
-                cx="150"
-                cy="135"
-                r="15"
-                fill="#C62328"
-                opacity="0.15"
-                className="animate-pulse"
-                style={{ animationDelay: "1s", filter: "blur(3px)" }}
-              />
+              
+              {/* Ente misterioso - clipeado dentro de la tienda */}
+              <g clipPath={`url(#tent-clip-${categoryId})`}>
+                <circle
+                  cx="150"
+                  cy="120"
+                  r="45"
+                  fill={`url(#glow-${categoryId})`}
+                  className="animate-pulse"
+                  style={{ filter: "blur(12px)" }}
+                />
+                <circle
+                  cx="150"
+                  cy="120"
+                  r="25"
+                  fill="#C62328"
+                  opacity="0.2"
+                  className="animate-pulse"
+                  style={{ animationDelay: "0.5s", filter: "blur(6px)" }}
+                />
+                <circle
+                  cx="150"
+                  cy="120"
+                  r="12"
+                  fill="#C62328"
+                  opacity="0.15"
+                  className="animate-pulse"
+                  style={{ animationDelay: "1s", filter: "blur(3px)" }}
+                />
+              </g>
             </g>
           )}
 
 
         </svg>
 
-        {/* Línea base expandible - separada un poquito más */}
+        {/* Línea base expandible - con más separación */}
         <div
-          className={`absolute bottom-[75px] left-1/2 transform -translate-x-1/2 h-1 bg-gradient-to-r from-transparent via-[#C62328] to-transparent transition-all duration-500 rounded-full ${
+          className={`absolute bottom-[60px] left-1/2 transform -translate-x-1/2 h-1 bg-gradient-to-r from-transparent via-[#C62328] to-transparent transition-all duration-500 rounded-full ${
             isHovered ? "w-5/6 opacity-100 shadow-lg" : "w-3/5 opacity-50"
           }`}
         />
 
-        {/* Título y descripción mitológicos */}
-        <div className="absolute bottom-[20px] left-1/2 transform -translate-x-1/2 text-center max-w-[200px]">
-          <p className="text-lg font-serif font-bold text-[#7a2323] whitespace-nowrap mb-1">
+        {/* Título y descripción mitológicos - con más espacio */}
+        <div className="absolute bottom-[5px] left-1/2 transform -translate-x-1/2 text-center max-w-[250px]">
+          <p className="text-xl font-serif font-bold text-[#7a2323] whitespace-nowrap mb-2">
             {titleData.name}
           </p>
-          <p className="text-xs font-sans text-[#5b0108] leading-tight">
+          <p className="text-sm font-sans text-[#5b0108] leading-tight">
             {titleData.description}
           </p>
         </div>

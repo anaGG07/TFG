@@ -35,12 +35,7 @@ const DashboardPage: React.FC = () => {
         title: "Tu Ciclo",
         component: (
           <div className="h-full flex flex-col items-center justify-center">
-            <CycleVisual
-              day={todayData?.dayNumber || 1}
-              phase={currentCycle?.currentPhase?.phase || "Menstrual"}
-              menstruationDay={currentCycle?.currentPhase?.phase === "menstrual" ? todayData?.dayNumber : undefined}
-              menstruationLength={currentCycle?.currentPhase?.phase === "menstrual" ? statistics?.averagePeriodLength || undefined : undefined}
-            />
+            <CycleVisual />
             {/* Puedes añadir aquí debajo más info textual si lo deseas */}
           </div>
         ),
