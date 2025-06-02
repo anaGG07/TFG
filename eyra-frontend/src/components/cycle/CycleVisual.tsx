@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useCycle } from '../../context/CycleContext';
 import { ContentType, CyclePhase, Content } from '../../types/domain';
 
@@ -12,6 +13,11 @@ const COLORS = {
   phaseLuteal: '#B7C1E6',
   marker: '#E57373',
   text: '#222',
+  feliz: '#FFE6A7',
+  cansada: '#D6E6F8',
+  irritable: '#FFD6D6',
+  triste: '#D6D6F8',
+  motivada: '#D6F8E6',
 };
 
 // Fases del ciclo
@@ -25,11 +31,11 @@ const PHASES = [
 const CYCLE_DAYS = 28;
 
 const MOODS = [
-  { value: 'feliz', icon: '😊', label: 'Feliz' },
-  { value: 'cansada', icon: '😴', label: 'Cansada' },
-  { value: 'irritable', icon: '😠', label: 'Irritable' },
-  { value: 'triste', icon: '😢', label: 'Triste' },
-  { value: 'motivada', icon: '💪', label: 'Motivada' },
+  { value: 'feliz', icon: '😊', label: 'Feliz', color: COLORS.feliz },
+  { value: 'cansada', icon: '😴', label: 'Cansada', color: COLORS.cansada },
+  { value: 'irritable', icon: '😠', label: 'Irritable', color: COLORS.irritable },
+  { value: 'triste', icon: '😢', label: 'Triste', color: COLORS.triste },
+  { value: 'motivada', icon: '💪', label: 'Motivada', color: COLORS.motivada },
 ];
 
 const SYMPTOM_OPTIONS = [
@@ -135,21 +141,30 @@ const CycleVisual: React.FC<CycleVisualProps> = ({ expanded = true }) => {
   const markerY = cy - r * Math.cos((angle * Math.PI) / 180);
   const pregnancy = getPregnancyProbability(phase);
 
+  // Color de fondo según emoción
+  const moodColor = MOODS.find(m => m.value === selectedMood)?.color || 'rgba(255,255,255,0.15)';
+
   // --- RESUMEN (no expandido) ---
   if (!expanded) {
     return (
-      <div style={{
-        display: 'flex',
-        flexDirection: 'row',
-        alignItems: 'center',
-        background: 'transparent',
-        borderRadius: 18,
-        padding: 18,
-        minHeight: 120,
-        width: '100%',
-        gap: 18,
-        overflow: 'hidden',
-      }}>
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, y: 20 }}
+        transition={{ duration: 0.4 }}
+        style={{
+          display: 'flex',
+          flexDirection: 'row',
+          alignItems: 'center',
+          background: 'transparent',
+          borderRadius: 18,
+          padding: 18,
+          minHeight: 120,
+          width: '100%',
+          gap: 18,
+          overflow: 'hidden',
+        }}
+      >
         <svg width={160} height={160}>
           <circle cx={cx} cy={cy} r={r} fill={COLORS.circle} stroke="#E6B7C1" strokeWidth={3} />
           {PHASES.map((p, i) => {
@@ -186,28 +201,42 @@ const CycleVisual: React.FC<CycleVisualProps> = ({ expanded = true }) => {
             Embarazo: <b>{pregnancy.text}</b>
           </div>
         </div>
-      </div>
+      </motion.div>
     );
   }
 
   // --- VISTA EXPANDIDA ---
   return (
-    <div style={{
-      display: 'flex',
-      flexDirection: 'row',
-      background: 'transparent',
-      borderRadius: 24,
-      boxShadow: '0 4px 24px #0001',
-      padding: 24,
-      gap: 32,
-      minHeight: 360,
-      width: '100%',
-      maxWidth: 900,
-      margin: '0 auto',
-      overflow: 'hidden',
-    }}>
+    <motion.div
+      initial={{ opacity: 0, scale: 0.98 }}
+      animate={{ opacity: 1, scale: 1, background: moodColor }}
+      exit={{ opacity: 0, scale: 0.98 }}
+      transition={{ duration: 0.5 }}
+      style={{
+        display: 'flex',
+        flexDirection: 'row',
+        alignItems: 'stretch',
+        background: moodColor,
+        borderRadius: 24,
+        boxShadow: '0 4px 24px #0001',
+        padding: 0,
+        minHeight: 360,
+        width: '100%',
+        maxWidth: '100%',
+        margin: '0 auto',
+        overflow: 'hidden',
+      }}
+    >
       {/* Columna Izquierda: Gráfico y datos principales */}
-      <div style={{ minWidth: 340, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+      <div style={{
+        flex: '0 0 38%',
+        minWidth: 340,
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: '32px 0 32px 32px',
+      }}>
         <svg width={300} height={300}>
           <circle cx={cx} cy={cy} r={r} fill={COLORS.circle} stroke="#E6B7C1" strokeWidth={4} />
           {PHASES.map((p, i) => {
@@ -231,24 +260,37 @@ const CycleVisual: React.FC<CycleVisualProps> = ({ expanded = true }) => {
           <ellipse cx={cx} cy={cy} rx={38} ry={24} fill="#fff" stroke="#E6B7C1" strokeWidth={2} />
           <rect x={cx - 6} y={cy + 10} width={12} height={32} rx={6} fill="#fff" stroke="#E6B7C1" strokeWidth={2} />
         </svg>
-        <div style={{ marginTop: 16, textAlign: 'center' }}>
-          <div style={{ fontSize: 22, fontWeight: 700, color: COLORS.text }}>
+        <div style={{ marginTop: 24, textAlign: 'center' }}>
+          <div style={{ fontSize: 26, fontWeight: 700, color: COLORS.text }}>
             Día {day} - {phase.charAt(0).toUpperCase() + phase.slice(1)}
           </div>
           {menstruationDay && menstruationLength && (
-            <div style={{ fontSize: 15, color: COLORS.text, marginTop: 4 }}>
+            <div style={{ fontSize: 16, color: COLORS.text, marginTop: 4 }}>
               Día {menstruationDay} de {menstruationLength} de menstruación
             </div>
           )}
-          <div style={{ fontSize: 15, color: pregnancy.color, marginTop: 8 }}>
+          <div style={{ fontSize: 16, color: pregnancy.color, marginTop: 8 }}>
             Probabilidad de embarazo: <b>{pregnancy.text}</b>
           </div>
         </div>
       </div>
       {/* Columna Derecha: Recomendaciones, mood, síntomas */}
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 18, justifyContent: 'center', overflow: 'hidden' }}>
+      <div style={{
+        flex: '1 1 0',
+        display: 'flex',
+        flexDirection: 'column',
+        gap: 18,
+        justifyContent: 'center',
+        padding: '32px 32px 32px 0',
+        overflow: 'hidden',
+      }}>
         {/* Receta */}
-        <div style={{ background: '#fff', borderRadius: 14, padding: 16, marginBottom: 8, boxShadow: '0 2px 8px #0001' }}>
+        <motion.div
+          initial={{ opacity: 0, x: 40 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: 0.1 }}
+          style={{ background: 'rgba(255,255,255,0.7)', borderRadius: 14, padding: 16, marginBottom: 8, boxShadow: '0 2px 8px #0001' }}
+        >
           <div style={{ fontWeight: 600, color: '#C62328', marginBottom: 4 }}>Receta recomendada</div>
           {recipe ? (
             <div>
@@ -258,9 +300,14 @@ const CycleVisual: React.FC<CycleVisualProps> = ({ expanded = true }) => {
           ) : (
             <div style={{ color: '#888' }}>No hay receta para hoy.</div>
           )}
-        </div>
+        </motion.div>
         {/* Ejercicio */}
-        <div style={{ background: '#fff', borderRadius: 14, padding: 16, marginBottom: 8, boxShadow: '0 2px 8px #0001' }}>
+        <motion.div
+          initial={{ opacity: 0, x: 40 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: 0.2 }}
+          style={{ background: 'rgba(255,255,255,0.7)', borderRadius: 14, padding: 16, marginBottom: 8, boxShadow: '0 2px 8px #0001' }}
+        >
           <div style={{ fontWeight: 600, color: '#C62328', marginBottom: 4 }}>Ejercicio recomendado</div>
           {exercise ? (
             <div>
@@ -270,27 +317,37 @@ const CycleVisual: React.FC<CycleVisualProps> = ({ expanded = true }) => {
           ) : (
             <div style={{ color: '#888' }}>No hay ejercicio para hoy.</div>
           )}
-        </div>
+        </motion.div>
         {/* Frase de ánimo/conocimiento */}
-        <div style={{ background: '#fff', borderRadius: 14, padding: 16, marginBottom: 8, boxShadow: '0 2px 8px #0001' }}>
+        <motion.div
+          initial={{ opacity: 0, x: 40 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: 0.3 }}
+          style={{ background: 'rgba(255,255,255,0.7)', borderRadius: 14, padding: 16, marginBottom: 8, boxShadow: '0 2px 8px #0001' }}
+        >
           <div style={{ fontWeight: 600, color: '#C62328', marginBottom: 4 }}>Frase para hoy</div>
           {phrase ? (
             <div style={{ fontSize: 15, color: '#444' }}>{phrase.summary}</div>
           ) : (
             <div style={{ color: '#888' }}>No hay frase para hoy.</div>
           )}
-        </div>
+        </motion.div>
         {/* Estado de ánimo */}
-        <div style={{ background: '#fff', borderRadius: 14, padding: 16, marginBottom: 8, boxShadow: '0 2px 8px #0001' }}>
+        <motion.div
+          initial={{ opacity: 0, x: 40 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: 0.4 }}
+          style={{ background: 'rgba(255,255,255,0.7)', borderRadius: 14, padding: 16, marginBottom: 8, boxShadow: '0 2px 8px #0001' }}
+        >
           <div style={{ fontWeight: 600, color: '#C62328', marginBottom: 4 }}>¿Cómo te sientes hoy?</div>
           <div style={{ display: 'flex', gap: 10, marginTop: 6 }}>
             {MOODS.map(mood => (
-              <button
+              <motion.button
                 key={mood.value}
                 onClick={e => handleMoodSelect(mood.value, e)}
                 style={{
                   fontSize: 28,
-                  background: selectedMood === mood.value ? '#F8D9D6' : 'transparent',
+                  background: selectedMood === mood.value ? mood.color : 'transparent',
                   border: selectedMood === mood.value ? '2px solid #C62328' : '2px solid transparent',
                   borderRadius: 10,
                   cursor: 'pointer',
@@ -299,18 +356,25 @@ const CycleVisual: React.FC<CycleVisualProps> = ({ expanded = true }) => {
                 }}
                 disabled={saving}
                 aria-label={mood.label}
+                whileTap={{ scale: 0.9 }}
+                whileHover={{ scale: 1.1 }}
               >
                 {mood.icon}
-              </button>
+              </motion.button>
             ))}
           </div>
-        </div>
+        </motion.div>
         {/* Síntomas */}
-        <div style={{ background: '#fff', borderRadius: 14, padding: 16, boxShadow: '0 2px 8px #0001' }}>
+        <motion.div
+          initial={{ opacity: 0, x: 40 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: 0.5 }}
+          style={{ background: 'rgba(255,255,255,0.7)', borderRadius: 14, padding: 16, boxShadow: '0 2px 8px #0001' }}
+        >
           <div style={{ fontWeight: 600, color: '#C62328', marginBottom: 4 }}>Síntomas</div>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
             {SYMPTOM_OPTIONS.map(symptom => (
-              <button
+              <motion.button
                 key={symptom}
                 onClick={e => handleSymptomToggle(symptom, e)}
                 style={{
@@ -324,14 +388,16 @@ const CycleVisual: React.FC<CycleVisualProps> = ({ expanded = true }) => {
                   transition: 'all 0.2s',
                 }}
                 disabled={saving}
+                whileTap={{ scale: 0.95 }}
+                whileHover={{ scale: 1.05 }}
               >
                 {symptom}
-              </button>
+              </motion.button>
             ))}
           </div>
-        </div>
+        </motion.div>
       </div>
-    </div>
+    </motion.div>
   );
 };
 
