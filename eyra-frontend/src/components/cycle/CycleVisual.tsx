@@ -213,19 +213,6 @@ const CycleVisual: React.FC<CycleVisualProps> = ({ expanded = true, onMoodColorC
   const markerY = cy - r * Math.cos((angle * Math.PI) / 180);
   const pregnancy = getPregnancyProbability(phase);
 
-  // Animación de órbita para el óvulo
-  const [orbitAngle, setOrbitAngle] = useState(angle);
-  useEffect(() => {
-    if (!expanded) return;
-    let raf: number;
-    const animate = () => {
-      setOrbitAngle((prev) => (prev + 0.5) % 360);
-      raf = requestAnimationFrame(animate);
-    };
-    raf = requestAnimationFrame(animate);
-    return () => cancelAnimationFrame(raf);
-  }, [expanded]);
-
   // Color de fondo según emoción
   const moodObj = MOODS.find(m => m.value === selectedMood);
   const moodColor = moodObj ? moodObj.color : 'transparent';
@@ -302,7 +289,7 @@ const CycleVisual: React.FC<CycleVisualProps> = ({ expanded = true, onMoodColorC
         borderRadius: 24,
         boxShadow: 'none',
         padding: 0,
-        minHeight: 360,
+        minHeight: 480,
         width: '100%',
         maxWidth: '100%',
         margin: '0 auto',
@@ -311,48 +298,66 @@ const CycleVisual: React.FC<CycleVisualProps> = ({ expanded = true, onMoodColorC
     >
       {/* Columna 1: SVG útero + óvulo animado + resumen */}
       <div style={{
-        flex: '0 0 32%',
-        minWidth: 320,
+        flex: '0 0 36%',
+        minWidth: 380,
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
         justifyContent: 'flex-start',
         position: 'relative',
-        padding: '48px 0 32px 32px',
+        padding: '64px 0 48px 32px',
+        height: '100%',
       }}>
         {/* SVG útero grande y centrado */}
-        <div style={{ position: 'relative', width: 180, height: 180, marginBottom: 12 }}>
-          <img src="/img/UteroRojo.svg" alt="Útero central del ciclo" style={{ position: 'absolute', left: '50%', top: 0, transform: 'translateX(-50%)', width: 120, height: 80, zIndex: 2, display: 'block' }} />
-          {/* Óvulo orbitando animado */}
-          <svg width={180} height={120} style={{ position: 'absolute', left: 0, top: 0, zIndex: 1, pointerEvents: 'none' }}>
-            <circle cx={90} cy={60} r={70} fill="none" stroke="#E6B7C1" strokeWidth={2} />
-            <motion.circle
-              cx={90 + 70 * Math.sin((orbitAngle * Math.PI) / 180)}
-              cy={60 - 70 * Math.cos((orbitAngle * Math.PI) / 180)}
-              r={13}
-              fill={COLORS.marker}
-              stroke="#fff"
-              strokeWidth={3}
-              animate={{
-                filter: [
-                  'drop-shadow(0 0 0px #E57373)',
-                  'drop-shadow(0 0 8px #E57373)',
-                  'drop-shadow(0 0 0px #E57373)'
-                ],
-              }}
-              transition={{ repeat: Infinity, duration: 2, ease: 'linear' }}
-            />
+        <div style={{ position: 'relative', width: 240, height: 240, marginBottom: 12, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <img src="/img/UteroRojo.svg" alt="Útero central del ciclo" style={{ position: 'absolute', left: '50%', top: 24, transform: 'translateX(-50%)', width: 140, height: 90, zIndex: 2, display: 'block' }} />
+          {/* Círculo base */}
+          <svg width={240} height={180} style={{ position: 'absolute', left: 0, top: 0, zIndex: 1, pointerEvents: 'none' }}>
+            <circle cx={120} cy={100} r={90} fill="none" stroke="#E6B7C1" strokeWidth={2} />
           </svg>
+          {/* Óvulo con animación de pulso */}
+          <motion.div
+            style={{ position: 'absolute', left: '50%', top: 100, transform: 'translate(-50%, -50%)', zIndex: 3 }}
+          >
+            <motion.div
+              initial={{ scale: 1, opacity: 0.5 }}
+              animate={{ scale: 2.2, opacity: 0 }}
+              transition={{ duration: 1.6, repeat: Infinity, ease: 'easeOut' }}
+              style={{
+                position: 'absolute',
+                left: '50%',
+                top: '50%',
+                width: 56,
+                height: 56,
+                borderRadius: '50%',
+                background: '#E57373',
+                filter: 'blur(2px)',
+                transform: 'translate(-50%, -50%)',
+                zIndex: 2,
+              }}
+            />
+            <div
+              style={{
+                width: 28,
+                height: 28,
+                borderRadius: '50%',
+                background: COLORS.marker,
+                border: '3px solid #fff',
+                boxShadow: '0 2px 12px 0 #E5737355',
+                zIndex: 3,
+              }}
+            />
+          </motion.div>
         </div>
         {/* Resumen debajo, bien separado */}
-        <div style={{ marginTop: 120, textAlign: 'center', zIndex: 2, width: '100%' }}>
-          <div style={{ fontSize: 44, fontWeight: 900, color: COLORS.text, letterSpacing: 0.2, marginBottom: 0 }}>
+        <div style={{ marginTop: 80, textAlign: 'center', zIndex: 2, width: '100%' }}>
+          <div style={{ fontSize: 54, fontWeight: 900, color: COLORS.text, letterSpacing: 0.2, marginBottom: 0 }}>
             {day}
           </div>
-          <div style={{ fontSize: 22, fontWeight: 700, color: '#C62328', marginBottom: 2 }}>
+          <div style={{ fontSize: 28, fontWeight: 700, color: '#C62328', marginBottom: 2 }}>
             {phase.charAt(0).toUpperCase() + phase.slice(1)}
           </div>
-          <div style={{ fontSize: 15, color: pregnancy.color, marginTop: 8, fontWeight: 600 }}>
+          <div style={{ fontSize: 17, color: pregnancy.color, marginTop: 8, fontWeight: 600 }}>
             Probabilidad de embarazo: <span style={{ fontWeight: 700 }}>{pregnancy.text}</span>
           </div>
         </div>
