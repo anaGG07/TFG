@@ -32,41 +32,41 @@ const PHASES = [
 const CYCLE_DAYS = 28;
 
 // Iconos SVG para emociones (estilo CircularNavigation)
-const MoodIcons: Record<string, React.ReactElement> = {
-  feliz: (
-    <svg width="32" height="32" viewBox="0 0 32 32" fill="none" stroke="white" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+const MoodIcons: Record<string, (color: string) => React.ReactElement> = {
+  feliz: (color) => (
+    <svg width="32" height="32" viewBox="0 0 32 32" fill="none" stroke={color} strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
       <circle cx="16" cy="16" r="13" />
       <path d="M11 20c1.5 2 7.5 2 9 0" />
-      <circle cx="12" cy="14" r="1.2" fill="white" />
-      <circle cx="20" cy="14" r="1.2" fill="white" />
+      <circle cx="12" cy="14" r="1.2" fill={color} />
+      <circle cx="20" cy="14" r="1.2" fill={color} />
     </svg>
   ),
-  cansada: (
-    <svg width="32" height="32" viewBox="0 0 32 32" fill="none" stroke="white" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+  cansada: (color) => (
+    <svg width="32" height="32" viewBox="0 0 32 32" fill="none" stroke={color} strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
       <circle cx="16" cy="16" r="13" />
       <path d="M11 22c2-2 8-2 10 0" />
       <path d="M12 14l2 2m0-2l-2 2" />
       <path d="M20 14l2 2m0-2l-2 2" />
     </svg>
   ),
-  irritable: (
-    <svg width="32" height="32" viewBox="0 0 32 32" fill="none" stroke="white" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+  irritable: (color) => (
+    <svg width="32" height="32" viewBox="0 0 32 32" fill="none" stroke={color} strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
       <circle cx="16" cy="16" r="13" />
       <path d="M11 22c2-2 8-2 10 0" />
       <path d="M12 14c0-1 2-1 2 0" />
       <path d="M20 14c0-1 2-1 2 0" />
     </svg>
   ),
-  triste: (
-    <svg width="32" height="32" viewBox="0 0 32 32" fill="none" stroke="white" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+  triste: (color) => (
+    <svg width="32" height="32" viewBox="0 0 32 32" fill="none" stroke={color} strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
       <circle cx="16" cy="16" r="13" />
       <path d="M11 22c1.5-2 7.5-2 9 0" />
       <path d="M12 14c0-1 2-1 2 0" />
       <path d="M20 14c0-1 2-1 2 0" />
     </svg>
   ),
-  motivada: (
-    <svg width="32" height="32" viewBox="0 0 32 32" fill="none" stroke="white" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+  motivada: (color) => (
+    <svg width="32" height="32" viewBox="0 0 32 32" fill="none" stroke={color} strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
       <circle cx="16" cy="16" r="13" />
       <path d="M10 20c2-4 10-4 12 0" />
       <path d="M16 12v6" />
@@ -77,27 +77,27 @@ const MoodIcons: Record<string, React.ReactElement> = {
 };
 
 // Iconos SVG para síntomas (estilo lineal)
-const SymptomIcons: Record<string, React.ReactElement> = {
-  'Dolor abdominal': (
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><ellipse cx="12" cy="12" rx="8" ry="6" /><path d="M8 12c1-2 7-2 8 0" /></svg>
+const SymptomIcons: Record<string, (color: string) => React.ReactElement> = {
+  'Dolor abdominal': (color) => (
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><ellipse cx="12" cy="12" rx="8" ry="6" /><path d="M8 12c1-2 7-2 8 0" /></svg>
   ),
-  'Fatiga': (
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="4" y="10" width="16" height="8" rx="4" /><path d="M8 14h8" /></svg>
+  'Fatiga': (color) => (
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="4" y="10" width="16" height="8" rx="4" /><path d="M8 14h8" /></svg>
   ),
-  'Dolor de cabeza': (
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="8" /><path d="M12 8v4l2 2" /></svg>
+  'Dolor de cabeza': (color) => (
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="8" /><path d="M12 8v4l2 2" /></svg>
   ),
-  'Hinchazón': (
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><ellipse cx="12" cy="14" rx="7" ry="4" /><ellipse cx="12" cy="10" rx="4" ry="2" /></svg>
+  'Hinchazón': (color) => (
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><ellipse cx="12" cy="14" rx="7" ry="4" /><ellipse cx="12" cy="10" rx="4" ry="2" /></svg>
   ),
-  'Náuseas': (
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="8" /><path d="M8 16c2-2 6-2 8 0" /><path d="M10 10h.01" /><path d="M14 10h.01" /></svg>
+  'Náuseas': (color) => (
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="8" /><path d="M8 16c2-2 6-2 8 0" /><path d="M10 10h.01" /><path d="M14 10h.01" /></svg>
   ),
-  'Sensibilidad en senos': (
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><ellipse cx="8" cy="14" rx="3" ry="2" /><ellipse cx="16" cy="14" rx="3" ry="2" /><path d="M8 14v2" /><path d="M16 14v2" /></svg>
+  'Sensibilidad en senos': (color) => (
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><ellipse cx="8" cy="14" rx="3" ry="2" /><ellipse cx="16" cy="14" rx="3" ry="2" /><path d="M8 14v2" /><path d="M16 14v2" /></svg>
   ),
-  'Cambios de humor': (
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="8" /><path d="M8 16c1.5-2 6.5-2 8 0" /><path d="M10 10h.01" /><path d="M14 10h.01" /></svg>
+  'Cambios de humor': (color) => (
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="8" /><path d="M8 16c1.5-2 6.5-2 8 0" /><path d="M10 10h.01" /><path d="M14 10h.01" /></svg>
   ),
 };
 
@@ -303,16 +303,16 @@ const CycleVisual: React.FC<CycleVisualProps> = ({ expanded = true }) => {
   return (
     <motion.div
       initial={{ opacity: 0, scale: 0.98 }}
-      animate={{ opacity: 1, scale: 1, background: moodColor }}
+      animate={{ opacity: 1, scale: 1 }}
       exit={{ opacity: 0, scale: 0.98 }}
       transition={{ duration: 0.5 }}
       style={{
         display: 'flex',
         flexDirection: 'row',
         alignItems: 'stretch',
-        background: moodColor,
-        borderRadius: 24,
-        boxShadow: '0 4px 24px #0001',
+        background: 'transparent',
+        borderRadius: 0,
+        boxShadow: 'none',
         padding: 0,
         minHeight: 360,
         width: '100%',
@@ -321,40 +321,40 @@ const CycleVisual: React.FC<CycleVisualProps> = ({ expanded = true }) => {
         overflow: 'hidden',
       }}
     >
-      {/* Columna Izquierda: Gráfico y datos principales */}
+      {/* Columna 1: SVG útero + aura + óvulo */}
       <div style={{
-        flex: '0 0 38%',
-        minWidth: 340,
+        flex: '0 0 32%',
+        minWidth: 320,
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
         justifyContent: 'center',
+        position: 'relative',
         padding: '32px 0 32px 32px',
       }}>
-        <svg width={300} height={300}>
-          <circle cx={cx} cy={cy} r={r} fill={COLORS.circle} stroke="#E6B7C1" strokeWidth={4} />
-          {PHASES.map((p, i) => {
-            const startAngle = (i * 360) / 4;
-            const endAngle = ((i + 1) * 360) / 4;
-            const largeArc = endAngle - startAngle > 180 ? 1 : 0;
-            const x1 = cx + r * Math.sin((startAngle * Math.PI) / 180);
-            const y1 = cy - r * Math.cos((startAngle * Math.PI) / 180);
-            const x2 = cx + r * Math.sin((endAngle * Math.PI) / 180);
-            const y2 = cy - r * Math.cos((endAngle * Math.PI) / 180);
-            return (
-              <path
-                key={p.name}
-                d={`M${cx},${cy} L${x1},${y1} A${r},${r} 0 ${largeArc} 1 ${x2},${y2} Z`}
-                fill={p.color}
-                opacity={0.13}
-              />
-            );
-          })}
-          <circle cx={markerX} cy={markerY} r={12} fill={COLORS.marker} stroke="#fff" strokeWidth={3} />
-          <ellipse cx={cx} cy={cy} rx={38} ry={24} fill="#fff" stroke="#E6B7C1" strokeWidth={2} />
-          <rect x={cx - 6} y={cy + 10} width={12} height={32} rx={6} fill="#fff" stroke="#E6B7C1" strokeWidth={2} />
+        {/* Aura circular */}
+        <div style={{
+          position: 'absolute',
+          left: '50%',
+          top: '50%',
+          transform: 'translate(-50%, -50%)',
+          width: 220,
+          height: 220,
+          borderRadius: '50%',
+          background: 'radial-gradient(circle, #F8D9D6 60%, #e7e0d5 100%)',
+          boxShadow: '0 4px 24px 0 #e7b7b7a0, 0 0 0 10px #fff2',
+          zIndex: 0,
+          filter: 'blur(1.5px)',
+        }} />
+        {/* SVG útero */}
+        <img src="/img/UteroRojo.svg" alt="Útero central del ciclo" style={{ position: 'relative', width: 120, height: 80, zIndex: 2, marginBottom: 12, marginTop: 12, display: 'block' }} />
+        {/* Óvulo orbitando */}
+        <svg width={220} height={220} style={{ position: 'absolute', left: '50%', top: '50%', transform: 'translate(-50%, -50%)', zIndex: 1, pointerEvents: 'none' }}>
+          <circle cx={110} cy={110} r={100} fill="none" stroke="#E6B7C1" strokeWidth={2} />
+          <circle cx={110 + 100 * Math.sin((angle * Math.PI) / 180)} cy={110 - 100 * Math.cos((angle * Math.PI) / 180)} r={13} fill={COLORS.marker} stroke="#fff" strokeWidth={3} />
         </svg>
-        <div style={{ marginTop: 24, textAlign: 'center' }}>
+        {/* Día y fase debajo */}
+        <div style={{ marginTop: 24, textAlign: 'center', zIndex: 2 }}>
           <div style={{ fontSize: 26, fontWeight: 700, color: COLORS.text }}>
             Día {day} - {phase.charAt(0).toUpperCase() + phase.slice(1)}
           </div>
@@ -368,22 +368,23 @@ const CycleVisual: React.FC<CycleVisualProps> = ({ expanded = true }) => {
           </div>
         </div>
       </div>
-      {/* Columna Derecha: Recomendaciones, mood, síntomas */}
+      {/* Columna 2: Receta, Ejercicio, Frase */}
       <div style={{
-        flex: '1 1 0',
+        flex: '0 0 28%',
+        minWidth: 260,
         display: 'flex',
         flexDirection: 'column',
         gap: 18,
-        justifyContent: 'center',
-        padding: '32px 32px 32px 0',
-        overflow: 'hidden',
+        justifyContent: 'flex-start',
+        alignItems: 'stretch',
+        padding: '32px 12px 32px 12px',
       }}>
         {/* Receta */}
         <motion.div
           initial={{ opacity: 0, x: 40 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ delay: 0.1 }}
-          style={{ background: 'rgba(255,255,255,0.7)', borderRadius: 14, padding: 16, marginBottom: 8, boxShadow: '0 2px 8px #0001' }}
+          style={{ background: 'transparent', borderRadius: 0, padding: 0, marginBottom: 0, boxShadow: 'none' }}
         >
           <div style={{ fontWeight: 600, color: '#C62328', marginBottom: 4 }}>Receta recomendada</div>
           {recipe ? (
@@ -400,7 +401,7 @@ const CycleVisual: React.FC<CycleVisualProps> = ({ expanded = true }) => {
           initial={{ opacity: 0, x: 40 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ delay: 0.2 }}
-          style={{ background: 'rgba(255,255,255,0.7)', borderRadius: 14, padding: 16, marginBottom: 8, boxShadow: '0 2px 8px #0001' }}
+          style={{ background: 'transparent', borderRadius: 0, padding: 0, marginBottom: 0, boxShadow: 'none' }}
         >
           <div style={{ fontWeight: 600, color: '#C62328', marginBottom: 4 }}>Ejercicio recomendado</div>
           {exercise ? (
@@ -417,7 +418,7 @@ const CycleVisual: React.FC<CycleVisualProps> = ({ expanded = true }) => {
           initial={{ opacity: 0, x: 40 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ delay: 0.3 }}
-          style={{ background: 'rgba(255,255,255,0.7)', borderRadius: 14, padding: 16, marginBottom: 8, boxShadow: '0 2px 8px #0001' }}
+          style={{ background: 'transparent', borderRadius: 0, padding: 0, marginBottom: 0, boxShadow: 'none' }}
         >
           <div style={{ fontWeight: 600, color: '#C62328', marginBottom: 4 }}>Frase para hoy</div>
           {phrase ? (
@@ -426,73 +427,82 @@ const CycleVisual: React.FC<CycleVisualProps> = ({ expanded = true }) => {
             <div style={{ color: '#888' }}>No hay frase para hoy.</div>
           )}
         </motion.div>
-        {/* Estado de ánimo */}
-        <motion.div
-          initial={{ opacity: 0, x: 40 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.4 }}
-          style={{ background: 'rgba(255,255,255,0.7)', borderRadius: 14, padding: 16, marginBottom: 8, boxShadow: '0 2px 8px #0001' }}
-        >
-          <div style={{ fontWeight: 600, color: '#C62328', marginBottom: 4 }}>¿Cómo te sientes hoy?</div>
-          <div style={{ display: 'flex', gap: 10, marginTop: 6 }}>
-            {MOODS.map(mood => (
-              <motion.button
-                key={mood.value}
-                onClick={e => handleMoodSelect(mood.value, e)}
-                style={{
-                  fontSize: 28,
-                  background: selectedMood === mood.value ? mood.color : 'transparent',
-                  border: selectedMood === mood.value ? '2px solid #C62328' : '2px solid transparent',
-                  borderRadius: 10,
-                  cursor: 'pointer',
-                  transition: 'all 0.2s',
-                  padding: 4,
-                }}
-                disabled={saving}
-                aria-label={mood.label}
-                whileTap={{ scale: 0.9 }}
-                whileHover={{ scale: 1.1 }}
-              >
-                <div style={{ width: 44, height: 44, borderRadius: '50%', background: selectedMood === mood.value ? mood.color : 'rgba(198,35,40,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'background 0.2s' }}>
-                  {MoodIcons[mood.value]}
-                </div>
-              </motion.button>
-            ))}
-          </div>
-        </motion.div>
+      </div>
+      {/* Columna 3: Síntomas (arriba, más espacio), Moods (debajo) */}
+      <div style={{
+        flex: '1 1 0',
+        display: 'flex',
+        flexDirection: 'column',
+        gap: 18,
+        justifyContent: 'flex-start',
+        alignItems: 'stretch',
+        padding: '32px 32px 32px 12px',
+        overflow: 'hidden',
+      }}>
         {/* Síntomas */}
         <motion.div
           initial={{ opacity: 0, x: 40 }}
           animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.5 }}
-          style={{ background: 'rgba(255,255,255,0.7)', borderRadius: 14, padding: 16, boxShadow: '0 2px 8px #0001' }}
+          transition={{ delay: 0.4 }}
+          style={{ background: 'transparent', borderRadius: 0, padding: 0, boxShadow: 'none', marginBottom: 0 }}
         >
           <div style={{ fontWeight: 600, color: '#C62328', marginBottom: 4 }}>Síntomas</div>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
-            {SYMPTOM_OPTIONS.map(symptom => (
-              <motion.button
-                key={symptom}
-                onClick={e => handleSymptomToggle(symptom, e)}
-                style={{
-                  fontSize: 14,
-                  background: selectedSymptoms.includes(symptom) ? '#F8D9D6' : 'transparent',
-                  border: selectedSymptoms.includes(symptom) ? '2px solid #C62328' : '2px solid #eee',
-                  borderRadius: 8,
-                  cursor: 'pointer',
-                  padding: '4px 10px',
-                  color: '#222',
-                  transition: 'all 0.2s',
-                }}
-                disabled={saving}
-                whileTap={{ scale: 0.95 }}
-                whileHover={{ scale: 1.05 }}
-              >
-                <div style={{ width: 36, height: 36, borderRadius: '50%', background: selectedSymptoms.includes(symptom) ? '#F8D9D6' : 'rgba(198,35,40,0.10)', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'background 0.2s' }}>
-                  {SymptomIcons[symptom]}
-                </div>
-                <span style={{ marginLeft: 6, color: '#222', fontSize: 13 }}>{symptom}</span>
-              </motion.button>
-            ))}
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 12 }}>
+            {SYMPTOM_OPTIONS.map(symptom => {
+              // Color pastel e intenso para cada icono
+              const pastel = '#F8D9D6';
+              const intenso = '#C62328';
+              return (
+                <motion.button
+                  key={symptom}
+                  onClick={e => handleSymptomToggle(symptom, e)}
+                  style={{
+                    display: 'flex', alignItems: 'center', border: 'none', background: 'none', cursor: 'pointer', padding: 0, margin: 0,
+                  }}
+                  disabled={saving}
+                  whileTap={{ scale: 0.95 }}
+                  whileHover={{ scale: 1.05 }}
+                >
+                  <div style={{ width: 38, height: 38, borderRadius: '50%', background: selectedSymptoms.includes(symptom) ? pastel : '#f3e6e6', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'background 0.2s' }}>
+                    {SymptomIcons[symptom](intenso)}
+                  </div>
+                  <span style={{ marginLeft: 8, color: '#222', fontSize: 14 }}>{symptom}</span>
+                </motion.button>
+              );
+            })}
+          </div>
+        </motion.div>
+        {/* Estado de ánimo */}
+        <motion.div
+          initial={{ opacity: 0, x: 40 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: 0.5 }}
+          style={{ background: 'transparent', borderRadius: 0, padding: 0, boxShadow: 'none', marginBottom: 0 }}
+        >
+          <div style={{ fontWeight: 600, color: '#C62328', marginBottom: 4 }}>¿Cómo te sientes hoy?</div>
+          <div style={{ display: 'flex', gap: 14, marginTop: 6 }}>
+            {MOODS.map(mood => {
+              // Color pastel e intenso para cada icono
+              const pastel = '#F8D9D6';
+              const intenso = '#C62328';
+              return (
+                <motion.button
+                  key={mood.value}
+                  onClick={e => handleMoodSelect(mood.value, e)}
+                  style={{
+                    border: 'none', background: 'none', cursor: 'pointer', padding: 0, margin: 0,
+                  }}
+                  disabled={saving}
+                  aria-label={mood.label}
+                  whileTap={{ scale: 0.9 }}
+                  whileHover={{ scale: 1.1 }}
+                >
+                  <div style={{ width: 44, height: 44, borderRadius: '50%', background: selectedMood === mood.value ? pastel : '#f3e6e6', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'background 0.2s' }}>
+                    {MoodIcons[mood.value](intenso)}
+                  </div>
+                </motion.button>
+              );
+            })}
           </div>
         </motion.div>
       </div>

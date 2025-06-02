@@ -242,7 +242,45 @@ const DraggableGrid: React.FC<DraggableGridProps> = ({
                         {item.title}
                       </h4>
                     )}
-                    {isLibrary && item.component}
+                    {/* Para la librería: cuando está en la fila horizontal, solo mostrar texto */}
+                    {isLibrary && (
+                      <div className="w-full h-full flex flex-col items-center justify-center px-2">
+                        {/* Línea decorativa */}
+                        <div className="h-0.5 bg-gradient-to-r from-transparent via-[#C62328] to-transparent w-3/5 opacity-60 rounded-full mb-2" />
+                        
+                        {/* Nombre mitológico */}
+                        <p className="text-sm font-serif font-bold text-[#7a2323] mb-1 truncate text-center">
+                          {(() => {
+                            switch (item.id) {
+                              case "history": return "Mnemósine";
+                              case "science": return "Atenea";
+                              case "phases": return "Selene";
+                              case "inclusivity": return "Artemisa";
+                              case "maternity": return "Deméter";
+                              case "wisdom": return "Hestia";
+                              default: return "Refugio";
+                            }
+                          })()
+                        }
+                        </p>
+                        
+                        {/* Descripción breve */}
+                        <p className="text-xs font-sans text-[#5b0108] leading-tight line-clamp-2 text-center">
+                          {(() => {
+                            switch (item.id) {
+                              case "history": return "Historias ancestrales";
+                              case "science": return "Papers científicos";
+                              case "phases": return "Mitología y creencias";
+                              case "inclusivity": return "Productos naturales";
+                              case "maternity": return "Rituales y ceremonias";
+                              case "wisdom": return "Sabiduría ancestral";
+                              default: return "Conocimiento sagrado";
+                            }
+                          })()
+                        }
+                        </p>
+                      </div>
+                    )}
                   </div>
                 </motion.div>
               ))}
