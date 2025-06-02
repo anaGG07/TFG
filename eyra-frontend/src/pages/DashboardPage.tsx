@@ -3,6 +3,7 @@ import React, { useMemo } from "react";
 import { useAuth } from "../context/AuthContext";
 import { useDashboardData } from "../hooks/useDashboardData";
 import DraggableGrid from "../components/DraggableGrid";
+import { CycleVisual } from "../components/cycle";
 
 const DashboardPage: React.FC = () => {
   const { user } = useAuth();
@@ -101,63 +102,14 @@ const DashboardPage: React.FC = () => {
         id: "cycle",
         title: "Tu Ciclo",
         component: (
-          <div className="h-full flex flex-col">
-            <div className="flex items-center justify-center mb-6">
-              <div
-                className="w-16 h-16 rounded-full flex items-center justify-center"
-                style={{
-                  background: "bg-secondary",
-                  boxShadow: `
-                  inset 4px 4px 8px rgba(91, 1, 8, 0.3),
-                  inset -4px -4px 8px rgba(255, 108, 92, 0.2)
-                `,
-                }}
-              >
-                <span className="text-2xl">🌸</span>
-              </div>
-            </div>
-            <div className="flex-1 space-y-4">
-              <p className="text-primary-dark text-center text-sm leading-relaxed font-medium">
-                {currentCycle && currentCycle.currentPhase
-                  ? "Información de tu ciclo actual"
-                  : "Configura tu ciclo menstrual"}
-              </p>
-              <div
-                className="rounded-xl p-4 border"
-                style={{
-                  background: "bg-gradient-to-br from-primary to-primary-dark",
-                  border: "1px solid rgba(198, 35, 40, 0.15)",
-                  boxShadow: `
-                  inset 2px 2px 4px rgba(198, 35, 40, 0.05),
-                  inset -2px -2px 4px rgba(255, 255, 255, 0.8)
-                `,
-                }}
-              >
-                <div className="space-y-2">
-                  <div className="flex items-center space-x-3">
-                    <div
-                      className="w-3 h-3 rounded-full"
-                      style={{
-                        background: "bg-secondary",
-                      }}
-                    ></div>
-                    <p className="text-xs text-primary-dark font-semibold">
-                      Estado: {isLoading ? "Cargando..." : getCycleStatus()}
-                    </p>
-                  </div>
-                  {currentCycle && currentCycle.currentPhase && (
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs text-primary-dark">
-                        Próximo período:
-                      </span>
-                      <span className="text-xs text-primary font-bold">
-                        {getNextPeriodInfo()}
-                      </span>
-                    </div>
-                  )}
-                </div>
-              </div>
-            </div>
+          <div className="h-full flex flex-col items-center justify-center">
+            <CycleVisual
+              day={todayData?.dayNumber || 1}
+              phase={currentCycle?.currentPhase?.phase || "Menstrual"}
+              menstruationDay={currentCycle?.currentPhase?.phase === "menstrual" ? todayData?.dayNumber : undefined}
+              menstruationLength={currentCycle?.currentPhase?.phase === "menstrual" ? statistics?.averagePeriodLength || undefined : undefined}
+            />
+            {/* Puedes añadir aquí debajo más info textual si lo deseas */}
           </div>
         ),
       },
