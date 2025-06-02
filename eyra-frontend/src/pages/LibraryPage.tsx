@@ -188,7 +188,27 @@ const TentButton = ({
     onClick();
   };
 
+  const getCategoryTitle = (id: string) => {
+    switch (id) {
+      case "history":
+        return "Mnemósine"; // Diosa griega de la memoria
+      case "science":
+        return "Atenea"; // Diosa griega de la sabiduría y conocimiento
+      case "phases":
+        return "Selene"; // Diosa griega de la luna y los ciclos
+      case "inclusivity":
+        return "Iris"; // Diosa griega del arco iris, diversidad y mensajes
+      case "maternity":
+        return "Deméter"; // Diosa griega de la fertilidad y maternidad
+      case "wisdom":
+        return "Hestia"; // Diosa griega del hogar y la sabiduría doméstica
+      default:
+        return "Refugio";
+    }
+  };
+
   const data = libraryData[categoryId];
+  const title = getCategoryTitle(categoryId);
 
   return (
     <div className="relative w-full h-full flex items-center justify-center library-tent-container">
@@ -244,58 +264,50 @@ const TentButton = ({
                 className="transition-all duration-500"
               />
               
-              {/* Contenido interior místico */}
+              {/* Foco central difuminado con pulso */}
+              <defs>
+                <radialGradient id={`glow-${categoryId}`} cx="50%" cy="50%" r="50%">
+                  <stop offset="0%" stopColor="#C62328" stopOpacity="0.8" />
+                  <stop offset="70%" stopColor="#C62328" stopOpacity="0.3" />
+                  <stop offset="100%" stopColor="#C62328" stopOpacity="0" />
+                </radialGradient>
+              </defs>
               <circle
                 cx="150"
-                cy="140"
-                r="10"
-                fill="#C62328"
-                opacity="0.5"
+                cy="120"
+                r="25"
+                fill={`url(#glow-${categoryId})`}
                 className="animate-pulse"
+                style={{ filter: "blur(3px)" }}
               />
               <circle
-                cx="125"
-                cy="165"
-                r="6"
+                cx="150"
+                cy="120"
+                r="15"
                 fill="#C62328"
-                opacity="0.4"
+                opacity="0.6"
                 className="animate-pulse"
-                style={{ animationDelay: "0.3s" }}
-              />
-              <circle
-                cx="175"
-                cy="165"
-                r="6"
-                fill="#C62328"
-                opacity="0.4"
-                className="animate-pulse"
-                style={{ animationDelay: "0.6s" }}
+                style={{ animationDelay: "0.5s" }}
               />
             </g>
           )}
 
-          {/* Línea de apertura central */}
-          {isHovered && (
-            <line
-              x1="150"
-              y1="40"
-              x2="150"
-              y2="200"
-              stroke="#C62328"
-              strokeWidth="3"
-              opacity="0.7"
-              className="transition-all duration-300 tent-dash-animation"
-              strokeDasharray="5,5"
-            />
-          )}
+
         </svg>
 
-        {/* Línea base expandible */}
+        {/* Línea base expandible - más pegada a la tienda */}
         <div
-          className={`absolute bottom-6 left-1/2 transform -translate-x-1/2 h-1 bg-gradient-to-r from-transparent via-[#C62328] to-transparent transition-all duration-500 rounded-full ${
+          className={`absolute bottom-2 left-1/2 transform -translate-x-1/2 h-1 bg-gradient-to-r from-transparent via-[#C62328] to-transparent transition-all duration-500 rounded-full ${
             isHovered ? "w-5/6 opacity-100 shadow-lg" : "w-3/5 opacity-50"
           }`}
         />
+
+        {/* Título mitológico debajo de la línea */}
+        <div className="absolute bottom-[-24px] left-1/2 transform -translate-x-1/2 text-center">
+          <p className="text-sm font-serif font-bold text-[#7a2323] whitespace-nowrap">
+            {title}
+          </p>
+        </div>
 
         {/* Badge de contenido nuevo */}
         {data?.newCount > 0 && (
@@ -557,29 +569,7 @@ const LibraryPage: React.FC = () => {
         <DraggableGrid items={libraryItems} onItemsChange={handleItemsChange} isLibrary={true} />
       </motion.div>
 
-      {/* Partículas flotantes de fondo para efecto mágico */}
-      <div className="absolute inset-0 pointer-events-none overflow-hidden">
-        {[...Array(8)].map((_, i) => (
-          <motion.div
-            key={i}
-            className="absolute w-2 h-2 bg-[#C62328] rounded-full opacity-20"
-            style={{
-              left: `${Math.random() * 100}%`,
-              top: `${Math.random() * 100}%`,
-            }}
-            animate={{
-              y: [0, -20, 0],
-              opacity: [0.1, 0.3, 0.1],
-              scale: [0.8, 1.2, 0.8],
-            }}
-            transition={{
-              duration: 3 + Math.random() * 2,
-              repeat: Infinity,
-              delay: Math.random() * 2,
-            }}
-          />
-        ))}
-      </div>
+
     </motion.div>
   );
 };
