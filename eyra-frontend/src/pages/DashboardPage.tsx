@@ -1,5 +1,5 @@
 // C:\Users\Ana\Desktop\Curso\Proyecto\EYRA\eyra-frontend\src\pages\DashboardPage.tsx
-import React, { useMemo } from "react";
+import React, { useMemo, useState } from "react";
 import { useAuth } from "../context/AuthContext";
 import { useDashboardData } from "../hooks/useDashboardData";
 import DraggableGrid from "../components/DraggableGrid";
@@ -18,6 +18,8 @@ const DashboardPage: React.FC = () => {
     refreshData,
   } = useDashboardData();
 
+  const [expandedId, setExpandedId] = useState<string | null>(null);
+
   console.log("DashboardPage: Renderizando para usuario:", user?.email);
   console.log("DashboardPage: Datos cargados:", {
     currentCycle,
@@ -33,9 +35,10 @@ const DashboardPage: React.FC = () => {
       {
         id: "cycle",
         title: "Tu Ciclo",
+        isExpanded: expandedId === "cycle",
         component: (
           <div className="h-full flex flex-col items-center justify-center">
-            <CycleVisual />
+            <CycleVisual expanded={expandedId === "cycle"} />
             {/* Puedes añadir aquí debajo más info textual si lo deseas */}
           </div>
         ),
@@ -414,6 +417,7 @@ const DashboardPage: React.FC = () => {
       isLoading,
       error,
       refreshData,
+      expandedId,
     ]
   );
 
@@ -422,7 +426,9 @@ const DashboardPage: React.FC = () => {
       <DraggableGrid
         items={dashboardItems}
         onItemsChange={(newItems) => {
-          console.log("Grid items reordenados:", newItems);
+          // Detectar cuál se expandió
+          const expanded = newItems.find((item) => item.isExpanded);
+          setExpandedId(expanded ? expanded.id : null);
         }}
       />
     </div>

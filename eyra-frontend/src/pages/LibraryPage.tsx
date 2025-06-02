@@ -242,8 +242,8 @@ const TentButton = ({
         {/* Tienda de campaña que ocupa todo el espacio */}
         <svg
           width="90%"
-          height="60%"
-          viewBox="0 0 300 220"
+          height="70%"
+          viewBox="0 0 300 200"
           className={`transition-all duration-500 ${
             isClicked ? "scale-95" : "scale-100"
           }`}
@@ -252,8 +252,8 @@ const TentButton = ({
           <path
             d={
               isHovered
-                ? "M 150 30 L 30 180 L 110 180 Z"
-                : "M 150 30 L 50 180 L 150 180 Z"
+                ? "M 150 20 L 30 160 L 110 160 Z"
+                : "M 150 20 L 50 160 L 150 160 Z"
             }
             fill={isHovered ? "rgba(198, 35, 40, 0.12)" : "rgba(198, 35, 40, 0.06)"}
             stroke="#C62328"
@@ -265,8 +265,8 @@ const TentButton = ({
           <path
             d={
               isHovered
-                ? "M 150 30 L 190 180 L 270 180 Z"
-                : "M 150 30 L 150 180 L 250 180 Z"
+                ? "M 150 20 L 190 160 L 270 160 Z"
+                : "M 150 20 L 150 160 L 250 160 Z"
             }
             fill={isHovered ? "rgba(198, 35, 40, 0.18)" : "rgba(198, 35, 40, 0.09)"}
             stroke="#C62328"
@@ -278,9 +278,9 @@ const TentButton = ({
           {!isHovered && (
             <line
               x1="150"
-              y1="30"
+              y1="20"
               x2="150"
-              y2="180"
+              y2="160"
               stroke="#C62328"
               strokeWidth="3"
               className="transition-all duration-300"

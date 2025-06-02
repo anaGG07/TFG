@@ -56,7 +56,11 @@ function getPregnancyProbability(phase: string) {
   }
 }
 
-const CycleVisual: React.FC = () => {
+interface CycleVisualProps {
+  expanded?: boolean;
+}
+
+const CycleVisual: React.FC<CycleVisualProps> = ({ expanded = true }) => {
   const { calendarDays, getRecommendations, addCycleDay } = useCycle();
   const today = new Date().toISOString().split('T')[0];
   const todayData = calendarDays.find(day => day.date === today);
@@ -76,6 +80,7 @@ const CycleVisual: React.FC = () => {
 
   // Obtener recomendaciones al cargar
   useEffect(() => {
+    if (!expanded) return;
     const fetchRecs = async () => {
       const recs = await getRecommendations();
       setRecipe(recs.find((r: Content) => r.type === ContentType.NUTRITION && r.targetPhase === phase) || null);
@@ -83,10 +88,11 @@ const CycleVisual: React.FC = () => {
       setPhrase(recs.find((r: Content) => r.type === ContentType.RECOMMENDATION && r.targetPhase === phase) || null);
     };
     fetchRecs();
-  }, [getRecommendations, phase]);
+  }, [getRecommendations, phase, expanded]);
 
   // Guardar estado de ánimo
-  const handleMoodSelect = async (mood: string) => {
+  const handleMoodSelect = async (mood: string, e: React.MouseEvent) => {
+    e.stopPropagation();
     setSelectedMood(mood);
     if (!todayData) return;
     setSaving(true);
@@ -100,7 +106,8 @@ const CycleVisual: React.FC = () => {
   };
 
   // Guardar síntomas
-  const handleSymptomToggle = async (symptom: string) => {
+  const handleSymptomToggle = async (symptom: string, e: React.MouseEvent) => {
+    e.stopPropagation();
     let newSymptoms;
     if (selectedSymptoms.includes(symptom)) {
       newSymptoms = selectedSymptoms.filter(s => s !== symptom);
@@ -121,33 +128,30 @@ const CycleVisual: React.FC = () => {
 
   // Calcular ángulo del marcador
   const angle = ((day - 1) / CYCLE_DAYS) * 360;
-  const r = 110;
-  const cx = 150;
-  const cy = 150;
+  const r = expanded ? 110 : 60;
+  const cx = expanded ? 150 : 80;
+  const cy = expanded ? 150 : 80;
   const markerX = cx + r * Math.sin((angle * Math.PI) / 180);
   const markerY = cy - r * Math.cos((angle * Math.PI) / 180);
   const pregnancy = getPregnancyProbability(phase);
 
-  return (
-    <div style={{
-      display: 'flex',
-      flexDirection: 'row',
-      background: COLORS.background,
-      borderRadius: 24,
-      boxShadow: '0 4px 24px #0001',
-      padding: 24,
-      gap: 32,
-      minHeight: 360,
-      width: '100%',
-      maxWidth: 900,
-      margin: '0 auto',
-    }}>
-      {/* Columna Izquierda: Gráfico y datos principales */}
-      <div style={{ minWidth: 340, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
-        <svg width={300} height={300}>
-          {/* Círculo base */}
-          <circle cx={cx} cy={cy} r={r} fill={COLORS.circle} stroke="#E6B7C1" strokeWidth={4} />
-          {/* Fases */}
+  // --- RESUMEN (no expandido) ---
+  if (!expanded) {
+    return (
+      <div style={{
+        display: 'flex',
+        flexDirection: 'row',
+        alignItems: 'center',
+        background: 'transparent',
+        borderRadius: 18,
+        padding: 18,
+        minHeight: 120,
+        width: '100%',
+        gap: 18,
+        overflow: 'hidden',
+      }}>
+        <svg width={160} height={160}>
+          <circle cx={cx} cy={cy} r={r} fill={COLORS.circle} stroke="#E6B7C1" strokeWidth={3} />
           {PHASES.map((p, i) => {
             const startAngle = (i * 360) / 4;
             const endAngle = ((i + 1) * 360) / 4;
@@ -165,9 +169,65 @@ const CycleVisual: React.FC = () => {
               />
             );
           })}
-          {/* Marcador de día actual */}
+          <circle cx={markerX} cy={markerY} r={8} fill={COLORS.marker} stroke="#fff" strokeWidth={2} />
+          <ellipse cx={cx} cy={cy} rx={22} ry={14} fill="#fff" stroke="#E6B7C1" strokeWidth={1.5} />
+          <rect x={cx - 3} y={cy + 6} width={6} height={16} rx={3} fill="#fff" stroke="#E6B7C1" strokeWidth={1.5} />
+        </svg>
+        <div style={{ marginLeft: 12 }}>
+          <div style={{ fontSize: 18, fontWeight: 700, color: COLORS.text }}>
+            Día {day} - {phase.charAt(0).toUpperCase() + phase.slice(1)}
+          </div>
+          {menstruationDay && menstruationLength && (
+            <div style={{ fontSize: 13, color: COLORS.text, marginTop: 2 }}>
+              Día {menstruationDay} de {menstruationLength} de menstruación
+            </div>
+          )}
+          <div style={{ fontSize: 13, color: pregnancy.color, marginTop: 2 }}>
+            Embarazo: <b>{pregnancy.text}</b>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // --- VISTA EXPANDIDA ---
+  return (
+    <div style={{
+      display: 'flex',
+      flexDirection: 'row',
+      background: 'transparent',
+      borderRadius: 24,
+      boxShadow: '0 4px 24px #0001',
+      padding: 24,
+      gap: 32,
+      minHeight: 360,
+      width: '100%',
+      maxWidth: 900,
+      margin: '0 auto',
+      overflow: 'hidden',
+    }}>
+      {/* Columna Izquierda: Gráfico y datos principales */}
+      <div style={{ minWidth: 340, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+        <svg width={300} height={300}>
+          <circle cx={cx} cy={cy} r={r} fill={COLORS.circle} stroke="#E6B7C1" strokeWidth={4} />
+          {PHASES.map((p, i) => {
+            const startAngle = (i * 360) / 4;
+            const endAngle = ((i + 1) * 360) / 4;
+            const largeArc = endAngle - startAngle > 180 ? 1 : 0;
+            const x1 = cx + r * Math.sin((startAngle * Math.PI) / 180);
+            const y1 = cy - r * Math.cos((startAngle * Math.PI) / 180);
+            const x2 = cx + r * Math.sin((endAngle * Math.PI) / 180);
+            const y2 = cy - r * Math.cos((endAngle * Math.PI) / 180);
+            return (
+              <path
+                key={p.name}
+                d={`M${cx},${cy} L${x1},${y1} A${r},${r} 0 ${largeArc} 1 ${x2},${y2} Z`}
+                fill={p.color}
+                opacity={0.13}
+              />
+            );
+          })}
           <circle cx={markerX} cy={markerY} r={12} fill={COLORS.marker} stroke="#fff" strokeWidth={3} />
-          {/* Icono de útero (placeholder simple) */}
           <ellipse cx={cx} cy={cy} rx={38} ry={24} fill="#fff" stroke="#E6B7C1" strokeWidth={2} />
           <rect x={cx - 6} y={cy + 10} width={12} height={32} rx={6} fill="#fff" stroke="#E6B7C1" strokeWidth={2} />
         </svg>
@@ -186,7 +246,7 @@ const CycleVisual: React.FC = () => {
         </div>
       </div>
       {/* Columna Derecha: Recomendaciones, mood, síntomas */}
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 18, justifyContent: 'center' }}>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 18, justifyContent: 'center', overflow: 'hidden' }}>
         {/* Receta */}
         <div style={{ background: '#fff', borderRadius: 14, padding: 16, marginBottom: 8, boxShadow: '0 2px 8px #0001' }}>
           <div style={{ fontWeight: 600, color: '#C62328', marginBottom: 4 }}>Receta recomendada</div>
@@ -227,7 +287,7 @@ const CycleVisual: React.FC = () => {
             {MOODS.map(mood => (
               <button
                 key={mood.value}
-                onClick={() => handleMoodSelect(mood.value)}
+                onClick={e => handleMoodSelect(mood.value, e)}
                 style={{
                   fontSize: 28,
                   background: selectedMood === mood.value ? '#F8D9D6' : 'transparent',
@@ -252,7 +312,7 @@ const CycleVisual: React.FC = () => {
             {SYMPTOM_OPTIONS.map(symptom => (
               <button
                 key={symptom}
-                onClick={() => handleSymptomToggle(symptom)}
+                onClick={e => handleSymptomToggle(symptom, e)}
                 style={{
                   fontSize: 14,
                   background: selectedSymptoms.includes(symptom) ? '#F8D9D6' : 'transparent',
