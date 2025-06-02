@@ -171,7 +171,7 @@ const ArticlePreview = ({ article }: { article: LibraryContent }) => (
   </motion.div>
 );
 
-// Componente de tienda de campaña interactiva para cada categoría
+// Componente de tienda de campaña rediseñado - Solo la tienda, sin caja
 const TentButton = ({
   categoryId,
   onClick,
@@ -188,77 +188,23 @@ const TentButton = ({
     onClick();
   };
 
-  const getCategoryConfig = (id: string) => {
-    switch (id) {
-      case "history":
-        return {
-          title: "Historia Menstrual",
-          description: "Explorando el pasado para entender el presente",
-          icon: "🕰️",
-        };
-      case "science":
-        return {
-          title: "Ciencia & Investigación",
-          description: "Evidencia científica y estudios contrastados",
-          icon: "🔬",
-        };
-      case "phases":
-        return {
-          title: "Fases del Ciclo",
-          description: "Comprende cada etapa de tu ciclo",
-          icon: "🌙",
-        };
-      case "inclusivity":
-        return {
-          title: "Inclusividad & Género",
-          description: "Apoyo para todas las identidades",
-          icon: "👥",
-        };
-      case "maternity":
-        return {
-          title: "Maternidad & Fertilidad",
-          description: "Acompañándote en cada etapa",
-          icon: "❤️",
-        };
-      case "wisdom":
-        return {
-          title: "Sabiduría & Longevidad",
-          description: "Acompañándote a lo largo de la vida",
-          icon: "📚",
-        };
-      default:
-        return {
-          title: "Refugio",
-          description: "Tu espacio seguro",
-          icon: "🏕️",
-        };
-    }
-  };
-
-  const config = getCategoryConfig(categoryId);
   const data = libraryData[categoryId];
 
   return (
-    <div className="flex flex-col items-center space-y-4 h-full justify-center">
-      <h3 className="text-lg font-serif font-bold text-[#7a2323] text-center">
-        {config.title}
-      </h3>
-      <p className="text-sm text-[#5b0108] text-center max-w-xs font-light">
-        {config.description}
-      </p>
-
+    <div className="relative w-full h-full flex items-center justify-center library-tent-container">
       <button
         onClick={handleClick}
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
-        className="relative focus:outline-none group"
-        aria-label={`Acceder a ${config.title}`}
+        className="relative focus:outline-none group w-full h-full flex items-center justify-center library-tent-container"
+        aria-label={`Acceder a categoría ${categoryId}`}
       >
+        {/* Tienda de campaña que ocupa todo el espacio */}
         <svg
-          width="160"
-          height="140"
-          viewBox="0 0 200 180"
-          className={`transition-all duration-300 ${
+          width="90%"
+          height="75%"
+          viewBox="0 0 300 240"
+          className={`transition-all duration-500 ${
             isClicked ? "scale-95" : "scale-100"
           }`}
         >
@@ -266,77 +212,103 @@ const TentButton = ({
           <path
             d={
               isHovered
-                ? "M 100 20 L 15 140 L 75 140 Z"
-                : "M 100 20 L 30 140 L 100 140 Z"
+                ? "M 150 40 L 30 200 L 110 200 Z"
+                : "M 150 40 L 50 200 L 150 200 Z"
             }
-            fill="none"
-            stroke={isHovered ? "#f43f5e" : "#C62328"}
-            strokeWidth="2"
-            className="transition-all duration-500 ease-in-out"
+            fill={isHovered ? "rgba(198, 35, 40, 0.12)" : "rgba(198, 35, 40, 0.06)"}
+            stroke="#C62328"
+            strokeWidth="4"
+            className="transition-all duration-500 ease-in-out drop-shadow-sm"
           />
 
           {/* Lado derecho de la tienda */}
           <path
             d={
               isHovered
-                ? "M 100 20 L 125 140 L 185 140 Z"
-                : "M 100 20 L 100 140 L 170 140 Z"
+                ? "M 150 40 L 190 200 L 270 200 Z"
+                : "M 150 40 L 150 200 L 250 200 Z"
             }
-            fill="none"
-            stroke={isHovered ? "#f43f5e" : "#C62328"}
-            strokeWidth="2"
-            className="transition-all duration-500 ease-in-out"
+            fill={isHovered ? "rgba(198, 35, 40, 0.18)" : "rgba(198, 35, 40, 0.09)"}
+            stroke="#C62328"
+            strokeWidth="4"
+            className="transition-all duration-500 ease-in-out drop-shadow-sm"
           />
 
-          {/* Interior cuando se abre */}
+          {/* Interior visible cuando se abre */}
           {isHovered && (
-            <path
-              d="M 100 20 L 75 140 L 125 140 Z"
-              fill="#fce7f3"
-              opacity="0.4"
-              className="transition-all duration-500"
-            />
+            <g className="transition-all duration-500">
+              {/* Fondo interior */}
+              <path
+                d="M 150 40 L 110 200 L 190 200 Z"
+                fill="rgba(252, 231, 243, 0.7)"
+                className="transition-all duration-500"
+              />
+              
+              {/* Contenido interior místico */}
+              <circle
+                cx="150"
+                cy="140"
+                r="10"
+                fill="#C62328"
+                opacity="0.5"
+                className="animate-pulse"
+              />
+              <circle
+                cx="125"
+                cy="165"
+                r="6"
+                fill="#C62328"
+                opacity="0.4"
+                className="animate-pulse"
+                style={{ animationDelay: "0.3s" }}
+              />
+              <circle
+                cx="175"
+                cy="165"
+                r="6"
+                fill="#C62328"
+                opacity="0.4"
+                className="animate-pulse"
+                style={{ animationDelay: "0.6s" }}
+              />
+            </g>
           )}
 
-          {/* Icono de categoría dentro */}
+          {/* Línea de apertura central */}
           {isHovered && (
-            <text
-              x="100"
-              y="100"
-              textAnchor="middle"
-              fontSize="24"
-              opacity="0.8"
-              className="transition-all duration-300"
-            >
-              {config.icon}
-            </text>
+            <line
+              x1="150"
+              y1="40"
+              x2="150"
+              y2="200"
+              stroke="#C62328"
+              strokeWidth="3"
+              opacity="0.7"
+              className="transition-all duration-300 tent-dash-animation"
+              strokeDasharray="5,5"
+            />
           )}
         </svg>
 
-        {/* Base de la tienda */}
+        {/* Línea base expandible */}
         <div
-          className={`absolute bottom-0 left-1/2 transform -translate-x-1/2 h-px bg-[#C62328] transition-all duration-300 ${
-            isHovered ? "w-40" : "w-32"
+          className={`absolute bottom-6 left-1/2 transform -translate-x-1/2 h-1 bg-gradient-to-r from-transparent via-[#C62328] to-transparent transition-all duration-500 rounded-full ${
+            isHovered ? "w-5/6 opacity-100 shadow-lg" : "w-3/5 opacity-50"
           }`}
         />
-      </button>
 
-      {/* Información de la categoría */}
-      <div className="text-center space-y-2">
-        <div className="flex justify-center items-center gap-2">
-          <span className="text-xs text-[#C62328] font-semibold">
-            {data?.totalCount || 0} recursos
-          </span>
-          {data?.newCount > 0 && (
-            <span className="bg-[#C62328] text-white text-xs px-2 py-1 rounded-full">
-              {data.newCount} nuevos
-            </span>
-          )}
-        </div>
-        <p className="text-xs text-[#7a2323] font-light">
-          {isClicked ? "Accediendo a tu refugio..." : "Haz clic para explorar"}
-        </p>
-      </div>
+        {/* Badge de contenido nuevo */}
+        {data?.newCount > 0 && (
+          <div className="absolute top-6 right-6">
+            <div className={`relative transition-all duration-300 ${
+              isHovered ? "scale-125" : "scale-100"
+            }`}>
+              <div className="w-4 h-4 rounded-full bg-[#C62328] shadow-lg" />
+              <div className="absolute inset-0 w-4 h-4 rounded-full bg-[#C62328] animate-ping opacity-40" />
+            </div>
+          </div>
+        )}
+      </button>
     </div>
   );
 };
@@ -410,7 +382,7 @@ const CategoryCard = ({
   const config = getCategoryConfig(categoryId);
 
   return (
-    <div className="flex flex-col h-full p-4">
+    <div className={`flex flex-col h-full p-4 ${!isExpanded ? 'library-tent-container' : ''}`}>
       {!isExpanded ? (
         // Vista compacta - botón de tienda
         <TentButton categoryId={categoryId} onClick={onToggle || (() => {})} />

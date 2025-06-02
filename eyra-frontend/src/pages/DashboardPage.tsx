@@ -27,74 +27,6 @@ const DashboardPage: React.FC = () => {
     insights,
   });
 
-  // CORREGIDO: Función para obtener el estado del ciclo usando la estructura real del backend
-  const getCycleStatus = () => {
-    if (!user?.onboarding?.completed) return "Pendiente configuración";
-    if (!currentCycle || !currentCycle.currentPhase) return "Sin ciclo activo";
-
-    const currentPhase = currentCycle.currentPhase;
-    const dayNumber = todayData?.dayNumber || 0;
-
-    const phaseNames: { [key: string]: string } = {
-      menstrual: "Menstruación",
-      folicular: "Fase Folicular",
-      ovulacion: "Ovulación",
-      lutea: "Fase Lútea",
-    };
-
-    const phaseName = phaseNames[currentPhase.phase] || currentPhase.phase;
-    return `${phaseName} - Día ${dayNumber}`;
-  };
-
-  // Función para obtener el conteo de síntomas del día
-  const getTodaySymptoms = () => {
-    if (!todayData || !todayData.symptoms) return 0;
-    return todayData.symptoms.length;
-  };
-
-  // CORREGIDO: Función para obtener el próximo período estimado usando predicciones
-  const getNextPeriodInfo = () => {
-    // Nota: El backend actual no devuelve estimatedNextStart en /cycles/current
-    // Necesitarías llamar a /cycles/predict para obtener esta información
-    if (!currentCycle) return "No disponible";
-
-    // Temporal: mostrar información basada en la fase actual
-    const currentPhase = currentCycle.currentPhase;
-    if (!currentPhase) return "No disponible";
-
-    if (currentPhase.phase === "menstrual") {
-      return "En curso";
-    }
-
-    return "Calculando...";
-  };
-
-  // Función para obtener tendencia de regularidad
-  const getRegularityInfo = () => {
-    if (!statistics) return "Calculando...";
-
-    const regularity = statistics.regularity;
-    if (regularity >= 80) return "Muy regular";
-    if (regularity >= 60) return "Regular";
-    if (regularity >= 40) return "Irregular";
-    return "Muy irregular";
-  };
-
-  // CORREGIDO: Función para obtener la intensidad del flujo
-  const getFlowIntensityText = () => {
-    if (!todayData || todayData.flowIntensity === null) return null;
-
-    const intensityMap: { [key: number]: string } = {
-      1: "Ligero",
-      2: "Moderado",
-      3: "Abundante",
-      4: "Muy abundante",
-      5: "Extremo",
-    };
-
-    return intensityMap[todayData.flowIntensity] || "No definido";
-  };
-
   // Componentes del dashboard - Memoizados para evitar recreación
   const dashboardItems = useMemo(
     () => [
@@ -160,14 +92,23 @@ const DashboardPage: React.FC = () => {
                     </p>
                   </div>
                   <span className="text-xs text-primary font-bold">
-                    {isLoading ? "..." : `${getTodaySymptoms()} síntomas hoy`}
+                    {isLoading ? "..." : `${todayData?.symptoms?.length || 0} síntomas hoy`}
                   </span>
                 </div>
-                {todayData && getFlowIntensityText() && (
+                {todayData && todayData.flowIntensity !== null && (
                   <div className="mt-2 flex items-center justify-between">
                     <span className="text-xs text-primary-dark">Flujo:</span>
                     <span className="text-xs text-primary font-bold">
-                      {getFlowIntensityText()}
+                      {(() => {
+                        const intensityMap: { [key: number]: string } = {
+                          1: "Ligero",
+                          2: "Moderado",
+                          3: "Abundante",
+                          4: "Muy abundante",
+                          5: "Extremo",
+                        };
+                        return intensityMap[todayData.flowIntensity] || "No definido";
+                      })()}
                     </span>
                   </div>
                 )}
@@ -229,7 +170,13 @@ const DashboardPage: React.FC = () => {
                           Regularidad:
                         </span>
                         <span className="text-xs text-primary font-bold">
-                          {getRegularityInfo()}
+                          {(() => {
+                            const regularity = statistics.regularity;
+                            if (regularity >= 80) return "Muy regular";
+                            if (regularity >= 60) return "Regular";
+                            if (regularity >= 40) return "Irregular";
+                            return "Muy irregular";
+                          })()}
                         </span>
                       </div>
                       <div className="flex items-center justify-between">
