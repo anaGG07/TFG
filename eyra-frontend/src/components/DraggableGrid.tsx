@@ -6,6 +6,7 @@ interface GridItem {
   component: ReactNode;
   title: string;
   isExpanded?: boolean;
+  expandedComponent?: ReactNode;
 }
 
 interface DraggableGridProps {
@@ -153,17 +154,8 @@ const DraggableGrid: React.FC<DraggableGridProps> = ({
               </div>
             </div>
 
-            <div className="w-full h-full p-8 flex flex-col relative">
-              <div className="flex items-center justify-between mb-6 flex-shrink-0">
-                <h3 className="font-serif text-2xl text-[#5b0108] font-light tracking-wide">
-                  {expandedItem.title}
-                </h3>
-                
-              </div>
-
-              <div className="flex-1 overflow-auto">
-                {expandedItem.component}
-              </div>
+            <div className="w-full h-full relative">
+              {expandedItem.expandedComponent || expandedItem.component}
             </div>
           </motion.div>
 

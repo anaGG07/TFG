@@ -171,6 +171,90 @@ const ArticlePreview = ({ article }: { article: LibraryContent }) => (
   </motion.div>
 );
 
+// Componente SOLO para contenido expandido (SIN TIENDA)
+const ExpandedContent = ({ categoryId }: { categoryId: string }) => {
+  const data = libraryData[categoryId];
+  
+  const getCategoryTitle = (id: string) => {
+    switch (id) {
+      case "history":
+        return { name: "Mnemósine" };
+      case "science":
+        return { name: "Atenea" };
+      case "phases":
+        return { name: "Selene" };
+      case "inclusivity":
+        return { name: "Artemisa" };
+      case "maternity":
+        return { name: "Deméter" };
+      case "wisdom":
+        return { name: "Hestia" };
+      default:
+        return { name: "Refugio" };
+    }
+  };
+
+  const getCategoryConfig = (id: string) => {
+    switch (id) {
+      case "history":
+        return { unitLabel: "artículos" };
+      case "science":
+        return { unitLabel: "estudios" };
+      case "phases":
+        return { unitLabel: "guías" };
+      case "inclusivity":
+        return { unitLabel: "recursos" };
+      case "maternity":
+        return { unitLabel: "artículos" };
+      case "wisdom":
+        return { unitLabel: "artículos" };
+      default:
+        return { unitLabel: "artículos" };
+    }
+  };
+
+  const titleData = getCategoryTitle(categoryId);
+  const config = getCategoryConfig(categoryId);
+
+  return (
+    <div className="h-full flex flex-col p-8">
+      <div className="flex items-center justify-between mb-6 flex-shrink-0">
+        <div>
+          <h3 className="text-2xl font-serif font-bold text-[#7a2323]">
+            {titleData.name}
+          </h3>
+          <p className="text-sm text-[#5b0108]">
+            {data.totalCount} {config.unitLabel} • {data.newCount} nuevos
+          </p>
+        </div>
+      </div>
+
+      <div className="flex-1 overflow-auto space-y-4">
+        <AnimatePresence>
+          {data.articles.map((article, index) => (
+            <motion.div
+              key={article.id}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: index * 0.1 }}
+            >
+              <ArticlePreview article={article} />
+            </motion.div>
+          ))}
+        </AnimatePresence>
+
+        <motion.button
+          className="w-full py-3 bg-[#C62328] text-white rounded-xl font-medium hover:bg-[#9d0d0b] transition-colors"
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.98 }}
+        >
+          Ver todos los {config.unitLabel} ({data.totalCount})
+        </motion.button>
+      </div>
+    </div>
+  );
+};
+
 // Componente de tienda de campaña rediseñado - Solo la tienda, sin caja
 const TentButton = ({
   categoryId,
@@ -273,11 +357,11 @@ const TentButton = ({
         className="relative focus:outline-none group w-full h-full flex flex-col items-center justify-center library-tent-container cursor-pointer"
         aria-label={`Acceder a categoría ${categoryId}`}
       >
-        {/* Tienda de campaña - control preciso de espaciado */}
-        <div className="flex items-center justify-center w-full flex-shrink-0">
+        {/* Tienda de campaña - tamaño grande, espaciado controlado */}
+        <div className="flex items-end justify-center w-full flex-shrink-0">
           <svg
             width="85%"
-            height="50%"
+            height="65%"
             viewBox="0 0 300 180"
             className={`transition-all duration-500 ${
               isClicked ? "scale-95" : "scale-100"
@@ -578,36 +662,42 @@ const LibraryPage: React.FC = () => {
         id: "history",
         title: "Historia Menstrual",
         component: <CategoryCard categoryId="history" isExpanded={false} />,
+        expandedComponent: <ExpandedContent categoryId="history" />,
         isExpanded: false,
       },
       {
         id: "science",
         title: "Ciencia & Investigación",
         component: <CategoryCard categoryId="science" isExpanded={false} />,
+        expandedComponent: <ExpandedContent categoryId="science" />,
         isExpanded: false,
       },
       {
         id: "phases",
         title: "Fases del Ciclo",
         component: <CategoryCard categoryId="phases" isExpanded={false} />,
+        expandedComponent: <ExpandedContent categoryId="phases" />,
         isExpanded: false,
       },
       {
         id: "inclusivity",
         title: "Inclusividad & Género",
         component: <CategoryCard categoryId="inclusivity" isExpanded={false} />,
+        expandedComponent: <ExpandedContent categoryId="inclusivity" />,
         isExpanded: false,
       },
       {
         id: "maternity",
         title: "Maternidad & Fertilidad",
         component: <CategoryCard categoryId="maternity" isExpanded={false} />,
+        expandedComponent: <ExpandedContent categoryId="maternity" />,
         isExpanded: false,
       },
       {
         id: "wisdom",
         title: "Sabiduría & Longevidad",
         component: <CategoryCard categoryId="wisdom" isExpanded={false} />,
+        expandedComponent: <ExpandedContent categoryId="wisdom" />,
         isExpanded: false,
       },
     ],
