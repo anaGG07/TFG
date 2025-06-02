@@ -102,11 +102,11 @@ const SymptomIcons: Record<string, (color: string) => React.ReactElement> = {
 };
 
 const MOODS = [
-  { value: 'feliz', label: 'Feliz', color: COLORS.feliz },
-  { value: 'cansada', label: 'Cansada', color: COLORS.cansada },
-  { value: 'irritable', label: 'Irritable', color: COLORS.irritable },
-  { value: 'triste', label: 'Triste', color: COLORS.triste },
-  { value: 'motivada', label: 'Motivada', color: COLORS.motivada },
+  { value: 'feliz', label: 'Feliz', color: '#FFE6A7' },
+  { value: 'tranquila', label: 'Tranquila', color: '#D6E6F8' },
+  { value: 'motivada', label: 'Motivada', color: '#D6F8E6' },
+  { value: 'sensible', label: 'Sensible', color: '#D6D6F8' },
+  { value: 'irritable', label: 'Irritable', color: '#FFD6D6' },
 ];
 
 const SYMPTOM_OPTIONS = [
@@ -135,9 +135,10 @@ function getPregnancyProbability(phase: string) {
 
 interface CycleVisualProps {
   expanded?: boolean;
+  onMoodColorChange?: (color: string) => void;
 }
 
-const CycleVisual: React.FC<CycleVisualProps> = ({ expanded = true }) => {
+const CycleVisual: React.FC<CycleVisualProps> = ({ expanded = true, onMoodColorChange }) => {
   const { calendarDays, getRecommendations, addCycleDay } = useCycle();
   const today = new Date().toISOString().split('T')[0];
   const todayData = calendarDays.find(day => day.date === today);
@@ -227,14 +228,19 @@ const CycleVisual: React.FC<CycleVisualProps> = ({ expanded = true }) => {
 
   // Color de fondo según emoción
   const moodObj = MOODS.find(m => m.value === selectedMood);
-  const moodColor = moodObj ? moodObj.color : '#FCE9E6';
+  const moodColor = moodObj ? moodObj.color : 'transparent';
   const moodIntense = moodObj ? {
     feliz: '#E6B800',
-    cansada: '#3A7CA5',
-    irritable: '#C62328',
-    triste: '#6C63FF',
+    tranquila: '#3A7CA5',
     motivada: '#1DB954',
+    sensible: '#6C63FF',
+    irritable: '#C62328',
   }[selectedMood] : '#C62328';
+
+  // Llamar a onMoodColorChange cuando cambie el color
+  useEffect(() => {
+    if (onMoodColorChange) onMoodColorChange(moodColor);
+  }, [moodColor, onMoodColorChange]);
 
   // --- RESUMEN (no expandido) ---
   if (!expanded) {
@@ -247,69 +253,26 @@ const CycleVisual: React.FC<CycleVisualProps> = ({ expanded = true }) => {
         style={{
           position: 'relative',
           display: 'flex',
-          flexDirection: 'row',
+          flexDirection: 'column',
           alignItems: 'center',
+          justifyContent: 'center',
           background: 'transparent',
           borderRadius: 18,
-          padding: 18,
-          minHeight: 120,
+          padding: 32,
+          minHeight: 180,
           width: '100%',
-          gap: 0,
           overflow: 'hidden',
         }}
       >
         {/* SVG de útero grande y centrado de fondo */}
-        <img src="/img/UteroRojo.svg" alt="Útero fondo" style={{ position: 'absolute', left: '50%', top: '50%', transform: 'translate(-50%, -50%)', width: 120, height: 80, opacity: 0.13, zIndex: 0, pointerEvents: 'none' }} />
-        {/* Fondo circular decorativo y gráfico */}
-        <div style={{
-          position: 'relative',
-          width: 120,
-          height: 120,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          zIndex: 1,
-        }}>
-          <div style={{
-            position: 'absolute',
-            left: 0,
-            top: 0,
-            width: 120,
-            height: 120,
-            borderRadius: '50%',
-            background: 'radial-gradient(circle, #F8D9D6 60%, #e7e0d5 100%)',
-            boxShadow: '0 4px 24px 0 #e7b7b7a0, 0 0 0 6px #fff2',
-            zIndex: 0,
-            filter: 'blur(1px)',
-          }} />
-          <svg width={100} height={100} style={{ position: 'relative', zIndex: 1 }}>
-            <circle cx={50} cy={50} r={45} fill={COLORS.circle} stroke="#E6B7C1" strokeWidth={3} />
-            {PHASES.map((p, i) => {
-              const startAngle = (i * 360) / 4;
-              const endAngle = ((i + 1) * 360) / 4;
-              const largeArc = endAngle - startAngle > 180 ? 1 : 0;
-              const cx0 = 50 + 45 * Math.sin((startAngle * Math.PI) / 180);
-              const cy0 = 50 - 45 * Math.cos((startAngle * Math.PI) / 180);
-              const cx1 = 50 + 45 * Math.sin((endAngle * Math.PI) / 180);
-              const cy1 = 50 - 45 * Math.cos((endAngle * Math.PI) / 180);
-              return (
-                <path
-                  key={p.name}
-                  d={`M50,50 L${cx0},${cy0} A45,45 0 ${largeArc} 1 ${cx1},${cy1} Z`}
-                  fill={p.color}
-                  opacity={0.13}
-                />
-              );
-            })}
-            <circle cx={50 + 45 * Math.sin((angle * Math.PI) / 180)} cy={50 - 45 * Math.cos((angle * Math.PI) / 180)} r={7} fill={COLORS.marker} stroke="#fff" strokeWidth={2} />
-            <ellipse cx={50} cy={50} rx={14} ry={9} fill="#fff" stroke="#E6B7C1" strokeWidth={1.5} />
-            <rect x={47} y={59} width={6} height={12} rx={3} fill="#fff" stroke="#E6B7C1" strokeWidth={1.5} />
-          </svg>
-        </div>
-        {/* Datos a la derecha, con mejor jerarquía visual */}
-        <div style={{ marginLeft: 28, display: 'flex', flexDirection: 'column', justifyContent: 'center', minWidth: 0, zIndex: 1 }}>
-          <div style={{ fontSize: 20, fontWeight: 800, color: COLORS.text, letterSpacing: 0.2, marginBottom: 2 }}>
-            Día {day} <span style={{ fontWeight: 400, color: '#C62328', marginLeft: 4 }}>• {phase.charAt(0).toUpperCase() + phase.slice(1)}</span>
+        <img src="/img/UteroRojo.svg" alt="Útero fondo" style={{ position: 'absolute', left: '50%', top: '50%', transform: 'translate(-50%, -50%)', width: 140, height: 100, opacity: 0.13, zIndex: 0, pointerEvents: 'none' }} />
+        {/* Texto centrado encima */}
+        <div style={{ position: 'relative', zIndex: 1, textAlign: 'center', width: '100%' }}>
+          <div style={{ fontSize: 32, fontWeight: 900, color: COLORS.text, letterSpacing: 0.2, marginBottom: 0 }}>
+            Día {day}
+          </div>
+          <div style={{ fontSize: 20, fontWeight: 700, color: '#C62328', marginBottom: 2 }}>
+            {phase.charAt(0).toUpperCase() + phase.slice(1)}
           </div>
           {menstruationDay && menstruationLength && (
             <div style={{ fontSize: 13.5, color: COLORS.text, marginTop: 2, opacity: 0.85 }}>
@@ -478,18 +441,19 @@ const CycleVisual: React.FC<CycleVisualProps> = ({ expanded = true }) => {
               // Color pastel e intenso para cada icono
               const pastel = '#F8D9D6';
               const intenso = '#C62328';
+              const isSelected = selectedSymptoms.includes(symptom);
               return (
                 <motion.button
                   key={symptom}
                   onClick={e => handleSymptomToggle(symptom, e)}
                   style={{
-                    display: 'flex', alignItems: 'center', border: 'none', background: 'none', cursor: 'pointer', padding: 0, margin: 0,
+                    display: 'flex', alignItems: 'center', border: isSelected ? `2px solid ${intenso}` : 'none', background: 'none', cursor: 'pointer', padding: 0, margin: 0,
                   }}
                   disabled={saving}
                   whileTap={{ scale: 0.95 }}
                   whileHover={{ scale: 1.05 }}
                 >
-                  <div style={{ width: 38, height: 38, borderRadius: '50%', background: pastel, display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'background 0.2s' }}>
+                  <div style={{ width: 38, height: 38, borderRadius: '50%', background: isSelected ? '#F8B7B7' : pastel, display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'background 0.2s, border 0.2s' }}>
                     {SymptomIcons[symptom](intenso)}
                   </div>
                   <span style={{ marginLeft: 8, color: '#222', fontSize: 14 }}>{symptom}</span>

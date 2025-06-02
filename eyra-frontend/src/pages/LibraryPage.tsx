@@ -273,11 +273,11 @@ const TentButton = ({
         className="relative focus:outline-none group w-full h-full flex flex-col items-center justify-center library-tent-container cursor-pointer"
         aria-label={`Acceder a categoría ${categoryId}`}
       >
-        {/* Tienda de campaña - más centrada y elevada */}
-        <div className="flex items-center justify-center w-full">
+        {/* Tienda de campaña - control preciso de espaciado */}
+        <div className="flex items-center justify-center w-full flex-shrink-0">
           <svg
             width="85%"
-            height="60%"
+            height="50%"
             viewBox="0 0 300 180"
             className={`transition-all duration-500 ${
               isClicked ? "scale-95" : "scale-100"
@@ -378,15 +378,15 @@ const TentButton = ({
           </svg>
         </div>
 
-        {/* Línea base expandible - más cerca de la tienda */}
+        {/* Línea base expandible - pegada a la tienda */}
         <div
-          className={`h-0.5 bg-gradient-to-r from-transparent via-[#C62328] to-transparent transition-all duration-500 rounded-full mb-2 flex-shrink-0 ${
+          className={`h-0.5 bg-gradient-to-r from-transparent via-[#C62328] to-transparent transition-all duration-500 rounded-full flex-shrink-0 ${
             isHovered ? "w-4/5 opacity-100 shadow-lg" : "w-3/5 opacity-50"
           }`}
         />
 
-        {/* Título y descripción mitológicos */}
-        <div className="text-center max-w-[90%] px-2">
+        {/* Título y descripción mitológicos - con espaciado controlado */}
+        <div className="text-center max-w-[90%] px-2 mt-3 flex-shrink-0">
           <p className="text-xl font-serif font-bold text-[#7a2323] whitespace-nowrap mb-2">
             {titleData.name}
           </p>

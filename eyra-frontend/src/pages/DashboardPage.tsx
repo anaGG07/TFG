@@ -19,6 +19,12 @@ const DashboardPage: React.FC = () => {
   } = useDashboardData();
 
   const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [cycleMoodColor, setCycleMoodColor] = useState<string>("#FCE9E6");
+
+  // Función para actualizar el color según la emoción
+  const handleCycleMoodChange = (color: string) => {
+    setCycleMoodColor(color);
+  };
 
   console.log("DashboardPage: Renderizando para usuario:", user?.email);
   console.log("DashboardPage: Datos cargados:", {
@@ -37,9 +43,11 @@ const DashboardPage: React.FC = () => {
         title: "Tu Ciclo",
         isExpanded: expandedId === "cycle",
         component: (
-          <div className="h-full flex flex-col items-center justify-center">
-            <CycleVisual expanded={expandedId === "cycle"} />
-            {/* Puedes añadir aquí debajo más info textual si lo deseas */}
+          <div
+            className="h-full flex flex-col items-center justify-center"
+            style={{ background: cycleMoodColor, borderRadius: 24, transition: 'background 0.4s' }}
+          >
+            <CycleVisual expanded={expandedId === "cycle"} onMoodColorChange={handleCycleMoodChange} />
           </div>
         ),
       },
@@ -418,6 +426,7 @@ const DashboardPage: React.FC = () => {
       error,
       refreshData,
       expandedId,
+      cycleMoodColor,
     ]
   );
 
