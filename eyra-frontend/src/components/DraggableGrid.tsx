@@ -246,7 +246,7 @@ const DraggableGrid: React.FC<DraggableGridProps> = ({
                     {isLibrary && (
                       <div className="w-full h-full flex flex-col items-center justify-center px-2">
                         {/* Línea decorativa */}
-                        <div className="h-0.5 bg-gradient-to-r from-transparent via-[#C62328] to-transparent w-3/5 opacity-60 rounded-full mb-2" />
+                        <div className="h-0.5 bg-gradient-to-r from-transparent via-[#C62328] to-transparent w-3/5 opacity-60 rounded-full mb-2 flex-shrink-0" />
                         
                         {/* Nombre mitológico */}
                         <p className="text-sm font-serif font-bold text-[#7a2323] mb-1 truncate text-center">

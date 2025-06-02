@@ -212,8 +212,29 @@ const CycleVisual: React.FC<CycleVisualProps> = ({ expanded = true }) => {
   const markerY = cy - r * Math.cos((angle * Math.PI) / 180);
   const pregnancy = getPregnancyProbability(phase);
 
+  // Animación de órbita para el óvulo
+  const [orbitAngle, setOrbitAngle] = useState(angle);
+  useEffect(() => {
+    if (!expanded) return;
+    let raf: number;
+    const animate = () => {
+      setOrbitAngle((prev) => (prev + 0.5) % 360);
+      raf = requestAnimationFrame(animate);
+    };
+    raf = requestAnimationFrame(animate);
+    return () => cancelAnimationFrame(raf);
+  }, [expanded]);
+
   // Color de fondo según emoción
-  const moodColor = MOODS.find(m => m.value === selectedMood)?.color || 'rgba(255,255,255,0.15)';
+  const moodObj = MOODS.find(m => m.value === selectedMood);
+  const moodColor = moodObj ? moodObj.color : '#FCE9E6';
+  const moodIntense = moodObj ? {
+    feliz: '#E6B800',
+    cansada: '#3A7CA5',
+    irritable: '#C62328',
+    triste: '#6C63FF',
+    motivada: '#1DB954',
+  }[selectedMood] : '#C62328';
 
   // --- RESUMEN (no expandido) ---
   if (!expanded) {
@@ -224,6 +245,7 @@ const CycleVisual: React.FC<CycleVisualProps> = ({ expanded = true }) => {
         exit={{ opacity: 0, y: 20 }}
         transition={{ duration: 0.4 }}
         style={{
+          position: 'relative',
           display: 'flex',
           flexDirection: 'row',
           alignItems: 'center',
@@ -236,7 +258,9 @@ const CycleVisual: React.FC<CycleVisualProps> = ({ expanded = true }) => {
           overflow: 'hidden',
         }}
       >
-        {/* Fondo circular decorativo */}
+        {/* SVG de útero grande y centrado de fondo */}
+        <img src="/img/UteroRojo.svg" alt="Útero fondo" style={{ position: 'absolute', left: '50%', top: '50%', transform: 'translate(-50%, -50%)', width: 120, height: 80, opacity: 0.13, zIndex: 0, pointerEvents: 'none' }} />
+        {/* Fondo circular decorativo y gráfico */}
         <div style={{
           position: 'relative',
           width: 120,
@@ -244,6 +268,7 @@ const CycleVisual: React.FC<CycleVisualProps> = ({ expanded = true }) => {
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
+          zIndex: 1,
         }}>
           <div style={{
             position: 'absolute',
@@ -277,12 +302,12 @@ const CycleVisual: React.FC<CycleVisualProps> = ({ expanded = true }) => {
               );
             })}
             <circle cx={50 + 45 * Math.sin((angle * Math.PI) / 180)} cy={50 - 45 * Math.cos((angle * Math.PI) / 180)} r={7} fill={COLORS.marker} stroke="#fff" strokeWidth={2} />
+            <ellipse cx={50} cy={50} rx={14} ry={9} fill="#fff" stroke="#E6B7C1" strokeWidth={1.5} />
+            <rect x={47} y={59} width={6} height={12} rx={3} fill="#fff" stroke="#E6B7C1" strokeWidth={1.5} />
           </svg>
-          {/* SVG de útero centrado */}
-          <img src="../../../public/img/UteroRojo.svg"alt="Útero" style={{ position: 'absolute', left: 20, top: 30, width: 60, height: 40, zIndex: 2, pointerEvents: 'none' }} />
         </div>
         {/* Datos a la derecha, con mejor jerarquía visual */}
-        <div style={{ marginLeft: 28, display: 'flex', flexDirection: 'column', justifyContent: 'center', minWidth: 0 }}>
+        <div style={{ marginLeft: 28, display: 'flex', flexDirection: 'column', justifyContent: 'center', minWidth: 0, zIndex: 1 }}>
           <div style={{ fontSize: 20, fontWeight: 800, color: COLORS.text, letterSpacing: 0.2, marginBottom: 2 }}>
             Día {day} <span style={{ fontWeight: 400, color: '#C62328', marginLeft: 4 }}>• {phase.charAt(0).toUpperCase() + phase.slice(1)}</span>
           </div>
@@ -303,15 +328,15 @@ const CycleVisual: React.FC<CycleVisualProps> = ({ expanded = true }) => {
   return (
     <motion.div
       initial={{ opacity: 0, scale: 0.98 }}
-      animate={{ opacity: 1, scale: 1 }}
+      animate={{ opacity: 1, scale: 1, background: moodColor }}
       exit={{ opacity: 0, scale: 0.98 }}
       transition={{ duration: 0.5 }}
       style={{
         display: 'flex',
         flexDirection: 'row',
         alignItems: 'stretch',
-        background: 'transparent',
-        borderRadius: 0,
+        background: moodColor,
+        borderRadius: 24,
         boxShadow: 'none',
         padding: 0,
         minHeight: 360,
@@ -321,50 +346,51 @@ const CycleVisual: React.FC<CycleVisualProps> = ({ expanded = true }) => {
         overflow: 'hidden',
       }}
     >
-      {/* Columna 1: SVG útero + aura + óvulo */}
+      {/* Columna 1: SVG útero + óvulo animado + resumen */}
       <div style={{
         flex: '0 0 32%',
         minWidth: 320,
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
-        justifyContent: 'center',
+        justifyContent: 'flex-start',
         position: 'relative',
-        padding: '32px 0 32px 32px',
+        padding: '48px 0 32px 32px',
       }}>
-        {/* Aura circular */}
-        <div style={{
-          position: 'absolute',
-          left: '50%',
-          top: '50%',
-          transform: 'translate(-50%, -50%)',
-          width: 220,
-          height: 220,
-          borderRadius: '50%',
-          background: 'radial-gradient(circle, #F8D9D6 60%, #e7e0d5 100%)',
-          boxShadow: '0 4px 24px 0 #e7b7b7a0, 0 0 0 10px #fff2',
-          zIndex: 0,
-          filter: 'blur(1.5px)',
-        }} />
-        {/* SVG útero */}
-        <img src="/img/UteroRojo.svg" alt="Útero central del ciclo" style={{ position: 'relative', width: 120, height: 80, zIndex: 2, marginBottom: 12, marginTop: 12, display: 'block' }} />
-        {/* Óvulo orbitando */}
-        <svg width={220} height={220} style={{ position: 'absolute', left: '50%', top: '50%', transform: 'translate(-50%, -50%)', zIndex: 1, pointerEvents: 'none' }}>
-          <circle cx={110} cy={110} r={100} fill="none" stroke="#E6B7C1" strokeWidth={2} />
-          <circle cx={110 + 100 * Math.sin((angle * Math.PI) / 180)} cy={110 - 100 * Math.cos((angle * Math.PI) / 180)} r={13} fill={COLORS.marker} stroke="#fff" strokeWidth={3} />
-        </svg>
-        {/* Día y fase debajo */}
-        <div style={{ marginTop: 24, textAlign: 'center', zIndex: 2 }}>
-          <div style={{ fontSize: 26, fontWeight: 700, color: COLORS.text }}>
-            Día {day} - {phase.charAt(0).toUpperCase() + phase.slice(1)}
+        {/* SVG útero grande y centrado */}
+        <div style={{ position: 'relative', width: 180, height: 180, marginBottom: 12 }}>
+          <img src="/img/UteroRojo.svg" alt="Útero central del ciclo" style={{ position: 'absolute', left: '50%', top: 0, transform: 'translateX(-50%)', width: 120, height: 80, zIndex: 2, display: 'block' }} />
+          {/* Óvulo orbitando animado */}
+          <svg width={180} height={120} style={{ position: 'absolute', left: 0, top: 0, zIndex: 1, pointerEvents: 'none' }}>
+            <circle cx={90} cy={60} r={70} fill="none" stroke="#E6B7C1" strokeWidth={2} />
+            <motion.circle
+              cx={90 + 70 * Math.sin((orbitAngle * Math.PI) / 180)}
+              cy={60 - 70 * Math.cos((orbitAngle * Math.PI) / 180)}
+              r={13}
+              fill={COLORS.marker}
+              stroke="#fff"
+              strokeWidth={3}
+              animate={{
+                filter: [
+                  'drop-shadow(0 0 0px #E57373)',
+                  'drop-shadow(0 0 8px #E57373)',
+                  'drop-shadow(0 0 0px #E57373)'
+                ],
+              }}
+              transition={{ repeat: Infinity, duration: 2, ease: 'linear' }}
+            />
+          </svg>
+        </div>
+        {/* Resumen debajo, bien separado */}
+        <div style={{ marginTop: 120, textAlign: 'center', zIndex: 2, width: '100%' }}>
+          <div style={{ fontSize: 44, fontWeight: 900, color: COLORS.text, letterSpacing: 0.2, marginBottom: 0 }}>
+            {day}
           </div>
-          {menstruationDay && menstruationLength && (
-            <div style={{ fontSize: 16, color: COLORS.text, marginTop: 4 }}>
-              Día {menstruationDay} de {menstruationLength} de menstruación
-            </div>
-          )}
-          <div style={{ fontSize: 16, color: pregnancy.color, marginTop: 8 }}>
-            Probabilidad de embarazo: <b>{pregnancy.text}</b>
+          <div style={{ fontSize: 22, fontWeight: 700, color: '#C62328', marginBottom: 2 }}>
+            {phase.charAt(0).toUpperCase() + phase.slice(1)}
+          </div>
+          <div style={{ fontSize: 15, color: pregnancy.color, marginTop: 8, fontWeight: 600 }}>
+            Probabilidad de embarazo: <span style={{ fontWeight: 700 }}>{pregnancy.text}</span>
           </div>
         </div>
       </div>
@@ -374,10 +400,10 @@ const CycleVisual: React.FC<CycleVisualProps> = ({ expanded = true }) => {
         minWidth: 260,
         display: 'flex',
         flexDirection: 'column',
-        gap: 18,
-        justifyContent: 'flex-start',
+        gap: 32,
+        justifyContent: 'center',
         alignItems: 'stretch',
-        padding: '32px 12px 32px 12px',
+        padding: '48px 12px 48px 12px',
       }}>
         {/* Receta */}
         <motion.div
@@ -433,10 +459,10 @@ const CycleVisual: React.FC<CycleVisualProps> = ({ expanded = true }) => {
         flex: '1 1 0',
         display: 'flex',
         flexDirection: 'column',
-        gap: 18,
-        justifyContent: 'flex-start',
+        gap: 32,
+        justifyContent: 'center',
         alignItems: 'stretch',
-        padding: '32px 32px 32px 12px',
+        padding: '48px 32px 48px 12px',
         overflow: 'hidden',
       }}>
         {/* Síntomas */}
@@ -446,8 +472,8 @@ const CycleVisual: React.FC<CycleVisualProps> = ({ expanded = true }) => {
           transition={{ delay: 0.4 }}
           style={{ background: 'transparent', borderRadius: 0, padding: 0, boxShadow: 'none', marginBottom: 0 }}
         >
-          <div style={{ fontWeight: 600, color: '#C62328', marginBottom: 4 }}>Síntomas</div>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 12 }}>
+          <div style={{ fontWeight: 600, color: '#C62328', marginBottom: 8 }}>Síntomas</div>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 18 }}>
             {SYMPTOM_OPTIONS.map(symptom => {
               // Color pastel e intenso para cada icono
               const pastel = '#F8D9D6';
@@ -463,7 +489,7 @@ const CycleVisual: React.FC<CycleVisualProps> = ({ expanded = true }) => {
                   whileTap={{ scale: 0.95 }}
                   whileHover={{ scale: 1.05 }}
                 >
-                  <div style={{ width: 38, height: 38, borderRadius: '50%', background: selectedSymptoms.includes(symptom) ? pastel : '#f3e6e6', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'background 0.2s' }}>
+                  <div style={{ width: 38, height: 38, borderRadius: '50%', background: pastel, display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'background 0.2s' }}>
                     {SymptomIcons[symptom](intenso)}
                   </div>
                   <span style={{ marginLeft: 8, color: '#222', fontSize: 14 }}>{symptom}</span>
@@ -479,12 +505,18 @@ const CycleVisual: React.FC<CycleVisualProps> = ({ expanded = true }) => {
           transition={{ delay: 0.5 }}
           style={{ background: 'transparent', borderRadius: 0, padding: 0, boxShadow: 'none', marginBottom: 0 }}
         >
-          <div style={{ fontWeight: 600, color: '#C62328', marginBottom: 4 }}>¿Cómo te sientes hoy?</div>
-          <div style={{ display: 'flex', gap: 14, marginTop: 6 }}>
+          <div style={{ fontWeight: 600, color: '#C62328', marginBottom: 8 }}>¿Cómo te sientes hoy?</div>
+          <div style={{ display: 'flex', gap: 18, marginTop: 6 }}>
             {MOODS.map(mood => {
               // Color pastel e intenso para cada icono
-              const pastel = '#F8D9D6';
-              const intenso = '#C62328';
+              const pastel = mood.color;
+              const intenso = {
+                feliz: '#E6B800',
+                cansada: '#3A7CA5',
+                irritable: '#C62328',
+                triste: '#6C63FF',
+                motivada: '#1DB954',
+              }[mood.value];
               return (
                 <motion.button
                   key={mood.value}
@@ -497,8 +529,8 @@ const CycleVisual: React.FC<CycleVisualProps> = ({ expanded = true }) => {
                   whileTap={{ scale: 0.9 }}
                   whileHover={{ scale: 1.1 }}
                 >
-                  <div style={{ width: 44, height: 44, borderRadius: '50%', background: selectedMood === mood.value ? pastel : '#f3e6e6', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'background 0.2s' }}>
-                    {MoodIcons[mood.value](intenso)}
+                  <div style={{ width: 44, height: 44, borderRadius: '50%', background: selectedMood === mood.value ? pastel : '#f3e6e6', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'background 0.2s', boxShadow: selectedMood === mood.value ? `0 0 0 3px ${intenso}55` : 'none' }}>
+                    {MoodIcons[mood.value](intenso || '#C62328')}
                   </div>
                 </motion.button>
               );

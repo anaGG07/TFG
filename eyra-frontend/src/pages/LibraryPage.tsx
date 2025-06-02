@@ -245,7 +245,7 @@ const TentButton = ({
         >
           {/* Línea base expandible */}
           <div
-            className={`h-0.5 bg-gradient-to-r from-transparent via-[#C62328] to-transparent transition-all duration-300 rounded-full mb-2 ${
+            className={`h-0.5 bg-gradient-to-r from-transparent via-[#C62328] to-transparent transition-all duration-300 rounded-full mb-2 flex-shrink-0 ${
               isHovered ? "w-4/5 opacity-100 shadow-lg" : "w-3/5 opacity-60"
             }`}
           />
@@ -274,7 +274,7 @@ const TentButton = ({
         aria-label={`Acceder a categoría ${categoryId}`}
       >
         {/* Tienda de campaña - más centrada y elevada */}
-        <div className="flex items-center justify-center w-full mb-2">
+        <div className="flex items-center justify-center w-full">
           <svg
             width="85%"
             height="60%"
@@ -380,7 +380,7 @@ const TentButton = ({
 
         {/* Línea base expandible - más cerca de la tienda */}
         <div
-          className={`h-0.5 bg-gradient-to-r from-transparent via-[#C62328] to-transparent transition-all duration-500 rounded-full mb-4 ${
+          className={`h-0.5 bg-gradient-to-r from-transparent via-[#C62328] to-transparent transition-all duration-500 rounded-full mb-2 flex-shrink-0 ${
             isHovered ? "w-4/5 opacity-100 shadow-lg" : "w-3/5 opacity-50"
           }`}
         />
@@ -521,7 +521,7 @@ const CategoryCard = ({
           isSmall={isSmall}
         />
       ) : (
-        // Vista expandida - contenido completo
+        // Vista expandida - contenido completo SIN TIENDA
         <div className="h-full flex flex-col">
           <div className="flex items-center justify-between mb-6">
             <div>
