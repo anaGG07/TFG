@@ -413,6 +413,48 @@ const CategoryCard = ({
 }) => {
   const data = libraryData[categoryId];
 
+  const getCategoryTitle = (id: string) => {
+    switch (id) {
+      case "history":
+        return {
+          name: "Mnemósine",
+          description: "Historias reales de la menstruación en civilizaciones antiguas"
+        };
+      case "science":
+        return {
+          name: "Atenea", 
+          description: "Papers científicos y estudios sobre el ciclo menstrual"
+        };
+      case "phases":
+        return {
+          name: "Selene",
+          description: "Mitología y creencias ancestrales sobre la menstruación"
+        };
+      case "inclusivity":
+        return {
+          name: "Artemisa",
+          description: "Productos naturales y remedios para el bienestar menstrual"
+        };
+      case "maternity":
+        return {
+          name: "Deméter",
+          description: "Rituales, ceremonias y tradiciones del ciclo femenino"
+        };
+      case "wisdom":
+        return {
+          name: "Hestia",
+          description: "Sabiduría ancestral y enseñanzas de mujeres sabias"
+        };
+      default:
+        return {
+          name: "Refugio",
+          description: "Tu espacio sagrado de conocimiento"
+        };
+    }
+  };
+
+  const titleData = getCategoryTitle(categoryId);
+
   const getCategoryConfig = (id: string) => {
     switch (id) {
       case "history":
@@ -484,7 +526,7 @@ const CategoryCard = ({
           <div className="flex items-center justify-between mb-6">
             <div>
               <h3 className="text-xl font-serif font-bold text-[#7a2323]">
-                {config.title}
+                {titleData.name}
               </h3>
               <p className="text-sm text-[#5b0108]">
                 {data.totalCount} {config.unitLabel} • {data.newCount} nuevos
