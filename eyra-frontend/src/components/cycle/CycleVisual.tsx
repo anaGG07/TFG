@@ -232,44 +232,67 @@ const CycleVisual: React.FC<CycleVisualProps> = ({ expanded = true }) => {
           padding: 18,
           minHeight: 120,
           width: '100%',
-          gap: 18,
+          gap: 0,
           overflow: 'hidden',
         }}
       >
-        <svg width={160} height={160}>
-          <circle cx={cx} cy={cy} r={r} fill={COLORS.circle} stroke="#E6B7C1" strokeWidth={3} />
-          {PHASES.map((p, i) => {
-            const startAngle = (i * 360) / 4;
-            const endAngle = ((i + 1) * 360) / 4;
-            const largeArc = endAngle - startAngle > 180 ? 1 : 0;
-            const x1 = cx + r * Math.sin((startAngle * Math.PI) / 180);
-            const y1 = cy - r * Math.cos((startAngle * Math.PI) / 180);
-            const x2 = cx + r * Math.sin((endAngle * Math.PI) / 180);
-            const y2 = cy - r * Math.cos((endAngle * Math.PI) / 180);
-            return (
-              <path
-                key={p.name}
-                d={`M${cx},${cy} L${x1},${y1} A${r},${r} 0 ${largeArc} 1 ${x2},${y2} Z`}
-                fill={p.color}
-                opacity={0.13}
-              />
-            );
-          })}
-          <circle cx={markerX} cy={markerY} r={8} fill={COLORS.marker} stroke="#fff" strokeWidth={2} />
-          <ellipse cx={cx} cy={cy} rx={22} ry={14} fill="#fff" stroke="#E6B7C1" strokeWidth={1.5} />
-          <rect x={cx - 3} y={cy + 6} width={6} height={16} rx={3} fill="#fff" stroke="#E6B7C1" strokeWidth={1.5} />
-        </svg>
-        <div style={{ marginLeft: 12 }}>
-          <div style={{ fontSize: 18, fontWeight: 700, color: COLORS.text }}>
-            Día {day} - {phase.charAt(0).toUpperCase() + phase.slice(1)}
+        {/* Fondo circular decorativo */}
+        <div style={{
+          position: 'relative',
+          width: 120,
+          height: 120,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}>
+          <div style={{
+            position: 'absolute',
+            left: 0,
+            top: 0,
+            width: 120,
+            height: 120,
+            borderRadius: '50%',
+            background: 'radial-gradient(circle, #F8D9D6 60%, #e7e0d5 100%)',
+            boxShadow: '0 4px 24px 0 #e7b7b7a0, 0 0 0 6px #fff2',
+            zIndex: 0,
+            filter: 'blur(1px)',
+          }} />
+          <svg width={100} height={100} style={{ position: 'relative', zIndex: 1 }}>
+            <circle cx={50} cy={50} r={45} fill={COLORS.circle} stroke="#E6B7C1" strokeWidth={3} />
+            {PHASES.map((p, i) => {
+              const startAngle = (i * 360) / 4;
+              const endAngle = ((i + 1) * 360) / 4;
+              const largeArc = endAngle - startAngle > 180 ? 1 : 0;
+              const cx0 = 50 + 45 * Math.sin((startAngle * Math.PI) / 180);
+              const cy0 = 50 - 45 * Math.cos((startAngle * Math.PI) / 180);
+              const cx1 = 50 + 45 * Math.sin((endAngle * Math.PI) / 180);
+              const cy1 = 50 - 45 * Math.cos((endAngle * Math.PI) / 180);
+              return (
+                <path
+                  key={p.name}
+                  d={`M50,50 L${cx0},${cy0} A45,45 0 ${largeArc} 1 ${cx1},${cy1} Z`}
+                  fill={p.color}
+                  opacity={0.13}
+                />
+              );
+            })}
+            <circle cx={50 + 45 * Math.sin((angle * Math.PI) / 180)} cy={50 - 45 * Math.cos((angle * Math.PI) / 180)} r={7} fill={COLORS.marker} stroke="#fff" strokeWidth={2} />
+            <ellipse cx={50} cy={50} rx={14} ry={9} fill="#fff" stroke="#E6B7C1" strokeWidth={1.5} />
+            <rect x={47} y={59} width={6} height={12} rx={3} fill="#fff" stroke="#E6B7C1" strokeWidth={1.5} />
+          </svg>
+        </div>
+        {/* Datos a la derecha, con mejor jerarquía visual */}
+        <div style={{ marginLeft: 28, display: 'flex', flexDirection: 'column', justifyContent: 'center', minWidth: 0 }}>
+          <div style={{ fontSize: 20, fontWeight: 800, color: COLORS.text, letterSpacing: 0.2, marginBottom: 2 }}>
+            Día {day} <span style={{ fontWeight: 400, color: '#C62328', marginLeft: 4 }}>• {phase.charAt(0).toUpperCase() + phase.slice(1)}</span>
           </div>
           {menstruationDay && menstruationLength && (
-            <div style={{ fontSize: 13, color: COLORS.text, marginTop: 2 }}>
+            <div style={{ fontSize: 13.5, color: COLORS.text, marginTop: 2, opacity: 0.85 }}>
               Día {menstruationDay} de {menstruationLength} de menstruación
             </div>
           )}
-          <div style={{ fontSize: 13, color: pregnancy.color, marginTop: 2 }}>
-            Embarazo: <b>{pregnancy.text}</b>
+          <div style={{ fontSize: 13.5, color: pregnancy.color, marginTop: 2, fontWeight: 600 }}>
+            Embarazo: <span style={{ fontWeight: 700 }}>{pregnancy.text}</span>
           </div>
         </div>
       </motion.div>
