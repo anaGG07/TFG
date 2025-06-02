@@ -175,9 +175,11 @@ const ArticlePreview = ({ article }: { article: LibraryContent }) => (
 const TentButton = ({
   categoryId,
   onClick,
+  isSmall = false, // Nueva prop para distinguir tamaño
 }: {
   categoryId: string;
   onClick: () => void;
+  isSmall?: boolean;
 }) => {
   const [isHovered, setIsHovered] = useState(false);
   const [isClicked, setIsClicked] = useState(false);
@@ -230,123 +232,161 @@ const TentButton = ({
 
   const titleData = getCategoryTitle(categoryId);
 
+  // Si es pequeño (versión expandida), mostrar solo texto
+  if (isSmall) {
+    return (
+      <div className="relative w-full h-full flex items-center justify-center">
+        <button
+          onClick={handleClick}
+          onMouseEnter={() => setIsHovered(true)}
+          onMouseLeave={() => setIsHovered(false)}
+          className="relative focus:outline-none group w-full h-full flex flex-col items-center justify-center px-2"
+          aria-label={`Acceder a categoría ${categoryId}`}
+        >
+          {/* Línea base expandible */}
+          <div
+            className={`h-0.5 bg-gradient-to-r from-transparent via-[#C62328] to-transparent transition-all duration-300 rounded-full mb-2 ${
+              isHovered ? "w-4/5 opacity-100 shadow-lg" : "w-3/5 opacity-60"
+            }`}
+          />
+
+          {/* Título y descripción */}
+          <div className="text-center max-w-full px-1">
+            <p className="text-sm font-serif font-bold text-[#7a2323] mb-1 truncate">
+              {titleData.name}
+            </p>
+            <p className="text-xs font-sans text-[#5b0108] leading-tight line-clamp-2">
+              {titleData.description}
+            </p>
+          </div>
+        </button>
+      </div>
+    );
+  }
+
   return (
     <div className="relative w-full h-full flex items-center justify-center library-tent-container">
       <button
         onClick={handleClick}
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
-        className="relative focus:outline-none group w-full h-full flex items-center justify-center library-tent-container"
+        className="relative focus:outline-none group w-full h-full flex flex-col items-center justify-center library-tent-container"
         aria-label={`Acceder a categoría ${categoryId}`}
       >
-        {/* Tienda de campaña que ocupa todo el espacio */}
-        <svg
-          width="90%"
-          height="70%"
-          viewBox="0 0 300 200"
-          className={`transition-all duration-500 ${
-            isClicked ? "scale-95" : "scale-100"
-          }`}
-        >
-          {/* Lado izquierdo de la tienda */}
-          <path
-            d={
-              isHovered
-                ? "M 150 20 L 30 160 L 110 160 Z"
-                : "M 150 20 L 50 160 L 150 160 Z"
-            }
-            fill={isHovered ? "rgba(198, 35, 40, 0.12)" : "rgba(198, 35, 40, 0.06)"}
-            stroke="#C62328"
-            strokeWidth="4"
-            className="transition-all duration-500 ease-in-out drop-shadow-sm"
-          />
-
-          {/* Lado derecho de la tienda */}
-          <path
-            d={
-              isHovered
-                ? "M 150 20 L 190 160 L 270 160 Z"
-                : "M 150 20 L 150 160 L 250 160 Z"
-            }
-            fill={isHovered ? "rgba(198, 35, 40, 0.18)" : "rgba(198, 35, 40, 0.09)"}
-            stroke="#C62328"
-            strokeWidth="4"
-            className="transition-all duration-500 ease-in-out drop-shadow-sm"
-          />
-
-          {/* Línea central de la tienda - solo cuando NO está en hover */}
-          {!isHovered && (
-            <line
-              x1="150"
-              y1="20"
-              x2="150"
-              y2="160"
+        {/* Tienda de campaña - más centrada */}
+        <div className="flex-1 flex items-center justify-center w-full">
+          <svg
+            width="85%"
+            height="65%"
+            viewBox="0 0 300 180"
+            className={`transition-all duration-500 ${
+              isClicked ? "scale-95" : "scale-100"
+            }`}
+          >
+            {/* Lado izquierdo de la tienda - ajustado para unión perfecta */}
+            <path
+              d={
+                isHovered
+                  ? "M 150 15 L 30 150 L 110 150 Z"
+                  : "M 150 15 L 50 150 L 150 150 Z"
+              }
+              fill={isHovered ? "rgba(198, 35, 40, 0.12)" : "rgba(198, 35, 40, 0.06)"}
               stroke="#C62328"
-              strokeWidth="3"
-              className="transition-all duration-300"
+              strokeWidth="4"
+              strokeLinejoin="miter" 
+              strokeLinecap="round"
+              className="transition-all duration-500 ease-in-out drop-shadow-sm"
             />
-          )}
 
-          {/* Interior visible cuando se abre */}
-          {isHovered && (
-            <g className="transition-all duration-500">
-              {/* Clip path para mantener el círculo dentro de la tienda */}
-              <defs>
-                <clipPath id={`tent-clip-${categoryId}`}>
-                  <path d="M 150 30 L 110 180 L 190 180 Z" />
-                </clipPath>
-                <radialGradient id={`glow-${categoryId}`} cx="50%" cy="50%" r="60%">
-                  <stop offset="0%" stopColor="#C62328" stopOpacity="0.3" />
-                  <stop offset="30%" stopColor="#C62328" stopOpacity="0.15" />
-                  <stop offset="60%" stopColor="#C62328" stopOpacity="0.05" />
-                  <stop offset="100%" stopColor="#C62328" stopOpacity="0" />
-                </radialGradient>
-              </defs>
-              
-              {/* Ente misterioso - clipeado dentro de la tienda */}
-              <g clipPath={`url(#tent-clip-${categoryId})`}>
-                <circle
-                  cx="150"
-                  cy="120"
-                  r="45"
-                  fill={`url(#glow-${categoryId})`}
-                  className="animate-pulse"
-                  style={{ filter: "blur(12px)" }}
-                />
-                <circle
-                  cx="150"
-                  cy="120"
-                  r="25"
-                  fill="#C62328"
-                  opacity="0.2"
-                  className="animate-pulse"
-                  style={{ animationDelay: "0.5s", filter: "blur(6px)" }}
-                />
-                <circle
-                  cx="150"
-                  cy="120"
-                  r="12"
-                  fill="#C62328"
-                  opacity="0.15"
-                  className="animate-pulse"
-                  style={{ animationDelay: "1s", filter: "blur(3px)" }}
-                />
+            {/* Lado derecho de la tienda - ajustado para unión perfecta */}
+            <path
+              d={
+                isHovered
+                  ? "M 150 15 L 190 150 L 270 150 Z"
+                  : "M 150 15 L 150 150 L 250 150 Z"
+              }
+              fill={isHovered ? "rgba(198, 35, 40, 0.18)" : "rgba(198, 35, 40, 0.09)"}
+              stroke="#C62328"
+              strokeWidth="4"
+              strokeLinejoin="miter"
+              strokeLinecap="round"
+              className="transition-all duration-500 ease-in-out drop-shadow-sm"
+            />
+
+            {/* Interior visible cuando se abre - solo efecto glow, sin círculos */}
+            {isHovered && (
+              <g className="transition-all duration-500">
+                <defs>
+                  <clipPath id={`tent-clip-${categoryId}`}>
+                    <path d="M 150 25 L 110 160 L 190 160 Z" />
+                  </clipPath>
+                  <radialGradient id={`glow-${categoryId}`} cx="50%" cy="50%" r="70%">
+                    <stop offset="0%" stopColor="#C62328" stopOpacity="0.4" />
+                    <stop offset="20%" stopColor="#C62328" stopOpacity="0.25" />
+                    <stop offset="40%" stopColor="#C62328" stopOpacity="0.15" />
+                    <stop offset="60%" stopColor="#C62328" stopOpacity="0.08" />
+                    <stop offset="80%" stopColor="#C62328" stopOpacity="0.03" />
+                    <stop offset="100%" stopColor="#C62328" stopOpacity="0" />
+                  </radialGradient>
+                </defs>
+                
+                {/* Solo efecto glow difuminado - clipeado dentro de la tienda */}
+                <g clipPath={`url(#glow-${categoryId})`}>
+                  <ellipse
+                    cx="150"
+                    cy="110"
+                    rx="55"
+                    ry="40"
+                    fill={`url(#glow-${categoryId})`}
+                    className="animate-pulse"
+                    style={{ 
+                      filter: "blur(15px)",
+                      animationDuration: "3s"
+                    }}
+                  />
+                  <ellipse
+                    cx="150"
+                    cy="110"
+                    rx="35"
+                    ry="25"
+                    fill="#C62328"
+                    opacity="0.15"
+                    className="animate-pulse"
+                    style={{ 
+                      filter: "blur(8px)",
+                      animationDelay: "0.8s",
+                      animationDuration: "2.5s"
+                    }}
+                  />
+                  <ellipse
+                    cx="150"
+                    cy="110"
+                    rx="20"
+                    ry="15"
+                    fill="#C62328"
+                    opacity="0.1"
+                    className="animate-pulse"
+                    style={{ 
+                      filter: "blur(4px)",
+                      animationDelay: "1.5s",
+                      animationDuration: "2s"
+                    }}
+                  />
+                </g>
               </g>
-            </g>
-          )}
+            )}
+          </svg>
+        </div>
 
-
-        </svg>
-
-        {/* Línea base expandible - con más separación */}
+        {/* Línea base expandible - separada del texto */}
         <div
-          className={`absolute bottom-[60px] left-1/2 transform -translate-x-1/2 h-1 bg-gradient-to-r from-transparent via-[#C62328] to-transparent transition-all duration-500 rounded-full ${
-            isHovered ? "w-5/6 opacity-100 shadow-lg" : "w-3/5 opacity-50"
+          className={`h-0.5 bg-gradient-to-r from-transparent via-[#C62328] to-transparent transition-all duration-500 rounded-full mb-4 ${
+            isHovered ? "w-4/5 opacity-100 shadow-lg" : "w-3/5 opacity-50"
           }`}
         />
 
-        {/* Título y descripción mitológicos - con más espacio */}
-        <div className="absolute bottom-[5px] left-1/2 transform -translate-x-1/2 text-center max-w-[250px]">
+        {/* Título y descripción mitológicos - con más separación */}
+        <div className="text-center max-w-[90%] px-2">
           <p className="text-xl font-serif font-bold text-[#7a2323] whitespace-nowrap mb-2">
             {titleData.name}
           </p>
@@ -354,8 +394,6 @@ const TentButton = ({
             {titleData.description}
           </p>
         </div>
-
-
       </button>
     </div>
   );
@@ -366,10 +404,12 @@ const CategoryCard = ({
   categoryId,
   isExpanded,
   onToggle,
+  isSmall = false, // Nueva prop
 }: {
   categoryId: string;
   isExpanded: boolean;
   onToggle?: () => void;
+  isSmall?: boolean;
 }) => {
   const data = libraryData[categoryId];
 
@@ -432,8 +472,12 @@ const CategoryCard = ({
   return (
     <div className={`flex flex-col h-full ${!isExpanded ? '' : 'p-4'}`}>
       {!isExpanded ? (
-        // Vista compacta - botón de tienda
-        <TentButton categoryId={categoryId} onClick={onToggle || (() => {})} />
+        // Vista compacta - botón de tienda (pasamos isSmall)
+        <TentButton 
+          categoryId={categoryId} 
+          onClick={onToggle || (() => {})} 
+          isSmall={isSmall}
+        />
       ) : (
         // Vista expandida - contenido completo
         <div className="h-full flex flex-col">
@@ -530,13 +574,20 @@ const LibraryPage: React.FC = () => {
 
   // Manejar expansión de categorías
   const handleItemsChange = (newItems: any[]) => {
+    // Determinar si hay algún item expandido
+    const hasExpandedItem = newItems.some((item) => item.isExpanded);
+    
     // Actualizar componentes con estado de expansión
     const updatedItems = newItems.map((item) => {
       const isExpanded = item.isExpanded || false;
+      // Si hay un item expandido, los demás son "small"
+      const isSmall = hasExpandedItem && !isExpanded;
+      
       const component = (
         <CategoryCard
           categoryId={item.id}
           isExpanded={isExpanded}
+          isSmall={isSmall}
           onToggle={() => {
             // Aquí manejarías el toggle, pero DraggableGrid debería exponer esta funcionalidad
             console.log(`Toggle ${item.id}`);
@@ -563,9 +614,9 @@ const LibraryPage: React.FC = () => {
       animate={{ opacity: 1 }}
       transition={{ duration: 0.5 }}
     >
-      {/* Header sutil de la biblioteca */}
+      {/* Header sutil de la biblioteca - reducido el padding */}
       <motion.div
-        className="absolute top-0 left-0 right-0 z-10 p-6"
+        className="absolute top-0 left-0 right-0 z-10 p-4"
         initial={{ y: -20, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ delay: 0.2, duration: 0.6 }}
@@ -595,17 +646,15 @@ const LibraryPage: React.FC = () => {
         </div>
       </motion.div>
 
-      {/* Grid principal de categorías */}
+      {/* Grid principal de categorías - menos padding top */}
       <motion.div
-        className="w-full h-full pt-20"
+        className="w-full h-full pt-16"
         initial={{ y: 20, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ delay: 0.4, duration: 0.6 }}
       >
         <DraggableGrid items={libraryItems} onItemsChange={handleItemsChange} isLibrary={true} />
       </motion.div>
-
-
     </motion.div>
   );
 };

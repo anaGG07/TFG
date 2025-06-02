@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from 'react';
+import * as React from 'react';
+import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useCycle } from '../../context/CycleContext';
 import { ContentType, CyclePhase, Content } from '../../types/domain';
@@ -30,12 +31,82 @@ const PHASES = [
 
 const CYCLE_DAYS = 28;
 
+// Iconos SVG para emociones (estilo CircularNavigation)
+const MoodIcons: Record<string, React.ReactElement> = {
+  feliz: (
+    <svg width="32" height="32" viewBox="0 0 32 32" fill="none" stroke="white" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="16" cy="16" r="13" />
+      <path d="M11 20c1.5 2 7.5 2 9 0" />
+      <circle cx="12" cy="14" r="1.2" fill="white" />
+      <circle cx="20" cy="14" r="1.2" fill="white" />
+    </svg>
+  ),
+  cansada: (
+    <svg width="32" height="32" viewBox="0 0 32 32" fill="none" stroke="white" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="16" cy="16" r="13" />
+      <path d="M11 22c2-2 8-2 10 0" />
+      <path d="M12 14l2 2m0-2l-2 2" />
+      <path d="M20 14l2 2m0-2l-2 2" />
+    </svg>
+  ),
+  irritable: (
+    <svg width="32" height="32" viewBox="0 0 32 32" fill="none" stroke="white" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="16" cy="16" r="13" />
+      <path d="M11 22c2-2 8-2 10 0" />
+      <path d="M12 14c0-1 2-1 2 0" />
+      <path d="M20 14c0-1 2-1 2 0" />
+    </svg>
+  ),
+  triste: (
+    <svg width="32" height="32" viewBox="0 0 32 32" fill="none" stroke="white" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="16" cy="16" r="13" />
+      <path d="M11 22c1.5-2 7.5-2 9 0" />
+      <path d="M12 14c0-1 2-1 2 0" />
+      <path d="M20 14c0-1 2-1 2 0" />
+    </svg>
+  ),
+  motivada: (
+    <svg width="32" height="32" viewBox="0 0 32 32" fill="none" stroke="white" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="16" cy="16" r="13" />
+      <path d="M10 20c2-4 10-4 12 0" />
+      <path d="M16 12v6" />
+      <path d="M16 12l-2 2" />
+      <path d="M16 12l2 2" />
+    </svg>
+  ),
+};
+
+// Iconos SVG para síntomas (estilo lineal)
+const SymptomIcons: Record<string, React.ReactElement> = {
+  'Dolor abdominal': (
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><ellipse cx="12" cy="12" rx="8" ry="6" /><path d="M8 12c1-2 7-2 8 0" /></svg>
+  ),
+  'Fatiga': (
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="4" y="10" width="16" height="8" rx="4" /><path d="M8 14h8" /></svg>
+  ),
+  'Dolor de cabeza': (
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="8" /><path d="M12 8v4l2 2" /></svg>
+  ),
+  'Hinchazón': (
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><ellipse cx="12" cy="14" rx="7" ry="4" /><ellipse cx="12" cy="10" rx="4" ry="2" /></svg>
+  ),
+  'Náuseas': (
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="8" /><path d="M8 16c2-2 6-2 8 0" /><path d="M10 10h.01" /><path d="M14 10h.01" /></svg>
+  ),
+  'Sensibilidad en senos': (
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><ellipse cx="8" cy="14" rx="3" ry="2" /><ellipse cx="16" cy="14" rx="3" ry="2" /><path d="M8 14v2" /><path d="M16 14v2" /></svg>
+  ),
+  'Cambios de humor': (
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="8" /><path d="M8 16c1.5-2 6.5-2 8 0" /><path d="M10 10h.01" /><path d="M14 10h.01" /></svg>
+  ),
+};
+
 const MOODS = [
-  { value: 'feliz', icon: '😊', label: 'Feliz', color: COLORS.feliz },
-  { value: 'cansada', icon: '😴', label: 'Cansada', color: COLORS.cansada },
-  { value: 'irritable', icon: '😠', label: 'Irritable', color: COLORS.irritable },
-  { value: 'triste', icon: '😢', label: 'Triste', color: COLORS.triste },
-  { value: 'motivada', icon: '💪', label: 'Motivada', color: COLORS.motivada },
+  { value: 'feliz', label: 'Feliz', color: COLORS.feliz },
+  { value: 'cansada', label: 'Cansada', color: COLORS.cansada },
+  { value: 'irritable', label: 'Irritable', color: COLORS.irritable },
+  { value: 'triste', label: 'Triste', color: COLORS.triste },
+  { value: 'motivada', label: 'Motivada', color: COLORS.motivada },
 ];
 
 const SYMPTOM_OPTIONS = [
@@ -359,7 +430,9 @@ const CycleVisual: React.FC<CycleVisualProps> = ({ expanded = true }) => {
                 whileTap={{ scale: 0.9 }}
                 whileHover={{ scale: 1.1 }}
               >
-                {mood.icon}
+                <div style={{ width: 44, height: 44, borderRadius: '50%', background: selectedMood === mood.value ? mood.color : 'rgba(198,35,40,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'background 0.2s' }}>
+                  {MoodIcons[mood.value]}
+                </div>
               </motion.button>
             ))}
           </div>
@@ -391,7 +464,10 @@ const CycleVisual: React.FC<CycleVisualProps> = ({ expanded = true }) => {
                 whileTap={{ scale: 0.95 }}
                 whileHover={{ scale: 1.05 }}
               >
-                {symptom}
+                <div style={{ width: 36, height: 36, borderRadius: '50%', background: selectedSymptoms.includes(symptom) ? '#F8D9D6' : 'rgba(198,35,40,0.10)', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'background 0.2s' }}>
+                  {SymptomIcons[symptom]}
+                </div>
+                <span style={{ marginLeft: 6, color: '#222', fontSize: 13 }}>{symptom}</span>
               </motion.button>
             ))}
           </div>
