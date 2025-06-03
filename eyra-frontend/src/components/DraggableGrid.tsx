@@ -12,22 +12,74 @@ interface GridItem {
 interface DraggableGridProps {
   items: GridItem[];
   onItemsChange?: (items: GridItem[]) => void;
-  isLibrary?: boolean; // Nueva prop para identificar si es la biblioteca
+  isLibrary?: boolean;
 }
 
 const DraggableGrid: React.FC<DraggableGridProps> = ({
   items: initialItems,
   onItemsChange,
-  isLibrary = false, // Por defecto false
+  isLibrary = false,
 }) => {
   const [items, setItems] = useState<GridItem[]>(initialItems);
   const [draggedItem, setDraggedItem] = useState<string | null>(null);
   const [isTransitioning, setIsTransitioning] = useState(false);
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [viewportMode, setViewportMode] = useState<'desktop' | 'tablet' | 'mobile'>('desktop');
 
   // Sincronizar estado interno cuando cambien los props
   useEffect(() => {
     setItems(initialItems);
   }, [initialItems]);
+
+  // Check viewport size
+  useEffect(() => {
+    const checkViewport = () => {
+      const width = window.innerWidth;
+      if (width < 640) {
+        setViewportMode('mobile');
+      } else if (width < 1024) {
+        setViewportMode('tablet');
+      } else {
+        setViewportMode('desktop');
+      }
+    };
+    
+    checkViewport();
+    window.addEventListener('resize', checkViewport);
+    return () => window.removeEventListener('resize', checkViewport);
+  }, []);
+
+  // Get items per view based on viewport
+  const getItemsPerView = useCallback(() => {
+    switch (viewportMode) {
+      case 'mobile': return 1;
+      case 'tablet': return 2;
+      case 'desktop': return items.length; // Show all in grid
+    }
+  }, [viewportMode, items.length]);
+
+  const itemsPerView = getItemsPerView();
+
+  // Carousel navigation
+  const nextItems = useCallback(() => {
+    if (itemsPerView >= items.length) return;
+    setCurrentIndex((prev) => (prev + itemsPerView) % items.length);
+  }, [items.length, itemsPerView]);
+
+  const prevItems = useCallback(() => {
+    if (itemsPerView >= items.length) return;
+    setCurrentIndex((prev) => (prev - itemsPerView + items.length) % items.length);
+  }, [items.length, itemsPerView]);
+
+  // Get current visible items
+  const getCurrentItems = useCallback(() => {
+    if (itemsPerView >= items.length) return items;
+    const visibleItems = [];
+    for (let i = 0; i < itemsPerView; i++) {
+      visibleItems.push(items[(currentIndex + i) % items.length]);
+    }
+    return visibleItems;
+  }, [currentIndex, itemsPerView, items]);
 
   const handleDragStart = useCallback((e: React.DragEvent, itemId: string) => {
     setDraggedItem(itemId);
@@ -93,6 +145,94 @@ const DraggableGrid: React.FC<DraggableGridProps> = ({
 
   const hasExpandedItem = items.some((item) => item.isExpanded);
   const expandedItem = items.find((item) => item.isExpanded);
+
+  // Carousel view for mobile and tablet
+  if ((viewportMode === 'mobile' || viewportMode === 'tablet') && isLibrary && !hasExpandedItem) {
+    const visibleItems = getCurrentItems();
+    const totalSlides = Math.ceil(items.length / itemsPerView);
+    const currentSlide = Math.floor(currentIndex / itemsPerView);
+    
+    return (
+      <div className="w-full h-full flex flex-col items-center justify-center p-4 relative">
+        {/* Navigation arrows */}
+        <button
+          onClick={prevItems}
+          className="absolute left-4 top-1/2 transform -translate-y-1/2 z-10 w-12 h-12 rounded-full flex items-center justify-center transition-all duration-200"
+          style={{
+            background: "linear-gradient(145deg, #f4f1ed, #e7e0d5)",
+            border: "1px solid rgba(91, 1, 8, 0.08)",
+            boxShadow: `
+              4px 4px 8px rgba(91, 1, 8, 0.06),
+              -4px -4px 8px rgba(255, 255, 255, 0.7)
+            `,
+          }}
+        >
+          <svg className="w-6 h-6 text-[#C62328]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7"/>
+          </svg>
+        </button>
+
+        <button
+          onClick={nextItems}
+          className="absolute right-4 top-1/2 transform -translate-y-1/2 z-10 w-12 h-12 rounded-full flex items-center justify-center transition-all duration-200"
+          style={{
+            background: "linear-gradient(145deg, #f4f1ed, #e7e0d5)",
+            border: "1px solid rgba(91, 1, 8, 0.08)",
+            boxShadow: `
+              4px 4px 8px rgba(91, 1, 8, 0.06),
+              -4px -4px 8px rgba(255, 255, 255, 0.7)
+            `,
+          }}
+        >
+          <svg className="w-6 h-6 text-[#C62328]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7"/>
+          </svg>
+        </button>
+
+        {/* Current items */}
+        <motion.div
+          key={currentIndex}
+          className={`w-full max-w-4xl mx-auto grid gap-4 ${
+            viewportMode === 'mobile' ? 'grid-cols-1' : 'grid-cols-2'
+          }`}
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          exit={{ opacity: 0, scale: 0.9 }}
+          transition={{ duration: 0.3 }}
+        >
+          {visibleItems.map((item) => (
+            <div
+              key={item.id}
+              className="cursor-pointer"
+              onClick={() => handleItemClick(item.id)}
+            >
+              {item.component}
+            </div>
+          ))}
+        </motion.div>
+
+        {/* Dots indicator */}
+        <div className="flex justify-center items-center gap-2 mt-6">
+          {Array.from({ length: totalSlides }).map((_, index) => (
+            <button
+              key={index}
+              onClick={() => setCurrentIndex(index * itemsPerView)}
+              className={`w-2.5 h-2.5 rounded-full transition-all duration-200 ${
+                index === currentSlide
+                  ? 'bg-[#C62328] scale-125'
+                  : 'bg-[#C62328]/30 hover:bg-[#C62328]/50'
+              }`}
+              style={{
+                boxShadow: index === currentSlide 
+                  ? '0 2px 4px rgba(198, 35, 40, 0.3)' 
+                  : '0 1px 2px rgba(91, 1, 8, 0.1)'
+              }}
+            />
+          ))}
+        </div>
+      </div>
+    );
+  }
 
   // Renderizado condicional: grid normal vs layout expandido
   if (hasExpandedItem && expandedItem) {
@@ -287,12 +427,11 @@ const DraggableGrid: React.FC<DraggableGridProps> = ({
     );
   }
 
-  // Grid normal cuando no hay elementos expandidos
+  // Grid normal cuando no hay elementos expandidos - responsive con pseudo-carrusel móvil
   return (
     <div className="w-full h-full p-4 md:p-8 overflow-hidden">
-      <div
-        className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-8 h-full auto-rows-fr"
-        style={window.innerWidth >= 1024 ? { gridTemplateRows: "repeat(2, 1fr)" } : {}}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-8 h-full auto-rows-fr"
+        style={typeof window !== 'undefined' && window.innerWidth >= 1024 ? { gridTemplateRows: "repeat(2, 1fr)" } : {}}
       >
         <AnimatePresence mode="sync">
           {items.map((item) => {

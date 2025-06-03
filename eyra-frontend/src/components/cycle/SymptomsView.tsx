@@ -152,7 +152,7 @@ const SymptomsView: React.FC<SymptomsViewProps> = ({ expanded = true }) => {
         </motion.div>
       );
     }
-    
+    // Solo mostrar el SVG 16.svg grande y centrado
     return (
       <motion.div
         initial={{ opacity: 0, y: 20 }}
@@ -173,39 +173,7 @@ const SymptomsView: React.FC<SymptomsViewProps> = ({ expanded = true }) => {
           overflow: 'hidden',
         }}
       >
-        {/* Síntomas actuales */}
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 12, justifyContent: 'center', marginBottom: 16 }}>
-          {todaySymptoms.map(symptom => (
-            <div
-              key={symptom.id}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                background: '#F8D9D6',
-                padding: '6px 12px',
-                borderRadius: 20,
-                gap: 6,
-              }}
-            >
-              {SymptomIcons[symptom.symptom]('#C62328')}
-              <span style={{ fontSize: 13, color: '#222' }}>{symptom.symptom}</span>
-              <div style={{ 
-                background: '#C62328', 
-                color: '#fff', 
-                padding: '2px 8px', 
-                borderRadius: 12,
-                fontSize: 12,
-              }}>
-                {symptom.intensity}/5
-              </div>
-            </div>
-          ))}
-        </div>
-
-        {/* Mini gráfico */}
-        <div style={{ width: '100%', height: 80 }}>
-          <Line data={chartData} options={chartOptions} />
-        </div>
+        <img src="/img/16.svg" alt="Síntomas" style={{ width: 320, height: 220, opacity: 0.97 }} />
       </motion.div>
     );
   }

@@ -1072,11 +1072,11 @@ const TentButton: React.FC<{
             }`}
           />
 
-          <div className="text-center max-w-full px-1">
-            <p className="text-sm font-serif font-bold text-[#7a2323] mb-1 truncate">
+          <div className="text-center max-w-full px-1 mt-1">
+            <p className="text-xs font-serif font-bold text-[#7a2323] mb-0.5 truncate">
               {config.name}
             </p>
-            <p className="text-xs font-sans text-[#5b0108] leading-tight line-clamp-2">
+            <p className="text-[10px] font-sans text-[#5b0108] leading-tight line-clamp-1">
               {config.description}
             </p>
           </div>
@@ -1200,11 +1200,11 @@ const TentButton: React.FC<{
           }`}
         />
 
-        <div className="text-center max-w-[90%] px-2 mt-3 flex-shrink-0">
-          <p className="text-xl font-serif font-bold text-[#7a2323] whitespace-nowrap mb-2">
+        <div className="text-center max-w-[90%] px-2 mt-2 flex-shrink-0">
+          <p className="text-lg md:text-xl font-serif font-bold text-[#7a2323] whitespace-nowrap mb-1">
             {config.name}
           </p>
-          <p className="text-sm font-sans text-[#5b0108] leading-tight">
+          <p className="text-xs md:text-sm font-sans text-[#5b0108] leading-tight line-clamp-2">
             {config.description}
           </p>
         </div>
@@ -1320,11 +1320,11 @@ const LibraryPage: React.FC = () => {
                   ` }}
                   transition={{ duration: 0.3 }}
                 >
-                  <div className="text-center">
+                  <div className="text-center w-full flex flex-col justify-center items-center">
                     <h1 className="text-xl md:text-2xl font-serif font-bold text-[#7a2323] leading-none mb-2 md:mb-3 tracking-wide">
                       RED TENT
                     </h1>
-                    <p className="text-xs md:text-sm text-[#5b0108] leading-relaxed font-medium">
+                    <p className="text-xs md:text-sm text-[#5b0108] leading-relaxed font-medium text-center">
                       🏛️ <strong>Descubre tu herencia ancestral.</strong> Tu historia comienza aquí.
                     </p>
                   </div>

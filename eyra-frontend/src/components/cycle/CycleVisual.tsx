@@ -90,6 +90,15 @@ const CycleVisual: React.FC<CycleVisualProps> = ({ expanded = true, onMoodColorC
   const progressRatio = (dayIndex + 1) / CYCLE_DAYS_DYNAMIC;
   const progressLength = CIRCLE_LENGTH * progressRatio;
 
+  if (!expanded) {
+    // Vista miniatura: solo SVG del útero, grande y centrado
+    return (
+      <div style={{ width: '100%', height: 320, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'transparent' }}>
+        <img src="/img/UteroRojo.svg" alt="Útero central del ciclo" style={{ width: 320, height: 220, opacity: 0.97 }} />
+      </div>
+    );
+  }
+
   return (
     <motion.div
       initial={{ opacity: 0, scale: 0.98 }}
@@ -128,7 +137,7 @@ const CycleVisual: React.FC<CycleVisualProps> = ({ expanded = true, onMoodColorC
       }}>
         <div style={{ position: 'relative', width: SVG_SIZE, height: SVG_SIZE, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           {/* SVG útero grande y centrado */}
-          <img src="/img/UteroRojo.svg" alt="Útero central del ciclo" style={{ position: 'absolute', left: '50%', top: '50%', transform: 'translate(-50%, -50%)', width: 220, height: 150, zIndex: 2, opacity: 0.97 }} />
+          <img src="/img/UteroRojo.svg" alt="Útero central del ciclo" style={{ position: 'absolute', left: '50%', top: '50%', transform: 'translate(-50%, -50%)', width: 286, height: 195, zIndex: 2, opacity: 0.97 }} />
           {/* Progress ring */}
           <svg width={SVG_SIZE} height={SVG_SIZE} style={{ position: 'absolute', left: 0, top: 0, zIndex: 1 }}>
             <defs>
@@ -152,7 +161,7 @@ const CycleVisual: React.FC<CycleVisualProps> = ({ expanded = true, onMoodColorC
               cy={CENTER}
               r={CIRCLE_RADIUS}
               fill="none"
-              stroke="url(#progress-gradient)"
+              stroke="#C62328"
               strokeWidth={12}
               strokeDasharray={CIRCLE_LENGTH}
               strokeDashoffset={CIRCLE_LENGTH - progressLength}
@@ -160,7 +169,7 @@ const CycleVisual: React.FC<CycleVisualProps> = ({ expanded = true, onMoodColorC
               initial={false}
               animate={{ strokeDashoffset: CIRCLE_LENGTH - progressLength }}
               transition={{ duration: 1.2, ease: 'easeInOut' }}
-              style={{ filter: 'blur(1.2px)' }}
+              style={{}}
             />
             {/* Divisiones de días */}
             {Array.from({ length: CYCLE_DAYS_DYNAMIC }).map((_, i) => {
@@ -243,7 +252,7 @@ const CycleVisual: React.FC<CycleVisualProps> = ({ expanded = true, onMoodColorC
         </div>
         {/* Estado de ánimo */}
         <div style={{
-          marginBottom: 10,
+          marginBottom: 0,
           background: 'transparent',
           borderRadius: 0,
           padding: 0,
@@ -280,11 +289,11 @@ const CycleVisual: React.FC<CycleVisualProps> = ({ expanded = true, onMoodColorC
         <div style={{
           display: 'flex',
           flexDirection: 'column',
-          gap: 10,
+          gap: 28,
           background: 'transparent',
           borderRadius: 0,
           padding: 0,
-          marginTop: 'auto',
+          marginTop: 8,
         }}>
           {/* Receta */}
           <div style={{ fontWeight: 600, color: '#C62328', marginBottom: 2, fontSize: 14 }}>
@@ -299,13 +308,6 @@ const CycleVisual: React.FC<CycleVisualProps> = ({ expanded = true, onMoodColorC
           </div>
           <div style={{ color: '#444', fontWeight: 500, fontSize: 13, marginBottom: 4 }}>
             {exercise ? exercise.summary : 'No hay ejercicio para hoy.'}
-          </div>
-          {/* Frase de ánimo/conocimiento */}
-          <div style={{ fontWeight: 600, color: '#C62328', marginBottom: 2, fontSize: 14 }}>
-            {phrase ? phrase.title : 'Frase para hoy'}
-          </div>
-          <div style={{ color: '#888', fontSize: 13 }}>
-            {phrase ? phrase.summary : 'No hay frase para hoy.'}
           </div>
         </div>
       </div>
