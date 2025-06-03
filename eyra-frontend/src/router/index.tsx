@@ -40,17 +40,17 @@ export const router = createBrowserRouter([
       {
         path: ROUTES.LOGIN,
         element: (
-          <PublicOnlyRoute>
+          <ProtectedRoute requireOnboarding={true}>
             <LoginPage />
-          </PublicOnlyRoute>
+          </ProtectedRoute>
         ),
       },
       {
         path: ROUTES.REGISTER,
         element: (
-          <PublicOnlyRoute>
+          <ProtectedRoute requireOnboarding={true}>
             <RegisterPage />
-          </PublicOnlyRoute>
+          </ProtectedRoute>
         ),
       },
       {
