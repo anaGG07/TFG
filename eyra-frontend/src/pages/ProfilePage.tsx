@@ -29,6 +29,16 @@ const iconMap: Record<string, React.ReactNode> = {
 const ProfilePage: React.FC = () => {
   const { user, checkAuth } = useAuth();
   const [activeTab, setActiveTab] = useState<"privacy" | "security" | "notifications">("privacy");
+  
+  // Hook para detectar tamaño de pantalla
+  const [isMobile, setIsMobile] = useState(false);
+  
+  React.useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 1024);
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
   const [form, setForm] = useState({
     name: user?.name || "",
     lastName: user?.lastName || "",
@@ -216,11 +226,11 @@ const ProfilePage: React.FC = () => {
 
   // Renderizado
   return (
-    <div className="flex w-full min-h-screen" style={{ background: '#e7e0d5' }}>
+    <div className="flex flex-col lg:flex-row w-full min-h-screen" style={{ background: '#e7e0d5' }}>
       {/* Columna izquierda: Avatar */}
-      <div className="flex flex-col items-center justify-center w-[420px] min-w-[340px] py-16 gap-8 relative" style={{ minHeight: '100vh' }}>
-        {/* Línea de separación neumórfica */}
-        <div className="absolute top-0 right-0 h-full w-[2.5rem] flex items-center justify-center z-10">
+      <div className="flex flex-col items-center justify-center w-full lg:w-[420px] lg:min-w-[340px] py-8 lg:py-16 gap-4 lg:gap-8 relative" style={{ minHeight: isEditingAvatar ? 'auto' : '50vh', minHeight: 'auto' }}>
+        {/* Línea de separación neumórfica - solo desktop */}
+        <div className="hidden lg:block absolute top-0 right-0 h-full w-[2.5rem] flex items-center justify-center z-10">
           <div style={{
             width: '2px',
             height: '80%',
@@ -234,8 +244,8 @@ const ProfilePage: React.FC = () => {
         {/* Avatar neumórfico circular con pulso de luz */}
         <div className="relative flex items-center justify-center">
           <span className="absolute z-0 animate-avatar-pulse" style={{
-            width: 340,
-            height: 340,
+            width: isEditingAvatar ? 200 : (isMobile ? 250 : 340),
+            height: isEditingAvatar ? 200 : (isMobile ? 250 : 340),
             borderRadius: '50%',
             boxShadow: '0 0 0 0 #fff0, 0 0 32px 8px #fff6',
             background: 'radial-gradient(circle, #fff8 0%, #fff0 70%)',
@@ -247,13 +257,16 @@ const ProfilePage: React.FC = () => {
             transition={{ duration: 0.5 }}
             className="flex items-center justify-center rounded-full shadow-lg relative z-10"
             style={{
-              width: 320,
-              height: 320,
+              width: isEditingAvatar ? 180 : (isMobile ? 220 : 320),
+              height: isEditingAvatar ? 180 : (isMobile ? 220 : 320),
               background: (isEditingAvatar ? tempAvatar.backgroundColor : form.avatar.backgroundColor) || '#f5ede6',
               boxShadow: '0 8px 32px #c6232822, 8px 8px 24px #e7e0d5, -8px -8px 24px #fff8',
             }}
           >
-            <AvatarPreview config={isEditingAvatar ? tempAvatar : getAvatarConfig()} className="w-[220px] h-[220px]" />
+            <AvatarPreview 
+              config={isEditingAvatar ? tempAvatar : getAvatarConfig()} 
+              className={isEditingAvatar ? "w-[120px] h-[120px]" : (isMobile ? "w-[160px] h-[160px]" : "w-[220px] h-[220px]")}
+            />
           </motion.div>
         </div>
         <NeomorphicButton
@@ -262,43 +275,43 @@ const ProfilePage: React.FC = () => {
             setTempAvatar(form.avatar);
             setIsEditingAvatar(true);
           }}
-          className="mt-2 px-8 py-3 text-lg"
+          className="mt-2 px-4 lg:px-8 py-2 lg:py-3 text-base lg:text-lg"
         >
           Editar avatar
         </NeomorphicButton>
       </div>
       {/* Columna derecha: Contenido sobre fondo */}
-      <div className="flex-1 flex flex-col justify-center items-center min-h-screen py-16 px-4 md:px-12">
+      <div className="flex-1 flex flex-col justify-center items-center min-h-screen py-8 lg:py-16 px-4 md:px-12">
         {/* Cabecera: nombre, email, frase */}
         {!isEditingAvatar && (
-          <div className="flex flex-col items-center gap-1 mb-8">
-            <h1 className="text-3xl font-serif font-bold text-[#7a2323] text-center">{user.name} {user.lastName}</h1>
-            <p className="text-[#7a2323]/80 text-center">{user.email}</p>
-            <p className="text-[#C62328] text-lg font-serif mt-2 text-center">Hoy es un gran día para cuidar de ti ✨</p>
+          <div className="flex flex-col items-center gap-1 mb-6 lg:mb-8">
+            <h1 className="text-2xl lg:text-3xl font-serif font-bold text-[#7a2323] text-center">{user.name} {user.lastName}</h1>
+            <p className="text-sm lg:text-base text-[#7a2323]/80 text-center">{user.email}</p>
+            <p className="text-base lg:text-lg text-[#C62328] font-serif mt-2 text-center">Hoy es un gran día para cuidar de ti ✨</p>
           </div>
         )}
         {/* Tabs de iconos mejorados o editor de avatar */}
         {isEditingAvatar ? (
           <div className="w-full max-w-4xl animate-fade-in" style={{background: 'none', boxShadow: 'none', borderRadius: 0, padding: 0}}>
-            <h2 className="font-serif text-2xl font-bold text-[#7a2323] mb-2 text-center">Personaliza tu avatar</h2>
+            <h2 className="font-serif text-xl lg:text-2xl font-bold text-[#7a2323] mb-2 text-center">Personaliza tu avatar</h2>
             <AvatarBuilder
               initialConfig={tempAvatar}
               onChange={setTempAvatar}
               showPreview={false}
             />
-            <div className="flex flex-row flex-wrap gap-4 justify-center mt-4">
+            <div className="flex flex-col sm:flex-row flex-wrap gap-4 justify-center mt-4">
               <NeomorphicButton
                 type="button"
                 variant="secondary"
                 onClick={() => setIsEditingAvatar(false)}
-                className="min-w-[160px] px-8 py-3 text-lg bg-[#7a2323] text-white shadow-neomorphic font-semibold border border-[#a88] hover:bg-[#a23] hover:text-white transition-colors"
+                className="w-full sm:min-w-[160px] px-6 lg:px-8 py-2 lg:py-3 text-base lg:text-lg bg-[#7a2323] text-white shadow-neomorphic font-semibold border border-[#a88] hover:bg-[#a23] hover:text-white transition-colors"
               >
                 Cancelar
               </NeomorphicButton>
               <NeomorphicButton
                 type="button"
                 variant="primary"
-                className="min-w-[160px] px-8 py-3 text-lg"
+                className="w-full sm:min-w-[160px] px-6 lg:px-8 py-2 lg:py-3 text-base lg:text-lg"
                 onClick={async () => {
                   setLoading(true);
                   try {
@@ -320,7 +333,7 @@ const ProfilePage: React.FC = () => {
               <NeomorphicButton
                 type="button"
                 variant="primary"
-                className="min-w-[160px] px-8 py-3 text-lg bg-[#C62328] text-white"
+                className="w-full sm:min-w-[160px] px-6 lg:px-8 py-2 lg:py-3 text-base lg:text-lg bg-[#C62328] text-white"
                 onClick={() => {
                   const random = getRandomAvatarConfig();
                   setTempAvatar(random);
@@ -332,11 +345,11 @@ const ProfilePage: React.FC = () => {
           </div>
         ) : (
           <>
-            <div className="flex justify-center gap-8 mb-6">
+            <div className="flex justify-center gap-4 lg:gap-8 mb-4 lg:mb-6">
               {tabList.map((tab) => (
                 <button
                   key={tab.key}
-                  className={`flex items-center justify-center w-14 h-14 rounded-full transition-all duration-200 bg-transparent border-none shadow-none p-0 ${
+                  className={`flex items-center justify-center w-12 h-12 lg:w-14 lg:h-14 rounded-full transition-all duration-200 bg-transparent border-none shadow-none p-0 ${
                     activeTab === tab.key ? "scale-110" : "opacity-60 hover:opacity-100"
                   } text-[#C62328]`}
                   style={{ boxSizing: "border-box", background: 'none' }}
@@ -344,7 +357,9 @@ const ProfilePage: React.FC = () => {
                   type="button"
                   aria-label={tab.alt}
                 >
-                  {iconMap[tab.icon]}
+                  <div className="scale-90 lg:scale-100">
+                    {iconMap[tab.icon]}
+                  </div>
                 </button>
               ))}
             </div>

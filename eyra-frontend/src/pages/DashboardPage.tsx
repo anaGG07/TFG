@@ -2,6 +2,7 @@
 import React, { useMemo, useState } from "react";
 import { useAuth } from "../context/AuthContext";
 import { useDashboardData } from "../hooks/useDashboardData";
+import { useViewport } from "../hooks/useViewport";
 import DraggableGrid from "../components/DraggableGrid";
 import { CycleVisual } from "../components/cycle";
 import SymptomsView from "../components/cycle/SymptomsView";
@@ -9,6 +10,7 @@ import RitualsView from "../components/cycle/RitualsView";
 
 const DashboardPage: React.FC = () => {
   const { user } = useAuth();
+  const { isMobile, isTablet, isDesktop } = useViewport();
   const {
     currentCycle,
     todayData,
@@ -76,7 +78,9 @@ const DashboardPage: React.FC = () => {
           <div className="h-full flex flex-col">
             <div className="flex items-center justify-center mb-6">
               <div
-                className="w-16 h-16 rounded-full flex items-center justify-center relative"
+                className={`rounded-full flex items-center justify-center relative ${
+                  isMobile ? 'w-12 h-12' : 'w-16 h-16'
+                }`}
                 style={{
                   background: "bg-secondary",
                   boxShadow: `
@@ -85,10 +89,14 @@ const DashboardPage: React.FC = () => {
                 `,
                 }}
               >
-                <span className="text-2xl">🔔</span>
+                <span className={isMobile ? 'text-xl' : 'text-2xl'}>🔔</span>
                 {notifications.unread > 0 && (
-                  <div className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 rounded-full flex items-center justify-center">
-                    <span className="text-xs text-white font-bold">
+                  <div className={`absolute -top-1 -right-1 bg-red-500 rounded-full flex items-center justify-center ${
+                    isMobile ? 'w-3 h-3' : 'w-4 h-4'
+                  }`}>
+                    <span className={`text-white font-bold ${
+                      isMobile ? 'text-xs' : 'text-xs'
+                    }`}>
                       {notifications.unread > 9 ? "9+" : notifications.unread}
                     </span>
                   </div>
@@ -96,11 +104,15 @@ const DashboardPage: React.FC = () => {
               </div>
             </div>
             <div className="flex-1 space-y-4">
-              <p className="text-primary-dark text-center text-sm leading-relaxed font-medium">
+              <p className={`text-primary-dark text-center leading-relaxed font-medium ${
+                isMobile ? 'text-xs' : 'text-sm'
+              }`}>
                 Notificaciones y recordatorios
               </p>
               <div
-                className="rounded-xl p-4 border"
+                className={`rounded-xl border ${
+                  isMobile ? 'p-3' : 'p-4'
+                }`}
                 style={{
                   background: "bg-gradient-to-br from-primary to-primary-dark",
                   border: "1px solid rgba(181, 65, 58, 0.15)",
@@ -118,7 +130,9 @@ const DashboardPage: React.FC = () => {
                         background: "bg-secondary",
                       }}
                     ></div>
-                    <p className="text-xs text-primary-dark font-semibold">
+                    <p className={`text-primary-dark font-semibold ${
+                      isMobile ? 'text-xs' : 'text-xs'
+                    }`}>
                       {notifications.unread > 0
                         ? `${notifications.unread} pendientes`
                         : "No hay recordatorios pendientes"}
@@ -149,7 +163,9 @@ const DashboardPage: React.FC = () => {
           <div className="h-full flex flex-col">
             <div className="flex items-center justify-center mb-6">
               <div
-                className="w-16 h-16 rounded-full flex items-center justify-center"
+                className={`rounded-full flex items-center justify-center ${
+                  isMobile ? 'w-12 h-12' : 'w-16 h-16'
+                }`}
                 style={{
                   background: "bg-secondary",
                   border: "2px solid rgba(198, 35, 40, 0.3)",
@@ -159,11 +175,13 @@ const DashboardPage: React.FC = () => {
                 `,
                 }}
               >
-                <span className="text-2xl">💆‍♀️</span>
+                <span className={isMobile ? 'text-xl' : 'text-2xl'}>💆‍♀️</span>
               </div>
             </div>
             <div className="flex-1 space-y-4">
-              <p className="text-primary-dark text-center text-sm leading-relaxed font-medium">
+              <p className={`text-primary-dark text-center leading-relaxed font-medium ${
+                isMobile ? 'text-xs' : 'text-sm'
+              }`}>
                 Consejos y recomendaciones
               </p>
               <div
@@ -224,7 +242,9 @@ const DashboardPage: React.FC = () => {
           <div className="h-full flex flex-col">
             <div className="flex items-center justify-center mb-6">
               <div
-                className="w-16 h-16 rounded-full flex items-center justify-center"
+                className={`rounded-full flex items-center justify-center ${
+                  isMobile ? 'w-12 h-12' : 'w-16 h-16'
+                }`}
                 style={{
                   background: "bg-secondary",
                   boxShadow: `
@@ -233,11 +253,13 @@ const DashboardPage: React.FC = () => {
                 `,
                 }}
               >
-                <span className="text-2xl">👥</span>
+                <span className={isMobile ? 'text-xl' : 'text-2xl'}>👥</span>
               </div>
             </div>
             <div className="flex-1 space-y-4">
-              <p className="text-primary-dark text-center text-sm leading-relaxed font-medium">
+              <p className={`text-primary-dark text-center leading-relaxed font-medium ${
+                isMobile ? 'text-xs' : 'text-sm'
+              }`}>
                 Conecta con otras usuarias
               </p>
               <div

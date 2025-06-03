@@ -2,6 +2,15 @@
 @import "tailwindcss";
 
 @layer base {
+  :root {
+    --color-primary: #d30006;
+    --color-primary-light: #ff393f;
+    --color-primary-dark: #650e00;
+    --color-secondary: #e7e0d5;
+    --color-secondary-light: #f4f1ed;
+    --color-secondary-dark: #d5cdc0;
+  }
+  
   html {
     font-family: 'Inter', system-ui, sans-serif;
   }
@@ -12,5 +21,148 @@
   
   body {
     @apply bg-[#e7e0d5] text-[#701a29];
+  }
+}
+
+/* Responsive Dashboard Utilities */
+@layer utilities {
+  /* Spacing helpers for dashboard components */
+  .dashboard-padding {
+    @apply p-3 sm:p-6 lg:p-8;
+  }
+  
+  .dashboard-gap {
+    @apply gap-4 sm:gap-6 lg:gap-8;
+  }
+  
+  /* Responsive text sizes for dashboard */
+  .dashboard-title {
+    @apply text-base sm:text-lg lg:text-xl;
+  }
+  
+  .dashboard-subtitle {
+    @apply text-sm sm:text-base lg:text-lg;
+  }
+  
+  .dashboard-text {
+    @apply text-xs sm:text-sm lg:text-base;
+  }
+  
+  /* Icon sizes for responsive dashboard */
+  .dashboard-icon-sm {
+    @apply w-12 h-12 sm:w-14 sm:h-14 lg:w-16 lg:h-16;
+  }
+  
+  .dashboard-icon-xs {
+    @apply w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12;
+  }
+  
+  /* Loading spinner */
+  .loading-spinner {
+    @apply animate-spin rounded-full h-8 w-8 border-b-2;
+    border-color: var(--color-primary);
+  }
+  
+  /* Primary border utilities */
+  .border-primary {
+    border-color: var(--color-primary);
+  }
+  
+  /* Text color utilities */
+  .text-primary {
+    color: var(--color-primary);
+  }
+  
+  .text-primary-light {
+    color: var(--color-primary-light);
+  }
+  
+  .text-primary-dark {
+    color: var(--color-primary-dark);
+  }
+  
+  /* Background color utilities */
+  .bg-primary {
+    background-color: var(--color-primary);
+  }
+  
+  .bg-primary-light {
+    background-color: var(--color-primary-light);
+  }
+  
+  .bg-primary-dark {
+    background-color: var(--color-primary-dark);
+  }
+  
+  /* Hover states */
+  .hover\:bg-primary:hover {
+    background-color: var(--color-primary);
+  }
+  
+  .hover\:text-white:hover {
+    color: #ffffff;
+  }
+  
+  .hover\:text-primary:hover {
+    color: var(--color-primary);
+  }
+  
+  /* Responsive grid for mobile-first dashboard */
+  .dashboard-grid {
+    @apply grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-8 h-full auto-rows-fr;
+  }
+  
+  /* Neomorphic shadows with responsive sizing */
+  .neo-shadow-sm {
+    @apply shadow-[6px_6px_12px_rgba(91,1,8,0.06),-6px_-6px_12px_rgba(255,255,255,0.25)];
+  }
+  
+  .neo-shadow {
+    @apply shadow-[10px_10px_20px_rgba(91,1,8,0.06),-10px_-10px_20px_rgba(255,255,255,0.25)] sm:shadow-[15px_15px_30px_rgba(91,1,8,0.08),-15px_-15px_30px_rgba(255,255,255,0.25)];
+  }
+  
+  .neo-shadow-lg {
+    @apply shadow-[15px_15px_30px_rgba(91,1,8,0.08),-15px_-15px_30px_rgba(255,255,255,0.25)] sm:shadow-[20px_20px_40px_rgba(91,1,8,0.10),-20px_-20px_40px_rgba(255,255,255,0.35)];
+  }
+}
+
+/* Custom responsive breakpoints specific to dashboard */
+@media (max-width: 639px) {
+  .dashboard-mobile-stack {
+    flex-direction: column !important;
+  }
+  
+  .dashboard-mobile-full {
+    width: 100% !important;
+    flex: none !important;
+  }
+  
+  .dashboard-mobile-center {
+    text-align: center !important;
+  }
+}
+
+@media (min-width: 640px) and (max-width: 1023px) {
+  .dashboard-tablet-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+}
+
+@media (min-width: 1024px) {
+  .dashboard-desktop-grid {
+    grid-template-rows: repeat(2, 1fr) !important;
+  }
+}
+
+/* Smooth transitions for responsive changes */
+.dashboard-responsive-transition {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Touch-friendly interactive elements on mobile */
+@media (hover: none) and (pointer: coarse) {
+  .dashboard-touch-target {
+    min-height: 44px;
+    min-width: 44px;
   }
 }

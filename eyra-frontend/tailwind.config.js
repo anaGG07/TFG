@@ -3,6 +3,11 @@ export default {
   content: ["./index.html", "./src/**/*.{js,ts,jsx,tsx}"],
   theme: {
     extend: {
+      spacing: {
+        '6': '1.5rem',   // 24px - Asegurar que p-6, gap-6, etc. existan
+        '14': '3.5rem',  // 56px - Valor intermedio para iconos
+        '18': '4.5rem',  // 72px - Valor adicional
+      },
       boxShadow: {
         neomorphic:
           "15px 15px 30px rgba(120, 113, 108, 0.12), -15px -15px 30px rgba(255, 255, 255, 0.7)",
@@ -86,5 +91,7 @@ export default {
       },
     },
   },
-  plugins: [],
+  plugins: [
+    require('./tailwind-eyra-plugin.js')
+  ],
 };

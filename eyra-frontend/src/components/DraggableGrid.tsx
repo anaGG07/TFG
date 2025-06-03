@@ -1,5 +1,6 @@
 import React, { useState, ReactNode, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useViewport } from "../hooks/useViewport";
 
 interface GridItem {
   id: string;
@@ -24,39 +25,19 @@ const DraggableGrid: React.FC<DraggableGridProps> = ({
   const [draggedItem, setDraggedItem] = useState<string | null>(null);
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [viewportMode, setViewportMode] = useState<'desktop' | 'tablet' | 'mobile'>('desktop');
+  const { mode: viewportMode, isMobile, isTablet, isDesktop } = useViewport();
 
   // Sincronizar estado interno cuando cambien los props
   useEffect(() => {
     setItems(initialItems);
   }, [initialItems]);
 
-  // Check viewport size
-  useEffect(() => {
-    const checkViewport = () => {
-      const width = window.innerWidth;
-      if (width < 640) {
-        setViewportMode('mobile');
-      } else if (width < 1024) {
-        setViewportMode('tablet');
-      } else {
-        setViewportMode('desktop');
-      }
-    };
-    
-    checkViewport();
-    window.addEventListener('resize', checkViewport);
-    return () => window.removeEventListener('resize', checkViewport);
-  }, []);
-
   // Get items per view based on viewport
   const getItemsPerView = useCallback(() => {
-    switch (viewportMode) {
-      case 'mobile': return 1;
-      case 'tablet': return 2; // 2 tiendas en columna vertical
-      case 'desktop': return items.length; // Show all in grid
-    }
-  }, [viewportMode, items.length]);
+    if (isMobile) return 1;
+    if (isTablet) return 2; // 2 items en columna vertical para tablet
+    return items.length; // Show all in grid para desktop
+  }, [isMobile, isTablet, items.length]);
 
   const itemsPerView = getItemsPerView();
 
@@ -147,7 +128,7 @@ const DraggableGrid: React.FC<DraggableGridProps> = ({
   const expandedItem = items.find((item) => item.isExpanded);
 
   // Carousel view for mobile and tablet
-  if ((viewportMode === 'mobile' || viewportMode === 'tablet') && isLibrary && !hasExpandedItem) {
+  if ((isMobile || isTablet) && isLibrary && !hasExpandedItem) {
     const visibleItems = getCurrentItems();
     const totalSlides = Math.ceil(items.length / itemsPerView);
     const currentSlide = Math.floor(currentIndex / itemsPerView);
@@ -193,7 +174,7 @@ const DraggableGrid: React.FC<DraggableGridProps> = ({
         <motion.div
           key={currentIndex}
           className={`w-full mx-auto flex flex-col gap-6 ${
-            viewportMode === 'mobile' ? 'max-w-sm' : 'max-w-md'
+            isMobile ? 'max-w-sm' : 'max-w-md'
           }`}
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
@@ -237,7 +218,9 @@ const DraggableGrid: React.FC<DraggableGridProps> = ({
   // Renderizado condicional: grid normal vs layout expandido
   if (hasExpandedItem && expandedItem) {
     return (
-      <div className="w-full h-full p-8 overflow-hidden">
+      <div className={`w-full h-full overflow-hidden ${
+        isMobile ? 'p-4' : isTablet ? 'p-6' : 'p-8'
+      }`}>
         <div className="w-full h-full flex flex-col gap-6">
           {/* Item expandido - estilo neomorphic EYRA */}
           <motion.div
@@ -251,28 +234,36 @@ const DraggableGrid: React.FC<DraggableGridProps> = ({
             className="flex-1 relative cursor-pointer overflow-hidden"
             onClick={() => handleItemClick(expandedItem.id)}
             style={{
-              minHeight: "400px",
+              minHeight: isMobile ? "320px" : isTablet ? "360px" : "400px",
               background: "#e7e0d5",
-              borderRadius: "24px",
+              borderRadius: isMobile ? "20px" : "24px",
               border: "1px solid rgba(91, 1, 8, 0.1)",
-              boxShadow: `
+              boxShadow: isMobile ? `
+                15px 15px 30px rgba(91, 1, 8, 0.06),
+                -15px -15px 30px rgba(255, 255, 255, 0.25),
+                inset 0 1px 0 rgba(255, 255, 255, 0.15)
+              ` : `
                 20px 20px 40px rgba(91, 1, 8, 0.08),
                 -20px -20px 40px rgba(255, 255, 255, 0.25),
                 inset 0 1px 0 rgba(255, 255, 255, 0.15)
               `,
             }}
-            whileHover={{
+            whileHover={isDesktop ? {
               boxShadow: `
                 25px 25px 50px rgba(91, 1, 8, 0.12),
                 -25px -25px 50px rgba(255, 255, 255, 0.35),
                 inset 0 1px 0 rgba(255, 255, 255, 0.2)
               `,
-            }}
+            } : {}}
           >
             {/* Icono de drag expandido - mejorado */}
-            <div className="absolute top-4 right-4 z-20">
+            <div className={`absolute z-20 ${
+              isMobile ? 'top-3 right-3' : 'top-4 right-4'
+            }`}>
               <div
-                className="w-8 h-8 rounded-full cursor-grab active:cursor-grabbing flex items-center justify-center transition-all duration-200 hover:scale-110"
+                className={`rounded-full cursor-grab active:cursor-grabbing flex items-center justify-center transition-all duration-200 hover:scale-110 ${
+                  isMobile ? 'w-7 h-7' : 'w-8 h-8'
+                }`}
                 style={{
                   background: "linear-gradient(145deg, #e7d6b8, #d4c4a5)",
                   border: "1px solid rgba(91, 1, 8, 0.2)",
@@ -283,7 +274,9 @@ const DraggableGrid: React.FC<DraggableGridProps> = ({
                 }}
               >
                 <svg
-                  className="w-4 h-4 text-[#5b0108] opacity-80"
+                  className={`text-[#5b0108] opacity-80 ${
+                    isMobile ? 'w-3 h-3' : 'w-4 h-4'
+                  }`}
                   fill="currentColor"
                   viewBox="0 0 20 20"
                 >
@@ -304,9 +297,15 @@ const DraggableGrid: React.FC<DraggableGridProps> = ({
             </div>
           </motion.div>
 
-          {/* Items colapsados - fila horizontal */}
+          {/* Items colapsados - adaptables */}
           <motion.div
-            className="flex gap-4 h-24 flex-shrink-0"
+            className={`flex gap-4 flex-shrink-0 ${
+              isMobile 
+                ? 'flex-col h-auto max-h-48 overflow-y-auto' 
+                : isTablet 
+                  ? 'flex-row h-20' 
+                  : 'flex-row h-24'
+            }`}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.3, delay: 0.1 }}
@@ -327,29 +326,32 @@ const DraggableGrid: React.FC<DraggableGridProps> = ({
                   onDragOver={handleDragOver}
                   onDrop={(e) => handleDrop(e as any, item.id)}
                   onClick={() => handleItemClick(item.id)}
-                  className={`flex-1 min-w-0 relative group cursor-pointer overflow-hidden ${
-                    isLibrary ? 'library-tent-container' : ''
-                  }`}
+                  className={`relative group cursor-pointer overflow-hidden ${
+                    isMobile ? 'w-full min-h-16' : 'flex-1 min-w-0'
+                  } ${isLibrary ? 'library-tent-container' : ''}`}
                   style={!isLibrary ? {
                     background: "#e7e0d5",
-                    borderRadius: "16px",
+                    borderRadius: isMobile ? "12px" : "16px",
                     border: "1px solid rgba(91, 1, 8, 0.1)",
-                    boxShadow: `
-                    8px 8px 16px rgba(91, 1, 8, 0.06),
-                    -8px -8px 16px rgba(255, 255, 255, 0.25)
-                  `,
+                    boxShadow: isMobile ? `
+                      6px 6px 12px rgba(91, 1, 8, 0.06),
+                      -6px -6px 12px rgba(255, 255, 255, 0.25)
+                    ` : `
+                      8px 8px 16px rgba(91, 1, 8, 0.06),
+                      -8px -8px 16px rgba(255, 255, 255, 0.25)
+                    `,
                   } : {}}
-                  whileHover={!isLibrary ? {
+                  whileHover={!isLibrary && isDesktop ? {
                     scale: 1.02,
                     boxShadow: `
-                    10px 10px 20px rgba(91, 1, 8, 0.08),
-                    -10px -10px 20px rgba(255, 255, 255, 0.35)
-                  `,
-                  } : {}}
-                  whileTap={!isLibrary ? { scale: 0.98 } : {}}
+                      10px 10px 20px rgba(91, 1, 8, 0.08),
+                      -10px -10px 20px rgba(255, 255, 255, 0.35)
+                    `,
+                  } : !isLibrary ? { scale: 1.01 } : {}}
+                  whileTap={!isLibrary && !isMobile ? { scale: 0.98 } : {}}
                 >
                   {/* Icono de drag mini - solo si no es librería */}
-                  {!isLibrary && (
+                  {!isLibrary && !isMobile && (
                     <div className="absolute top-2 right-2 z-20 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
                       <div
                         className="w-6 h-6 rounded-full cursor-grab active:cursor-grabbing flex items-center justify-center"
@@ -373,20 +375,30 @@ const DraggableGrid: React.FC<DraggableGridProps> = ({
                     </div>
                   )}
 
-                  <div className={isLibrary ? "w-full h-full" : "p-4 h-full flex items-center"}>
+                  <div className={isLibrary ? "w-full h-full" : `h-full flex items-center ${
+                    isMobile ? 'p-3' : 'p-4'
+                  }`}>
                     {!isLibrary && (
-                      <h4 className="font-serif text-sm text-[#5b0108] truncate font-medium">
+                      <h4 className={`font-serif text-[#5b0108] truncate font-medium ${
+                        isMobile ? 'text-xs' : 'text-sm'
+                      }`}>
                         {item.title}
                       </h4>
                     )}
                     {/* Para la librería: cuando está en la fila horizontal, solo mostrar texto */}
                     {isLibrary && (
-                      <div className="w-full h-full flex flex-col items-center justify-center px-2">
+                      <div className={`w-full h-full flex flex-col items-center justify-center ${
+                        isMobile ? 'px-1' : 'px-2'
+                      }`}>
                         {/* Línea decorativa */}
-                        <div className="h-0.5 bg-gradient-to-r from-transparent via-[#C62328] to-transparent w-3/5 opacity-60 rounded-full mb-2 flex-shrink-0" />
+                        <div className={`h-0.5 bg-gradient-to-r from-transparent via-[#C62328] to-transparent opacity-60 rounded-full mb-2 flex-shrink-0 ${
+                          isMobile ? 'w-2/3' : 'w-3/5'
+                        }`} />
                         
                         {/* Nombre mitológico */}
-                        <p className="text-sm font-serif font-bold text-[#7a2323] mb-1 truncate text-center">
+                        <p className={`font-serif font-bold text-[#7a2323] mb-1 truncate text-center ${
+                          isMobile ? 'text-xs' : 'text-sm'
+                        }`}>
                           {(() => {
                             switch (item.id) {
                               case "history": return "Mnemósine";
@@ -402,7 +414,9 @@ const DraggableGrid: React.FC<DraggableGridProps> = ({
                         </p>
                         
                         {/* Descripción breve */}
-                        <p className="text-xs font-sans text-[#5b0108] leading-tight line-clamp-2 text-center">
+                        <p className={`font-sans text-[#5b0108] leading-tight line-clamp-2 text-center ${
+                          isMobile ? 'text-xs' : 'text-xs'
+                        }`}>
                           {(() => {
                             switch (item.id) {
                               case "history": return "Historias ancestrales";
@@ -427,11 +441,20 @@ const DraggableGrid: React.FC<DraggableGridProps> = ({
     );
   }
 
-  // Grid normal cuando no hay elementos expandidos - responsive con pseudo-carrusel móvil
+  // Grid normal cuando no hay elementos expandidos - responsive optimizado
   return (
-    <div className="w-full h-full p-4 md:p-8 overflow-hidden">
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-8 h-full auto-rows-fr"
-        style={typeof window !== 'undefined' && window.innerWidth >= 1024 ? { gridTemplateRows: "repeat(2, 1fr)" } : {}}
+    <div className={`w-full h-full overflow-hidden ${
+      isMobile ? 'p-3' : isTablet ? 'p-6' : 'p-4 md:p-8'
+    }`}>
+      <div 
+        className={`gap-4 md:gap-8 h-full ${
+          isMobile 
+            ? 'grid grid-cols-1 auto-rows-fr' 
+            : isTablet 
+              ? 'grid grid-cols-2 auto-rows-fr' 
+              : 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 auto-rows-fr'
+        }`}
+        style={isDesktop ? { gridTemplateRows: "repeat(2, 1fr)" } : {}}
       >
         <AnimatePresence mode="sync">
           {items.map((item) => {
@@ -460,38 +483,42 @@ const DraggableGrid: React.FC<DraggableGridProps> = ({
                 onDragOver={handleDragOver}
                 onDrop={(e) => handleDrop(e as any, item.id)}
                 onClick={() => handleItemClick(item.id)}
-                className={`col-span-1 row-span-1 relative group cursor-grab active:cursor-grabbing overflow-hidden transform-gpu will-change-transform transition-all duration-200 hover:scale-[1.02] ${
-                  isLibrary ? 'library-tent-container' : ''
-                }`}
+                className={`col-span-1 row-span-1 relative group cursor-grab active:cursor-grabbing overflow-hidden transform-gpu will-change-transform transition-all duration-200 ${
+                  !isTransitioning && isDesktop ? 'hover:scale-[1.02]' : ''
+                } ${isLibrary ? 'library-tent-container' : ''}`}
                 style={!isLibrary ? {
-                  minHeight: "240px",
+                  minHeight: isMobile ? "200px" : isTablet ? "220px" : "240px",
                   background: "#e7e0d5",
-                  borderRadius: "20px",
+                  borderRadius: isMobile ? "16px" : "20px",
                   border: "1px solid rgba(91, 1, 8, 0.1)",
-                  boxShadow: `
+                  boxShadow: isMobile ? `
+                    10px 10px 20px rgba(91, 1, 8, 0.06),
+                    -10px -10px 20px rgba(255, 255, 255, 0.25),
+                    inset 0 1px 0 rgba(255, 255, 255, 0.15)
+                  ` : `
                     15px 15px 30px rgba(91, 1, 8, 0.08),
                     -15px -15px 30px rgba(255, 255, 255, 0.25),
                     inset 0 1px 0 rgba(255, 255, 255, 0.15)
                   `,
                   pointerEvents: isTransitioning ? "none" : "auto",
                 } : {
-                  minHeight: "240px",
+                  minHeight: isMobile ? "200px" : isTablet ? "220px" : "240px",
                   pointerEvents: isTransitioning ? "none" : "auto",
                 }}
                 whileHover={
-                  !isDragged && !isTransitioning && !isLibrary
+                  !isDragged && !isTransitioning && !isLibrary && isDesktop
                     ? {
                         scale: 1.02,
                         y: -2,
                         boxShadow: `
-                    20px 20px 40px rgba(91, 1, 8, 0.12),
-                    -20px -20px 40px rgba(255, 255, 255, 0.35),
-                    inset 0 1px 0 rgba(255, 255, 255, 0.2),
-                    0 6px 20px rgba(91, 1, 8, 0.08)
-                  `,
+                          20px 20px 40px rgba(91, 1, 8, 0.12),
+                          -20px -20px 40px rgba(255, 255, 255, 0.35),
+                          inset 0 1px 0 rgba(255, 255, 255, 0.2),
+                          0 6px 20px rgba(91, 1, 8, 0.08)
+                        `,
                         transition: { duration: 0.2 },
                       }
-                    : isLibrary && !isDragged && !isTransitioning
+                    : isLibrary && !isDragged && !isTransitioning && isDesktop
                     ? {
                         scale: 1.01,
                         transition: { duration: 0.2 },
@@ -499,7 +526,7 @@ const DraggableGrid: React.FC<DraggableGridProps> = ({
                     : {}
                 }
                 whileTap={
-                  !isDragged && !isTransitioning && !isLibrary
+                  !isDragged && !isTransitioning && !isLibrary && !isMobile
                     ? {
                         scale: 0.98,
                         transition: { duration: 0.1 },
@@ -507,8 +534,8 @@ const DraggableGrid: React.FC<DraggableGridProps> = ({
                     : {}
                 }
               >
-                {/* Icono de drag - solo si no es librería - mejorado */}
-                {!isLibrary && (
+                {/* Icono de drag - solo si no es librería y no es móvil - mejorado */}
+                {!isLibrary && !isMobile && (
                   <motion.div
                     className="absolute top-3 right-3 z-20 opacity-0 group-hover:opacity-100"
                     initial={false}
@@ -547,9 +574,13 @@ const DraggableGrid: React.FC<DraggableGridProps> = ({
                   </div>
                 ) : (
                   // Para otras páginas: layout normal con título
-                  <div className="w-full h-full p-6 flex flex-col">
+                  <div className={`w-full h-full flex flex-col ${
+                    isMobile ? 'p-4' : 'p-6'
+                  }`}>
                     <div className="flex items-center justify-between mb-6 flex-shrink-0">
-                      <h3 className="font-serif text-lg text-[#5b0108] truncate pr-8 font-light tracking-wide">
+                      <h3 className={`font-serif text-[#5b0108] truncate font-light tracking-wide ${
+                        isMobile ? 'text-base pr-6' : 'text-lg pr-8'
+                      }`}>
                         {item.title}
                       </h3>
                     </div>

@@ -4,6 +4,7 @@ import { useAuth } from "../context/AuthContext";
 import { useLogout } from "../hooks/useLogout";
 import { ROUTES } from "../router/paths";
 import { motion, AnimatePresence } from "framer-motion";
+import UserAvatar from "./UserAvatar";
 
 interface NavigationItem {
   id: string;
@@ -206,14 +207,10 @@ const SideDrawer: React.FC = () => {
             {/* User Info */}
             <div className="p-6 border-b border-[#C62328]/10">
               <div className="flex items-center gap-3">
-                <div
-                  className="w-12 h-12 rounded-full flex items-center justify-center text-white font-bold"
-                  style={{
-                    background: "linear-gradient(135deg, #C62328, #9d0d0b)",
-                  }}
-                >
-                  {user?.name?.[0] || "U"}
-                </div>
+                <UserAvatar 
+                  user={user} 
+                  size="md" 
+                />
                 <div>
                   <p className="font-medium text-[#5b0108]">
                     {user?.name || "Usuario"}
