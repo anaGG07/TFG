@@ -4,6 +4,7 @@ import React, {
   useState,
   useCallback,
   ReactNode,
+  useEffect,
 } from "react";
 import { apiFetch } from "../utils/httpClient";
 import {
@@ -54,6 +55,7 @@ interface CycleContextType {
   calendarDays: CycleDay[];
   currentCycle: CurrentCycleResponse | null;
   isLoading: boolean;
+  currentPhase: CyclePhase;
   loadCalendarDays: (startDate: string, endDate: string) => Promise<void>;
   addCycleDay: (data: CycleDayInput) => Promise<void>;
   startNewCycle: (data: NewCycleInput) => Promise<void>;
@@ -71,6 +73,7 @@ export const CycleProvider: React.FC<{ children: ReactNode }> = ({
     null
   );
   const [isLoading, setIsLoading] = useState(false);
+  const [currentPhase, setCurrentPhase] = useState<CyclePhase>(CyclePhase.MENSTRUAL);
 
   // Cargar días del calendario - API REAL ACTIVADA
   const loadCalendarDays = useCallback(
@@ -199,7 +202,7 @@ export const CycleProvider: React.FC<{ children: ReactNode }> = ({
 
           // Crear nuevo CycleDay con todos los campos requeridos
           const newCycleDay: CycleDay = {
-            id: Date.now(),
+            id: String(Date.now()),
             date: data.date,
             dayNumber: 1,
             phase: data.phase,
@@ -261,7 +264,7 @@ export const CycleProvider: React.FC<{ children: ReactNode }> = ({
         );
 
         const newDay: CycleDay = {
-          id: Date.now(),
+          id: String(Date.now()),
           date: data.startDate,
           dayNumber: 1,
           phase: CyclePhase.MENSTRUAL,
@@ -443,7 +446,7 @@ export const CycleProvider: React.FC<{ children: ReactNode }> = ({
 
         // Crear CycleDay con todos los campos requeridos y tipados correctamente
         const simulatedDay: CycleDay = {
-          id: Date.now() + cycleDay,
+          id: String(Date.now() + cycleDay),
           date: dateString,
           dayNumber: cycleDay,
           phase,
@@ -481,12 +484,20 @@ export const CycleProvider: React.FC<{ children: ReactNode }> = ({
     return days;
   };
 
+  // Actualizar currentPhase cuando cambie el ciclo actual
+  useEffect(() => {
+    if (currentCycle?.currentPhase?.phase) {
+      setCurrentPhase(currentCycle.currentPhase.phase);
+    }
+  }, [currentCycle]);
+
   return (
     <CycleContext.Provider
       value={{
         calendarDays,
         currentCycle,
         isLoading,
+        currentPhase,
         loadCalendarDays,
         addCycleDay,
         startNewCycle,

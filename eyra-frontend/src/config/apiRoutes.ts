@@ -30,6 +30,7 @@ export const API_ROUTES = {
     PROFILE: createApiUrl("/profile"),
     UPDATE_PROFILE: createApiUrl("/profile"),
     ACTIVE_SESSIONS: createApiUrl("/active-sessions"),
+    PREFERENCES: createApiUrl("/preferences"),
   },
 
   CYCLES: {
@@ -51,6 +52,8 @@ export const API_ROUTES = {
 
   SYMPTOMS: {
     ALL: createApiUrl("/symptoms"),
+    HISTORY: createApiUrl("/symptoms/history"),
+    PATTERNS: createApiUrl("/symptoms/patterns"),
     CREATE: createApiUrl("/symptoms"),
     UPDATE: (id: string) => createApiUrl(`/symptoms/${id}`),
     DELETE: (id: string) => createApiUrl(`/symptoms/${id}`),
@@ -81,7 +84,6 @@ export const API_ROUTES = {
     CONTENT: (id: string) => createApiUrl(`/conditions/content/${id}`),
   },
 
-  
   NOTIFICATIONS: {
     ALL: createApiUrl("/user/notifications"),
     UNREAD: createApiUrl("/user/notifications/unread"),

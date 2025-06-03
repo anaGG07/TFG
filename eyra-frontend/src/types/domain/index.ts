@@ -153,3 +153,39 @@ export interface Notification {
   isSent: boolean;
   metadata?: any;
 }
+
+// Tipos de Rituales
+export type Ritual = {
+  title: string;
+  description: string;
+  duration: string;
+  benefits: string[];
+}
+
+export type PhaseRitual = {
+  title: string;
+  description: string;
+  rituals: Ritual[];
+}
+
+export type MoonRitual = {
+  title: string;
+  description: string;
+  rituals: Ritual[];
+}
+
+export type WellbeingRecipe = {
+  title: string;
+  description: string;
+  ingredients: string[];
+  benefits: string[];
+}
+
+export type RitualData = {
+  phaseRituals: Record<CyclePhase, PhaseRitual>;
+  moonRituals: {
+    newMoon: MoonRitual;
+    fullMoon: MoonRitual;
+  };
+  wellbeingRecipes: WellbeingRecipe[];
+}

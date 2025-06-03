@@ -1,8 +1,9 @@
 import { API_URL } from "../config/apiRoutes";
 
-interface FetchOptions extends RequestInit {
+export interface FetchOptions extends RequestInit {
   body?: any;
   defaultValue?: any;
+  params?: Record<string, string | number | boolean>;
 }
 
 interface ApiFetchOptions {
@@ -32,30 +33,40 @@ export const authEvents = {
  * Función para realizar peticiones a la API con manejo de errores básico
  */
 export async function apiFetch<T>(path: string, options: FetchOptions = {}, silent = false): Promise<T> {
-  const url = path.startsWith("http") ? path : `${API_URL}${path}`;
+  const { params, ...fetchOptions } = options;
+  let url = path.startsWith("http") ? path : `${API_URL}${path}`;
   
-  const fetchOptions: RequestInit = {
-    ...options,
+  // Añadir parámetros de consulta si existen
+  if (params) {
+    const searchParams = new URLSearchParams();
+    Object.entries(params).forEach(([key, value]) => {
+      searchParams.append(key, String(value));
+    });
+    url += `?${searchParams.toString()}`;
+  }
+
+  const fetchOptionsInit: RequestInit = {
+    ...fetchOptions,
     headers: {
       "Content-Type": "application/json",
       "Accept": "application/json",
-      ...options.headers,
+      ...fetchOptions.headers,
     },
     credentials: "include",
   };
 
   if (options.body) {
-    fetchOptions.body = JSON.stringify(options.body);
+    fetchOptionsInit.body = JSON.stringify(options.body);
   }
 
   try {
     console.log(`httpClient: Iniciando petición a ${url}`, {
-      method: fetchOptions.method || 'GET',
-      headers: fetchOptions.headers,
-      credentials: fetchOptions.credentials
+      method: fetchOptionsInit.method || 'GET',
+      headers: fetchOptionsInit.headers,
+      credentials: fetchOptionsInit.credentials
     });
 
-    const response = await fetch(url, fetchOptions);
+    const response = await fetch(url, fetchOptionsInit);
 
     console.log(`httpClient: Respuesta de ${url}`, {
       status: response.status,
@@ -112,3 +123,8 @@ export async function apiFetchParallel<T>(requests: ApiFetchOptions[]): Promise<
     throw error;
   }
 }
+
+export const createApiUrl = (path: string) => {
+  const baseUrl = process.env.REACT_APP_API_URL || 'http://localhost:8000/api';
+  return `${baseUrl}${path}`;
+};
