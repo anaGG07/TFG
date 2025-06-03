@@ -170,72 +170,7 @@ const RitualsView: React.FC<RitualsViewProps> = ({ expanded = true }) => {
           overflow: 'hidden',
         }}
       >
-        {/* Ritual del día */}
-        <div style={{ 
-          display: 'flex', 
-          flexDirection: 'column',
-          alignItems: 'center',
-          gap: 12,
-          marginBottom: 16 
-        }}>
-          <div style={{
-            display: 'flex',
-            alignItems: 'center',
-            background: '#E0F0E8',
-            padding: '8px 16px',
-            borderRadius: 20,
-            gap: 8,
-          }}>
-            {RitualIcons.star("#4A9D7B")}
-            <span style={{ fontSize: 14, color: '#222' }}>Ritual del Día</span>
-          </div>
-          
-          <div style={{
-            background: '#F0FAF5',
-            padding: 16,
-            borderRadius: 12,
-            width: '100%',
-            textAlign: 'center'
-          }}>
-            <h4 style={{ fontSize: 16, color: '#4A9D7B', marginBottom: 8 }}>
-              {ritualData.phaseRituals[currentPhase]?.rituals[0]?.title || "Meditación Lunar"}
-            </h4>
-            <p style={{ fontSize: 13, color: '#666', marginBottom: 8 }}>
-              {ritualData.phaseRituals[currentPhase]?.rituals[0]?.description || "Conecta con tu energía interior"}
-            </p>
-            <div style={{
-              display: 'flex',
-              justifyContent: 'center',
-              gap: 8,
-              flexWrap: 'wrap'
-            }}>
-              {ritualData.phaseRituals[currentPhase]?.rituals[0]?.benefits.map((benefit: string, index: number) => (
-                <span key={index} style={{
-                  background: '#4A9D7B',
-                  color: '#fff',
-                  padding: '4px 8px',
-                  borderRadius: 12,
-                  fontSize: 11,
-                }}>
-                  {benefit}
-                </span>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        {/* Fase lunar */}
-        <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          background: '#E0F0E8',
-          padding: '8px 16px',
-          borderRadius: 20,
-          gap: 8,
-        }}>
-          {RitualIcons.moon("#4A9D7B")}
-          <span style={{ fontSize: 14, color: '#222' }}>Luna Creciente</span>
-        </div>
+        <img src="/img/4.svg" alt="Rituales" style={{ width: 320, height: 220, opacity: 0.97 }} />
       </motion.div>
     );
   }
@@ -251,7 +186,7 @@ const RitualsView: React.FC<RitualsViewProps> = ({ expanded = true }) => {
         display: 'flex',
         flexDirection: 'column',
         gap: 32,
-        background: '#fff',
+        background: 'transparent',
         borderRadius: 24,
         padding: 32,
         minHeight: 480,
@@ -264,8 +199,12 @@ const RitualsView: React.FC<RitualsViewProps> = ({ expanded = true }) => {
         gap: 16,
         borderBottom: '1px solid #eee',
         paddingBottom: 16,
+        background: '#f6ecec',
+        borderRadius: 18,
+        boxShadow: '6px 6px 18px #e5d6d6, -6px -6px 18px #fff',
+        marginBottom: 8,
       }}>
-        {[
+        {[ 
           { id: 'phase', label: 'Por Fase', icon: RitualIcons.sun("#4A9D7B") },
           { id: 'moon', label: 'Luna', icon: RitualIcons.moon("#4A9D7B") },
           { id: 'recipes', label: 'Recetas', icon: RitualIcons.heart("#4A9D7B") }
@@ -299,10 +238,19 @@ const RitualsView: React.FC<RitualsViewProps> = ({ expanded = true }) => {
       </div>
 
       {/* Contenido de la categoría seleccionada */}
-      <div>
+      <div style={{
+        display: 'flex',
+        flexDirection: 'column',
+        gap: 28,
+      }}>
         {selectedCategory === 'phase' && (
-          <div>
-            <h3 style={{ fontSize: 18, fontWeight: 600, color: '#4A9D7B', marginBottom: 16 }}>
+          <div style={{
+            background: '#f6ecec',
+            borderRadius: 18,
+            boxShadow: '6px 6px 18px #e5d6d6, -6px -6px 18px #fff',
+            padding: 28,
+          }}>
+            <h3 style={{ fontSize: 18, fontWeight: 700, color: '#4A9D7B', marginBottom: 16 }}>
               {ritualData.phaseRituals[currentPhase]?.title || "Rituales para tu fase"}
             </h3>
             <p style={{ color: '#666', marginBottom: 24 }}>
@@ -319,6 +267,7 @@ const RitualsView: React.FC<RitualsViewProps> = ({ expanded = true }) => {
                     background: '#F0FAF5',
                     padding: 20,
                     borderRadius: 12,
+                    boxShadow: '2px 2px 8px #e5d6d6',
                   }}
                 >
                   <h4 style={{ fontSize: 16, color: '#4A9D7B', marginBottom: 8 }}>
@@ -359,10 +308,14 @@ const RitualsView: React.FC<RitualsViewProps> = ({ expanded = true }) => {
             </div>
           </div>
         )}
-
         {selectedCategory === 'moon' && (
-          <div>
-            <h3 style={{ fontSize: 18, fontWeight: 600, color: '#4A9D7B', marginBottom: 16 }}>
+          <div style={{
+            background: '#f6ecec',
+            borderRadius: 18,
+            boxShadow: '6px 6px 18px #e5d6d6, -6px -6px 18px #fff',
+            padding: 28,
+          }}>
+            <h3 style={{ fontSize: 18, fontWeight: 700, color: '#4A9D7B', marginBottom: 16 }}>
               Rituales de la Luna
             </h3>
             <p style={{ color: '#666', marginBottom: 24 }}>
@@ -379,6 +332,7 @@ const RitualsView: React.FC<RitualsViewProps> = ({ expanded = true }) => {
                     background: '#F0FAF5',
                     padding: 20,
                     borderRadius: 12,
+                    boxShadow: '2px 2px 8px #e5d6d6',
                   }}
                 >
                   <h4 style={{ fontSize: 16, color: '#4A9D7B', marginBottom: 8 }}>
@@ -419,10 +373,14 @@ const RitualsView: React.FC<RitualsViewProps> = ({ expanded = true }) => {
             </div>
           </div>
         )}
-
         {selectedCategory === 'recipes' && (
-          <div>
-            <h3 style={{ fontSize: 18, fontWeight: 600, color: '#4A9D7B', marginBottom: 16 }}>
+          <div style={{
+            background: '#f6ecec',
+            borderRadius: 18,
+            boxShadow: '6px 6px 18px #e5d6d6, -6px -6px 18px #fff',
+            padding: 28,
+          }}>
+            <h3 style={{ fontSize: 18, fontWeight: 700, color: '#4A9D7B', marginBottom: 16 }}>
               Recetas de Bienestar
             </h3>
             <p style={{ color: '#666', marginBottom: 24 }}>
@@ -439,6 +397,7 @@ const RitualsView: React.FC<RitualsViewProps> = ({ expanded = true }) => {
                     background: '#F0FAF5',
                     padding: 20,
                     borderRadius: 12,
+                    boxShadow: '2px 2px 8px #e5d6d6',
                   }}
                 >
                   <h4 style={{ fontSize: 16, color: '#4A9D7B', marginBottom: 8 }}>
@@ -447,30 +406,28 @@ const RitualsView: React.FC<RitualsViewProps> = ({ expanded = true }) => {
                   <p style={{ color: '#666', marginBottom: 12 }}>
                     {recipe.description}
                   </p>
-                  <div style={{ marginBottom: 12 }}>
-                    <h5 style={{ fontSize: 14, color: '#4A9D7B', marginBottom: 8 }}>
-                      Ingredientes:
-                    </h5>
-                    <ul style={{ 
-                      listStyle: 'none', 
-                      padding: 0,
-                      display: 'flex',
-                      gap: 8,
-                      flexWrap: 'wrap',
-                    }}>
-                      {recipe.ingredients.map((ingredient: string, idx: number) => (
-                        <li key={idx} style={{
-                          background: '#E0F0E8',
-                          padding: '4px 12px',
-                          borderRadius: 12,
-                          fontSize: 12,
-                          color: '#4A9D7B',
-                        }}>
-                          {ingredient}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
+                  <h5 style={{ fontSize: 14, color: '#4A9D7B', marginBottom: 8 }}>
+                    Ingredientes:
+                  </h5>
+                  <ul style={{
+                    listStyle: 'none',
+                    padding: 0,
+                    display: 'flex',
+                    gap: 8,
+                    flexWrap: 'wrap',
+                  }}>
+                    {recipe.ingredients.map((ingredient: string, idx: number) => (
+                      <li key={idx} style={{
+                        background: '#E0F0E8',
+                        padding: '4px 12px',
+                        borderRadius: 12,
+                        fontSize: 12,
+                        color: '#4A9D7B',
+                      }}>
+                        {ingredient}
+                      </li>
+                    ))}
+                  </ul>
                   <div style={{
                     display: 'flex',
                     gap: 8,
