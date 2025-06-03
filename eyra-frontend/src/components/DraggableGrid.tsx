@@ -53,7 +53,7 @@ const DraggableGrid: React.FC<DraggableGridProps> = ({
   const getItemsPerView = useCallback(() => {
     switch (viewportMode) {
       case 'mobile': return 1;
-      case 'tablet': return 1; // Cambiar a 1 para mostrar una encima de otra
+      case 'tablet': return 2; // 2 tiendas en columna vertical
       case 'desktop': return items.length; // Show all in grid
     }
   }, [viewportMode, items.length]);
@@ -192,7 +192,9 @@ const DraggableGrid: React.FC<DraggableGridProps> = ({
         {/* Current items */}
         <motion.div
           key={currentIndex}
-          className="w-full max-w-sm mx-auto"
+          className={`w-full mx-auto flex flex-col gap-6 ${
+            viewportMode === 'mobile' ? 'max-w-sm' : 'max-w-md'
+          }`}
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
           exit={{ opacity: 0, scale: 0.9 }}
@@ -201,7 +203,7 @@ const DraggableGrid: React.FC<DraggableGridProps> = ({
           {visibleItems.map((item) => (
             <div
               key={item.id}
-              className="cursor-pointer mb-4"
+              className="cursor-pointer"
               onClick={() => handleItemClick(item.id)}
             >
               {item.component}
