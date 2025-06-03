@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { useEffect, useState } from 'react';
-import { motion } from 'framer-motion';
+import { motion, useAnimation, useMotionValue, useTransform } from 'framer-motion';
 import { useCycle } from '../../context/CycleContext';
 import { ContentType, CyclePhase, Content } from '../../types/domain';
 import { COLORS, MOODS, SYMPTOM_OPTIONS, CYCLE_DAYS, getPregnancyProbability } from '../../constants/cycle';
@@ -12,7 +12,7 @@ interface CycleVisualProps {
 }
 
 const CycleVisual: React.FC<CycleVisualProps> = ({ expanded = true, onMoodColorChange }) => {
-  const { calendarDays, getRecommendations, addCycleDay } = useCycle();
+  const { calendarDays, getRecommendations, addCycleDay, currentCycle } = useCycle();
   const today = new Date().toISOString().split('T')[0];
   const todayData = calendarDays.find(day => day.date === today);
   const day = todayData?.dayNumber || 1;
@@ -24,9 +24,8 @@ const CycleVisual: React.FC<CycleVisualProps> = ({ expanded = true, onMoodColorC
   const [recipe, setRecipe] = useState<Content | null>(null);
   const [exercise, setExercise] = useState<Content | null>(null);
   const [phrase, setPhrase] = useState<Content | null>(null);
-  // Estado para mood y síntomas
+  // Estado para mood
   const [selectedMood, setSelectedMood] = useState<string>(todayData?.mood?.[0] || '');
-  const [selectedSymptoms, setSelectedSymptoms] = useState<string[]>(todayData?.symptoms || []);
   const [saving, setSaving] = useState(false);
 
   // Obtener recomendaciones al cargar
@@ -50,28 +49,6 @@ const CycleVisual: React.FC<CycleVisualProps> = ({ expanded = true, onMoodColorC
     await addCycleDay({
       ...todayData,
       mood: [mood],
-      symptoms: selectedSymptoms,
-      notes: Array.isArray(todayData.notes) ? todayData.notes.join(' | ') : todayData.notes || '',
-    });
-    setSaving(false);
-  };
-
-  // Guardar síntomas
-  const handleSymptomToggle = async (symptom: string, e: React.MouseEvent) => {
-    e.stopPropagation();
-    let newSymptoms;
-    if (selectedSymptoms.includes(symptom)) {
-      newSymptoms = selectedSymptoms.filter(s => s !== symptom);
-    } else {
-      newSymptoms = [...selectedSymptoms, symptom];
-    }
-    setSelectedSymptoms(newSymptoms);
-    if (!todayData) return;
-    setSaving(true);
-    await addCycleDay({
-      ...todayData,
-      mood: [selectedMood],
-      symptoms: newSymptoms,
       notes: Array.isArray(todayData.notes) ? todayData.notes.join(' | ') : todayData.notes || '',
     });
     setSaving(false);
@@ -96,278 +73,187 @@ const CycleVisual: React.FC<CycleVisualProps> = ({ expanded = true, onMoodColorC
     if (onMoodColorChange) onMoodColorChange(moodColor);
   }, [moodColor, onMoodColorChange]);
 
-  // --- RESUMEN (no expandido) ---
-  if (!expanded) {
-    return (
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        exit={{ opacity: 0, y: 20 }}
-        transition={{ duration: 0.4 }}
-        style={{
-          position: 'relative',
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          justifyContent: 'center',
-          background: 'transparent',
-          borderRadius: 18,
-          padding: 32,
-          minHeight: 180,
-          width: '100%',
-          overflow: 'hidden',
-        }}
-      >
-        {/* SVG de útero grande y centrado de fondo */}
-        <img src="/img/UteroRojo.svg" alt="Útero fondo" style={{ position: 'absolute', left: '50%', top: '50%', transform: 'translate(-50%, -50%)', width: 140, height: 100, opacity: 0.13, zIndex: 0, pointerEvents: 'none' }} />
-        {/* Texto centrado encima */}
-        <div style={{ position: 'relative', zIndex: 1, textAlign: 'center', width: '100%' }}>
-          <div style={{ fontSize: 32, fontWeight: 900, color: COLORS.text, letterSpacing: 0.2, marginBottom: 0 }}>
-            Día {day}
-          </div>
-          <div style={{ fontSize: 20, fontWeight: 700, color: '#C62328', marginBottom: 2 }}>
-            {phase.charAt(0).toUpperCase() + phase.slice(1)}
-          </div>
-          {menstruationDay && menstruationLength && (
-            <div style={{ fontSize: 13.5, color: COLORS.text, marginTop: 2, opacity: 0.85 }}>
-              Día {menstruationDay} de {menstruationLength} de menstruación
-            </div>
-          )}
-          <div style={{ fontSize: 13.5, color: pregnancy.color, marginTop: 2, fontWeight: 600 }}>
-            Embarazo: <span style={{ fontWeight: 700 }}>{pregnancy.text}</span>
-          </div>
-        </div>
-      </motion.div>
-    );
-  }
-
   // --- VISTA EXPANDIDA ---
+  const CYCLE_DAYS_DYNAMIC = (currentCycle?.phases && Object.keys(currentCycle.phases).length) || CYCLE_DAYS || 30;
+  const SVG_SIZE = 520;
+  const CIRCLE_RADIUS = 180;
+  const CENTER = SVG_SIZE / 2;
+  const angleStep = (2 * Math.PI) / CYCLE_DAYS_DYNAMIC;
+  const dayIndex = (day - 1) % CYCLE_DAYS_DYNAMIC;
+  const ovoAngle = -Math.PI / 2 + angleStep * dayIndex; // Día 1 arriba (12h), sentido horario
+  const OVO_POS = {
+    x: CENTER + CIRCLE_RADIUS * Math.cos(ovoAngle),
+    y: CENTER + CIRCLE_RADIUS * Math.sin(ovoAngle),
+  };
+  const CIRCLE_LENGTH = 2 * Math.PI * CIRCLE_RADIUS;
+
+  const progressRatio = dayIndex / (CYCLE_DAYS_DYNAMIC - 1);
+  const progressLength = CIRCLE_LENGTH * progressRatio;
+
   return (
     <motion.div
       initial={{ opacity: 0, scale: 0.98 }}
-      animate={{ opacity: 1, scale: 1, background: moodColor }}
+      animate={{ opacity: 1, scale: 1, background: 'transparent' }}
       exit={{ opacity: 0, scale: 0.98 }}
       transition={{ duration: 0.5 }}
       style={{
         display: 'flex',
         flexDirection: 'row',
         alignItems: 'stretch',
-        background: moodColor,
+        background: 'transparent',
         borderRadius: 24,
         boxShadow: 'none',
         padding: 0,
-        minHeight: 480,
+        minHeight: 420,
         width: '100%',
         maxWidth: '100%',
         margin: '0 auto',
         overflow: 'hidden',
       }}
     >
-      {/* Columna 1: SVG útero + óvulo animado + resumen */}
+      {/* Columna Izquierda: SVG grande y progress ring */}
       <div style={{
-        flex: '0 0 36%',
-        minWidth: 380,
+        flexBasis: '40%',
+        flexGrow: 0,
+        flexShrink: 0,
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
-        justifyContent: 'flex-start',
+        justifyContent: 'center',
         position: 'relative',
-        padding: '64px 0 48px 32px',
-        height: '100%',
+        background: 'transparent',
+        zIndex: 1,
+        padding: 0,
+        minHeight: 420,
       }}>
-        {/* SVG útero grande y centrado */}
-        <div style={{ position: 'relative', width: 240, height: 240, marginBottom: 12, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <img src="/img/UteroRojo.svg" alt="Útero central del ciclo" style={{ position: 'absolute', left: '50%', top: 24, transform: 'translateX(-50%)', width: 140, height: 90, zIndex: 2, display: 'block' }} />
-          {/* Círculo base */}
-          <svg width={240} height={180} style={{ position: 'absolute', left: 0, top: 0, zIndex: 1, pointerEvents: 'none' }}>
-            <circle cx={120} cy={100} r={90} fill="none" stroke="#E6B7C1" strokeWidth={2} />
-            {/* Marcador del día actual */}
-            <circle 
-              cx={markerX} 
-              cy={markerY} 
-              r={4} 
-              fill="#C62328" 
-              stroke="#fff" 
-              strokeWidth={2}
+        <div style={{ position: 'relative', width: SVG_SIZE, height: SVG_SIZE, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          {/* SVG útero grande y centrado */}
+          <img src="/img/UteroRojo.svg" alt="Útero central del ciclo" style={{ position: 'absolute', left: '50%', top: '50%', transform: 'translate(-50%, -50%)', width: 220, height: 150, zIndex: 2, opacity: 0.97 }} />
+          {/* Progress ring */}
+          <svg width={SVG_SIZE} height={SVG_SIZE} style={{ position: 'absolute', left: 0, top: 0, zIndex: 1 }}>
+            <defs>
+              <linearGradient id="progress-gradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stopColor="#C62328" stopOpacity="0.9" />
+                <stop offset="100%" stopColor="#C62328" stopOpacity="0.3" />
+              </linearGradient>
+            </defs>
+            {/* Fondo del círculo */}
+            <circle
+              cx={CENTER}
+              cy={CENTER}
+              r={CIRCLE_RADIUS}
+              fill="none"
+              stroke="#C6232822"
+              strokeWidth={10}
             />
+            {/* Progreso del ciclo */}
+            <motion.circle
+              cx={CENTER}
+              cy={CENTER}
+              r={CIRCLE_RADIUS}
+              fill="none"
+              stroke="url(#progress-gradient)"
+              strokeWidth={12}
+              strokeDasharray={CIRCLE_LENGTH}
+              strokeDashoffset={CIRCLE_LENGTH - progressLength}
+              strokeLinecap="round"
+              initial={false}
+              animate={{ strokeDashoffset: CIRCLE_LENGTH - progressLength }}
+              transition={{ duration: 1.2, ease: 'easeInOut' }}
+              style={{ filter: 'blur(1.2px)' }}
+            />
+            {/* Divisiones de días */}
+            {Array.from({ length: CYCLE_DAYS_DYNAMIC }).map((_, i) => {
+              const a = -Math.PI / 2 + angleStep * i;
+              const x1 = CENTER + (CIRCLE_RADIUS - 8) * Math.cos(a);
+              const y1 = CENTER + (CIRCLE_RADIUS - 8) * Math.sin(a);
+              const x2 = CENTER + (CIRCLE_RADIUS + 8) * Math.cos(a);
+              const y2 = CENTER + (CIRCLE_RADIUS + 8) * Math.sin(a);
+              return (
+                <line
+                  key={i}
+                  x1={x1}
+                  y1={y1}
+                  x2={x2}
+                  y2={y2}
+                  stroke="#C62328"
+                  strokeWidth={i === dayIndex ? 4 : 2}
+                  opacity={i === dayIndex ? 0.7 : 0.18}
+                />
+              );
+            })}
           </svg>
-          {/* Óvulo con animación de pulso */}
-          <motion.div
-            style={{ 
-              position: 'absolute', 
-              left: markerX, 
-              top: markerY, 
-              transform: 'translate(-50%, -50%)', 
-              zIndex: 3 
-            }}
-            animate={{
-              x: 0,
-              y: 0,
-            }}
-            transition={{
-              type: "spring",
-              stiffness: 100,
-              damping: 15
+          {/* Óvulo marcador */}
+          <div
+            style={{
+              position: 'absolute',
+              left: OVO_POS.x,
+              top: OVO_POS.y,
+              transform: 'translate(-50%, -50%)',
+              zIndex: 3,
             }}
           >
-            <motion.div
-              initial={{ scale: 1, opacity: 0.5 }}
-              animate={{ scale: 2.2, opacity: 0 }}
-              transition={{ duration: 1.6, repeat: Infinity, ease: 'easeOut' }}
-              style={{
-                position: 'absolute',
-                left: '50%',
-                top: '50%',
-                width: 56,
-                height: 56,
-                borderRadius: '50%',
-                background: '#E57373',
-                filter: 'blur(2px)',
-                transform: 'translate(-50%, -50%)',
-                zIndex: 2,
-              }}
-            />
             <div
               style={{
-                width: 28,
-                height: 28,
+                width: 40,
+                height: 40,
                 borderRadius: '50%',
                 background: COLORS.marker,
-                border: '3px solid #fff',
-                boxShadow: '0 2px 12px 0 #E5737355',
+                border: '4px solid #fff',
+                boxShadow: '0 2px 16px 0 #E5737355',
                 zIndex: 3,
               }}
             />
-          </motion.div>
-        </div>
-        {/* Resumen debajo, bien separado */}
-        <div style={{ marginTop: 80, textAlign: 'center', zIndex: 2, width: '100%' }}>
-          <div style={{ fontSize: 54, fontWeight: 900, color: COLORS.text, letterSpacing: 0.2, marginBottom: 0 }}>
-            {day}
           </div>
-          <div style={{ fontSize: 28, fontWeight: 700, color: '#C62328', marginBottom: 2 }}>
+        </div>
+      </div>
+      {/* Columna Derecha: Info y recomendaciones */}
+      <div style={{
+        flexBasis: '60%',
+        flexGrow: 1,
+        flexShrink: 1,
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'flex-start',
+        alignItems: 'stretch',
+        padding: '32px 24px 24px 24px',
+        background: 'transparent',
+        zIndex: 2,
+        minWidth: 0,
+        maxWidth: '100%',
+        gap: 16,
+      }}>
+        {/* Día, fase, probabilidad */}
+        <div style={{
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'flex-start',
+          marginBottom: 12,
+          gap: 4,
+        }}>
+          <div style={{ fontSize: 38, fontWeight: 900, color: COLORS.text, letterSpacing: 0.2, lineHeight: 1 }}>
+            Día {day}
+          </div>
+          <div style={{ fontSize: 20, fontWeight: 700, color: '#C62328', marginBottom: 2, letterSpacing: 0.5 }}>
             {phase.charAt(0).toUpperCase() + phase.slice(1)}
           </div>
-          <div style={{ fontSize: 17, color: pregnancy.color, marginTop: 8, fontWeight: 600 }}>
+          <div style={{ fontSize: 15, color: pregnancy.color, fontWeight: 600, marginTop: 2 }}>
             Probabilidad de embarazo: <span style={{ fontWeight: 700 }}>{pregnancy.text}</span>
           </div>
         </div>
-      </div>
-      {/* Columna 2: Receta, Ejercicio, Frase */}
-      <div style={{
-        flex: '0 0 28%',
-        minWidth: 260,
-        display: 'flex',
-        flexDirection: 'column',
-        gap: 32,
-        justifyContent: 'center',
-        alignItems: 'stretch',
-        padding: '48px 12px 48px 12px',
-      }}>
-        {/* Receta */}
-        <motion.div
-          initial={{ opacity: 0, x: 40 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.1 }}
-          style={{ background: 'transparent', borderRadius: 0, padding: 0, marginBottom: 0, boxShadow: 'none' }}
-        >
-          <div style={{ fontWeight: 600, color: '#C62328', marginBottom: 4 }}>
-            {recipe ? recipe.title : 'Receta recomendada'}
-          </div>
-          {recipe ? (
-            <div>
-              <div style={{ fontWeight: 500 }}>{recipe.summary}</div>
-            </div>
-          ) : (
-            <div style={{ color: '#888' }}>No hay receta para hoy.</div>
-          )}
-        </motion.div>
-        {/* Ejercicio */}
-        <motion.div
-          initial={{ opacity: 0, x: 40 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.2 }}
-          style={{ background: 'transparent', borderRadius: 0, padding: 0, marginBottom: 0, boxShadow: 'none' }}
-        >
-          <div style={{ fontWeight: 600, color: '#C62328', marginBottom: 4 }}>
-            {exercise ? exercise.title : 'Ejercicio recomendado'}
-          </div>
-          {exercise ? (
-            <div>
-              <div style={{ fontWeight: 500 }}>{exercise.summary}</div>
-            </div>
-          ) : (
-            <div style={{ color: '#888' }}>No hay ejercicio para hoy.</div>
-          )}
-        </motion.div>
-        {/* Frase de ánimo/conocimiento */}
-        <motion.div
-          initial={{ opacity: 0, x: 40 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.3 }}
-          style={{ background: 'transparent', borderRadius: 0, padding: 0, marginBottom: 0, boxShadow: 'none' }}
-        >
-          <div style={{ fontWeight: 600, color: '#C62328', marginBottom: 4 }}>
-            {phrase ? phrase.title : 'Frase para hoy'}
-          </div>
-          {phrase ? (
-            <div style={{ fontSize: 15, color: '#444' }}>{phrase.summary}</div>
-          ) : (
-            <div style={{ color: '#888' }}>No hay frase para hoy.</div>
-          )}
-        </motion.div>
-      </div>
-      {/* Columna 3: Síntomas (arriba, más espacio), Moods (debajo) */}
-      <div style={{
-        flex: '1 1 0',
-        display: 'flex',
-        flexDirection: 'column',
-        gap: 32,
-        justifyContent: 'center',
-        alignItems: 'stretch',
-        padding: '48px 32px 48px 12px',
-        overflow: 'hidden',
-      }}>
-        {/* Síntomas */}
-        <motion.div
-          initial={{ opacity: 0, x: 40 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.4 }}
-          style={{ background: 'transparent', borderRadius: 0, padding: 0, boxShadow: 'none', marginBottom: 0 }}
-        >
-          <div style={{ fontWeight: 600, color: '#C62328', marginBottom: 8 }}>Síntomas</div>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 18 }}>
-            {SYMPTOM_OPTIONS.map(symptom => {
-              const isSelected = selectedSymptoms.includes(symptom);
-              return (
-                <motion.button
-                  key={symptom}
-                  onClick={e => handleSymptomToggle(symptom, e)}
-                  style={{
-                    display: 'flex', alignItems: 'center', border: isSelected ? `2px solid #C62328` : 'none', background: 'none', cursor: 'pointer', padding: 0, margin: 0,
-                  }}
-                  disabled={saving}
-                  whileTap={{ scale: 0.95 }}
-                  whileHover={{ scale: 1.05 }}
-                >
-                  <div style={{ width: 38, height: 38, borderRadius: '50%', background: isSelected ? '#F8B7B7' : '#F8D9D6', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'background 0.2s, border 0.2s' }}>
-                    {SymptomIcons[symptom]('#C62328')}
-                  </div>
-                  <span style={{ marginLeft: 8, color: '#222', fontSize: 14 }}>{symptom}</span>
-                </motion.button>
-              );
-            })}
-          </div>
-        </motion.div>
         {/* Estado de ánimo */}
-        <motion.div
-          initial={{ opacity: 0, x: 40 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.5 }}
-          style={{ background: 'transparent', borderRadius: 0, padding: 0, boxShadow: 'none', marginBottom: 0 }}
-        >
-          <div style={{ fontWeight: 600, color: '#C62328', marginBottom: 8 }}>¿Cómo te sientes hoy?</div>
-          <div style={{ display: 'flex', gap: 18, marginTop: 6 }}>
+        <div style={{
+          marginBottom: 10,
+          background: 'transparent',
+          borderRadius: 0,
+          padding: 0,
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'flex-start',
+          gap: 8,
+        }}>
+          <div style={{ fontWeight: 600, color: '#C62328', marginBottom: 2, fontSize: 15 }}>¿Cómo te sientes hoy?</div>
+          <div style={{ display: 'flex', gap: 12, marginTop: 2 }}>
             {MOODS.map(mood => {
               const isSelected = selectedMood === mood.value;
               return (
@@ -382,14 +268,46 @@ const CycleVisual: React.FC<CycleVisualProps> = ({ expanded = true, onMoodColorC
                   whileTap={{ scale: 0.9 }}
                   whileHover={{ scale: 1.1 }}
                 >
-                  <div style={{ width: 44, height: 44, borderRadius: '50%', background: isSelected ? mood.color : '#f3e6e6', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'background 0.2s', boxShadow: isSelected ? `0 0 0 3px ${mood.intenseColor}55` : 'none' }}>
+                  <div style={{ width: 32, height: 32, borderRadius: '50%', background: isSelected ? mood.color : '#f3e6e6', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'background 0.2s', boxShadow: isSelected ? `0 0 0 2px ${mood.intenseColor}55` : 'none' }}>
                     {MoodIcons[mood.value](mood.intenseColor)}
                   </div>
                 </motion.button>
               );
             })}
           </div>
-        </motion.div>
+        </div>
+        {/* Recomendaciones y frase */}
+        <div style={{
+          display: 'flex',
+          flexDirection: 'column',
+          gap: 10,
+          background: 'transparent',
+          borderRadius: 0,
+          padding: 0,
+          marginTop: 'auto',
+        }}>
+          {/* Receta */}
+          <div style={{ fontWeight: 600, color: '#C62328', marginBottom: 2, fontSize: 14 }}>
+            {recipe ? recipe.title : 'Receta recomendada'}
+          </div>
+          <div style={{ color: '#444', fontWeight: 500, fontSize: 13, marginBottom: 4 }}>
+            {recipe ? recipe.summary : 'No hay receta para hoy.'}
+          </div>
+          {/* Ejercicio */}
+          <div style={{ fontWeight: 600, color: '#C62328', marginBottom: 2, fontSize: 14 }}>
+            {exercise ? exercise.title : 'Ejercicio recomendado'}
+          </div>
+          <div style={{ color: '#444', fontWeight: 500, fontSize: 13, marginBottom: 4 }}>
+            {exercise ? exercise.summary : 'No hay ejercicio para hoy.'}
+          </div>
+          {/* Frase de ánimo/conocimiento */}
+          <div style={{ fontWeight: 600, color: '#C62328', marginBottom: 2, fontSize: 14 }}>
+            {phrase ? phrase.title : 'Frase para hoy'}
+          </div>
+          <div style={{ color: '#888', fontSize: 13 }}>
+            {phrase ? phrase.summary : 'No hay frase para hoy.'}
+          </div>
+        </div>
       </div>
     </motion.div>
   );

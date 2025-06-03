@@ -129,21 +129,21 @@ const DraggableGrid: React.FC<DraggableGridProps> = ({
               `,
             }}
           >
-            {/* Icono de drag expandido */}
-            <div className="absolute top-6 right-6 z-20">
+            {/* Icono de drag expandido - mejorado */}
+            <div className="absolute top-4 right-4 z-20">
               <div
-                className="w-10 h-10 rounded-full cursor-grab active:cursor-grabbing flex items-center justify-center"
+                className="w-8 h-8 rounded-full cursor-grab active:cursor-grabbing flex items-center justify-center transition-all duration-200 hover:scale-110"
                 style={{
                   background: "linear-gradient(145deg, #e7d6b8, #d4c4a5)",
-                  border: "1px solid rgba(91, 1, 8, 0.15)",
+                  border: "1px solid rgba(91, 1, 8, 0.2)",
                   boxShadow: `
-                    4px 4px 8px rgba(91, 1, 8, 0.06),
-                    -4px -4px 8px rgba(255, 255, 255, 0.6)
+                    3px 3px 6px rgba(91, 1, 8, 0.08),
+                    -3px -3px 6px rgba(255, 255, 255, 0.7)
                   `,
                 }}
               >
                 <svg
-                  className="w-5 h-5 text-[#5b0108]"
+                  className="w-4 h-4 text-[#5b0108] opacity-80"
                   fill="currentColor"
                   viewBox="0 0 20 20"
                 >
@@ -155,7 +155,12 @@ const DraggableGrid: React.FC<DraggableGridProps> = ({
             </div>
 
             <div className="w-full h-full relative">
-              {expandedItem.expandedComponent || expandedItem.component}
+              {expandedItem.expandedComponent ? 
+                React.cloneElement(expandedItem.expandedComponent as React.ReactElement, {
+                  onClose: () => handleItemClick(expandedItem.id)
+                }) : 
+                expandedItem.component
+              }
             </div>
           </motion.div>
 
@@ -284,10 +289,10 @@ const DraggableGrid: React.FC<DraggableGridProps> = ({
 
   // Grid normal cuando no hay elementos expandidos
   return (
-    <div className="w-full h-full p-8 overflow-hidden">
+    <div className="w-full h-full p-4 md:p-8 overflow-hidden">
       <div
-        className="grid grid-cols-3 gap-8 h-full"
-        style={{ gridTemplateRows: "repeat(2, 1fr)" }}
+        className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-8 h-full auto-rows-fr"
+        style={window.innerWidth >= 1024 ? { gridTemplateRows: "repeat(2, 1fr)" } : {}}
       >
         <AnimatePresence mode="sync">
           {items.map((item) => {
@@ -316,7 +321,7 @@ const DraggableGrid: React.FC<DraggableGridProps> = ({
                 onDragOver={handleDragOver}
                 onDrop={(e) => handleDrop(e as any, item.id)}
                 onClick={() => handleItemClick(item.id)}
-                className={`col-span-1 row-span-1 relative group cursor-pointer overflow-hidden transform-gpu will-change-transform ${
+                className={`col-span-1 row-span-1 relative group cursor-grab active:cursor-grabbing overflow-hidden transform-gpu will-change-transform transition-all duration-200 hover:scale-[1.02] ${
                   isLibrary ? 'library-tent-container' : ''
                 }`}
                 style={!isLibrary ? {
@@ -338,11 +343,18 @@ const DraggableGrid: React.FC<DraggableGridProps> = ({
                   !isDragged && !isTransitioning && !isLibrary
                     ? {
                         scale: 1.02,
+                        y: -2,
                         boxShadow: `
                     20px 20px 40px rgba(91, 1, 8, 0.12),
                     -20px -20px 40px rgba(255, 255, 255, 0.35),
-                    inset 0 1px 0 rgba(255, 255, 255, 0.2)
+                    inset 0 1px 0 rgba(255, 255, 255, 0.2),
+                    0 6px 20px rgba(91, 1, 8, 0.08)
                   `,
+                        transition: { duration: 0.2 },
+                      }
+                    : isLibrary && !isDragged && !isTransitioning
+                    ? {
+                        scale: 1.01,
                         transition: { duration: 0.2 },
                       }
                     : {}
@@ -356,27 +368,27 @@ const DraggableGrid: React.FC<DraggableGridProps> = ({
                     : {}
                 }
               >
-                {/* Icono de drag - solo si no es librería */}
+                {/* Icono de drag - solo si no es librería - mejorado */}
                 {!isLibrary && (
                   <motion.div
-                    className="absolute top-4 right-4 z-20 opacity-0 group-hover:opacity-100"
+                    className="absolute top-3 right-3 z-20 opacity-0 group-hover:opacity-100"
                     initial={false}
                     animate={{ opacity: isDragged ? 1 : undefined }}
-                    transition={{ duration: 0.2 }}
+                    transition={{ duration: 0.3, ease: "easeInOut" }}
                   >
                     <div
-                      className="w-8 h-8 rounded-full cursor-grab active:cursor-grabbing flex items-center justify-center"
+                      className="w-7 h-7 rounded-full cursor-grab active:cursor-grabbing flex items-center justify-center transition-all duration-200 hover:scale-110"
                       style={{
                         background: "linear-gradient(145deg, #e7d6b8, #d4c4a5)",
-                        border: "1px solid rgba(91, 1, 8, 0.15)",
+                        border: "1px solid rgba(91, 1, 8, 0.2)",
                         boxShadow: `
-                          3px 3px 6px rgba(91, 1, 8, 0.06),
-                          -3px -3px 6px rgba(255, 255, 255, 0.25)
+                          2px 2px 4px rgba(91, 1, 8, 0.08),
+                          -2px -2px 4px rgba(255, 255, 255, 0.7)
                         `,
                       }}
                     >
                       <svg
-                        className="w-4 h-4 text-[#5b0108]"
+                        className="w-3.5 h-3.5 text-[#5b0108] opacity-80"
                         fill="currentColor"
                         viewBox="0 0 20 20"
                       >

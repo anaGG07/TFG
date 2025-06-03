@@ -4,6 +4,8 @@ import { useAuth } from "../context/AuthContext";
 import { useDashboardData } from "../hooks/useDashboardData";
 import DraggableGrid from "../components/DraggableGrid";
 import { CycleVisual } from "../components/cycle";
+import SymptomsView from "../components/cycle/SymptomsView";
+import RitualsView from "../components/cycle/RitualsView";
 
 const DashboardPage: React.FC = () => {
   const { user } = useAuth();
@@ -54,151 +56,17 @@ const DashboardPage: React.FC = () => {
       {
         id: "symptoms",
         title: "Síntomas",
+        isExpanded: expandedId === "symptoms",
         component: (
-          <div className="h-full flex flex-col">
-            <div className="flex items-center justify-center mb-6">
-              <div
-                className="w-16 h-16 rounded-full flex items-center justify-center"
-                style={{
-                  background: "bg-secondary",
-                  boxShadow: `
-                  inset 4px 4px 8px rgba(91, 1, 8, 0.3),
-                  inset -4px -4px 8px rgba(255, 108, 92, 0.2)
-                `,
-                }}
-              >
-                <span className="text-2xl">📝</span>
-              </div>
-            </div>
-            <div className="flex-1 space-y-4">
-              <p className="text-primary-dark text-center text-sm leading-relaxed font-medium">
-                Registro de síntomas recientes
-              </p>
-              <div
-                className="rounded-xl p-4 border"
-                style={{
-                  background: "bg-gradient-to-br from-primary to-primary-dark",
-                  border: "1px solid rgba(255, 108, 92, 0.15)",
-                  boxShadow: `
-                  inset 2px 2px 4px rgba(255, 108, 92, 0.05),
-                  inset -2px -2px 4px rgba(255, 255, 255, 0.8)
-                `,
-                }}
-              >
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-3">
-                    <div
-                      className="w-3 h-3 rounded-full"
-                      style={{
-                        background: "bg-secondary",
-                      }}
-                    ></div>
-                    <p className="text-xs text-primary-dark font-semibold">
-                      Registros:
-                    </p>
-                  </div>
-                  <span className="text-xs text-primary font-bold">
-                    {isLoading ? "..." : `${todayData?.symptoms?.length || 0} síntomas hoy`}
-                  </span>
-                </div>
-                {todayData && todayData.flowIntensity !== null && (
-                  <div className="mt-2 flex items-center justify-between">
-                    <span className="text-xs text-primary-dark">Flujo:</span>
-                    <span className="text-xs text-primary font-bold">
-                      {(() => {
-                        const intensityMap: { [key: number]: string } = {
-                          1: "Ligero",
-                          2: "Moderado",
-                          3: "Abundante",
-                          4: "Muy abundante",
-                          5: "Extremo",
-                        };
-                        return intensityMap[todayData.flowIntensity] || "No definido";
-                      })()}
-                    </span>
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
+          <SymptomsView expanded={expandedId === "symptoms"} />
         ),
       },
       {
-        id: "insights",
-        title: "Insights",
+        id: "rituals",
+        title: "Rituales",
+        isExpanded: expandedId === "rituals",
         component: (
-          <div className="h-full flex flex-col">
-            <div className="flex items-center justify-center mb-6">
-              <div
-                className="w-16 h-16 rounded-full flex items-center justify-center"
-                style={{
-                  background: "bg-secondary",
-                  boxShadow: `
-                  inset 4px 4px 8px rgba(91, 1, 8, 0.4),
-                  inset -4px -4px 8px rgba(157, 13, 11, 0.2)
-                `,
-                }}
-              >
-                <span className="text-2xl">📊</span>
-              </div>
-            </div>
-            <div className="flex-1 space-y-4">
-              <p className="text-primary-dark text-center text-sm leading-relaxed font-medium">
-                Análisis y tendencias personalizadas
-              </p>
-              <div
-                className="rounded-xl p-4 border"
-                style={{
-                  background: "bg-gradient-to-br from-primary to-primary-dark",
-                  border: "1px solid rgba(157, 13, 11, 0.15)",
-                  boxShadow: `
-                  inset 2px 2px 4px rgba(157, 13, 11, 0.05),
-                  inset -2px -2px 4px rgba(255, 255, 255, 0.8)
-                `,
-                }}
-              >
-                <div className="space-y-2">
-                  <div className="flex items-center space-x-3">
-                    <div
-                      className="w-3 h-3 rounded-full"
-                      style={{
-                        background: "bg-secondary",
-                      }}
-                    ></div>
-                    <p className="text-xs text-primary-dark font-semibold">
-                      {statistics ? "Análisis disponible" : "Recopilando datos"}
-                    </p>
-                  </div>
-                  {statistics && (
-                    <div className="space-y-1">
-                      <div className="flex items-center justify-between">
-                        <span className="text-xs text-primary-dark">
-                          Regularidad:
-                        </span>
-                        <span className="text-xs text-primary font-bold">
-                          {(() => {
-                            const regularity = statistics.regularity;
-                            if (regularity >= 80) return "Muy regular";
-                            if (regularity >= 60) return "Regular";
-                            if (regularity >= 40) return "Irregular";
-                            return "Muy irregular";
-                          })()}
-                        </span>
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <span className="text-xs text-primary-dark">
-                          Ciclos analizados:
-                        </span>
-                        <span className="text-xs text-primary font-bold">
-                          {statistics.cyclesAnalyzed}
-                        </span>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </div>
-            </div>
-          </div>
+          <RitualsView expanded={expandedId === "rituals"} />
         ),
       },
       {
