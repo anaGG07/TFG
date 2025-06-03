@@ -229,9 +229,9 @@ const SymptomsView: React.FC<SymptomsViewProps> = ({ expanded = true }) => {
       }}>
         {/* Síntomas actuales */}
         <div style={{
-          background: '#f6ecec',
+          background: 'transparent',
           borderRadius: 22,
-          boxShadow: '6px 6px 18px #e5d6d6, -6px -6px 18px #fff',
+          boxShadow: 'none',
           padding: 24,
           marginBottom: 0,
         }}>
@@ -244,7 +244,7 @@ const SymptomsView: React.FC<SymptomsViewProps> = ({ expanded = true }) => {
               return (
                 <motion.button
                   key={symptom}
-                  onClick={() => setSelectedSymptom(symptom === selectedSymptom ? null : symptom)}
+                  onClick={e => { e.stopPropagation(); setSelectedSymptom(symptom === selectedSymptom ? null : symptom); }}
                   style={{
                     display: 'flex',
                     alignItems: 'center',
@@ -280,9 +280,9 @@ const SymptomsView: React.FC<SymptomsViewProps> = ({ expanded = true }) => {
         </div>
         {/* Análisis de patrones */}
         <div style={{
-          background: '#f6ecec',
+          background: 'transparent',
           borderRadius: 22,
-          boxShadow: '6px 6px 18px #e5d6d6, -6px -6px 18px #fff',
+          boxShadow: 'none',
           padding: 24,
         }}>
           <h3 style={{ fontSize: 18, fontWeight: 700, color: '#C62328', marginBottom: 16 }}>
@@ -330,9 +330,9 @@ const SymptomsView: React.FC<SymptomsViewProps> = ({ expanded = true }) => {
         alignItems: 'center',
         justifyContent: 'center',
         minWidth: 0,
-        background: '#f6ecec',
+        background: 'transparent',
         borderRadius: 22,
-        boxShadow: '6px 6px 18px #e5d6d6, -6px -6px 18px #fff',
+        boxShadow: 'none',
         padding: 32,
         margin: 0,
         height: '100%',

@@ -600,7 +600,7 @@ const ArticleModal: React.FC<{
         onClick={handleOverlayClick}
       >
         <motion.div
-          className="relative bg-[#f5f5f4] rounded-3xl shadow-2xl p-8 w-full max-w-2xl mx-4 min-h-[500px] max-h-[80vh] overflow-auto"
+          className="relative bg-[#f5f5f4] rounded-3xl shadow-2xl p-4 sm:p-6 md:p-8 w-full max-w-sm sm:max-w-lg md:max-w-2xl mx-4 min-h-[400px] sm:min-h-[500px] max-h-[85vh] sm:max-h-[80vh] overflow-auto"
           style={{
             background: "linear-gradient(145deg, #fafaf9, #e7e5e4)",
             boxShadow: `
@@ -621,18 +621,18 @@ const ArticleModal: React.FC<{
               e.stopPropagation();
               onClose();
             }}
-            className="absolute top-6 right-6 text-[#C62328] hover:text-[#7a2323] transition-colors z-10"
+            className="absolute top-4 sm:top-6 right-4 sm:right-6 text-[#C62328] hover:text-[#7a2323] transition-colors z-10"
           >
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
             </svg>
           </button>
 
-          <div className="pr-8">
-            <div className="mb-6">
-              <div className="flex items-center gap-3 mb-4">
+          <div className="pr-4 sm:pr-6 md:pr-8">
+            <div className="mb-4 sm:mb-6">
+              <div className="flex items-center gap-2 sm:gap-3 mb-3 sm:mb-4">
                 <div 
-                  className="w-12 h-12 rounded-xl flex items-center justify-center"
+                  className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center"
                   style={{
                     background: getTypeColor(article.type),
                     boxShadow: "inset 2px 2px 4px rgba(0,0,0,0.1)"
@@ -647,11 +647,11 @@ const ArticleModal: React.FC<{
                 )}
               </div>
               
-              <h2 className="text-2xl font-serif font-bold text-[#5b0108] mb-3 leading-tight">
+              <h2 className="text-lg sm:text-xl md:text-2xl font-serif font-bold text-[#5b0108] mb-2 sm:mb-3 leading-tight">
                 {article.title}
               </h2>
               
-              <p className="text-base text-[#7a2323] mb-4 leading-relaxed">
+              <p className="text-sm sm:text-base text-[#7a2323] mb-3 sm:mb-4 leading-relaxed">
                 {article.summary}
               </p>
               
@@ -669,7 +669,7 @@ const ArticleModal: React.FC<{
                     </span>
                   ))}
                 </div>
-                <span className="text-sm text-[#a62c2c] font-semibold">
+                <span className="text-xs sm:text-sm text-[#a62c2c] font-semibold">
                   {article.readTime}
                 </span>
               </div>
@@ -1073,10 +1073,10 @@ const TentButton: React.FC<{
           />
 
           <div className="text-center max-w-full px-1 mt-1">
-            <p className="text-xs font-serif font-bold text-[#7a2323] mb-0.5 truncate">
+            <p className="text-xs sm:text-sm font-serif font-bold text-[#7a2323] mb-0.5 truncate">
               {config.name}
             </p>
-            <p className="text-[10px] font-sans text-[#5b0108] leading-tight line-clamp-1">
+            <p className="text-[10px] sm:text-xs font-sans text-[#5b0108] leading-tight line-clamp-1">
               {config.description}
             </p>
           </div>
@@ -1101,7 +1101,7 @@ const TentButton: React.FC<{
             viewBox="0 0 300 180"
             className={`transition-all duration-500 ${
               isClicked ? "scale-95" : "scale-100"
-            }`}
+            } w-full h-auto max-w-[200px] sm:max-w-[250px] md:max-w-[300px]`}
           >
             <path
               d={
@@ -1201,10 +1201,10 @@ const TentButton: React.FC<{
         />
 
         <div className="text-center max-w-[90%] px-2 mt-2 flex-shrink-0">
-          <p className="text-lg md:text-xl font-serif font-bold text-[#7a2323] whitespace-nowrap mb-1">
+          <p className="text-base sm:text-lg md:text-xl font-serif font-bold text-[#7a2323] whitespace-nowrap mb-1">
             {config.name}
           </p>
-          <p className="text-xs md:text-sm font-sans text-[#5b0108] leading-tight line-clamp-2">
+          <p className="text-xs sm:text-sm font-sans text-[#5b0108] leading-tight line-clamp-2 px-1">
             {config.description}
           </p>
         </div>
