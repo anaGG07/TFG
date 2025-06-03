@@ -2,6 +2,9 @@ import { Outlet, useLocation } from "react-router-dom";
 import { AuthProvider, useAuth } from "../context/AuthContext";
 import { CycleProvider } from "../context/CycleContext";
 import CircularNavigation from "../components/CircularNavigation";
+import BottomNavigation from "../components/BottomNavigation";
+import SideDrawer from "../components/SideDrawer";
+import { useState, useEffect } from "react";
 
 // Rutas donde mostrar la navegación circular
 const AUTHENTICATED_ROUTES = [
@@ -27,40 +30,81 @@ const needsNavigation = (pathname: string) => {
 const RootContent = () => {
   const { isAuthenticated, user } = useAuth();
   const location = useLocation();
+  const [viewport, setViewport] = useState<'mobile' | 'tablet' | 'desktop'>('desktop');
 
-  // Determinar si mostrar navegación circular
+  // Detect viewport size
+  useEffect(() => {
+    const checkViewport = () => {
+      const width = window.innerWidth;
+      if (width < 640) {
+        setViewport('mobile');
+      } else if (width < 1024) {
+        setViewport('tablet');
+      } else {
+        setViewport('desktop');
+      }
+    };
+
+    checkViewport();
+    window.addEventListener('resize', checkViewport);
+    return () => window.removeEventListener('resize', checkViewport);
+  }, []);
+
+  // Determinar si mostrar navegación
   const shouldShowNavigation =
     isAuthenticated &&
     user?.onboardingCompleted &&
     needsNavigation(location.pathname);
 
-  console.log("RootLayout: Navegación circular:", {
+  console.log("RootLayout: Navegación responsive:", {
     shouldShow: shouldShowNavigation,
+    viewport,
     path: location.pathname,
     isAuthenticated,
     onboardingCompleted: user?.onboardingCompleted,
-    userObject: user,
-    routeMatches: AUTHENTICATED_ROUTES.map(route => ({ route, matches: location.pathname.startsWith(route) })),
-    needsNavigationResult: needsNavigation(location.pathname),
   });
 
   return (
     <CycleProvider>
       {shouldShowNavigation ? (
-        // Layout con dos columnas para páginas autenticadas
-        <div className="w-screen h-screen overflow-hidden bg-bg text-primary font-sans flex">
-          {/* Columna izquierda - Navegación fija */}
-          <div className="w-[300px] h-full flex-shrink-0 relative">
-            <CircularNavigation />
-          </div>
+        <>
+          {/* Desktop Layout - Navegación circular lateral */}
+          {viewport === 'desktop' && (
+            <div className="w-screen h-screen overflow-hidden bg-bg text-primary font-sans flex">
+              {/* Columna izquierda - Navegación fija */}
+              <div className="w-[300px] h-full flex-shrink-0 relative">
+                <CircularNavigation />
+              </div>
 
-          {/* Columna derecha - Contenido principal */}
-          <div className="flex-1 h-full overflow-auto">
-            <main className="w-full h-full">
-              <Outlet />
-            </main>
-          </div>
-        </div>
+              {/* Columna derecha - Contenido principal */}
+              <div className="flex-1 h-full overflow-auto">
+                <main className="w-full h-full">
+                  <Outlet />
+                </main>
+              </div>
+            </div>
+          )}
+
+          {/* Tablet Layout - Side drawer */}
+          {viewport === 'tablet' && (
+            <div className="w-screen h-screen overflow-hidden bg-bg text-primary font-sans">
+              <SideDrawer />
+              <main className="w-full h-full pt-16">
+                <Outlet />
+              </main>
+            </div>
+          )}
+
+          {/* Mobile Layout - Bottom navigation */}
+          {viewport === 'mobile' && (
+            <div className="w-screen h-screen overflow-hidden bg-bg text-primary font-sans">
+              <main className="w-full h-full pb-20">
+                <Outlet />
+              </main>
+              <BottomNavigation />
+            </div>
+          )}
+        </>
       ) : (
         // Layout original para páginas no autenticadas
         <div

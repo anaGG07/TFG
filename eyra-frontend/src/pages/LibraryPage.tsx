@@ -1300,11 +1300,11 @@ const LibraryPage: React.FC = () => {
               ease: [0.25, 0.1, 0.25, 1.0]
             }}
           >
-            <div className="flex flex-col sm:grid sm:grid-cols-3 lg:grid-cols-5 gap-4 md:gap-6 px-4 md:px-8">
-              <div className="hidden sm:block"></div>
+            <div className="flex flex-col sm:flex sm:justify-center sm:items-center lg:grid lg:grid-cols-5 gap-4 md:gap-6 px-4 md:px-8">
+              <div className="hidden lg:block"></div>
               <div className="hidden lg:block"></div>
               
-              <div className="sm:col-span-2 lg:col-span-2 flex justify-center sm:justify-start">
+              <div className="flex justify-center lg:col-span-2 lg:justify-start">
                 <motion.div
                   className="bg-white/35 backdrop-blur-sm rounded-2xl px-4 py-4 md:px-8 md:py-5 flex items-center gap-3 max-w-xl w-full"
                   style={{

@@ -190,6 +190,7 @@ const SymptomsView: React.FC<SymptomsViewProps> = ({ expanded = true }) => {
           justifyContent: 'center',
           minHeight: 480,
           width: '100%',
+          background: 'transparent',
         }}
       >
         <div className="loading-spinner" />
@@ -205,107 +206,175 @@ const SymptomsView: React.FC<SymptomsViewProps> = ({ expanded = true }) => {
       transition={{ duration: 0.5 }}
       style={{
         display: 'flex',
-        flexDirection: 'column',
-        gap: 32,
-        background: '#fff',
+        flexDirection: 'row',
+        gap: 40,
+        background: 'transparent',
         borderRadius: 24,
         padding: 32,
         minHeight: 480,
         width: '100%',
+        boxShadow: 'none',
+        alignItems: 'stretch',
+        justifyContent: 'center',
       }}
     >
-      {/* Panel superior: Síntomas actuales */}
-      <div>
-        <h3 style={{ fontSize: 18, fontWeight: 600, color: '#C62328', marginBottom: 16 }}>
-          Síntomas actuales
-        </h3>
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 16 }}>
-          {SYMPTOM_OPTIONS.map(symptom => {
-            const todaySymptom = todaySymptoms.find(s => s.symptom === symptom);
-            return (
-              <motion.button
-                key={symptom}
-                onClick={() => setSelectedSymptom(symptom === selectedSymptom ? null : symptom)}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  background: todaySymptom ? '#F8B7B7' : '#F8D9D6',
-                  padding: '8px 16px',
-                  borderRadius: 20,
-                  border: 'none',
-                  cursor: 'pointer',
-                  gap: 8,
-                  transition: 'all 0.2s',
-                }}
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                {SymptomIcons[symptom]('#C62328')}
-                <span style={{ fontSize: 14, color: '#222' }}>{symptom}</span>
-                {todaySymptom && (
-                  <div style={{ 
-                    background: '#C62328', 
-                    color: '#fff', 
-                    padding: '2px 8px', 
-                    borderRadius: 12,
-                    fontSize: 12,
-                  }}>
-                    {todaySymptom.intensity}/5
+      {/* Columna izquierda: Síntomas y análisis */}
+      <div style={{
+        flex: 1,
+        display: 'flex',
+        flexDirection: 'column',
+        gap: 28,
+        minWidth: 0,
+        justifyContent: 'flex-start',
+      }}>
+        {/* Síntomas actuales */}
+        <div style={{
+          background: '#f6ecec',
+          borderRadius: 22,
+          boxShadow: '6px 6px 18px #e5d6d6, -6px -6px 18px #fff',
+          padding: 24,
+          marginBottom: 0,
+        }}>
+          <h3 style={{ fontSize: 18, fontWeight: 700, color: '#C62328', marginBottom: 18 }}>
+            Síntomas actuales
+          </h3>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 16 }}>
+            {SYMPTOM_OPTIONS.map(symptom => {
+              const todaySymptom = todaySymptoms.find(s => s.symptom === symptom);
+              return (
+                <motion.button
+                  key={symptom}
+                  onClick={() => setSelectedSymptom(symptom === selectedSymptom ? null : symptom)}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    background: todaySymptom ? '#F8B7B7' : '#F8D9D6',
+                    padding: '8px 16px',
+                    borderRadius: 20,
+                    border: 'none',
+                    cursor: 'pointer',
+                    gap: 8,
+                    transition: 'all 0.2s',
+                    boxShadow: todaySymptom ? '2px 2px 8px #e5bcbc' : 'none',
+                  }}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  {SymptomIcons[symptom]('#C62328')}
+                  <span style={{ fontSize: 14, color: '#222' }}>{symptom}</span>
+                  {todaySymptom && (
+                    <div style={{
+                      background: '#C62328',
+                      color: '#fff',
+                      padding: '2px 8px',
+                      borderRadius: 12,
+                      fontSize: 12,
+                    }}>
+                      {todaySymptom.intensity}/5
+                    </div>
+                  )}
+                </motion.button>
+              );
+            })}
+          </div>
+        </div>
+        {/* Análisis de patrones */}
+        <div style={{
+          background: '#f6ecec',
+          borderRadius: 22,
+          boxShadow: '6px 6px 18px #e5d6d6, -6px -6px 18px #fff',
+          padding: 24,
+        }}>
+          <h3 style={{ fontSize: 18, fontWeight: 700, color: '#C62328', marginBottom: 16 }}>
+            Análisis de patrones
+          </h3>
+          {selectedSymptom ? (
+            <div style={{ background: '#F8D9D6', padding: 16, borderRadius: 12 }}>
+              {(() => {
+                const analysis = getSymptomAnalysis(selectedSymptom);
+                if (!analysis) {
+                  return (
+                    <p style={{ color: '#222', fontSize: 14, lineHeight: 1.5 }}>
+                      No hay suficientes datos para analizar este síntoma. Continúa registrando para obtener insights.
+                    </p>
+                  );
+                }
+
+                return (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                    <p style={{ color: '#222', fontSize: 14, lineHeight: 1.5 }}>
+                      Basado en tus registros, este síntoma aparece con una frecuencia del {analysis.frequency}%
+                      y una intensidad promedio de {analysis.averageIntensity.toFixed(1)}/5.
+                    </p>
+                    <p style={{ color: '#222', fontSize: 14, lineHeight: 1.5 }}>
+                      Suele aparecer alrededor del día {analysis.dayInCycle} de tu ciclo.
+                    </p>
                   </div>
-                )}
-              </motion.button>
-            );
-          })}
+                );
+              })()}
+            </div>
+          ) : (
+            <div style={{ background: '#F8D9D6', padding: 16, borderRadius: 12 }}>
+              <p style={{ color: '#222', fontSize: 14, lineHeight: 1.5 }}>
+                Selecciona un síntoma para ver un análisis detallado de su patrón y recibir recomendaciones personalizadas.
+              </p>
+            </div>
+          )}
         </div>
       </div>
-
-      {/* Panel central: Gráfico */}
-      <div>
-        <h3 style={{ fontSize: 18, fontWeight: 600, color: '#C62328', marginBottom: 16 }}>
+      {/* Columna derecha: Gráfica */}
+      <div style={{
+        flex: 1.1,
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        minWidth: 0,
+        background: '#f6ecec',
+        borderRadius: 22,
+        boxShadow: '6px 6px 18px #e5d6d6, -6px -6px 18px #fff',
+        padding: 32,
+        margin: 0,
+        height: '100%',
+      }}>
+        <h3 style={{ fontSize: 18, fontWeight: 700, color: '#C62328', marginBottom: 18, textAlign: 'center' }}>
           {selectedSymptom ? `Evolución de ${selectedSymptom}` : 'Selecciona un síntoma para ver su evolución'}
         </h3>
-        <div style={{ height: 200 }}>
-          <Line data={chartData} options={chartOptions} />
+        <div style={{ width: '100%', maxWidth: 420, height: 260, background: 'linear-gradient(135deg, #f8d9d6 0%, #fff 100%)', borderRadius: 18, boxShadow: '2px 2px 12px #e5d6d6', padding: 16, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <Line
+            data={chartData}
+            options={{
+              ...chartOptions,
+              plugins: {
+                ...chartOptions.plugins,
+                legend: { display: false },
+                tooltip: { ...chartOptions.plugins.tooltip, backgroundColor: '#C62328', titleColor: '#fff', bodyColor: '#fff' },
+              },
+              elements: {
+                line: { borderWidth: 4, borderColor: '#C62328', tension: 0.5 },
+                point: { radius: 6, backgroundColor: '#C62328', borderColor: '#fff', borderWidth: 2 },
+              },
+              scales: {
+                x: {
+                  grid: { display: false },
+                  ticks: { color: '#C62328', font: { weight: 'bold' } },
+                },
+                y: {
+                  grid: { color: '#F8D9D6' },
+                  ticks: { color: '#C62328', font: { weight: 'bold' }, stepSize: 1 },
+                  min: 0,
+                  max: 5,
+                },
+              },
+              animation: {
+                duration: 1200,
+                easing: 'easeInOutQuart',
+              },
+              responsive: true,
+              maintainAspectRatio: false,
+            }}
+          />
         </div>
-      </div>
-
-      {/* Panel inferior: Análisis */}
-      <div>
-        <h3 style={{ fontSize: 18, fontWeight: 600, color: '#C62328', marginBottom: 16 }}>
-          Análisis de patrones
-        </h3>
-        {selectedSymptom ? (
-          <div style={{ background: '#F8D9D6', padding: 16, borderRadius: 12 }}>
-            {(() => {
-              const analysis = getSymptomAnalysis(selectedSymptom);
-              if (!analysis) {
-                return (
-                  <p style={{ color: '#222', fontSize: 14, lineHeight: 1.5 }}>
-                    No hay suficientes datos para analizar este síntoma. Continúa registrando para obtener insights.
-                  </p>
-                );
-              }
-
-              return (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-                  <p style={{ color: '#222', fontSize: 14, lineHeight: 1.5 }}>
-                    Basado en tus registros, este síntoma aparece con una frecuencia del {analysis.frequency}% 
-                    y una intensidad promedio de {analysis.averageIntensity.toFixed(1)}/5.
-                  </p>
-                  <p style={{ color: '#222', fontSize: 14, lineHeight: 1.5 }}>
-                    Suele aparecer alrededor del día {analysis.dayInCycle} de tu ciclo.
-                  </p>
-                </div>
-              );
-            })()}
-          </div>
-        ) : (
-          <div style={{ background: '#F8D9D6', padding: 16, borderRadius: 12 }}>
-            <p style={{ color: '#222', fontSize: 14, lineHeight: 1.5 }}>
-              Selecciona un síntoma para ver un análisis detallado de su patrón y recibir recomendaciones personalizadas.
-            </p>
-          </div>
-        )}
       </div>
     </motion.div>
   );
