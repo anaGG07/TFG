@@ -4,7 +4,7 @@ import { CycleProvider } from "../context/CycleContext";
 import CircularNavigation from "../components/CircularNavigation";
 import BottomNavigation from "../components/BottomNavigation";
 import SideDrawer from "../components/SideDrawer";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 
 // Rutas donde mostrar la navegación circular
 const AUTHENTICATED_ROUTES = [
@@ -32,29 +32,47 @@ const RootContent = () => {
   const location = useLocation();
   const [viewport, setViewport] = useState<'mobile' | 'tablet' | 'desktop'>('desktop');
 
-  // Detect viewport size
+  // Detect viewport size - optimized to prevent re-renders
   useEffect(() => {
     const checkViewport = () => {
       const width = window.innerWidth;
+      let newViewport: 'mobile' | 'tablet' | 'desktop';
+      
       if (width < 640) {
-        setViewport('mobile');
+        newViewport = 'mobile';
       } else if (width < 1024) {
-        setViewport('tablet');
+        newViewport = 'tablet';
       } else {
-        setViewport('desktop');
+        newViewport = 'desktop';
       }
+      
+      // Only update if viewport actually changed
+      setViewport(prev => prev !== newViewport ? newViewport : prev);
     };
 
     checkViewport();
-    window.addEventListener('resize', checkViewport);
-    return () => window.removeEventListener('resize', checkViewport);
-  }, []);
+    
+    // Debounce resize events to prevent excessive re-renders
+    let timeoutId: NodeJS.Timeout;
+    const debouncedCheckViewport = () => {
+      clearTimeout(timeoutId);
+      timeoutId = setTimeout(checkViewport, 100);
+    };
+    
+    window.addEventListener('resize', debouncedCheckViewport);
+    return () => {
+      window.removeEventListener('resize', debouncedCheckViewport);
+      clearTimeout(timeoutId);
+    };
+  }, []); // Empty dependency array
 
-  // Determinar si mostrar navegación
-  const shouldShowNavigation =
+  // Determinar si mostrar navegación - memoized to prevent excessive checks
+  const shouldShowNavigation = useMemo(() => 
     isAuthenticated &&
     user?.onboardingCompleted &&
-    needsNavigation(location.pathname);
+    needsNavigation(location.pathname),
+    [isAuthenticated, user?.onboardingCompleted, location.pathname]
+  );
 
   console.log("RootLayout: Navegación responsive:", {
     shouldShow: shouldShowNavigation,
