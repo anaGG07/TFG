@@ -1325,9 +1325,7 @@ const LibraryPage: React.FC = () => {
                       RED TENT
                     </h1>
                     <p className="text-xs md:text-sm text-[#5b0108] leading-relaxed font-medium">
-                      🏛️ <strong>Descubre tu herencia ancestral.</strong> Sumérgete en rituales sagrados donde generaciones de mujeres 
-                      compartieron su sabiduría más íntima, creando lazos inquebrantables que trascienden el tiempo. 
-                      <em>Tu historia comienza aquí.</em>
+                      🏛️ <strong>Descubre tu herencia ancestral.</strong> Tu historia comienza aquí.
                     </p>
                   </div>
                 </motion.div>
@@ -1342,10 +1340,10 @@ const LibraryPage: React.FC = () => {
       <motion.div
         className="w-full h-full"
         style={{ 
-          paddingTop: hasExpandedItem ? "0" : "8rem"
+          paddingTop: hasExpandedItem ? "0" : "6rem"
         }}
         animate={{ 
-          paddingTop: hasExpandedItem ? "0" : "8rem"
+          paddingTop: hasExpandedItem ? "0" : "6rem"
         }}
         transition={{ 
           duration: 0.4,

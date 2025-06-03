@@ -87,7 +87,7 @@ const CycleVisual: React.FC<CycleVisualProps> = ({ expanded = true, onMoodColorC
   };
   const CIRCLE_LENGTH = 2 * Math.PI * CIRCLE_RADIUS;
 
-  const progressRatio = dayIndex / (CYCLE_DAYS_DYNAMIC - 1);
+  const progressRatio = (dayIndex + 1) / CYCLE_DAYS_DYNAMIC;
   const progressLength = CIRCLE_LENGTH * progressRatio;
 
   return (
