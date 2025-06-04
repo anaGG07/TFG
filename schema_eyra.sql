@@ -1,40 +1,49 @@
--- Tabla de enumeraciones
-CREATE TYPE profile_type AS ENUM ('GUEST', 'USER', 'ADMIN');
-CREATE TYPE cycle_phase AS ENUM ('menstrual', 'folicular', 'ovulacion', 'lutea');
-CREATE TYPE guest_type AS ENUM ('partner', 'parental', 'friend');
-CREATE TYPE content_type AS ENUM ('nutrition', 'exercise', 'article', 'selfcare', 'recommendation');
-CREATE TYPE hormone_type AS ENUM ('estrogen', 'progesterone', 'testosterone', 'luteinizing_hormone', 'follicle_stimulating_hormone');
+-- ENUMS ACTUALIZADOS
+DO $$ BEGIN
+    CREATE TYPE profile_type AS ENUM ('profile_guest', 'profile_women', 'profile_trans', 'profile_underage');
+EXCEPTION WHEN duplicate_object THEN null; END $$;
 
--- Tabla "user"
-CREATE TABLE "user" (
+DO $$ BEGIN
+    CREATE TYPE cycle_phase AS ENUM ('menstrual', 'folicular', 'ovulacion', 'lutea');
+EXCEPTION WHEN duplicate_object THEN null; END $$;
+
+DO $$ BEGIN
+    CREATE TYPE content_type AS ENUM ('nutrition', 'exercise', 'article', 'selfcare', 'recommendation');
+EXCEPTION WHEN duplicate_object THEN null; END $$;
+
+-- TABLA USER
+CREATE TABLE IF NOT EXISTS "user" (
     id SERIAL PRIMARY KEY,
     email VARCHAR(180) UNIQUE NOT NULL,
     username VARCHAR(255) NOT NULL,
     name VARCHAR(255) NOT NULL,
     last_name VARCHAR(255) NOT NULL,
     password VARCHAR(255) NOT NULL,
-    profile_type profile_type NOT NULL DEFAULT 'GUEST',
-    gender_identity VARCHAR(255) NOT NULL,
+    profile_type profile_type NOT NULL DEFAULT 'profile_guest',
     birth_date DATE NOT NULL,
     roles TEXT[] DEFAULT ARRAY['ROLE_USER'],
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    state BOOLEAN DEFAULT TRUE
+    state BOOLEAN DEFAULT TRUE,
+    onboarding_completed BOOLEAN DEFAULT FALSE,
+    avatar JSONB DEFAULT NULL
 );
 
--- Tabla "condition"
-CREATE TABLE condition (
+-- TABLA CONDITION
+CREATE TABLE IF NOT EXISTS condition (
     id SERIAL PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
     description VARCHAR(255) NOT NULL,
     is_chronic BOOLEAN DEFAULT FALSE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    state BOOLEAN DEFAULT TRUE
+    state BOOLEAN DEFAULT TRUE,
+    category VARCHAR(100),
+    severity VARCHAR(50)
 );
 
--- Tabla "user_condition"
-CREATE TABLE user_condition (
+-- TABLA USER_CONDITION
+CREATE TABLE IF NOT EXISTS user_condition (
     id SERIAL PRIMARY KEY,
     user_id INTEGER REFERENCES "user" (id) NOT NULL,
     condition_id INTEGER REFERENCES condition (id) NOT NULL,
@@ -46,8 +55,8 @@ CREATE TABLE user_condition (
     state BOOLEAN DEFAULT TRUE
 );
 
--- Tabla "content" (Nueva)
-CREATE TABLE content (
+-- TABLA CONTENT
+CREATE TABLE IF NOT EXISTS content (
     id SERIAL PRIMARY KEY,
     title VARCHAR(255) NOT NULL,
     description TEXT NOT NULL,
@@ -60,20 +69,22 @@ CREATE TABLE content (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- Tabla "content_condition" (Relación muchos a muchos)
-CREATE TABLE content_condition (
+-- TABLA RELACIÓN CONTENT-CONDITION (ManyToMany)
+CREATE TABLE IF NOT EXISTS content_condition (
     content_id INTEGER REFERENCES content (id) NOT NULL,
     condition_id INTEGER REFERENCES condition (id) NOT NULL,
     PRIMARY KEY (content_id, condition_id)
 );
 
--- Tabla "menstrual_cycle"
-CREATE TABLE menstrual_cycle (
+-- TABLA MENSTRUAL_CYCLE
+CREATE TABLE IF NOT EXISTS menstrual_cycle (
     id SERIAL PRIMARY KEY,
     user_id INTEGER REFERENCES "user" (id) NOT NULL,
+    phase cycle_phase,
+    cycle_id VARCHAR(36),
     start_date DATE NOT NULL,
     end_date DATE NOT NULL,
-    estimated_next_start DATE NOT NULL,
+    estimated_next_start DATE,
     average_cycle_length INTEGER NOT NULL DEFAULT 28,
     average_duration INTEGER NOT NULL DEFAULT 5,
     flow_amount VARCHAR(50),
@@ -85,13 +96,13 @@ CREATE TABLE menstrual_cycle (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- Tabla "cycle_day" (Nueva)
-CREATE TABLE cycle_day (
+-- TABLA CYCLE_DAY
+CREATE TABLE IF NOT EXISTS cycle_day (
     id SERIAL PRIMARY KEY,
     cycle_id INTEGER REFERENCES menstrual_cycle (id) NOT NULL,
+    phase cycle_phase NOT NULL,
     date DATE NOT NULL,
     day_number SMALLINT NOT NULL,
-    phase cycle_phase NOT NULL,
     symptoms JSONB,
     notes JSONB,
     mood JSONB,
@@ -100,20 +111,20 @@ CREATE TABLE cycle_day (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- Tabla "hormone_level"
-CREATE TABLE hormone_level (
+-- TABLA HORMONE_LEVEL
+CREATE TABLE IF NOT EXISTS hormone_level (
     id SERIAL PRIMARY KEY,
     user_id INTEGER REFERENCES "user" (id) NOT NULL,
     cycle_day_id INTEGER REFERENCES cycle_day (id),
-    hormone_type hormone_type NOT NULL,
+    hormone_type VARCHAR(50) NOT NULL,
     level FLOAT NOT NULL,
     state BOOLEAN DEFAULT TRUE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- Tabla "pregnancy_log"
-CREATE TABLE pregnancy_log (
+-- TABLA PREGNANCY_LOG
+CREATE TABLE IF NOT EXISTS pregnancy_log (
     id SERIAL PRIMARY KEY,
     user_id INTEGER REFERENCES "user" (id) NOT NULL,
     start_date DATE,
@@ -128,8 +139,8 @@ CREATE TABLE pregnancy_log (
     state BOOLEAN DEFAULT TRUE
 );
 
--- Tabla "menopause_log"
-CREATE TABLE menopause_log (
+-- TABLA MENOPAUSE_LOG
+CREATE TABLE IF NOT EXISTS menopause_log (
     id SERIAL PRIMARY KEY,
     user_id INTEGER REFERENCES "user" (id) NOT NULL,
     start_date DATE,
@@ -144,12 +155,12 @@ CREATE TABLE menopause_log (
     state BOOLEAN DEFAULT TRUE
 );
 
--- Tabla "guest_access"
-CREATE TABLE guest_access (
+-- TABLA GUEST_ACCESS
+CREATE TABLE IF NOT EXISTS guest_access (
     id SERIAL PRIMARY KEY,
     owner_id INTEGER REFERENCES "user" (id) NOT NULL,
     guest_id INTEGER REFERENCES "user" (id) NOT NULL,
-    guest_type guest_type NOT NULL,
+    guest_type VARCHAR(50) NOT NULL,
     access_to JSONB NOT NULL,
     expires_at TIMESTAMP,
     state BOOLEAN DEFAULT TRUE,
@@ -157,45 +168,24 @@ CREATE TABLE guest_access (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- Tabla "notification" (Nueva)
-CREATE TABLE notification (
+-- TABLA NOTIFICATION
+CREATE TABLE IF NOT EXISTS notification (
     id SERIAL PRIMARY KEY,
-    recipient_id INTEGER REFERENCES "user" (id) NOT NULL,
+    user_id INTEGER REFERENCES "user" (id) NOT NULL,
     title VARCHAR(255) NOT NULL,
     message TEXT NOT NULL,
     is_read BOOLEAN DEFAULT FALSE,
-    scheduled_for TIMESTAMP NOT NULL,
+    scheduled_for TIMESTAMP,
     sent_at TIMESTAMP,
     is_sent BOOLEAN DEFAULT FALSE,
-    guest_access_id INTEGER REFERENCES guest_access (id),
+    related_condition_id INTEGER REFERENCES condition (id),
     metadata JSONB,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- Tabla "alert"
-CREATE TABLE alert (
-    id SERIAL PRIMARY KEY,
-    title VARCHAR(255) NOT NULL,
-    description TEXT NOT NULL,
-    send_at TIMESTAMP NOT NULL,
-    alert_date TIMESTAMP NOT NULL,
-    is_read BOOLEAN DEFAULT FALSE,
-    origin_id INTEGER REFERENCES condition (id),
-    state BOOLEAN DEFAULT TRUE,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-
--- Tabla user_alert (relación muchos a muchos)
-CREATE TABLE user_alert (
-    user_id INTEGER REFERENCES "user" (id) NOT NULL,
-    alert_id INTEGER REFERENCES alert (id) NOT NULL,
-    PRIMARY KEY (user_id, alert_id)
-);
-
--- Tabla "symptom_log"
-CREATE TABLE symptom_log (
+-- TABLA SYMPTOM_LOG
+CREATE TABLE IF NOT EXISTS symptom_log (
     id SERIAL PRIMARY KEY,
     user_id INTEGER REFERENCES "user" (id) NOT NULL,
     date DATE NOT NULL,
@@ -207,30 +197,30 @@ CREATE TABLE symptom_log (
     state BOOLEAN DEFAULT TRUE
 );
 
--- ÍNDICES para mejorar rendimiento
-CREATE INDEX idx_cycle_user ON menstrual_cycle(user_id);
-CREATE INDEX idx_cycle_dates ON menstrual_cycle(start_date, end_date);
-CREATE INDEX idx_cycle_day_cycle ON cycle_day(cycle_id);
-CREATE INDEX idx_cycle_day_date ON cycle_day(date);
-CREATE INDEX idx_cycle_day_phase ON cycle_day(phase);
-CREATE INDEX idx_hormone_user ON hormone_level(user_id);
-CREATE INDEX idx_hormone_cycle_day ON hormone_level(cycle_day_id);
-CREATE INDEX idx_notification_recipient ON notification(recipient_id);
-CREATE INDEX idx_notification_scheduled ON notification(scheduled_for, is_sent);
-CREATE INDEX idx_guest_access_owner ON guest_access(owner_id);
-CREATE INDEX idx_guest_access_guest ON guest_access(guest_id);
-CREATE INDEX idx_content_type_phase ON content(type, target_phase);
-CREATE INDEX idx_user_condition_user ON user_condition(user_id);
-CREATE INDEX idx_symptom_user_date ON symptom_log(user_id, date);
+-- ÍNDICES
+CREATE INDEX IF NOT EXISTS idx_cycle_user ON menstrual_cycle(user_id);
+CREATE INDEX IF NOT EXISTS idx_cycle_dates ON menstrual_cycle(start_date, end_date);
+CREATE INDEX IF NOT EXISTS idx_cycle_day_cycle ON cycle_day(cycle_id);
+CREATE INDEX IF NOT EXISTS idx_cycle_day_date ON cycle_day(date);
+CREATE INDEX IF NOT EXISTS idx_cycle_day_phase ON cycle_day(phase);
+CREATE INDEX IF NOT EXISTS idx_hormone_user ON hormone_level(user_id);
+CREATE INDEX IF NOT EXISTS idx_hormone_cycle_day ON hormone_level(cycle_day_id);
+CREATE INDEX IF NOT EXISTS idx_notification_user ON notification(user_id);
+CREATE INDEX IF NOT EXISTS idx_notification_scheduled ON notification(scheduled_for, is_sent);
+CREATE INDEX IF NOT EXISTS idx_guest_access_owner ON guest_access(owner_id);
+CREATE INDEX IF NOT EXISTS idx_guest_access_guest ON guest_access(guest_id);
+CREATE INDEX IF NOT EXISTS idx_content_type_phase ON content(type, target_phase);
+CREATE INDEX IF NOT EXISTS idx_user_condition_user ON user_condition(user_id);
+CREATE INDEX IF NOT EXISTS idx_symptom_user_date ON symptom_log(user_id, date);
 
 -- Datos de ejemplo actualizados
-INSERT INTO "user" (email, username, name, last_name, password, profile_type, gender_identity, birth_date, roles)
+INSERT INTO "user" (email, username, name, last_name, password, profile_type, birth_date, roles)
 VALUES
-('ana@example.com', 'ana', 'Ana', 'García', '$2y$13$a1b2c3...', 'USER', 'mujer cis', '1990-05-12', ARRAY['ROLE_USER']),
-('carlos@example.com', 'carlos', 'Carlos', 'Pérez', '$2y$13$d4e5f6...', 'USER', 'hombre cis', '1980-07-23', ARRAY['ROLE_USER']),
-('mar@example.com', 'mar', 'Mar', 'Rodríguez', '$2y$13$g7h8i9...', 'USER', 'hombre trans', '1995-03-10', ARRAY['ROLE_USER']),
-('laura@example.com', 'laura', 'Laura', 'Sánchez', '$2y$13$j0k1l2...', 'GUEST', 'no binario', '2002-11-30', ARRAY['ROLE_USER']),
-('sofia@example.com', 'sofia', 'Sofía', 'Martínez', '$2y$13$m3n4o5...', 'USER', 'mujer cis', '1998-01-01', ARRAY['ROLE_USER']);
+('ana@example.com', 'ana', 'Ana', 'García', '$2y$13$a1b2c3...', 'profile_women', '1990-05-12', ARRAY['ROLE_USER']),
+('carlos@example.com', 'carlos', 'Carlos', 'Pérez', '$2y$13$d4e5f6...', 'profile_women', '1980-07-23', ARRAY['ROLE_USER']),
+('mar@example.com', 'mar', 'Mar', 'Rodríguez', '$2y$13$g7h8i9...', 'profile_women', '1995-03-10', ARRAY['ROLE_USER']),
+('laura@example.com', 'laura', 'Laura', 'Sánchez', '$2y$13$j0k1l2...', 'profile_guest', '2002-11-30', ARRAY['ROLE_USER']),
+('sofia@example.com', 'sofia', 'Sofía', 'Martínez', '$2y$13$m3n4o5...', 'profile_women', '1998-01-01', ARRAY['ROLE_USER']);
 
 -- Contenido
 INSERT INTO content (title, description, content, type, target_phase, tags)

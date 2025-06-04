@@ -30,6 +30,7 @@ import {
 // IMPORTS CORRECTOS
 import { useCalendarData } from "../hooks/useCalendarData";
 import { useCycle } from "../../../context/CycleContext";
+import { useViewport } from "../../../hooks/useViewport";
 import { AddCycleDayModal } from "./AddCycleDayModal";
 import Button from "../../../components/Button";
 import { CycleDay, CyclePhase } from "../../../types/domain";
@@ -49,7 +50,9 @@ const NeomorphicDayCell: React.FC<{
   isToday: boolean;
   onClick: (date: Date) => void;
   isSelected: boolean;
-}> = ({ date, dayData, isCurrentMonth, isToday, onClick, isSelected }) => {
+  isMobile?: boolean;
+  isTablet?: boolean;
+}> = ({ date, dayData, isCurrentMonth, isToday, onClick, isSelected, isMobile = false, isTablet = false }) => {
   const [isHovered, setIsHovered] = useState(false);
 
   const phaseStyle = dayData?.phase ? phaseConfig[dayData.phase] : null;
@@ -106,16 +109,25 @@ const NeomorphicDayCell: React.FC<{
       {/* DIA DEL MES COMPACTO CON INDICADOR DE PREDICCIÓN */}
       <motion.div
         className={`
-          text-xs font-semibold
-          ${isToday ? "text-[#7a2323] font-bold text-sm" : ""}
+          font-semibold
+          ${isToday ? "text-[#7a2323] font-bold" : ""}
           ${!isCurrentMonth ? "opacity-50" : ""}
           ${isPredicted ? "text-gray-600 italic" : "text-gray-800"}
+          ${
+            isMobile 
+              ? isToday ? 'text-sm' : 'text-xs'
+              : isTablet 
+                ? isToday ? 'text-sm' : 'text-xs'
+                : isToday ? 'text-sm' : 'text-xs'
+          }
         `}
         animate={isToday ? { scale: [1, 1.1, 1] } : {}}
         transition={{ duration: 2, repeat: Infinity }}
       >
         {format(date, "d")}
-        {isPredicted && <span className="text-[8px] ml-0.5 opacity-60">?</span>}
+        {isPredicted && <span className={`ml-0.5 opacity-60 ${
+          isMobile ? 'text-[6px]' : 'text-[8px]'
+        }`}>?</span>}
       </motion.div>
 
       {/* ÓVALO SUPERIOR PARA FASES (excepto menstruación y primer día ovulación) */}
@@ -132,14 +144,20 @@ const NeomorphicDayCell: React.FC<{
       {/* ICONO DE FASE CON INDICADOR DE PREDICCIÓN */}
       {dayData?.phase && (
         <div
-          className={`absolute bottom-1 right-1 text-lg pointer-events-none ${
+          className={`absolute bottom-1 right-1 pointer-events-none ${
             isPredicted ? "opacity-50" : "opacity-80"
+          } ${
+            isMobile ? 'text-sm' : isTablet ? 'text-base' : 'text-lg'
           }`}
         >
           {phaseConfig[dayData.phase].icon}
           {isPredicted && (
-            <div className="absolute -top-1 -right-1 w-2 h-2 bg-blue-400 rounded-full flex items-center justify-center">
-              <span className="text-[6px] text-white font-bold">P</span>
+            <div className={`absolute -top-1 -right-1 bg-blue-400 rounded-full flex items-center justify-center ${
+              isMobile ? 'w-1.5 h-1.5' : 'w-2 h-2'
+            }`}>
+              <span className={`text-white font-bold ${
+                isMobile ? 'text-[5px]' : 'text-[6px]'
+              }`}>P</span>
             </div>
           )}
         </div>
@@ -147,12 +165,16 @@ const NeomorphicDayCell: React.FC<{
 
       {/* INDICADORES DE FLUJO CON ESTILO PREDICCIÓN */}
       {dayData?.flowIntensity && dayData.flowIntensity > 0 && (
-        <motion.div className="flex gap-0.5 mt-0.5">
+        <motion.div className={`flex gap-0.5 ${
+          isMobile ? 'mt-0' : 'mt-0.5'
+        }`}>
           {[...Array(Math.min(dayData.flowIntensity, 5))].map((_, i) => (
             <motion.div
               key={i}
-              className={`w-0.5 h-0.5 rounded-full ${
+              className={`rounded-full ${
                 isPredicted ? "bg-red-400 opacity-60" : "bg-red-600"
+              } ${
+                isMobile ? 'w-0.5 h-0.5' : 'w-0.5 h-0.5'
               }`}
               animate={{
                 scale: [1, 1.2, 1],
@@ -171,7 +193,9 @@ const NeomorphicDayCell: React.FC<{
       {/* INDICADORES MINIMOS */}
       {dayData?.symptoms && dayData.symptoms.length > 0 && (
         <motion.div
-          className="absolute top-0.5 right-0.5 w-1.5 h-1.5 bg-orange-500 rounded-full"
+          className={`absolute top-0.5 right-0.5 bg-orange-500 rounded-full ${
+            isMobile ? 'w-1 h-1' : 'w-1.5 h-1.5'
+          }`}
           animate={{ scale: [1, 1.1, 1] }}
           transition={{ duration: 2, repeat: Infinity }}
         />
@@ -179,7 +203,9 @@ const NeomorphicDayCell: React.FC<{
 
       {dayData?.mood && dayData.mood.length > 0 && (
         <motion.div
-          className="absolute top-0.5 left-0.5 w-1.5 h-1.5 bg-purple-500 rounded-full"
+          className={`absolute top-0.5 left-0.5 bg-purple-500 rounded-full ${
+            isMobile ? 'w-1 h-1' : 'w-1.5 h-1.5'
+          }`}
           animate={{ scale: [1, 1.1, 1] }}
           transition={{ duration: 2, repeat: Infinity, delay: 0.5 }}
         />
@@ -188,7 +214,9 @@ const NeomorphicDayCell: React.FC<{
       {/* INDICADOR DE HOY CON TOOLTIP DE PREDICCIÓN */}
       {isToday && (
         <motion.div
-          className="absolute -top-0.5 -right-0.5 w-2 h-2 bg-[#7a2323] rounded-full"
+          className={`absolute -top-0.5 -right-0.5 bg-[#7a2323] rounded-full ${
+            isMobile ? 'w-1.5 h-1.5' : 'w-2 h-2'
+          }`}
           animate={{ scale: [1, 1.2, 1] }}
           transition={{ duration: 1.5, repeat: Infinity }}
         />
@@ -197,7 +225,9 @@ const NeomorphicDayCell: React.FC<{
       {/* TOOLTIP DE CONFIANZA PARA PREDICCIONES */}
       {isPredicted && isHovered && confidence > 0 && (
         <motion.div
-          className="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-black text-white text-[8px] px-1 py-0.5 rounded whitespace-nowrap z-10"
+          className={`absolute -top-8 left-1/2 transform -translate-x-1/2 bg-black text-white px-1 py-0.5 rounded whitespace-nowrap z-10 ${
+            isMobile ? 'text-[7px]' : 'text-[8px]'
+          }`}
           initial={{ opacity: 0, y: 5 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: 5 }}
@@ -225,10 +255,16 @@ const NeomorphicDayCell: React.FC<{
 const ViewSelector: React.FC<{
   viewType: ViewType;
   onViewChange: (view: ViewType) => void;
-}> = ({ viewType, onViewChange }) => {
+  isMobile?: boolean;
+  isTablet?: boolean;
+}> = ({ viewType, onViewChange, isMobile = false, isTablet = false }) => {
   return (
-    <div className="bg-[#e7e0d5] rounded-xl p-1 shadow-[inset_2px_2px_6px_rgba(199,191,180,0.3),inset_-2px_-2px_6px_rgba(255,255,255,0.7)]">
-      <div className="flex gap-1">
+    <div className={`bg-[#e7e0d5] rounded-xl shadow-[inset_2px_2px_6px_rgba(199,191,180,0.3),inset_-2px_-2px_6px_rgba(255,255,255,0.7)] ${
+      isMobile ? 'p-0.5' : 'p-1'
+    }`}>
+      <div className={`flex ${
+        isMobile ? 'gap-0.5' : 'gap-1'
+      }`}>
         {[
           { type: "month" as ViewType, icon: Grid3X3, label: "Mes" },
           { type: "week" as ViewType, icon: Rows3, label: "Semana" },
@@ -237,19 +273,24 @@ const ViewSelector: React.FC<{
             key={type}
             onClick={() => onViewChange(type)}
             className={`
-              relative px-3 py-1 rounded-lg font-medium text-xs transition-all duration-300
+              relative rounded-lg font-medium transition-all duration-300
               ${
                 viewType === type
                   ? "bg-[#7a2323] text-[#e7e0d5] shadow-[2px_2px_8px_rgba(122,35,35,0.3)]"
                   : "text-[#7a2323] hover:bg-[#f5ede6]"
               }
+              ${
+                isMobile ? 'px-2 py-1 text-xs' : 'px-3 py-1 text-xs'
+              }
             `}
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
           >
-            <div className="flex items-center gap-1">
-              <Icon className="w-3 h-3" />
-              <span>{label}</span>
+            <div className={`flex items-center ${
+              isMobile ? 'gap-0.5' : 'gap-1'
+            }`}>
+              <Icon className={isMobile ? 'w-2.5 h-2.5' : 'w-3 h-3'} />
+              {!isMobile && <span>{label}</span>}
             </div>
           </motion.button>
         ))}
@@ -261,6 +302,8 @@ const ViewSelector: React.FC<{
 export const NeomorphicCalendar: React.FC<NeomorphicCalendarProps> = ({
   className = "",
 }) => {
+  const { isMobile, isTablet, isDesktop } = useViewport();
+  
   // ! 03/06/2025 - ESTADO MEJORADO con datos del día seleccionado
   const [currentDate, setCurrentDate] = useState(startOfDay(new Date()));
   const [viewType, setViewType] = useState<ViewType>("month");
@@ -452,54 +495,79 @@ export const NeomorphicCalendar: React.FC<NeomorphicCalendarProps> = ({
     <div className={`h-full flex flex-col ${className}`}>
       {/* HEADER COMPACTO */}
       <motion.div
-        className="flex-shrink-0 mb-2"
+        className={`flex-shrink-0 ${
+          isMobile ? 'mb-1' : 'mb-2'
+        }`}
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6 }}
       >
-        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-2">
-          <div className="flex items-center gap-3">
-            <motion.h2 className="text-xl font-serif text-[#7a2323] capitalize">
+        <div className={`flex items-center justify-between gap-2 ${
+          isMobile ? 'flex-col space-y-2' : isTablet ? 'flex-col space-y-2' : 'flex-row'
+        }`}>
+          <div className={`flex items-center gap-2 ${
+            isMobile ? 'w-full justify-center' : ''
+          }`}>
+            <motion.h2 className={`font-serif text-[#7a2323] capitalize ${
+              isMobile ? 'text-lg' : isTablet ? 'text-xl' : 'text-xl'
+            }`}>
               {getViewTitle()}
             </motion.h2>
 
             <div className="flex gap-1">
               <motion.button
                 onClick={navigatePrevious}
-                className="p-2 rounded-xl bg-[#e7e0d5] text-[#7a2323] shadow-[inset_2px_2px_6px_rgba(199,191,180,0.3),inset_-2px_-2px_6px_rgba(255,255,255,0.7)] hover:shadow-[2px_2px_8px_rgba(122,35,35,0.15)]"
+                className={`rounded-xl bg-[#e7e0d5] text-[#7a2323] shadow-[inset_2px_2px_6px_rgba(199,191,180,0.3),inset_-2px_-2px_6px_rgba(255,255,255,0.7)] hover:shadow-[2px_2px_8px_rgba(122,35,35,0.15)] ${
+                  isMobile ? 'p-1.5' : 'p-2'
+                }`}
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
               >
-                <ChevronLeft className="w-4 h-4" />
+                <ChevronLeft className={isMobile ? 'w-3 h-3' : 'w-4 h-4'} />
               </motion.button>
 
               <Button
                 onClick={goToToday}
                 size="small"
-                className="text-xs px-3 py-1"
+                className={`px-3 py-1 ${
+                  isMobile ? 'text-xs' : 'text-xs'
+                }`}
               >
                 Hoy
               </Button>
 
               <motion.button
                 onClick={navigateNext}
-                className="p-2 rounded-xl bg-[#e7e0d5] text-[#7a2323] shadow-[inset_2px_2px_6px_rgba(199,191,180,0.3),inset_-2px_-2px_6px_rgba(255,255,255,0.7)] hover:shadow-[2px_2px_8px_rgba(122,35,35,0.15)]"
+                className={`rounded-xl bg-[#e7e0d5] text-[#7a2323] shadow-[inset_2px_2px_6px_rgba(199,191,180,0.3),inset_-2px_-2px_6px_rgba(255,255,255,0.7)] hover:shadow-[2px_2px_8px_rgba(122,35,35,0.15)] ${
+                  isMobile ? 'p-1.5' : 'p-2'
+                }`}
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
               >
-                <ChevronRight className="w-4 h-4" />
+                <ChevronRight className={isMobile ? 'w-3 h-3' : 'w-4 h-4'} />
               </motion.button>
             </div>
           </div>
 
-          <ViewSelector viewType={viewType} onViewChange={setViewType} />
+          <ViewSelector 
+            viewType={viewType} 
+            onViewChange={setViewType}
+            isMobile={isMobile}
+            isTablet={isTablet}
+          />
         </div>
 
         {/* LEYENDA COMPACTA CON INDICADOR DE PREDICCIONES */}
-        <motion.div className="flex flex-wrap gap-2 mt-2">
+        <motion.div className={`flex flex-wrap gap-1 ${
+          isMobile ? 'mt-1 justify-center' : 'mt-2 gap-2'
+        }`}>
           {Object.entries(phaseConfig).map(([phase, config]) => (
-            <div key={phase} className="flex items-center gap-1 text-xs">
-              <div className="relative w-6 h-4 bg-[#e7e0d5] rounded-sm border flex items-center justify-center">
+            <div key={phase} className={`flex items-center gap-1 ${
+              isMobile ? 'text-xs' : 'text-xs'
+            }`}>
+              <div className={`relative bg-[#e7e0d5] rounded-sm border flex items-center justify-center ${
+                isMobile ? 'w-4 h-3' : 'w-6 h-4'
+              }`}>
                 {phase === "menstrual" ? (
                   <div className="w-full h-full bg-[#ffe8e9] rounded-sm" />
                 ) : phase === "ovulacion" ? (
@@ -508,21 +576,31 @@ export const NeomorphicCalendar: React.FC<NeomorphicCalendarProps> = ({
                   <div className={`absolute top-0.5 ${config.leftBorder}`} />
                 )}
               </div>
-              <span className="text-[#7a2323] capitalize font-medium">
-                {config.description}
-              </span>
+              {!isMobile && (
+                <span className="text-[#7a2323] capitalize font-medium">
+                  {config.description}
+                </span>
+              )}
             </div>
           ))}
           {/* Indicador de predicciones */}
-          <div className="flex items-center gap-1 text-xs border-l pl-2 ml-1">
-            <div className="w-2.5 h-2.5 rounded-full bg-blue-400 border-2 border-dashed border-gray-400 opacity-70" />
-            <span className="text-[#7a2323] font-medium">Predicción</span>
+          <div className={`flex items-center gap-1 border-l pl-1 ml-1 ${
+            isMobile ? 'text-xs' : 'text-xs pl-2 ml-1'
+          }`}>
+            <div className={`rounded-full bg-blue-400 border-2 border-dashed border-gray-400 opacity-70 ${
+              isMobile ? 'w-2 h-2' : 'w-2.5 h-2.5'
+            }`} />
+            {!isMobile && (
+              <span className="text-[#7a2323] font-medium">Predicción</span>
+            )}
           </div>
         </motion.div>
       </motion.div>
 
       {/* CONTENIDO DEL CALENDARIO COMPACTO */}
-      <div className="flex-1 min-h-0 overflow-hidden flex flex-col items-center justify-center w-full px-4">
+      <div className={`flex-1 min-h-0 overflow-hidden flex flex-col items-center justify-center w-full ${
+        isMobile ? 'px-1' : isTablet ? 'px-2' : 'px-4'
+      }`}>
         <AnimatePresence mode="wait">
           {viewType === "month" && (
             <motion.div
@@ -533,11 +611,15 @@ export const NeomorphicCalendar: React.FC<NeomorphicCalendarProps> = ({
               className="h-full flex flex-col w-full"
             >
               {/* DIAS DE LA SEMANA COMPACTOS */}
-              <div className="grid grid-cols-7 gap-x-2 gap-y-1 mb-1 flex-shrink-0 w-full">
+              <div className={`grid grid-cols-7 mb-1 flex-shrink-0 w-full ${
+                isMobile ? 'gap-x-1 gap-y-0.5' : isTablet ? 'gap-x-1.5 gap-y-1' : 'gap-x-2 gap-y-1'
+              }`}>
                 {weekDays.map((day) => (
                   <div
                     key={day}
-                    className="text-center text-base font-semibold text-[#7a2323] py-1"
+                    className={`text-center font-semibold text-[#7a2323] py-1 ${
+                      isMobile ? 'text-sm' : isTablet ? 'text-base' : 'text-base'
+                    }`}
                   >
                     {day}
                   </div>
@@ -545,7 +627,9 @@ export const NeomorphicCalendar: React.FC<NeomorphicCalendarProps> = ({
               </div>
 
               {/* GRID DE DIAS AMPLIO Y CUADRADO */}
-              <div className="grid grid-cols-7 grid-rows-6 gap-x-2 gap-y-2 flex-1 h-full w-full">
+              <div className={`grid grid-cols-7 grid-rows-6 flex-1 h-full w-full ${
+                isMobile ? 'gap-x-1 gap-y-1' : isTablet ? 'gap-x-1.5 gap-y-1.5' : 'gap-x-2 gap-y-2'
+              }`}>
                 {viewDates.map((date, index) => {
                   const formattedDate = format(date, "yyyy-MM-dd");
                   const dayData = calendarDays.find(
@@ -571,6 +655,8 @@ export const NeomorphicCalendar: React.FC<NeomorphicCalendarProps> = ({
                         isToday={isCurrentDay}
                         onClick={handleDayClick}
                         isSelected={false}
+                        isMobile={isMobile}
+                        isTablet={isTablet}
                       />
                     </motion.div>
                   );
@@ -588,17 +674,23 @@ export const NeomorphicCalendar: React.FC<NeomorphicCalendarProps> = ({
               exit={{ opacity: 0, scale: 1.05 }}
               className="h-full flex flex-col w-full"
             >
-              <div className="grid grid-cols-7 gap-x-2 gap-y-1 mb-1 flex-shrink-0 w-full">
+              <div className={`grid grid-cols-7 mb-1 flex-shrink-0 w-full ${
+                isMobile ? 'gap-x-1 gap-y-0.5' : isTablet ? 'gap-x-1.5 gap-y-1' : 'gap-x-2 gap-y-1'
+              }`}>
                 {weekDays.map((day) => (
                   <div
                     key={day}
-                    className="text-center text-base font-semibold text-[#7a2323] py-1"
+                    className={`text-center font-semibold text-[#7a2323] py-1 ${
+                      isMobile ? 'text-sm' : isTablet ? 'text-base' : 'text-base'
+                    }`}
                   >
                     {day}
                   </div>
                 ))}
               </div>
-              <div className="grid grid-cols-7 gap-x-2 gap-y-2 flex-1 h-full w-full">
+              <div className={`grid grid-cols-7 flex-1 h-full w-full ${
+                isMobile ? 'gap-x-1 gap-y-1' : isTablet ? 'gap-x-1.5 gap-y-1.5' : 'gap-x-2 gap-y-2'
+              }`}>
                 {viewDates.map((date, index) => {
                   const formattedDate = format(date, "yyyy-MM-dd");
                   const dayData = calendarDays.find(
@@ -620,6 +712,8 @@ export const NeomorphicCalendar: React.FC<NeomorphicCalendarProps> = ({
                         isToday={isCurrentDay}
                         onClick={handleDayClick}
                         isSelected={false}
+                        isMobile={isMobile}
+                        isTablet={isTablet}
                       />
                     </motion.div>
                   );

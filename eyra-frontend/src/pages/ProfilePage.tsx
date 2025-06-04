@@ -228,7 +228,7 @@ const ProfilePage: React.FC = () => {
   return (
     <div className="flex flex-col lg:flex-row w-full min-h-screen" style={{ background: '#e7e0d5' }}>
       {/* Columna izquierda: Avatar */}
-      <div className="flex flex-col items-center justify-center w-full lg:w-[420px] lg:min-w-[340px] py-8 lg:py-16 gap-4 lg:gap-8 relative" style={{ minHeight: isEditingAvatar ? 'auto' : '50vh' }}>
+      <div className="flex flex-col items-center lg:items-start justify-start w-full lg:w-[420px] lg:min-w-[340px] pt-6 lg:pt-10 px-2 gap-4 lg:gap-6 relative h-auto lg:h-screen max-h-screen overflow-visible" style={{ minHeight: 'unset' }}>
         {/* Línea de separación neumórfica - solo desktop */}
         <div className="hidden lg:block absolute top-0 right-0 h-full w-[2.5rem] flex items-center justify-center z-10">
           <div style={{
@@ -242,7 +242,7 @@ const ProfilePage: React.FC = () => {
           }} />
         </div>
         {/* Avatar neumórfico circular con pulso de luz */}
-        <div className="relative flex items-center justify-center">
+        <div className="relative flex items-center justify-center lg:justify-start w-full">
           <span className="absolute z-0 animate-avatar-pulse" style={{
             width: isEditingAvatar ? 200 : (isMobile ? 250 : 340),
             height: isEditingAvatar ? 200 : (isMobile ? 250 : 340),
@@ -275,16 +275,16 @@ const ProfilePage: React.FC = () => {
             setTempAvatar(form.avatar);
             setIsEditingAvatar(true);
           }}
-          className="mt-2 px-4 lg:px-8 py-2 lg:py-3 text-base lg:text-lg"
+          className="mt-2 px-4 lg:px-8 py-2 lg:py-3 text-base lg:text-lg self-center lg:self-start"
         >
           Editar avatar
         </NeomorphicButton>
       </div>
       {/* Columna derecha: Contenido sobre fondo */}
-      <div className="flex-1 flex flex-col justify-center items-center min-h-screen py-8 lg:py-16 px-4 md:px-12">
+      <div className="flex-1 flex flex-col justify-start items-center min-h-screen py-4 lg:py-10 px-2 md:px-8 overflow-visible" style={{ maxHeight: '100vh', overflowY: 'auto' }}>
         {/* Cabecera: nombre, email, frase */}
         {!isEditingAvatar && (
-          <div className="flex flex-col items-center gap-1 mb-6 lg:mb-8">
+          <div className="flex flex-col items-center gap-1 mb-4 lg:mb-6">
             <h1 className="text-2xl lg:text-3xl font-serif font-bold text-[#7a2323] text-center">{user.name} {user.lastName}</h1>
             <p className="text-sm lg:text-base text-[#7a2323]/80 text-center">{user.email}</p>
             <p className="text-base lg:text-lg text-[#C62328] font-serif mt-2 text-center">Hoy es un gran día para cuidar de ti ✨</p>
@@ -292,7 +292,7 @@ const ProfilePage: React.FC = () => {
         )}
         {/* Tabs de iconos mejorados o editor de avatar */}
         {isEditingAvatar ? (
-          <div className="w-full max-w-4xl animate-fade-in" style={{background: 'none', boxShadow: 'none', borderRadius: 0, padding: 0}}>
+          <div className="w-full max-w-4xl animate-fade-in">
             <h2 className="font-serif text-xl lg:text-2xl font-bold text-[#7a2323] mb-2 text-center">Personaliza tu avatar</h2>
             <AvatarBuilder
               initialConfig={tempAvatar}
