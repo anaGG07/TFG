@@ -4,6 +4,7 @@ import { CycleProvider } from "../context/CycleContext";
 import CircularNavigation from "../components/CircularNavigation";
 import BottomNavigation from "../components/BottomNavigation";
 import SideDrawer from "../components/SideDrawer";
+import AdminNavigation from "../components/AdminNavigation";
 import { useState, useEffect, useMemo } from "react";
 
 // Rutas donde mostrar la navegación circular
@@ -100,6 +101,7 @@ const RootContent = () => {
                   <Outlet />
                 </main>
               </div>
+              <AdminNavigation />
             </div>
           )}
 
@@ -110,6 +112,7 @@ const RootContent = () => {
               <main className="w-full h-full pt-16">
                 <Outlet />
               </main>
+              <AdminNavigation />
             </div>
           )}
 
@@ -120,6 +123,7 @@ const RootContent = () => {
                 <Outlet />
               </main>
               <BottomNavigation />
+              <AdminNavigation />
             </div>
           )}
         </>

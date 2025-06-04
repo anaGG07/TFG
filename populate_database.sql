@@ -19,11 +19,12 @@ TRUNCATE TABLE "user" CASCADE;
 -- Insertar usuarios de prueba
 INSERT INTO "user" (email, username, name, last_name, password, profile_type, gender_identity, birth_date, roles)
 VALUES
-    ('maria@example.com', 'maria', 'María', 'González', '$2y$13$a1b2c3...', 'USER', 'mujer cis', '1995-06-15', ARRAY['ROLE_USER']),
-    ('juan@example.com', 'juan', 'Juan', 'Martínez', '$2y$13$d4e5f6...', 'USER', 'hombre cis', '1990-03-20', ARRAY['ROLE_USER']),
-    ('ana@example.com', 'ana', 'Ana', 'Rodríguez', '$2y$13$g7h8i9...', 'USER', 'mujer cis', '1988-11-30', ARRAY['ROLE_USER']),
-    ('carlos@example.com', 'carlos', 'Carlos', 'López', '$2y$13$j0k1l2...', 'USER', 'hombre cis', '1992-07-25', ARRAY['ROLE_USER']),
-    ('laura@example.com', 'laura', 'Laura', 'Sánchez', '$2y$13$m3n4o5...', 'USER', 'mujer cis', '1993-09-10', ARRAY['ROLE_USER']);
+    ('maria@example.com', 'maria', 'María', 'González', '$2y$13$wHk6Qw6Qw6Qw6Qw6Qw6QOeQw6Qw6Qw6Qw6Qw6Qw6Qw6Qw6Qw6', 'USER', 'mujer cis', '1995-06-15', ARRAY['ROLE_USER']),
+    ('juan@example.com', 'juan', 'Juan', 'Martínez', '$2y$13$wHk6Qw6Qw6Qw6Qw6Qw6QOeQw6Qw6Qw6Qw6Qw6Qw6Qw6Qw6Qw6', 'USER', 'hombre cis', '1990-03-20', ARRAY['ROLE_USER']),
+    ('ana@example.com', 'ana', 'Ana', 'Rodríguez', '$2y$13$wHk6Qw6Qw6Qw6Qw6Qw6QOeQw6Qw6Qw6Qw6Qw6Qw6Qw6Qw6Qw6', 'USER', 'mujer cis', '1988-11-30', ARRAY['ROLE_USER']),
+    ('carlos@example.com', 'carlos', 'Carlos', 'López', '$2y$13$wHk6Qw6Qw6Qw6Qw6Qw6QOeQw6Qw6Qw6Qw6Qw6Qw6Qw6Qw6Qw6', 'USER', 'hombre cis', '1992-07-25', ARRAY['ROLE_USER']),
+    ('laura@example.com', 'laura', 'Laura', 'Sánchez', '$2y$13$wHk6Qw6Qw6Qw6Qw6Qw6QOeQw6Qw6Qw6Qw6Qw6Qw6Qw6Qw6Qw6', 'USER', 'mujer cis', '1993-09-10', ARRAY['ROLE_USER']),
+    ('admin@gmail.com', 'admin', 'admin', 'admin', '$2y$13$wHk6Qw6Qw6Qw6Qw6Qw6QOeQw6Qw6Qw6Qw6Qw6Qw6Qw6Qw6Qw6', 'ADMIN', 'mujer cis', '1990-01-01', ARRAY['ROLE_ADMIN']);
 
 -- Insertar condiciones médicas
 INSERT INTO condition (name, description, is_chronic)

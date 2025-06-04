@@ -4,6 +4,7 @@ import { useAuth } from "../context/AuthContext";
 import { ROUTES } from "../router/paths";
 import Blob from "./Blob";
 import { useLogout } from "../hooks/useLogout";
+import { useIsAdmin } from "../hooks/useIsAdmin";
 
 interface NavigationItem {
   id: string;
@@ -167,12 +168,18 @@ const AdminNavigation: React.FC = () => {
   const location = useLocation();
   const { user } = useAuth();
   const handleLogout = useLogout();
+  const isAdmin = useIsAdmin();
 
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isVisible, setIsVisible] = useState(false);
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
 
   const blobRef = useRef<HTMLDivElement>(null);
+
+  // Si no es administrador, no renderizar nada
+  if (!isAdmin) {
+    return null;
+  }
 
   // ! 31/05/2025 - Configuración específica para administradores
   const navigationItems: NavigationItem[] = [
@@ -395,44 +402,46 @@ const AdminNavigation: React.FC = () => {
       </div>
 
       {/* ! 31/05/2025 - Botón de administración prominente */}
-      <div
-        className="fixed bottom-6 left-6 z-50 group"
-        title="Panel de Administración"
-      >
+      {isAdmin && (
         <div
-          className={`relative w-20 h-20 rounded-full flex items-center justify-center text-white font-bold cursor-pointer
-          shadow-2xl transition-all duration-300 transform hover:scale-115 hover:shadow-3xl
-          ${
-            isInAdminPanel
-              ? "bg-gradient-to-br from-red-600 to-red-800 ring-4 ring-red-300 ring-opacity-60 scale-110 shadow-red-500/50"
-              : "bg-gradient-to-br from-red-700 to-red-900 hover:from-red-600 hover:to-red-800 shadow-red-600/40"
-          }
-          animate-pulse hover:animate-none border-2 border-red-400/30`}
-          onClick={handleAdminClick}
+          className="fixed bottom-6 left-6 z-50 group"
+          title="Panel de Administración"
         >
-          <AdminIcon className="w-12 h-12 text-white drop-shadow-lg" />
+          <div
+            className={`relative w-20 h-20 rounded-full flex items-center justify-center text-white font-bold cursor-pointer
+            shadow-2xl transition-all duration-300 transform hover:scale-115 hover:shadow-3xl
+            ${
+              isInAdminPanel
+                ? "bg-gradient-to-br from-red-600 to-red-800 ring-4 ring-red-300 ring-opacity-60 scale-110 shadow-red-500/50"
+                : "bg-gradient-to-br from-red-700 to-red-900 hover:from-red-600 hover:to-red-800 shadow-red-600/40"
+            }
+            animate-pulse hover:animate-none border-2 border-red-400/30`}
+            onClick={handleAdminClick}
+          >
+            <AdminIcon className="w-12 h-12 text-white drop-shadow-lg" />
 
-          {/* Efecto de brillo */}
-          <div className="absolute inset-0 rounded-full bg-gradient-to-tr from-white/20 to-transparent"></div>
+            {/* Efecto de brillo */}
+            <div className="absolute inset-0 rounded-full bg-gradient-to-tr from-white/20 to-transparent"></div>
 
-          {/* Indicador de estado activo */}
-          {isInAdminPanel && (
-            <div className="absolute -top-1 -right-1 w-6 h-6 bg-green-400 rounded-full border-2 border-white shadow-lg flex items-center justify-center">
-              <div className="w-3 h-3 bg-green-600 rounded-full animate-pulse"></div>
-            </div>
-          )}
-        </div>
+            {/* Indicador de estado activo */}
+            {isInAdminPanel && (
+              <div className="absolute -top-1 -right-1 w-6 h-6 bg-green-400 rounded-full border-2 border-white shadow-lg flex items-center justify-center">
+                <div className="w-3 h-3 bg-green-600 rounded-full animate-pulse"></div>
+              </div>
+            )}
+          </div>
 
-        {/* Etiqueta del botón mejorada */}
-        <div className="absolute -top-12 left-1/2 transform -translate-x-1/2 whitespace-nowrap opacity-0 group-hover:opacity-100 transition-all duration-300">
-          <div className="bg-gray-900 text-white text-sm px-3 py-2 rounded-lg shadow-xl border border-gray-700">
-            <span className="font-semibold">Panel de Administración</span>
-            <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 translate-y-full">
-              <div className="w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900"></div>
+          {/* Etiqueta del botón mejorada */}
+          <div className="absolute -top-12 left-1/2 transform -translate-x-1/2 whitespace-nowrap opacity-0 group-hover:opacity-100 transition-all duration-300">
+            <div className="bg-gray-900 text-white text-sm px-3 py-2 rounded-lg shadow-xl border border-gray-700">
+              <span className="font-semibold">Panel de Administración</span>
+              <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 translate-y-full">
+                <div className="w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900"></div>
+              </div>
             </div>
           </div>
         </div>
-      </div>
+      )}
     </>
   );
 };
