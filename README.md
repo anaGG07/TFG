@@ -3,7 +3,7 @@
 EYRA es una aplicación web completa para el seguimiento menstrual y salud reproductiva, desarrollada como Trabajo de Fin de Grado de Desarrollo de Aplicaciones Web. La aplicación está diseñada con un enfoque en la experiencia de usuario y la privacidad, proporcionando herramientas intuitivas para el seguimiento del ciclo menstrual.
 
 ## 🌐 Acceso Directo
-
+**Enlace al repositorio GIT**: [https://github.com/anaGG07/TFG](https://github.com/anaGG07/TFG)
 **URL de la aplicación**: [https://eyraclub.es/](https://eyraclub.es/)
 
 ### Credenciales de prueba
