@@ -1,0 +1,203 @@
+<?php
+
+namespace App\Controller;
+
+use App\Entity\GuestAccess;
+use App\Entity\InvitationCode;
+use App\Entity\User;
+use App\Repository\GuestAccessRepository;
+use App\Repository\InvitationCodeRepository;
+use App\Repository\NotificationRepository;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Security\Core\Exception\AccessDeniedException;
+
+/**
+ * Controlador alternativo para tracking - evita conflictos de rutas
+ * Solución temporal para los errores 404/405
+ */
+#[Route('/tracking')]
+class TrackingAltController extends AbstractController
+{
+    public function __construct(
+        private GuestAccessRepository $guestAccessRepository,
+        private InvitationCodeRepository $invitationCodeRepository,
+        private NotificationRepository $notificationRepository
+    ) {
+    }
+
+    #[Route('/companions', name: 'tracking_alt_companions', methods: ['GET'])]
+    public function getCompanions(): JsonResponse
+    {
+        /** @var User $user */
+        $user = $this->getUser();
+        if (!$user) {
+            throw new AccessDeniedException('User not authenticated');
+        }
+
+        try {
+            // Obtener personas que siguen a este usuario (companions)
+            $companions = $this->guestAccessRepository->findBy([
+                'owner' => $user->getId(),
+                'state' => true
+            ]);
+            
+            $result = array_map(function($guestAccess) {
+                return [
+                    'id' => $guestAccess->getId(),
+                    'name' => $guestAccess->getGuest()->getName(),
+                    'username' => $guestAccess->getGuest()->getUsername(),
+                    'role' => $guestAccess->getGuestType()->value,
+                    'status' => 'active',
+                    'lastActivity' => $guestAccess->getUpdatedAt() ? $guestAccess->getUpdatedAt()->format('c') : $guestAccess->getCreatedAt()->format('c'),
+                    'permissions' => $guestAccess->getAccessTo(),
+                    'expiresAt' => $guestAccess->getExpiresAt() ? $guestAccess->getExpiresAt()->format('c') : null,
+                    'guestPreferences' => $guestAccess->getGuestPreferences() ?? []
+                ];
+            }, $companions);
+            
+            return $this->json($result);
+        } catch (\Exception $e) {
+            return $this->json([
+                'error' => 'Error loading companions',
+                'message' => $e->getMessage(),
+                'companions' => []
+            ], 200); // 200 para no romper el frontend
+        }
+    }
+
+    #[Route('/following', name: 'tracking_alt_following', methods: ['GET'])]
+    public function getFollowing(): JsonResponse
+    {
+        /** @var User $user */
+        $user = $this->getUser();
+        if (!$user) {
+            throw new AccessDeniedException('User not authenticated');
+        }
+
+        try {
+            // Obtener usuarios a los que este usuario sigue (following)
+            $following = $this->guestAccessRepository->findBy([
+                'guest' => $user->getId(),
+                'state' => true
+            ]);
+            
+            $result = array_map(function($guestAccess) {
+                return [
+                    'id' => $guestAccess->getId(),
+                    'ownerName' => $guestAccess->getOwner()->getName(),
+                    'ownerUsername' => $guestAccess->getOwner()->getUsername(),
+                    'role' => $guestAccess->getGuestType()->value,
+                    'lastActivity' => $guestAccess->getUpdatedAt() ? $guestAccess->getUpdatedAt()->format('c') : $guestAccess->getCreatedAt()->format('c'),
+                    'permissions' => $guestAccess->getAccessTo(),
+                    'guestPreferences' => $guestAccess->getGuestPreferences() ?? []
+                ];
+            }, $following);
+            
+            return $this->json($result);
+        } catch (\Exception $e) {
+            return $this->json([
+                'error' => 'Error loading following',
+                'message' => $e->getMessage(),
+                'following' => []
+            ], 200);
+        }
+    }
+
+    #[Route('/invitations', name: 'tracking_alt_invitations', methods: ['GET'])]
+    public function getInvitations(): JsonResponse
+    {
+        /** @var User $user */
+        $user = $this->getUser();
+        if (!$user) {
+            throw new AccessDeniedException('User not authenticated');
+        }
+
+        try {
+            $codes = $this->invitationCodeRepository->findByCreatorAndStatus($user, null);
+
+            $result = [
+                'codes' => array_map(function ($code) {
+                    return [
+                        'id' => $code->getId(),
+                        'code' => $code->getCode(),
+                        'type' => $code->getGuestType(),
+                        'status' => $code->getStatus(),
+                        'createdAt' => $code->getCreatedAt()->format('c'),
+                        'expiresAt' => $code->getExpiresAt()->format('c'),
+                        'accessPermissions' => $code->getAccessPermissions(),
+                        'redeemedBy' => $code->getRedeemedBy() ? [
+                            'id' => $code->getRedeemedBy()->getId(),
+                            'username' => $code->getRedeemedBy()->getUsername()
+                        ] : null,
+                        'redeemedAt' => $code->getRedeemedAt() ? $code->getRedeemedAt()->format('c') : null
+                    ];
+                }, $codes)
+            ];
+
+            return $this->json($result);
+        } catch (\Exception $e) {
+            return $this->json([
+                'codes' => [],
+                'error' => 'Error loading invitations',
+                'message' => $e->getMessage()
+            ], 200);
+        }
+    }
+
+    #[Route('/notifications-count', name: 'tracking_alt_notifications_count', methods: ['GET'])]
+    public function getNotificationsCount(): JsonResponse
+    {
+        /** @var User $user */
+        $user = $this->getUser();
+        if (!$user) {
+            throw new AccessDeniedException('User not authenticated');
+        }
+
+        try {
+            // Conteo simple de notificaciones no leídas
+            $count = $this->notificationRepository->count([
+                'user' => $user,
+                'readAt' => null
+            ]);
+
+            return $this->json([
+                'totalUnread' => $count,
+                'success' => true
+            ]);
+        } catch (\Exception $e) {
+            return $this->json([
+                'totalUnread' => 0,
+                'success' => false,
+                'error' => $e->getMessage()
+            ], 200);
+        }
+    }
+
+    #[Route('/status', name: 'tracking_alt_status', methods: ['GET'])]
+    public function getStatus(): JsonResponse
+    {
+        /** @var User $user */
+        $user = $this->getUser();
+        if (!$user) {
+            throw new AccessDeniedException('User not authenticated');
+        }
+
+        return $this->json([
+            'message' => 'Tracking alternative endpoints working',
+            'user' => [
+                'id' => $user->getId(),
+                'email' => $user->getEmail(),
+                'username' => $user->getUsername()
+            ],
+            'available_endpoints' => [
+                'companions' => '/api/tracking/companions',
+                'following' => '/api/tracking/following',
+                'invitations' => '/api/tracking/invitations',
+                'notifications_count' => '/api/tracking/notifications-count'
+            ],
+            'timestamp' => date('c')
+        ]);
+    }
+}

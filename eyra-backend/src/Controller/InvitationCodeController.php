@@ -70,10 +70,14 @@ class InvitationCodeController extends AbstractController
     #[IsGranted('ROLE_USER')]
     public function listCodes(Request $request): JsonResponse
     {
-        $status = $request->query->get('status');
-        $user = $this->getUser();
-
         try {
+            $status = $request->query->get('status');
+            $user = $this->getUser();
+            
+            if (!$user) {
+                return $this->json(['error' => 'User not authenticated'], 401);
+            }
+
             $codes = $this->invitationCodeRepository->findByCreatorAndStatus($user, $status);
 
             return $this->json([
@@ -95,10 +99,12 @@ class InvitationCodeController extends AbstractController
                 }, $codes)
             ]);
         } catch (\Exception $e) {
+            error_log("InvitationCodeController::listCodes error: " . $e->getMessage());
             return $this->json([
                 'codes' => [],
-                'error' => $e->getMessage()
-            ]);
+                'error' => 'Error loading invitation codes',
+                'message' => $e->getMessage()
+            ], 500);
         }
     }
 

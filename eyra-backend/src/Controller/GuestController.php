@@ -29,63 +29,81 @@ class GuestController extends AbstractController
     #[Route('/companions', name: 'api_guests_companions', methods: ['GET'])]
     public function getCompanions(): JsonResponse
     {
-        /** @var User $user */
-        $user = $this->getUser();
-        if (!$user) {
-            throw new AccessDeniedException('User not authenticated');
-        }
+        try {
+            /** @var User $user */
+            $user = $this->getUser();
+            if (!$user) {
+                return $this->json(['error' => 'User not authenticated'], 401);
+            }
 
-        // Obtener personas que siguen a este usuario (companions)
-        $companions = $this->guestAccessRepository->findBy([
-            'owner' => $user->getId(),
-            'state' => true
-        ]);
-        
-        $result = array_map(function($guestAccess) {
-            return [
-                'id' => $guestAccess->getId(),
-                'name' => $guestAccess->getGuest()->getName(),
-                'username' => $guestAccess->getGuest()->getUsername(),
-                'role' => $guestAccess->getGuestType()->value,
-                'status' => 'active',
-                'lastActivity' => $guestAccess->getUpdatedAt() ? $guestAccess->getUpdatedAt()->format('c') : $guestAccess->getCreatedAt()->format('c'),
-                'permissions' => $guestAccess->getAccessTo(),
-                'expiresAt' => $guestAccess->getExpiresAt() ? $guestAccess->getExpiresAt()->format('c') : null,
-                'guestPreferences' => $guestAccess->getGuestPreferences() ?? []
-            ];
-        }, $companions);
-        
-        return $this->json($result);
+            // Obtener personas que siguen a este usuario (companions)
+            $companions = $this->guestAccessRepository->findBy([
+                'owner' => $user->getId(),
+                'state' => true
+            ]);
+            
+            $result = array_map(function($guestAccess) {
+                return [
+                    'id' => $guestAccess->getId(),
+                    'name' => $guestAccess->getGuest()->getName(),
+                    'username' => $guestAccess->getGuest()->getUsername(),
+                    'role' => $guestAccess->getGuestType()->value,
+                    'status' => 'active',
+                    'lastActivity' => $guestAccess->getUpdatedAt() ? $guestAccess->getUpdatedAt()->format('c') : $guestAccess->getCreatedAt()->format('c'),
+                    'permissions' => $guestAccess->getAccessTo(),
+                    'expiresAt' => $guestAccess->getExpiresAt() ? $guestAccess->getExpiresAt()->format('c') : null,
+                    'guestPreferences' => $guestAccess->getGuestPreferences() ?? []
+                ];
+            }, $companions);
+            
+            return $this->json($result);
+        } catch (\Exception $e) {
+            error_log("GuestController::getCompanions error: " . $e->getMessage());
+            return $this->json([
+                'error' => 'Error loading companions',
+                'message' => $e->getMessage(),
+                'companions' => []
+            ], 500);
+        }
     }
 
     #[Route('/following', name: 'api_guests_following', methods: ['GET'])]
     public function getFollowing(): JsonResponse
     {
-        /** @var User $user */
-        $user = $this->getUser();
-        if (!$user) {
-            throw new AccessDeniedException('User not authenticated');
-        }
+        try {
+            /** @var User $user */
+            $user = $this->getUser();
+            if (!$user) {
+                return $this->json(['error' => 'User not authenticated'], 401);
+            }
 
-        // Obtener usuarios a los que este usuario sigue (following)
-        $following = $this->guestAccessRepository->findBy([
-            'guest' => $user->getId(),
-            'state' => true
-        ]);
-        
-        $result = array_map(function($guestAccess) {
-            return [
-                'id' => $guestAccess->getId(),
-                'ownerName' => $guestAccess->getOwner()->getName(),
-                'ownerUsername' => $guestAccess->getOwner()->getUsername(),
-                'role' => $guestAccess->getGuestType()->value,
-                'lastActivity' => $guestAccess->getUpdatedAt() ? $guestAccess->getUpdatedAt()->format('c') : $guestAccess->getCreatedAt()->format('c'),
-                'permissions' => $guestAccess->getAccessTo(),
-                'guestPreferences' => $guestAccess->getGuestPreferences() ?? []
-            ];
-        }, $following);
-        
-        return $this->json($result);
+            // Obtener usuarios a los que este usuario sigue (following)
+            $following = $this->guestAccessRepository->findBy([
+                'guest' => $user->getId(),
+                'state' => true
+            ]);
+            
+            $result = array_map(function($guestAccess) {
+                return [
+                    'id' => $guestAccess->getId(),
+                    'ownerName' => $guestAccess->getOwner()->getName(),
+                    'ownerUsername' => $guestAccess->getOwner()->getUsername(),
+                    'role' => $guestAccess->getGuestType()->value,
+                    'lastActivity' => $guestAccess->getUpdatedAt() ? $guestAccess->getUpdatedAt()->format('c') : $guestAccess->getCreatedAt()->format('c'),
+                    'permissions' => $guestAccess->getAccessTo(),
+                    'guestPreferences' => $guestAccess->getGuestPreferences() ?? []
+                ];
+            }, $following);
+            
+            return $this->json($result);
+        } catch (\Exception $e) {
+            error_log("GuestController::getFollowing error: " . $e->getMessage());
+            return $this->json([
+                'error' => 'Error loading following',
+                'message' => $e->getMessage(),
+                'following' => []
+            ], 500);
+        }
     }
 
     #[Route('', name: 'api_guests_create', methods: ['POST'])]

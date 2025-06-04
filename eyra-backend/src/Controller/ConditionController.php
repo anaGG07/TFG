@@ -43,11 +43,24 @@ class ConditionController extends AbstractController
             throw new AccessDeniedException('User not authenticated');
         }
 
-        // ! 28/05/2025 - Actualizado para incluir también condiciones inactivas
         // Obtener todas las condiciones
         $conditions = $this->conditionRepository->findAll();
-        
-        return $this->json($conditions, 200, [], ['groups' => 'condition:read']);
+        // Serializar manualmente para evitar hydra
+        $data = [];
+        foreach ($conditions as $condition) {
+            $data[] = [
+                'id' => $condition->getId(),
+                'name' => $condition->getName(),
+                'description' => $condition->getDescription(),
+                'isChronic' => $condition->getIsChronic(),
+                'category' => $condition->getCategory(),
+                'severity' => $condition->getSeverity(),
+                'state' => $condition->getState(),
+                'createdAt' => $condition->getCreatedAt()?->format('c'),
+                'updatedAt' => $condition->getUpdatedAt()?->format('c'),
+            ];
+        }
+        return $this->json($data);
     }
 
     #[Route('/active', name: 'api_conditions_active', methods: ['GET'])]

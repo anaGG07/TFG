@@ -112,13 +112,13 @@ class NotificationController extends AbstractController
     #[Route('/count', name: 'api_user_notifications_count', methods: ['GET'])]
     public function getNotificationsCount(): JsonResponse
     {
-        /** @var User $user */
-        $user = $this->getUser();
-        if (!$user) {
-            throw new AccessDeniedException('User not authenticated');
-        }
-
         try {
+            /** @var User $user */
+            $user = $this->getUser();
+            if (!$user) {
+                return $this->json(['error' => 'User not authenticated'], 401);
+            }
+
             $unreadCount = $this->notificationService->countUnread($user);
 
             return $this->json([
@@ -126,12 +126,13 @@ class NotificationController extends AbstractController
                 'success' => true
             ]);
         } catch (\Exception $e) {
+            error_log("NotificationController::getNotificationsCount error: " . $e->getMessage());
             // Fallback en caso de error
             return $this->json([
                 'totalUnread' => 0,
                 'success' => false,
                 'error' => $e->getMessage()
-            ], 200); // 200 para no romper el frontend
+            ], 500);
         }
     }
 
