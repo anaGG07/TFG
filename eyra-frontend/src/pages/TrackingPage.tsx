@@ -1,12 +1,11 @@
-import React, { useMemo } from "react";
-import { motion } from "framer-motion";
-import DraggableGrid from "../components/DraggableGrid";
+import React, { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import LoadingSpinner from "../components/LoadingSpinner";
 import { PermissionsModal } from "../components/PermissionsManager";
 import { useTracking } from "../hooks/useTracking";
 import { Companion, Following, Invitation } from "../services/trackingService";
 
-// Iconos SVG reutilizados
+// Iconos SVG exactos de la web actual
 const CompanionsIcon = ({ className }: { className?: string }) => (
   <svg
     className={className}
@@ -56,6 +55,20 @@ const PrivacyIcon = ({ className }: { className?: string }) => (
   </svg>
 );
 
+const ActivityIcon = ({ className }: { className?: string }) => (
+  <svg
+    className={className}
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="#C62328"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
+    <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
+  </svg>
+);
+
 const InvitationsIcon = ({ className }: { className?: string }) => (
   <svg
     className={className}
@@ -85,21 +98,7 @@ const CommunicationIcon = ({ className }: { className?: string }) => (
   </svg>
 );
 
-const ActivityIcon = ({ className }: { className?: string }) => (
-  <svg
-    className={className}
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="#C62328"
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-  >
-    <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
-  </svg>
-);
-
-// Función para obtener el rol en español
+// Función helper para roles en español
 const getRoleInSpanish = (role: string) => {
   switch (role) {
     case "partner":
@@ -115,22 +114,50 @@ const getRoleInSpanish = (role: string) => {
   }
 };
 
-// Componentes de las tarjetas
-const CompanionsCard = ({
-  companions,
-  onCreateInvitation,
-  creatingInvitation,
-  onRevokeCompanion,
-  onRefresh,
-}: {
-  companions: Companion[];
-  onCreateInvitation: (e?: React.MouseEvent) => void;
-  creatingInvitation?: boolean;
-  onRevokeCompanion?: (id: string) => void;
-  onRefresh?: () => void;
-}) => {
-  const [expandedId, setExpandedId] = React.useState<string | null>(null);
-  const [permissionsModal, setPermissionsModal] = React.useState<{
+// Estilos neomórficos reutilizables
+const neomorphicCardStyle = {
+  background: "linear-gradient(145deg, #e7e0d5, #d4c7bb)",
+  boxShadow: `
+    8px 8px 16px rgba(91, 1, 8, 0.08),
+    -8px -8px 16px rgba(255, 255, 255, 0.3)
+  `,
+};
+
+const neomorphicInsetStyle = {
+  background: "linear-gradient(145deg, #d4c7bb, #e7e0d5)",
+  boxShadow: `
+    inset 4px 4px 8px rgba(91, 1, 8, 0.05),
+    inset -4px -4px 8px rgba(255, 255, 255, 0.8)
+  `,
+};
+
+const TrackingPage: React.FC = () => {
+  // Hooks reales del proyecto
+  const {
+    companions,
+    following,
+    invitations,
+    unreadNotifications,
+    loading,
+    error,
+    createInvitation,
+    redeemInvitationCode,
+    revokeCompanion,
+    refresh,
+  } = useTracking();
+
+  // Estados locales para la UI
+  const [activeTab, setActiveTab] = useState<
+    "connections" | "privacy" | "activity"
+  >("connections");
+  const [expandedPerson, setExpandedPerson] = useState<string | null>(null);
+  const [inputCode, setInputCode] = useState("");
+  const [isRedeeming, setIsRedeeming] = useState(false);
+  const [copiedCode, setCopiedCode] = useState<string | null>(null);
+  const [creatingInvitation, setCreatingInvitation] = useState(false);
+
+  // Estado para el modal de permisos
+  const [permissionsModal, setPermissionsModal] = useState<{
     isOpen: boolean;
     companionId: string;
     companionName: string;
@@ -143,6 +170,55 @@ const CompanionsCard = ({
     permissions: [],
     guestPreferences: [],
   });
+
+  // Handlers para eventos reales
+  const handleCreateInvitation = async () => {
+    if (creatingInvitation) return;
+
+    try {
+      setCreatingInvitation(true);
+      await createInvitation({
+        guestType: "partner",
+        accessPermissions: ["view_cycle", "view_symptoms"],
+        expirationHours: 48,
+      });
+    } catch (error) {
+      console.error("Error creando invitación:", error);
+      alert("Error al crear invitación. Inténtalo de nuevo.");
+    } finally {
+      setCreatingInvitation(false);
+    }
+  };
+
+  const handleRedeemCode = async () => {
+    if (!inputCode.trim() || isRedeeming) return;
+
+    setIsRedeeming(true);
+    try {
+      await redeemInvitationCode(inputCode.trim());
+      setInputCode("");
+      alert("¡Código canjeado exitosamente!");
+    } catch (error) {
+      console.error("Error canjeando código:", error);
+      alert("Error al canjear código. Verifica e inténtalo de nuevo.");
+    } finally {
+      setIsRedeeming(false);
+    }
+  };
+
+  const handleRevokeCompanion = async (
+    companionId: string,
+    username: string
+  ) => {
+    if (confirm(`¿Desvincular a @${username}?`)) {
+      try {
+        await revokeCompanion(companionId);
+      } catch (error) {
+        console.error("Error desvinculando:", error);
+        alert("Error al desvincular. Inténtalo de nuevo.");
+      }
+    }
+  };
 
   const openPermissionsModal = (companion: Companion) => {
     setPermissionsModal({
@@ -158,165 +234,538 @@ const CompanionsCard = ({
     setPermissionsModal((prev) => ({ ...prev, isOpen: false }));
   };
 
-  return (
-    <>
-      <div className="flex flex-col items-center justify-center text-center h-full">
-        <motion.div
-          className="w-16 h-16 rounded-full flex items-center justify-center mb-4"
-          style={{
-            background: "#f5ede6",
-            boxShadow: `
-          inset 2px 2px 4px rgba(91, 1, 8, 0.1),
-          inset -2px -2px 4px rgba(255, 255, 255, 0.8)
-        `,
-          }}
-          whileHover={{ scale: 1.1 }}
-          transition={{ duration: 0.2 }}
-        >
-          <CompanionsIcon className="w-6 h-6" />
-        </motion.div>
-        <h3 className="text-lg font-serif font-bold text-[#7a2323] mb-3">
-          Mis Acompañantes
-        </h3>
-        <p className="text-sm text-[#5b0108] mb-4">
-          Personas que siguen tu ciclo y te acompañan
-        </p>
-        <div className="w-full">
-          {companions.length > 0 ? (
-            <div className="space-y-2 mb-4">
-              {companions.map((companion) => (
-                <div
-                  key={companion.id}
-                  className="bg-white/60 rounded-xl border border-[#C62328]/10"
-                >
-                  {/* Card base clickeable */}
-                  <div
-                    className="p-3 cursor-pointer hover:bg-white/80 transition-colors"
-                    onClick={() =>
-                      setExpandedId(
-                        expandedId === companion.id ? null : companion.id
-                      )
-                    }
-                  >
-                    <div className="flex items-center justify-between">
-                      <div className="flex-1">
-                        <p className="font-semibold text-[#5b0108] text-sm">
-                          @{companion.username}
-                        </p>
-                        <p className="text-xs text-[#a62c2c]">
-                          {getRoleInSpanish(companion.role)}
-                        </p>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <span
-                          className={`inline-block w-2 h-2 rounded-full ${
-                            companion.status === "active"
-                              ? "bg-green-500"
-                              : "bg-gray-400"
-                          }`}
-                        ></span>
-                        <span className="text-xs text-gray-500">
-                          {expandedId === companion.id ? "▲" : "▼"}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
+  const copyToClipboard = async (code: string) => {
+    try {
+      await navigator.clipboard.writeText(code);
+      setCopiedCode(code);
+      setTimeout(() => setCopiedCode(null), 2000);
+    } catch (err) {
+      alert(`Código copiado: ${code}`);
+    }
+  };
 
-                  {/* Panel expandido */}
-                  {expandedId === companion.id && (
-                    <div className="px-3 pb-3 border-t border-[#C62328]/10">
-                      <div className="pt-3 space-y-2">
-                        <div className="text-xs">
-                          <p className="text-[#5b0108] font-medium">
-                            Nombre completo:
-                          </p>
-                          <p className="text-[#a62c2c]">
-                            {companion.name || "Sin nombre"}
-                          </p>
-                        </div>
-                        <div className="text-xs">
-                          <p className="text-[#5b0108] font-medium">
-                            Permisos:
-                          </p>
-                          <p className="text-[#a62c2c]">
-                            {companion.permissions.length > 0
-                              ? companion.permissions.join(", ")
-                              : "Sin permisos definidos"}
-                          </p>
-                        </div>
-                        <div className="pt-2 border-t border-[#C62328]/10 space-y-2">
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              console.log(
-                                "Botón Editar permisos clickeado",
-                                companion
-                              );
-                              openPermissionsModal(companion);
-                            }}
-                            className="w-full px-3 py-2 bg-blue-500 text-white rounded-lg text-xs hover:bg-blue-600 transition-colors"
-                          >
-                            🔧 Editar permisos
-                          </button>
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              if (onRevokeCompanion) {
-                                if (
-                                  confirm(
-                                    `¿Desvincular a @${companion.username}?`
-                                  )
-                                ) {
-                                  onRevokeCompanion(companion.id);
-                                }
-                              }
-                            }}
-                            className="w-full px-3 py-2 bg-red-500 text-white rounded-lg text-xs hover:bg-red-600 transition-colors"
-                          >
-                            ❌ Desvincular
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              ))}
-            </div>
-          ) : (
-            <div className="text-center mb-4">
-              <p className="text-xs text-[#C62328] font-medium">
-                🔴 Ningún acompañante aún
-              </p>
-            </div>
-          )}
-
-          {/* Botón siempre visible para añadir más */}
-          <button
-            onClick={onCreateInvitation}
-            disabled={creatingInvitation}
-            className="w-full px-4 py-2 bg-[#C62328] text-white rounded-lg text-xs hover:bg-[#9d0d0b] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {creatingInvitation
-              ? "Creando..."
-              : companions.length > 0
-              ? "+ Añadir más acompañantes"
-              : "Invitar primera persona"}
-          </button>
-
-          {companions.length > 0 && (
-            <div className="pt-3 border-t border-[#C62328]/20 mt-3">
-              <p className="text-xs text-[#C62328] font-medium text-center">
-                🔴 {companions.length}{" "}
-                {companions.length === 1
-                  ? "persona conectada"
-                  : "personas conectadas"}
-              </p>
-            </div>
-          )}
+  const renderPersonCard = (
+    person: Companion | Following,
+    isOwner: boolean = false
+  ) => (
+    <motion.div
+      key={person.id}
+      layout
+      className="rounded-xl overflow-hidden"
+      style={neomorphicInsetStyle}
+    >
+      <div
+        className="p-4 cursor-pointer hover:bg-white/20 transition-colors"
+        onClick={() =>
+          setExpandedPerson(expandedPerson === person.id ? null : person.id)
+        }
+      >
+        <div className="flex items-center justify-between">
+          <div className="flex-1">
+            <p className="font-semibold text-[#5b0108] text-sm">
+              @{"username" in person ? person.username : person.ownerUsername}
+            </p>
+            <p className="text-xs text-[#a62c2c]">
+              {getRoleInSpanish(person.role)}
+            </p>
+          </div>
+          <div className="flex items-center space-x-2">
+            <div
+              className={`w-2 h-2 rounded-full ${
+                "status" in person && person.status === "active"
+                  ? "bg-green-500"
+                  : "bg-gray-400"
+              }`}
+            ></div>
+            <span className="text-xs text-gray-500">
+              {expandedPerson === person.id ? "▲" : "▼"}
+            </span>
+          </div>
         </div>
       </div>
 
-      {/* Modal de permisos */}
+      <AnimatePresence>
+        {expandedPerson === person.id && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className="px-4 pb-4 border-t border-[#C62328]/10"
+          >
+            <div className="pt-3 space-y-2">
+              <div className="text-xs">
+                <p className="text-[#5b0108] font-medium">
+                  {isOwner ? "Nombre completo:" : "Propietario:"}
+                </p>
+                <p className="text-[#a62c2c]">
+                  {"name" in person
+                    ? person.name
+                    : person.ownerName || "Sin nombre"}
+                </p>
+              </div>
+              <div className="text-xs">
+                <p className="text-[#5b0108] font-medium">
+                  {isOwner ? "Permisos concedidos:" : "Permisos que tengo:"}
+                </p>
+                <p className="text-[#a62c2c]">
+                  {person.permissions?.length > 0
+                    ? person.permissions.join(", ")
+                    : "Sin permisos definidos"}
+                </p>
+              </div>
+              {isOwner && "username" in person && (
+                <div className="pt-2 space-y-2">
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      openPermissionsModal(person as Companion);
+                    }}
+                    className="w-full px-3 py-2 bg-blue-500 text-white rounded-lg text-xs hover:bg-blue-600 transition-colors"
+                  >
+                    🔧 Editar permisos
+                  </button>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleRevokeCompanion(person.id, person.username);
+                    }}
+                    className="w-full px-3 py-2 bg-red-500 text-white rounded-lg text-xs hover:bg-red-600 transition-colors"
+                  >
+                    ❌ Desvincular
+                  </button>
+                </div>
+              )}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </motion.div>
+  );
+
+  // Mostrar loading mientras cargan los datos
+  if (loading) {
+    return <LoadingSpinner text="Cargando datos de seguimiento..." />;
+  }
+
+  // Mostrar error si algo falla
+  if (error) {
+    return (
+      <div className="w-full h-full bg-[#e7e0d5] flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-[#C62328] font-medium mb-4">{error}</p>
+          <button
+            onClick={refresh}
+            className="px-4 py-2 bg-[#C62328] text-white rounded-lg hover:bg-[#9d0d0b] transition-colors"
+          >
+            Reintentar
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <>
+      <div className="w-full h-full bg-[#e7e0d5] p-6">
+        <div className="max-w-4xl mx-auto space-y-6">
+          {/* Header */}
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="text-center"
+          >
+            <h1 className="text-2xl font-serif font-bold text-[#7a2323] mb-2">
+              Centro de Seguimiento
+            </h1>
+            <p className="text-[#5b0108] text-sm">
+              Gestiona tus conexiones y privacidad
+            </p>
+          </motion.div>
+
+          {/* Navigation Tabs */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+            className="rounded-xl p-1"
+            style={neomorphicCardStyle}
+          >
+            <div className="flex space-x-1">
+              {[
+                {
+                  key: "connections",
+                  label: "Mis Vínculos",
+                  icon: CompanionsIcon,
+                },
+                { key: "privacy", label: "Privacidad", icon: PrivacyIcon },
+                { key: "activity", label: "Actividad", icon: ActivityIcon },
+              ].map(({ key, label, icon: Icon }) => (
+                <button
+                  key={key}
+                  onClick={() => setActiveTab(key as any)}
+                  className={`flex-1 flex items-center justify-center space-x-2 py-3 px-4 rounded-lg text-sm font-medium transition-all duration-200 ${
+                    activeTab === key
+                      ? "bg-[#C62328] text-white shadow-lg"
+                      : "text-[#5b0108] hover:bg-white/30"
+                  }`}
+                >
+                  <Icon className="w-4 h-4" />
+                  <span>{label}</span>
+                </button>
+              ))}
+            </div>
+          </motion.div>
+
+          {/* Content Area */}
+          <AnimatePresence mode="wait">
+            {activeTab === "connections" && (
+              <motion.div
+                key="connections"
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: 20 }}
+                className="grid grid-cols-1 lg:grid-cols-2 gap-6"
+              >
+                {/* Mis Vínculos */}
+                <div className="rounded-xl p-6" style={neomorphicCardStyle}>
+                  <div className="flex items-center space-x-3 mb-4">
+                    <div className="w-12 h-12 rounded-full bg-[#C62328] flex items-center justify-center">
+                      <CompanionsIcon className="w-6 h-6 text-white" />
+                    </div>
+                    <div>
+                      <h3 className="text-lg font-semibold text-[#7a2323]">
+                        Mis Acompañantes
+                      </h3>
+                      <p className="text-xs text-[#5b0108]">
+                        {companions.length} personas conectadas
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="space-y-3 mb-4">
+                    {companions.length > 0 ? (
+                      companions.map((companion) =>
+                        renderPersonCard(companion, true)
+                      )
+                    ) : (
+                      <div className="text-center py-8">
+                        <p className="text-[#C62328] text-sm font-medium">
+                          🔴 Ningún acompañante aún
+                        </p>
+                      </div>
+                    )}
+                  </div>
+
+                  <button
+                    onClick={handleCreateInvitation}
+                    disabled={creatingInvitation}
+                    className="w-full py-3 bg-[#C62328] text-white rounded-xl font-medium hover:bg-[#9d0d0b] transition-colors disabled:opacity-50"
+                  >
+                    {creatingInvitation
+                      ? "Creando..."
+                      : "+ Invitar Acompañante"}
+                  </button>
+                </div>
+
+                {/* Conectar con Alguien */}
+                <div className="rounded-xl p-6" style={neomorphicCardStyle}>
+                  <div className="flex items-center space-x-3 mb-4">
+                    <div className="w-12 h-12 rounded-full bg-[#C62328] flex items-center justify-center">
+                      <FollowingIcon className="w-6 h-6 text-white" />
+                    </div>
+                    <div>
+                      <h3 className="text-lg font-semibold text-[#7a2323]">
+                        Conectar con Alguien
+                      </h3>
+                      <p className="text-xs text-[#5b0108]">
+                        Canjea códigos y gestiona invitaciones
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Input de código */}
+                  <div className="space-y-3 mb-4">
+                    <div className="rounded-xl" style={neomorphicInsetStyle}>
+                      <input
+                        type="text"
+                        value={inputCode}
+                        onChange={(e) =>
+                          setInputCode(e.target.value.toUpperCase())
+                        }
+                        placeholder="Introduce código de vinculación"
+                        className="w-full bg-transparent border-none rounded-xl py-3 px-4 text-[#5b0108] focus:outline-none"
+                        maxLength={10}
+                        disabled={isRedeeming}
+                      />
+                    </div>
+                    <button
+                      onClick={handleRedeemCode}
+                      disabled={!inputCode.trim() || isRedeeming}
+                      className="w-full py-3 bg-[#C62328] text-white rounded-xl font-medium hover:bg-[#9d0d0b] transition-colors disabled:opacity-50"
+                    >
+                      {isRedeeming ? "Conectando..." : "Conectar"}
+                    </button>
+                  </div>
+
+                  {/* Personas que sigo */}
+                  {following.length > 0 && (
+                    <>
+                      <div className="flex items-center space-x-2 mb-3">
+                        <div className="w-6 h-6 rounded-full bg-[#5b0108] flex items-center justify-center">
+                          <CompanionsIcon className="w-3 h-3 text-white" />
+                        </div>
+                        <h4 className="text-sm font-medium text-[#7a2323]">
+                          Personas que Sigo
+                        </h4>
+                      </div>
+                      <div className="space-y-2">
+                        {following.map((person) =>
+                          renderPersonCard(person, false)
+                        )}
+                      </div>
+                    </>
+                  )}
+
+                  {/* Invitaciones activas */}
+                  {invitations.length > 0 && (
+                    <>
+                      <div className="flex items-center space-x-2 mb-3 mt-4">
+                        <div className="w-6 h-6 rounded-full bg-[#C62328] flex items-center justify-center">
+                          <InvitationsIcon className="w-3 h-3 text-white" />
+                        </div>
+                        <h4 className="text-sm font-medium text-[#7a2323]">
+                          Mis Invitaciones
+                        </h4>
+                      </div>
+                      <div className="space-y-2">
+                        {invitations.slice(0, 3).map((invitation) => (
+                          <div
+                            key={invitation.id}
+                            className="p-3 rounded-lg cursor-pointer hover:bg-white/20 transition-colors"
+                            style={neomorphicInsetStyle}
+                            onClick={() => copyToClipboard(invitation.code)}
+                          >
+                            <div className="flex items-center justify-between">
+                              <div>
+                                <p className="font-mono text-sm font-bold text-[#5b0108]">
+                                  📋 {invitation.code}
+                                </p>
+                                <p className="text-xs text-[#a62c2c]">
+                                  {getRoleInSpanish(invitation.type)}
+                                </p>
+                              </div>
+                              <div className="text-right">
+                                <p className="text-xs text-blue-600 font-medium">
+                                  {copiedCode === invitation.code
+                                    ? "✅ Copiado!"
+                                    : "Copiar"}
+                                </p>
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </>
+                  )}
+                </div>
+              </motion.div>
+            )}
+
+            {activeTab === "privacy" && (
+              <motion.div
+                key="privacy"
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: 20 }}
+                className="rounded-xl p-6"
+                style={neomorphicCardStyle}
+              >
+                <div className="flex items-center space-x-3 mb-6">
+                  <div className="w-12 h-12 rounded-full bg-[#C62328] flex items-center justify-center">
+                    <PrivacyIcon className="w-6 h-6 text-white" />
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-semibold text-[#7a2323]">
+                      Configuración de Privacidad
+                    </h3>
+                    <p className="text-sm text-[#5b0108]">
+                      Controla qué información compartes
+                    </p>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {[
+                    {
+                      title: "Información del ciclo",
+                      desc: "Fechas y predicciones",
+                      icon: CompanionsIcon,
+                    },
+                    {
+                      title: "Síntomas y estado",
+                      desc: "Registro de bienestar",
+                      icon: ActivityIcon,
+                    },
+                    {
+                      title: "Alertas y recordatorios",
+                      desc: "Notificaciones compartidas",
+                      icon: CommunicationIcon,
+                    },
+                    {
+                      title: "Datos médicos",
+                      desc: "Información clínica",
+                      icon: PrivacyIcon,
+                    },
+                  ].map((item, index) => (
+                    <div
+                      key={index}
+                      className="p-4 rounded-xl"
+                      style={neomorphicInsetStyle}
+                    >
+                      <div className="flex items-start space-x-3">
+                        <item.icon className="w-6 h-6 text-[#C62328] mt-1" />
+                        <div>
+                          <h4 className="font-medium text-[#5b0108] mb-1">
+                            {item.title}
+                          </h4>
+                          <p className="text-xs text-[#a62c2c] mb-3">
+                            {item.desc}
+                          </p>
+                          <div className="flex items-center space-x-2">
+                            <input
+                              type="checkbox"
+                              className="accent-[#C62328]"
+                              defaultChecked
+                            />
+                            <span className="text-xs text-[#5b0108]">
+                              Compartir
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="mt-6 p-4 rounded-xl bg-[#C62328]/10">
+                  <p className="text-sm text-[#C62328] font-medium">
+                    🔴 En desarrollo - Configuración avanzada próximamente
+                  </p>
+                </div>
+              </motion.div>
+            )}
+
+            {activeTab === "activity" && (
+              <motion.div
+                key="activity"
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: 20 }}
+                className="rounded-xl p-6"
+                style={neomorphicCardStyle}
+              >
+                <div className="flex items-center space-x-3 mb-6">
+                  <div className="w-12 h-12 rounded-full bg-[#C62328] flex items-center justify-center">
+                    <ActivityIcon className="w-6 h-6 text-white" />
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-semibold text-[#7a2323]">
+                      Actividad y Comunicación
+                    </h3>
+                    <p className="text-sm text-[#5b0108]">
+                      Timeline de interacciones y mensajes
+                    </p>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                  <div
+                    className="text-center p-4 rounded-xl"
+                    style={neomorphicInsetStyle}
+                  >
+                    <CommunicationIcon className="w-8 h-8 mx-auto mb-2 text-[#C62328]" />
+                    <p className="text-lg font-bold text-[#C62328]">
+                      {unreadNotifications}
+                    </p>
+                    <p className="text-xs text-[#5b0108]">Mensajes nuevos</p>
+                  </div>
+                  <div
+                    className="text-center p-4 rounded-xl"
+                    style={neomorphicInsetStyle}
+                  >
+                    <CompanionsIcon className="w-8 h-8 mx-auto mb-2 text-[#C62328]" />
+                    <p className="text-lg font-bold text-[#C62328]">
+                      {companions.length + following.length}
+                    </p>
+                    <p className="text-xs text-[#5b0108]">Conexiones activas</p>
+                  </div>
+                  <div
+                    className="text-center p-4 rounded-xl"
+                    style={neomorphicInsetStyle}
+                  >
+                    <ActivityIcon className="w-8 h-8 mx-auto mb-2 text-[#C62328]" />
+                    <p className="text-lg font-bold text-[#C62328]">
+                      {invitations.length}
+                    </p>
+                    <p className="text-xs text-[#5b0108]">
+                      Invitaciones activas
+                    </p>
+                  </div>
+                </div>
+
+                <div className="space-y-3">
+                  <h4 className="font-medium text-[#7a2323] mb-3">
+                    Actividad Reciente
+                  </h4>
+                  {companions.length > 0 || following.length > 0 ? (
+                    [...companions, ...following]
+                      .slice(0, 3)
+                      .map((person, index) => (
+                        <div
+                          key={`${
+                            "username" in person
+                              ? person.username
+                              : person.ownerUsername
+                          }-${index}`}
+                          className="flex items-center space-x-3 p-3 rounded-lg"
+                          style={neomorphicInsetStyle}
+                        >
+                          <CompanionsIcon className="w-5 h-5 text-[#C62328]" />
+                          <div className="flex-1">
+                            <p className="text-sm text-[#5b0108]">
+                              <span className="font-medium">
+                                {"username" in person
+                                  ? `@${person.username}`
+                                  : `@${person.ownerUsername}`}
+                              </span>{" "}
+                              está conectado
+                            </p>
+                            <p className="text-xs text-[#a62c2c]">
+                              {person.lastActivity
+                                ? new Date(
+                                    person.lastActivity
+                                  ).toLocaleDateString()
+                                : "Recientemente"}
+                            </p>
+                          </div>
+                        </div>
+                      ))
+                  ) : (
+                    <div className="text-center py-8">
+                      <p className="text-[#C62328] text-sm font-medium">
+                        🔴 Sin actividad reciente
+                      </p>
+                    </div>
+                  )}
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+      </div>
+
+      {/* Modal de permisos integrado */}
       <PermissionsModal
         isOpen={permissionsModal.isOpen}
         onClose={closePermissionsModal}
@@ -326,586 +775,10 @@ const CompanionsCard = ({
         currentGuestPreferences={permissionsModal.guestPreferences}
         isOwner={true}
         onUpdate={() => {
-          // Recargar datos después de actualizar permisos
-          if (onRefresh) {
-            onRefresh();
-          }
+          refresh(); // Recargar datos después de actualizar permisos
         }}
       />
     </>
-  );
-};
-
-const FollowingCard = ({
-  following,
-  onRedeemCode,
-}: {
-  following: Following[];
-  onRedeemCode: (code: string) => void;
-}) => {
-  const [inputCode, setInputCode] = React.useState("");
-  const [isRedeeming, setIsRedeeming] = React.useState(false);
-  const [expandedId, setExpandedId] = React.useState<string | null>(null);
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (inputCode.trim() && !isRedeeming) {
-      setIsRedeeming(true);
-      try {
-        await onRedeemCode(inputCode.trim().toUpperCase());
-        setInputCode("");
-      } catch (error) {
-        // El error ya se maneja en el componente padre
-      } finally {
-        setIsRedeeming(false);
-      }
-    }
-  };
-
-  return (
-    <div className="flex flex-col items-center justify-center text-center h-full">
-      <motion.div
-        className="w-16 h-16 rounded-full flex items-center justify-center mb-4"
-        style={{
-          background: "#f5ede6",
-          boxShadow: `
-            inset 2px 2px 4px rgba(91, 1, 8, 0.1),
-            inset -2px -2px 4px rgba(255, 255, 255, 0.8)
-          `,
-        }}
-        whileHover={{ scale: 1.1 }}
-        transition={{ duration: 0.2 }}
-      >
-        <FollowingIcon className="w-6 h-6" />
-      </motion.div>
-
-      <h3 className="text-lg font-serif font-bold text-[#7a2323] mb-3">
-        Personas que Sigo
-      </h3>
-      <p className="text-sm text-[#5b0108] mb-4">
-        Cuando acompañas a alguien más
-      </p>
-
-      <div className="w-full">
-        {following.length > 0 && (
-          <div className="space-y-2 mb-4">
-            {following.map((person) => (
-              <div
-                key={person.id}
-                className="bg-white/60 rounded-xl border border-[#C62328]/10"
-              >
-                {/* Card base clickeable */}
-                <div
-                  className="p-3 cursor-pointer hover:bg-white/80 transition-colors"
-                  onClick={() =>
-                    setExpandedId(expandedId === person.id ? null : person.id)
-                  }
-                >
-                  <div className="flex items-center justify-between">
-                    <div className="flex-1">
-                      <p className="font-semibold text-[#5b0108] text-sm">
-                        @{person.ownerUsername}
-                      </p>
-                      <p className="text-xs text-[#a62c2c]">
-                        {getRoleInSpanish(person.role)}
-                      </p>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <span className="inline-block w-2 h-2 rounded-full bg-green-500"></span>
-                      <span className="text-xs text-gray-500">
-                        {expandedId === person.id ? "▲" : "▼"}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Panel expandido */}
-                {expandedId === person.id && (
-                  <div className="px-3 pb-3 border-t border-[#C62328]/10">
-                    <div className="pt-3 space-y-2">
-                      <div className="text-xs">
-                        <p className="text-[#5b0108] font-medium">
-                          Nombre completo:
-                        </p>
-                        <p className="text-[#a62c2c]">
-                          {person.ownerName || "Sin nombre"}
-                        </p>
-                      </div>
-                      <div className="text-xs">
-                        <p className="text-[#5b0108] font-medium">
-                          Permisos que tengo:
-                        </p>
-                        <p className="text-[#a62c2c]">
-                          {person.permissions.length > 0
-                            ? person.permissions.join(", ")
-                            : "Sin permisos definidos"}
-                        </p>
-                      </div>
-                      <div className="text-xs">
-                        <p className="text-[#5b0108] font-medium">
-                          Última actividad:
-                        </p>
-                        <p className="text-[#a62c2c]">{person.lastActivity}</p>
-                      </div>
-                    </div>
-                  </div>
-                )}
-              </div>
-            ))}
-          </div>
-        )}
-
-        <form onSubmit={handleSubmit} className="space-y-3">
-          <div className="relative">
-            <input
-              type="text"
-              value={inputCode}
-              onChange={(e) => setInputCode(e.target.value.toUpperCase())}
-              placeholder="Introduce código de vinculación"
-              className="w-full px-4 py-3 text-sm border-2 border-[#C62328]/30 rounded-xl focus:outline-none focus:border-[#C62328] bg-white/90 transition-colors"
-              maxLength={10}
-              disabled={isRedeeming}
-            />
-            {inputCode && (
-              <button
-                type="button"
-                onClick={() => setInputCode("")}
-                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
-              >
-                ✕
-              </button>
-            )}
-          </div>
-          <button
-            type="submit"
-            disabled={!inputCode.trim() || isRedeeming}
-            className="w-full px-4 py-3 bg-[#C62328] text-white rounded-xl text-sm font-medium hover:bg-[#9d0d0b] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {isRedeeming ? "Conectando..." : "Conectar"}
-          </button>
-        </form>
-
-        {following.length === 0 && (
-          <p className="text-xs text-[#C62328] font-medium mt-3 text-center">
-            🔴 No sigues a nadie actualmente
-          </p>
-        )}
-      </div>
-    </div>
-  );
-};
-
-const PrivacyCard = () => (
-  <div className="flex flex-col items-center justify-center text-center h-full">
-    <motion.div
-      className="w-16 h-16 rounded-full flex items-center justify-center mb-4"
-      style={{
-        background: "#f5ede6",
-        boxShadow: `
-          inset 2px 2px 4px rgba(91, 1, 8, 0.1),
-          inset -2px -2px 4px rgba(255, 255, 255, 0.8)
-        `,
-      }}
-      whileHover={{ scale: 1.1 }}
-      transition={{ duration: 0.2 }}
-    >
-      <PrivacyIcon className="w-6 h-6" />
-    </motion.div>
-
-    <h3 className="text-lg font-serif font-bold text-[#7a2323] mb-3">
-      Privacidad
-    </h3>
-    <p className="text-sm text-[#5b0108] mb-4">
-      Controla qué información compartes
-    </p>
-
-    <div className="w-full space-y-2">
-      <div className="bg-white/50 rounded-xl p-2">
-        <p className="text-xs font-medium text-[#5b0108]">
-          Información del ciclo
-        </p>
-        <p className="text-xs text-[#a62c2c]">Fechas y predicciones</p>
-      </div>
-      <div className="bg-white/50 rounded-xl p-2">
-        <p className="text-xs font-medium text-[#5b0108]">Síntomas y estado</p>
-        <p className="text-xs text-[#a62c2c]">Registro de bienestar</p>
-      </div>
-      <div className="bg-white/50 rounded-xl p-2">
-        <p className="text-xs font-medium text-[#5b0108]">
-          Alertas y recordatorios
-        </p>
-        <p className="text-xs text-[#a62c2c]">Notificaciones compartidas</p>
-      </div>
-
-      <div className="pt-2 border-t border-[#C62328]/20">
-        <p className="text-xs text-[#C62328] font-medium">
-          🔴 En desarrollo - Configuración avanzada próximamente
-        </p>
-      </div>
-    </div>
-  </div>
-);
-
-const InvitationsCard = ({
-  invitations,
-  onCreateInvitation,
-  creatingInvitation,
-  totalInvitations,
-}: {
-  invitations: Invitation[];
-  onCreateInvitation: (e?: React.MouseEvent) => void;
-  creatingInvitation?: boolean;
-  totalInvitations?: number;
-}) => {
-  const [copiedCode, setCopiedCode] = React.useState<string | null>(null);
-
-  const copyToClipboard = async (code: string, e: React.MouseEvent) => {
-    e.stopPropagation();
-    try {
-      // Intentar usar clipboard API moderno
-      if (navigator.clipboard && window.isSecureContext) {
-        await navigator.clipboard.writeText(code);
-      } else {
-        // Fallback para navegadores más antiguos o HTTP
-        const textArea = document.createElement("textarea");
-        textArea.value = code;
-        textArea.style.position = "fixed";
-        textArea.style.left = "-999999px";
-        textArea.style.top = "-999999px";
-        document.body.appendChild(textArea);
-        textArea.focus();
-        textArea.select();
-        document.execCommand("copy");
-        document.body.removeChild(textArea);
-      }
-
-      // Mostrar feedback visual
-      setCopiedCode(code);
-      setTimeout(() => setCopiedCode(null), 2000);
-    } catch (err) {
-      console.error("Error copiando al portapapeles:", err);
-      alert(
-        "Error al copiar. Intenta seleccionar y copiar manualmente: " + code
-      );
-    }
-  };
-
-  return (
-    <div className="flex flex-col items-center justify-center text-center h-full">
-      <motion.div
-        className="w-16 h-16 rounded-full flex items-center justify-center mb-4"
-        style={{
-          background: "#f5ede6",
-          boxShadow: `
-            inset 2px 2px 4px rgba(91, 1, 8, 0.1),
-            inset -2px -2px 4px rgba(255, 255, 255, 0.8)
-          `,
-        }}
-        whileHover={{ scale: 1.1 }}
-        transition={{ duration: 0.2 }}
-      >
-        <InvitationsIcon className="w-6 h-6" />
-      </motion.div>
-
-      <h3 className="text-lg font-serif font-bold text-[#7a2323] mb-3">
-        Invitaciones
-      </h3>
-      <p className="text-sm text-[#5b0108] mb-4">
-        Códigos de invitación y solicitudes
-      </p>
-
-      <div className="w-full">
-        {invitations.length > 0 ? (
-          <div className="space-y-2">
-            {invitations.map((invitation) => (
-              <div
-                key={invitation.id}
-                className="bg-white/60 rounded-lg p-3 cursor-pointer hover:bg-white/80 transition-colors border border-[#C62328]/10"
-                onClick={(e) => copyToClipboard(invitation.code, e)}
-                title="Clic para copiar código"
-              >
-                <div className="flex items-center justify-between">
-                  <div className="flex-1">
-                    <p className="font-mono text-sm font-bold text-[#5b0108]">
-                      📋 {invitation.code}
-                    </p>
-                    <p className="text-xs text-[#a62c2c]">
-                      {getRoleInSpanish(invitation.type)}
-                    </p>
-                  </div>
-                  <div className="text-right">
-                    <p className="text-xs text-blue-600 font-medium">
-                      {copiedCode === invitation.code
-                        ? "✅ Copiado!"
-                        : "Copiar"}
-                    </p>
-                    <p className="text-xs text-gray-500">
-                      {new Date(invitation.expiresAt).toLocaleDateString()}
-                    </p>
-                  </div>
-                </div>
-              </div>
-            ))}
-
-            <div className="flex items-center justify-between pt-2 border-t border-[#C62328]/20">
-              {totalInvitations && totalInvitations > 3 && (
-                <p className="text-xs text-gray-600">
-                  {totalInvitations - 3} más...
-                </p>
-              )}
-              <button
-                onClick={onCreateInvitation}
-                disabled={creatingInvitation}
-                className="px-3 py-1.5 bg-[#C62328] text-white rounded-lg text-xs hover:bg-[#9d0d0b] transition-colors disabled:opacity-50"
-              >
-                {creatingInvitation ? "..." : "+ Nueva"}
-              </button>
-            </div>
-          </div>
-        ) : (
-          <div className="text-center">
-            <p className="text-xs text-[#C62328] font-medium mb-3">
-              🔴 No hay invitaciones activas
-            </p>
-            <button
-              onClick={onCreateInvitation}
-              disabled={creatingInvitation}
-              className="px-4 py-2 bg-[#C62328] text-white rounded-lg text-xs hover:bg-[#9d0d0b] transition-colors disabled:opacity-50"
-            >
-              {creatingInvitation ? "Creando..." : "Crear invitación"}
-            </button>
-          </div>
-        )}
-      </div>
-    </div>
-  );
-};
-
-const CommunicationCard = ({ messageCount }: { messageCount: number }) => (
-  <div className="flex flex-col items-center justify-center text-center h-full">
-    <motion.div
-      className="w-16 h-16 rounded-full flex items-center justify-center mb-4 relative"
-      style={{
-        background: "#f5ede6",
-        boxShadow: `
-          inset 2px 2px 4px rgba(91, 1, 8, 0.1),
-          inset -2px -2px 4px rgba(255, 255, 255, 0.8)
-        `,
-      }}
-      whileHover={{ scale: 1.1 }}
-      transition={{ duration: 0.2 }}
-    >
-      <CommunicationIcon className="w-6 h-6" />
-      {messageCount > 0 && (
-        <span className="absolute -top-2 -right-2 bg-[#C62328] text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
-          {messageCount}
-        </span>
-      )}
-    </motion.div>
-
-    <h3 className="text-lg font-serif font-bold text-[#7a2323] mb-3">
-      Comunicación
-    </h3>
-    <p className="text-sm text-[#5b0108] mb-4">
-      Mensajes y notificaciones del círculo
-    </p>
-
-    <div className="w-full text-center">
-      <p className="text-xs text-[#C62328] font-medium">
-        🔴{" "}
-        {messageCount > 0
-          ? `${messageCount} mensajes nuevos`
-          : "Sin mensajes nuevos"}
-      </p>
-    </div>
-  </div>
-);
-
-const ActivityCard = ({ activityCount }: { activityCount: number }) => (
-  <div className="flex flex-col items-center justify-center text-center h-full">
-    <motion.div
-      className="w-16 h-16 rounded-full flex items-center justify-center mb-4"
-      style={{
-        background: "#f5ede6",
-        boxShadow: `
-          inset 2px 2px 4px rgba(91, 1, 8, 0.1),
-          inset -2px -2px 4px rgba(255, 255, 255, 0.8)
-        `,
-      }}
-      whileHover={{ scale: 1.1 }}
-      transition={{ duration: 0.2 }}
-    >
-      <ActivityIcon className="w-6 h-6" />
-    </motion.div>
-
-    <h3 className="text-lg font-serif font-bold text-[#7a2323] mb-3">
-      Actividad Reciente
-    </h3>
-    <p className="text-sm text-[#5b0108] mb-4">
-      Timeline de interacciones y cambios
-    </p>
-
-    <div className="w-full text-center">
-      <p className="text-xs text-[#C62328] font-medium">
-        🔴{" "}
-        {activityCount > 0
-          ? `${activityCount} interacciones recientes`
-          : "Sin actividad reciente"}
-      </p>
-    </div>
-  </div>
-);
-
-const TrackingPage: React.FC = () => {
-  console.log(
-    "TrackingPage: Renderizando página de seguimiento - SIN CircularNavigation"
-  );
-
-  const {
-    companions,
-    following,
-    invitations,
-    unreadNotifications,
-    loading,
-    createInvitation,
-    redeemInvitationCode,
-    revokeCompanion,
-    refresh,
-  } = useTracking();
-  const [creatingInvitation, setCreatingInvitation] = React.useState(false);
-
-  const handleCreateInvitation = async (e?: React.MouseEvent) => {
-    e?.stopPropagation(); // Prevenir expansión del card
-    if (creatingInvitation) return; // Evitar clicks múltiples
-
-    try {
-      setCreatingInvitation(true);
-      console.log("Creando invitación...");
-      const newInvitation = await createInvitation({
-        guestType: "partner",
-        accessPermissions: ["view_cycle", "view_symptoms"],
-        expirationHours: 48,
-      });
-      console.log("Invitación creada exitosamente:", newInvitation);
-    } catch (error) {
-      console.error("Error creando invitación:", error);
-    } finally {
-      setCreatingInvitation(false);
-    }
-  };
-
-  const handleRevokeCompanion = async (id: string) => {
-    try {
-      await revokeCompanion(id);
-      console.log("Acompañante desvinculado exitosamente");
-    } catch (error) {
-      console.error("Error desvinculando acompañante:", error);
-      alert("Error al desvincular. Inténtalo de nuevo.");
-    }
-  };
-
-  const handleRedeemCode = async (code: string) => {
-    try {
-      console.log("Canjeando código:", code);
-      await redeemInvitationCode(code);
-      console.log("Código canjeado exitosamente");
-    } catch (error) {
-      console.error("Error canjeando código:", error);
-      alert("Error al conectar. Verifica el código e inténtalo de nuevo.");
-    }
-  };
-
-  // Valores para comunicación y actividad
-  const messageCount = unreadNotifications;
-  const activityCount = companions.length + following.length;
-
-  // Filtrar y limitar invitaciones a las 3 últimas activas
-  const activeInvitations = invitations
-    .filter((inv) => inv.status === "active")
-    .sort(
-      (a, b) =>
-        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-    )
-    .slice(0, 3);
-
-  // Define los items igual que en DashboardPage
-  const trackingItems = useMemo(
-    () => [
-      {
-        id: "companions",
-        title: "Mis Acompañantes",
-        component: (
-          <CompanionsCard
-            companions={companions}
-            onCreateInvitation={handleCreateInvitation}
-            creatingInvitation={creatingInvitation}
-            onRevokeCompanion={handleRevokeCompanion}
-            onRefresh={refresh}
-          />
-        ),
-      },
-      {
-        id: "following",
-        title: "Personas que Sigo",
-        component: (
-          <FollowingCard
-            following={following}
-            onRedeemCode={handleRedeemCode}
-          />
-        ),
-      },
-      {
-        id: "privacy",
-        title: "Privacidad",
-        component: <PrivacyCard />,
-      },
-      {
-        id: "invitations",
-        title: "Invitaciones",
-        component: (
-          <InvitationsCard
-            invitations={activeInvitations}
-            onCreateInvitation={handleCreateInvitation}
-            creatingInvitation={creatingInvitation}
-            totalInvitations={
-              invitations.filter((inv) => inv.status === "active").length
-            }
-          />
-        ),
-      },
-      {
-        id: "communication",
-        title: "Comunicación",
-        component: <CommunicationCard messageCount={messageCount} />,
-      },
-      {
-        id: "activity",
-        title: "Actividad Reciente",
-        component: <ActivityCard activityCount={activityCount} />,
-      },
-    ],
-    [
-      companions,
-      following,
-      activeInvitations,
-      invitations.length,
-      messageCount,
-      activityCount,
-      creatingInvitation,
-    ]
-  );
-
-  if (loading) {
-    return <LoadingSpinner text="Cargando datos de tracking..." />;
-  }
-
-  return (
-    <div className="w-full h-full bg-[#e7e0d5] overflow-hidden">
-      <DraggableGrid
-        items={trackingItems}
-        onItemsChange={() => {}}
-      />
-    </div>
   );
 };
 

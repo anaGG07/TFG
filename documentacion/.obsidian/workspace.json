@@ -1,0 +1,203 @@
+{
+  "main": {
+    "id": "77f10ff788537120",
+    "type": "split",
+    "children": [
+      {
+        "id": "e7895e940ca3236a",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "e4686c4b623b1fce",
+            "type": "leaf",
+            "state": {
+              "type": "empty",
+              "state": {},
+              "icon": "lucide-file",
+              "title": "Nueva pestaña"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "vertical"
+  },
+  "left": {
+    "id": "59843efc88465d31",
+    "type": "split",
+    "children": [
+      {
+        "id": "b64ac46465f00bef",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "314972ba3b90eb91",
+            "type": "leaf",
+            "state": {
+              "type": "file-explorer",
+              "state": {
+                "sortOrder": "alphabetical",
+                "autoReveal": false
+              },
+              "icon": "lucide-folder-closed",
+              "title": "Explorador de archivos"
+            }
+          },
+          {
+            "id": "04886d021650dc61",
+            "type": "leaf",
+            "state": {
+              "type": "search",
+              "state": {
+                "query": "",
+                "matchingCase": false,
+                "explainSearch": false,
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical"
+              },
+              "icon": "lucide-search",
+              "title": "Search"
+            }
+          },
+          {
+            "id": "5114de25afe8c9af",
+            "type": "leaf",
+            "state": {
+              "type": "bookmarks",
+              "state": {},
+              "icon": "lucide-bookmark",
+              "title": "Bookmarks"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300
+  },
+  "right": {
+    "id": "a00f2f68b976ef0e",
+    "type": "split",
+    "children": [
+      {
+        "id": "c09f01c583e42ab9",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "8f9103051bc3c9cc",
+            "type": "leaf",
+            "state": {
+              "type": "backlink",
+              "state": {
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical",
+                "showSearch": false,
+                "searchQuery": "",
+                "backlinkCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-coming-in",
+              "title": "Backlinks"
+            }
+          },
+          {
+            "id": "b7d746dfece10f95",
+            "type": "leaf",
+            "state": {
+              "type": "outgoing-link",
+              "state": {
+                "linksCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-going-out",
+              "title": "Outgoing links"
+            }
+          },
+          {
+            "id": "e3b3e5640b046f9e",
+            "type": "leaf",
+            "state": {
+              "type": "tag",
+              "state": {
+                "sortOrder": "frequency",
+                "useHierarchy": true,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-tags",
+              "title": "Tags"
+            }
+          },
+          {
+            "id": "5f1110c9ff66a416",
+            "type": "leaf",
+            "state": {
+              "type": "outline",
+              "state": {
+                "followCursor": false,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-list",
+              "title": "Outline"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300,
+    "collapsed": true
+  },
+  "left-ribbon": {
+    "hiddenItems": {
+      "switcher:Abrir selector rápido": false,
+      "graph:Abrir vista gráfica": false,
+      "canvas:Crear nuevo lienzo": false,
+      "daily-notes:Abrir la nota de hoy": false,
+      "templates:Insertar plantilla": false,
+      "command-palette:Abrir paleta de comandos": false
+    }
+  },
+  "active": "e4686c4b623b1fce",
+  "lastOpenFiles": [
+    "03_Análisis-Diseño/Entidades/PregnancyLog.md",
+    "03_Análisis-Diseño/Entidades/MenstrualCycle.md",
+    "00_Indice/README.md",
+    "00_Indice/Estructura_Proyecto.md",
+    "00_Indice/Enlaces_Rapidos.md",
+    "TFG_EYRA_Notas_Globales.md",
+    "NEW/08-CRUD-Condiciones.md",
+    "NEW/05-CRUD-Usuarios.md",
+    "NEW/04-Flujo-Autenticacion.md",
+    "NEW/03-Seguridad-Permisos.md",
+    "NEW/02-Arquitectura-Admin.md",
+    "NEW/01-Indice-Principal.md",
+    "04_Desarrollo/Backend/Controladores.md",
+    "03_Análisis-Diseño/Seguridad/Seguridad_Permisos.md",
+    "03_Análisis-Diseño/Flujos/Flujo_Web_EYRA.md",
+    "03_Análisis-Diseño/Flujos/Casos_Uso.md",
+    "03_Análisis-Diseño/Arquitectura/Arquitectura_General.md",
+    "03_Análisis-Diseño/API/Endpoints.md",
+    "02_Estudio-Preliminar/Tecnologias_Relacionadas.md",
+    "02_Estudio-Preliminar/Diferenciacion_EYRA.md",
+    "02_Estudio-Preliminar/Análisis_de_Aplicaciones_Similares.md",
+    "01_Introducción/Objetivos.md",
+    "01_Introducción/MVP.md",
+    "01_Introducción/Metodología.md",
+    "01_Introducción/Contexto.md",
+    "01_Introducción/Alcance.md",
+    "03_Análisis-Diseño/Seguridad",
+    "03_Análisis-Diseño/Flujos",
+    "03_Análisis-Diseño/Entidades",
+    "03_Análisis-Diseño/Arquitectura",
+    "03_Análisis-Diseño/API",
+    "03_Análisis-Diseño",
+    "NEW",
+    "06_Bibliografía",
+    "05_Resultados/Limitaciones_Mejoras/Areas_Criticas",
+    "05_Resultados/Limitaciones_Mejoras"
+  ]
+}
