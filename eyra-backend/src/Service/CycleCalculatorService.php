@@ -9,7 +9,6 @@ use App\Enum\CyclePhase;
 use App\Repository\MenstrualCycleRepository;
 use App\Repository\OnboardingRepository;
 use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Component\Uid\Uuid;
 use Psr\Log\LoggerInterface;
 
 // ! 20/05/2025 - Actualizado el servicio con algoritmo mejorado de predicción
@@ -99,8 +98,14 @@ class CycleCalculatorService
         }
 
         // Calcular fechas esperadas
-        $nextStartDate = (clone $lastCycle->getStartDate())->modify("+{$predictedLength} days");
-        $nextEndDate = (clone $nextStartDate)->modify("+{$predictedDuration} days");
+        $nextStartDate = (new \DateTime($lastCycle->getStartDate()->format('Y-m-d')))->modify("+{$predictedLength} days");
+        $nextEndDate = (new \DateTime($nextStartDate->format('Y-m-d')))->modify("+{$predictedDuration} days");
+
+        // Generar array de días predichos de menstruación
+        $predictedPeriodDays = [];
+        for ($i = 0; $i < $predictedDuration; $i++) {
+            $predictedPeriodDays[] = (new \DateTime($nextStartDate->format('Y-m-d')))->modify("+{$i} days")->format('Y-m-d');
+        }
 
         // Ajustar confianza basado en regularidad y cantidad de datos
         $confidence = $this->calculateConfidenceLevel(
@@ -123,7 +128,8 @@ class CycleCalculatorService
             'basedOnCycles' => count($cycles),
             'algorithm' => $analysisResult['algorithm'],
             'regularity' => round($analysisResult['regularity'] * 100),
-            'trend' => $analysisResult['trend']
+            'trend' => $analysisResult['trend'],
+            'predictedPeriodDays' => $predictedPeriodDays
         ];
     }
 
@@ -242,7 +248,7 @@ class CycleCalculatorService
         $avgDuration = max(2, min(10, $avgDuration));
 
         // Generar UUID para agrupar las 4 fases del mismo ciclo
-        $cycleId = Uuid::v4()->toRfc4122();
+        $cycleId = $this->generateUuid();
 
         // Calcular duración de cada fase
         $menstrualDuration = $avgDuration;
@@ -251,11 +257,11 @@ class CycleCalculatorService
         $lutealDuration = $avgLength - $menstrualDuration - $follicularDuration - $ovulationDuration;
 
         // Fechas de inicio de cada fase
-        $menstrualStart = clone $startDate;
-        $follicularStart = (clone $startDate)->modify("+{$menstrualDuration} days");
-        $ovulationStart = (clone $follicularStart)->modify("+{$follicularDuration} days");
-        $lutealStart = (clone $ovulationStart)->modify("+{$ovulationDuration} days");
-        $nextCycleStart = (clone $startDate)->modify("+{$avgLength} days");
+        $menstrualStart = new \DateTime($startDate->format('Y-m-d'));
+        $follicularStart = (new \DateTime($startDate->format('Y-m-d')))->modify("+{$menstrualDuration} days");
+        $ovulationStart = (new \DateTime($follicularStart->format('Y-m-d')))->modify("+{$follicularDuration} days");
+        $lutealStart = (new \DateTime($ovulationStart->format('Y-m-d')))->modify("+{$ovulationDuration} days");
+        $nextCycleStart = (new \DateTime($startDate->format('Y-m-d')))->modify("+{$avgLength} days");
 
         // 1. Crear fase menstrual
         $menstrualPhase = new MenstrualCycle();
@@ -335,10 +341,11 @@ class CycleCalculatorService
      * Crear días del ciclo con fases
      * 
      * ! 23/05/2025 - Método legacy para compatibilidad con código existente
+     * ! 04/06/2025 - Actualizado para usar el nuevo modelo de relaciones
      */
     public function createCycleDays(MenstrualCycle $cycle): void
     {
-        $startDate = clone $cycle->getStartDate();
+        $startDate = new \DateTime($cycle->getStartDate()->format('Y-m-d'));
         $cycleLength = $cycle->getAverageCycleLength();
         $menstrualDuration = $cycle->getAverageDuration();
 
@@ -349,22 +356,22 @@ class CycleCalculatorService
 
         // Crear días para todo el ciclo
         for ($i = 1; $i <= $cycleLength; $i++) {
-            $currentDate = (clone $startDate)->modify('+' . ($i - 1) . ' days');
+            $currentDate = (new \DateTime($startDate->format('Y-m-d')))->modify('+' . ($i - 1) . ' days');
 
             $cycleDay = new CycleDay();
-            $cycleDay->setCycle($cycle);
+            $cycleDay->setCyclePhase($cycle); // Usar setCyclePhase en lugar de setCycle
             $cycleDay->setDate($currentDate);
             $cycleDay->setDayNumber($i);
 
             // Asignar fase basada en el día del ciclo
             if ($i <= $menstrualDuration) {
-                $cycleDay->setPhase(CyclePhase::MENSTRUAL);
+                $cycleDay->setPhase(CyclePhase::MENSTRUAL->value); // Usar ->value para obtener el string
             } elseif ($i >= $follicularStart && $i < $ovulationStart) {
-                $cycleDay->setPhase(CyclePhase::FOLICULAR);
+                $cycleDay->setPhase(CyclePhase::FOLICULAR->value);
             } elseif ($i >= $ovulationStart && $i < $lutealStart) {
-                $cycleDay->setPhase(CyclePhase::OVULACION);
+                $cycleDay->setPhase(CyclePhase::OVULACION->value);
             } else {
-                $cycleDay->setPhase(CyclePhase::LUTEA);
+                $cycleDay->setPhase(CyclePhase::LUTEA->value);
             }
 
             $this->entityManager->persist($cycleDay);
@@ -499,7 +506,7 @@ class CycleCalculatorService
             $cycle->setAverageCycleLength($newAverageCycleLength);
 
             // Actualizar la fecha estimada del próximo ciclo
-            $nextStartDate = (clone $cycle->getStartDate())->modify("+{$newAverageCycleLength} days");
+            $nextStartDate = (new \DateTime($cycle->getStartDate()->format('Y-m-d')))->modify("+{$newAverageCycleLength} days");
             $cycle->setEstimatedNextStart($nextStartDate);
         } else {
             // Si no hay ciclos anteriores, obtener el valor del onboarding
@@ -514,7 +521,7 @@ class CycleCalculatorService
                 $cycle->setAverageCycleLength($averageCycleLength);
 
                 // Actualizar la fecha estimada del próximo ciclo
-                $nextStartDate = (clone $cycle->getStartDate())->modify("+{$averageCycleLength} days");
+                $nextStartDate = (new \DateTime($cycle->getStartDate()->format('Y-m-d')))->modify("+{$averageCycleLength} days");
                 $cycle->setEstimatedNextStart($nextStartDate);
             } else {
                 // Valores por defecto si no hay información disponible en el onboarding
@@ -522,7 +529,7 @@ class CycleCalculatorService
                 $cycle->setAverageCycleLength($defaultCycleLength);
 
                 // Actualizar la fecha estimada del próximo ciclo
-                $nextStartDate = (clone $cycle->getStartDate())->modify("+{$defaultCycleLength} days");
+                $nextStartDate = (new \DateTime($cycle->getStartDate()->format('Y-m-d')))->modify("+{$defaultCycleLength} days");
                 $cycle->setEstimatedNextStart($nextStartDate);
             }
         }
@@ -813,5 +820,30 @@ class CycleCalculatorService
 
         // Redondear a entero y limitar a mínimo 1 día
         return max(1, round($totalMargin));
+    }
+
+    /**
+     * Generar UUID v4 usando funciones nativas de PHP
+     * 
+     * @return string UUID en formato string
+     */
+    private function generateUuid(): string
+    {
+        // Generar 16 bytes aleatorios
+        $data = random_bytes(16);
+        
+        // Establecer bits de versión (4) y variante (RFC 4122)
+        $data[6] = chr(ord($data[6]) & 0x0f | 0x40); // Versión 4
+        $data[8] = chr(ord($data[8]) & 0x3f | 0x80); // Variante RFC 4122
+        
+        // Formatear como UUID
+        return sprintf(
+            '%08s-%04s-%04s-%04s-%12s',
+            bin2hex(substr($data, 0, 4)),
+            bin2hex(substr($data, 4, 2)),
+            bin2hex(substr($data, 6, 2)),
+            bin2hex(substr($data, 8, 2)),
+            bin2hex(substr($data, 10, 6))
+        );
     }
 }

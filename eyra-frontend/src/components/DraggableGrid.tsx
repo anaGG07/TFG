@@ -1,4 +1,4 @@
-import React, { useState, ReactNode, useEffect, useCallback } from "react";
+import React, { useState, ReactNode, ReactElement, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useViewport } from "../hooks/useViewport";
 
@@ -7,7 +7,7 @@ interface GridItem {
   component: ReactNode;
   title: string;
   isExpanded?: boolean;
-  expandedComponent?: ReactNode;
+  expandedComponent?: ReactElement<{ onClose?: () => void }> | ReactNode;
 }
 
 interface DraggableGridProps {
@@ -26,6 +26,14 @@ const DraggableGrid: React.FC<DraggableGridProps> = ({
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0);
   const { mode: viewportMode, isMobile, isTablet, isDesktop } = useViewport();
+
+  // Helper function to safely clone React elements
+  const safeCloneElement = useCallback((element: ReactNode, props: any) => {
+    if (React.isValidElement(element)) {
+      return React.cloneElement(element, props);
+    }
+    return element;
+  }, []);
 
   // Sincronizar estado interno cuando cambien los props
   useEffect(() => {
@@ -289,7 +297,7 @@ const DraggableGrid: React.FC<DraggableGridProps> = ({
 
             <div className="w-full h-full relative">
               {expandedItem.expandedComponent ? 
-                React.cloneElement(expandedItem.expandedComponent as React.ReactElement, {
+                safeCloneElement(expandedItem.expandedComponent, {
                   onClose: () => handleItemClick(expandedItem.id)
                 }) : 
                 expandedItem.component
