@@ -15,7 +15,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
-#[Route('//guests')]
+#[Route('/api/guests')]
 class GuestController extends AbstractController
 {
     public function __construct(
@@ -26,8 +26,8 @@ class GuestController extends AbstractController
     ) {
     }
 
-    #[Route('', name: 'api_guests_list', methods: ['GET'])]
-    public function getGuestAccesses(): JsonResponse
+    #[Route('/companions', name: 'api_guests_companions', methods: ['GET'])]
+    public function getCompanions(): JsonResponse
     {
         /** @var User $user */
         $user = $this->getUser();
@@ -35,9 +35,57 @@ class GuestController extends AbstractController
             throw new AccessDeniedException('User not authenticated');
         }
 
-        $guestAccesses = $this->guestAccessRepository->findActiveForUser($user->getId());
+        // Obtener personas que siguen a este usuario (companions)
+        $companions = $this->guestAccessRepository->findBy([
+            'owner' => $user->getId(),
+            'state' => true
+        ]);
         
-        return $this->json($guestAccesses, 200, [], ['groups' => 'guest_access:read']);
+        $result = array_map(function($guestAccess) {
+            return [
+                'id' => $guestAccess->getId(),
+                'name' => $guestAccess->getGuest()->getName(),
+                'username' => $guestAccess->getGuest()->getUsername(),
+                'role' => $guestAccess->getGuestType()->value,
+                'status' => 'active',
+                'lastActivity' => $guestAccess->getUpdatedAt() ? $guestAccess->getUpdatedAt()->format('c') : $guestAccess->getCreatedAt()->format('c'),
+                'permissions' => $guestAccess->getAccessTo(),
+                'expiresAt' => $guestAccess->getExpiresAt() ? $guestAccess->getExpiresAt()->format('c') : null,
+                'guestPreferences' => $guestAccess->getGuestPreferences() ?? []
+            ];
+        }, $companions);
+        
+        return $this->json($result);
+    }
+
+    #[Route('/following', name: 'api_guests_following', methods: ['GET'])]
+    public function getFollowing(): JsonResponse
+    {
+        /** @var User $user */
+        $user = $this->getUser();
+        if (!$user) {
+            throw new AccessDeniedException('User not authenticated');
+        }
+
+        // Obtener usuarios a los que este usuario sigue (following)
+        $following = $this->guestAccessRepository->findBy([
+            'guest' => $user->getId(),
+            'state' => true
+        ]);
+        
+        $result = array_map(function($guestAccess) {
+            return [
+                'id' => $guestAccess->getId(),
+                'ownerName' => $guestAccess->getOwner()->getName(),
+                'ownerUsername' => $guestAccess->getOwner()->getUsername(),
+                'role' => $guestAccess->getGuestType()->value,
+                'lastActivity' => $guestAccess->getUpdatedAt() ? $guestAccess->getUpdatedAt()->format('c') : $guestAccess->getCreatedAt()->format('c'),
+                'permissions' => $guestAccess->getAccessTo(),
+                'guestPreferences' => $guestAccess->getGuestPreferences() ?? []
+            ];
+        }, $following);
+        
+        return $this->json($result);
     }
 
     #[Route('', name: 'api_guests_create', methods: ['POST'])]

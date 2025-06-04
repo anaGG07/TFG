@@ -118,19 +118,7 @@ export const trackingService = {
       return response;
     } catch (error) {
       console.error("Error creando invitación:", error);
-
-      // Simular creación exitosa para no bloquear la UI durante desarrollo
-      return {
-        id: "temp_" + Date.now(),
-        code: "TEMP" + Math.random().toString(36).substr(2, 4).toUpperCase(),
-        type: data.guestType,
-        createdAt: new Date().toISOString(),
-        expiresAt: new Date(
-          Date.now() + (data.expirationHours || 48) * 60 * 60 * 1000
-        ).toISOString(),
-        status: "active",
-        accessPermissions: data.accessPermissions,
-      };
+      throw error; // Re-lanzar el error para que el componente pueda manejarlo
     }
   },
 
