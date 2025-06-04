@@ -49,7 +49,7 @@ export async function apiFetch<T>(path: string, options: FetchOptions = {}, sile
     ...fetchOptions,
     headers: {
       "Content-Type": "application/json",
-      "Accept": "application/json",
+      "Accept": path.includes("/api/conditions") ? "application/ld+json" : "application/json",
       ...fetchOptions.headers,
     },
     credentials: "include",

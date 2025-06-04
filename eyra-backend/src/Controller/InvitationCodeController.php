@@ -57,39 +57,49 @@ class InvitationCodeController extends AbstractController
         return $this->json([
             'id' => $code->getId(),
             'code' => $code->getCode(),
-            'guestType' => $code->getGuestType(),
+            'type' => $code->getGuestType(), // Usar 'type' en lugar de 'guestType'
+            'status' => 'active', // Agregar status
+            'createdAt' => $code->getCreatedAt()->format('c'), // Agregar createdAt
             'accessPermissions' => $code->getAccessPermissions(),
             'expiresAt' => $code->getExpiresAt()->format('c'),
         ], Response::HTTP_CREATED);
     }
 
     // ! 28/05/2025 - Endpoint para listar códigos del usuario
-    #[Route('', name: 'invitation_code_list', methods: ['GET'])]
+    #[Route('', name: 'invitation_code_list', methods: ['GET'], priority: 1)]
     #[IsGranted('ROLE_USER')]
     public function listCodes(Request $request): JsonResponse
     {
         $status = $request->query->get('status');
         $user = $this->getUser();
 
-        $codes = $this->invitationCodeRepository->findByCreatorAndStatus($user, $status);
+        try {
+            $codes = $this->invitationCodeRepository->findByCreatorAndStatus($user, $status);
 
-        return $this->json([
-            'codes' => array_map(function ($code) {
-                return [
-                    'id' => $code->getId(),
-                    'code' => $code->getCode(),
-                    'guestType' => $code->getGuestType(),
-                    'status' => $code->getStatus(),
-                    'createdAt' => $code->getCreatedAt()->format('c'),
-                    'expiresAt' => $code->getExpiresAt()->format('c'),
-                    'redeemedBy' => $code->getRedeemedBy() ? [
-                        'id' => $code->getRedeemedBy()->getId(),
-                        'username' => $code->getRedeemedBy()->getUsername()
-                    ] : null,
-                    'redeemedAt' => $code->getRedeemedAt() ? $code->getRedeemedAt()->format('c') : null
-                ];
-            }, $codes)
-        ]);
+            return $this->json([
+                'codes' => array_map(function ($code) {
+                    return [
+                        'id' => $code->getId(),
+                        'code' => $code->getCode(),
+                        'type' => $code->getGuestType(), // Cambiar 'guestType' por 'type' para coincidir con el frontend
+                        'status' => $code->getStatus(),
+                        'createdAt' => $code->getCreatedAt()->format('c'),
+                        'expiresAt' => $code->getExpiresAt()->format('c'),
+                        'accessPermissions' => $code->getAccessPermissions(),
+                        'redeemedBy' => $code->getRedeemedBy() ? [
+                            'id' => $code->getRedeemedBy()->getId(),
+                            'username' => $code->getRedeemedBy()->getUsername()
+                        ] : null,
+                        'redeemedAt' => $code->getRedeemedAt() ? $code->getRedeemedAt()->format('c') : null
+                    ];
+                }, $codes)
+            ]);
+        } catch (\Exception $e) {
+            return $this->json([
+                'codes' => [],
+                'error' => $e->getMessage()
+            ]);
+        }
     }
 
     // ! 28/05/2025 - Endpoint para verificar si un código es válido

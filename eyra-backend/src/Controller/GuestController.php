@@ -358,9 +358,27 @@ class GuestController extends AbstractController
         ]);
     }
 
-    #[Route('/test-route', name: 'api_test', methods: ['GET'])]
-    public function testRoute(): JsonResponse
+    #[Route('/test-endpoints', name: 'api_guests_test_endpoints', methods: ['GET'])]
+    public function testEndpoints(): JsonResponse
     {
-        return $this->json(['message' => 'Test route works!']);
+        /** @var User $user */
+        $user = $this->getUser();
+        if (!$user) {
+            throw new AccessDeniedException('User not authenticated');
+        }
+
+        return $this->json([
+            'message' => 'Guest endpoints are working',
+            'user' => [
+                'id' => $user->getId(),
+                'username' => $user->getUsername(),
+                'email' => $user->getEmail()
+            ],
+            'endpoints_available' => [
+                '/api/guests/companions',
+                '/api/guests/following',
+                '/api/guests/test-endpoints'
+            ]
+        ]);
     }
 }
