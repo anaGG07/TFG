@@ -26,6 +26,9 @@ const DraggableGrid: React.FC<DraggableGridProps> = ({
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0);
   const { mode: viewportMode, isMobile, isTablet, isDesktop } = useViewport();
+  
+  // Estado para navegación de items colapsados en móvil
+  const [collapsedIndex, setCollapsedIndex] = useState(0);
 
   // Helper function to safely clone React elements
   const safeCloneElement = useCallback((element: ReactNode, props: any) => {
@@ -38,6 +41,7 @@ const DraggableGrid: React.FC<DraggableGridProps> = ({
   // Sincronizar estado interno cuando cambien los props
   useEffect(() => {
     setItems(initialItems);
+    setCollapsedIndex(0); // Reset collapsed index when items change
   }, [initialItems]);
 
   // Get items per view based on viewport
@@ -309,7 +313,7 @@ const DraggableGrid: React.FC<DraggableGridProps> = ({
           <motion.div
             className={`flex gap-4 flex-shrink-0 ${
               isMobile 
-                ? 'flex-col h-auto max-h-48 overflow-y-auto' 
+                ? 'flex-col h-20 relative' 
                 : isTablet 
                   ? 'flex-row h-20' 
                   : 'flex-row h-24'
@@ -318,9 +322,124 @@ const DraggableGrid: React.FC<DraggableGridProps> = ({
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.3, delay: 0.1 }}
           >
-            {items
-              .filter((item) => !item.isExpanded)
-              .map((item) => (
+            {isMobile ? (
+              // Móvil: Sistema de paginación para items colapsados
+              <>
+                {/* Contenedor del item actual */}
+                <div className="flex-1 flex items-center justify-center">
+                  {(() => {
+                    const collapsedItems = items.filter(item => !item.isExpanded);
+                    if (collapsedItems.length === 0) return null;
+                    
+                    const currentCollapsedItem = collapsedItems[collapsedIndex % collapsedItems.length];
+                    if (!currentCollapsedItem) return null;
+                    
+                    return (
+                      <motion.div
+                        key={currentCollapsedItem.id}
+                        layoutId={currentCollapsedItem.id}
+                        initial={false}
+                        transition={{
+                          duration: 0.4,
+                          ease: [0.25, 0.46, 0.45, 0.94],
+                        }}
+                        draggable={!isTransitioning}
+                        onDragStart={(e) => handleDragStart(e as any, currentCollapsedItem.id)}
+                        onDragOver={handleDragOver}
+                        onDrop={(e) => handleDrop(e as any, currentCollapsedItem.id)}
+                        onClick={() => handleItemClick(currentCollapsedItem.id)}
+                        className="w-full h-16 relative group cursor-pointer overflow-hidden"
+                        style={{
+                          background: "#e7e0d5",
+                          borderRadius: "12px",
+                          border: "1px solid rgba(91, 1, 8, 0.1)",
+                          boxShadow: `
+                            6px 6px 12px rgba(91, 1, 8, 0.06),
+                            -6px -6px 12px rgba(255, 255, 255, 0.25)
+                          `,
+                        }}
+                        whileTap={{ scale: 0.98 }}
+                      >
+                        <div className="h-full flex items-center justify-center p-2">
+                          <h4 className="font-serif text-[#5b0108] text-center font-medium leading-tight text-xs px-1">
+                            {currentCollapsedItem.title}
+                          </h4>
+                        </div>
+                      </motion.div>
+                    );
+                  })()}
+                </div>
+                
+                {/* Navegación e indicadores */}
+                {(() => {
+                  const collapsedItems = items.filter(item => !item.isExpanded);
+                  if (collapsedItems.length <= 1) return null;
+                  
+                  return (
+                    <div className="flex items-center justify-between mt-2">
+                      {/* Botón anterior */}
+                      <button
+                        onClick={() => setCollapsedIndex(prev => 
+                          prev === 0 ? collapsedItems.length - 1 : prev - 1
+                        )}
+                        className="w-8 h-8 rounded-full flex items-center justify-center transition-all duration-200"
+                        style={{
+                          background: "linear-gradient(145deg, #f4f1ed, #e7e0d5)",
+                          border: "1px solid rgba(91, 1, 8, 0.08)",
+                          boxShadow: `
+                            2px 2px 4px rgba(91, 1, 8, 0.06),
+                            -2px -2px 4px rgba(255, 255, 255, 0.7)
+                          `,
+                        }}
+                      >
+                        <svg className="w-4 h-4 text-[#C62328]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7"/>
+                        </svg>
+                      </button>
+                      
+                      {/* Indicadores de página */}
+                      <div className="flex gap-1">
+                        {collapsedItems.map((_, index) => (
+                          <button
+                            key={index}
+                            onClick={() => setCollapsedIndex(index)}
+                            className={`w-2 h-2 rounded-full transition-all duration-200 ${
+                              index === (collapsedIndex % collapsedItems.length)
+                                ? 'bg-[#C62328] scale-125'
+                                : 'bg-[#C62328]/30'
+                            }`}
+                          />
+                        ))}
+                      </div>
+                      
+                      {/* Botón siguiente */}
+                      <button
+                        onClick={() => setCollapsedIndex(prev => 
+                          (prev + 1) % collapsedItems.length
+                        )}
+                        className="w-8 h-8 rounded-full flex items-center justify-center transition-all duration-200"
+                        style={{
+                          background: "linear-gradient(145deg, #f4f1ed, #e7e0d5)",
+                          border: "1px solid rgba(91, 1, 8, 0.08)",
+                          boxShadow: `
+                            2px 2px 4px rgba(91, 1, 8, 0.06),
+                            -2px -2px 4px rgba(255, 255, 255, 0.7)
+                          `,
+                        }}
+                      >
+                        <svg className="w-4 h-4 text-[#C62328]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7"/>
+                        </svg>
+                      </button>
+                    </div>
+                  );
+                })()}
+              </>
+            ) : (
+              // Tablet y Desktop: Layout horizontal normal
+              items
+                .filter((item) => !item.isExpanded)
+                .map((item) => (
                 <motion.div
                   key={item.id}
                   layoutId={item.id}
@@ -335,7 +454,7 @@ const DraggableGrid: React.FC<DraggableGridProps> = ({
                   onDrop={(e) => handleDrop(e as any, item.id)}
                   onClick={() => handleItemClick(item.id)}
                   className={`relative group cursor-pointer overflow-hidden ${
-                    isMobile ? 'w-full min-h-16' : 'flex-1 min-w-0'
+                    isMobile ? 'w-24 h-full flex-shrink-0 snap-center' : 'flex-1 min-w-0'
                   } ${isLibrary ? 'library-tent-container' : ''}`}
                   style={!isLibrary ? {
                     background: "#e7e0d5",
@@ -383,12 +502,12 @@ const DraggableGrid: React.FC<DraggableGridProps> = ({
                     </div>
                   )}
 
-                  <div className={isLibrary ? "w-full h-full" : `h-full flex items-center ${
-                    isMobile ? 'p-3' : 'p-4'
+                  <div className={isLibrary ? "w-full h-full" : `h-full flex items-center justify-center ${
+                    isMobile ? 'p-2' : 'p-4'
                   }`}>
                     {!isLibrary && (
-                      <h4 className={`font-serif text-[#5b0108] truncate font-medium ${
-                        isMobile ? 'text-xs' : 'text-sm'
+                      <h4 className={`font-serif text-[#5b0108] text-center font-medium leading-tight ${
+                        isMobile ? 'text-xs px-1' : 'text-sm'
                       }`}>
                         {item.title}
                       </h4>
@@ -442,7 +561,8 @@ const DraggableGrid: React.FC<DraggableGridProps> = ({
                     )}
                   </div>
                 </motion.div>
-              ))}
+              )))
+            }
           </motion.div>
         </div>
       </div>
