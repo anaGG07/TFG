@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import { useIsAdmin } from "../hooks/useIsAdmin";
 import { useLogout } from "../hooks/useLogout";
 import { ROUTES } from "../router/paths";
 import { motion, AnimatePresence } from "framer-motion";
@@ -33,17 +34,19 @@ const CalendarIcon = ({ className }: { className?: string }) => (
   </svg>
 );
 
-const InsightsIcon = ({ className }: { className?: string }) => (
-  <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-    <circle cx="12" cy="12" r="3" />
-    <path d="M12 1v6" />
-    <path d="M12 17v6" />
-    <path d="M4.22 4.22l4.24 4.24" />
-    <path d="M15.54 15.54l4.24 4.24" />
-    <path d="M1 12h6" />
-    <path d="M17 12h6" />
-    <path d="M4.22 19.78l4.24-4.24" />
-    <path d="M15.54 8.46l4.24-4.24" />
+const TrackingIcon = ({ className }: { className?: string }) => (
+  <svg
+    className={className}
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
+    <circle cx="12" cy="12" r="10" />
+    <line x1="12" y1="8" x2="12" y2="16" />
+    <line x1="8" y1="12" x2="16" y2="12" />
   </svg>
 );
 
@@ -87,6 +90,29 @@ const CloseIcon = ({ className }: { className?: string }) => (
   </svg>
 );
 
+// Icono de Admin
+const AdminIcon = ({ className }: { className?: string }) => (
+  <svg
+    className={className}
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
+    <path d="M12 15v2" />
+    <path d="M12 3v4" />
+    <path d="M3 12h4" />
+    <path d="M17 12h4" />
+    <path d="M18.364 5.636l-2.828 2.828" />
+    <path d="M8.464 15.536l-2.828 2.828" />
+    <path d="M5.636 5.636l2.828 2.828" />
+    <path d="M15.536 15.536l2.828 2.828" />
+    <circle cx="12" cy="12" r="2" />
+  </svg>
+);
+
 const navigationItems: NavigationItem[] = [
   {
     id: "dashboard",
@@ -107,10 +133,10 @@ const navigationItems: NavigationItem[] = [
     route: ROUTES.LIBRARY,
   },
   {
-    id: "insights",
-    label: "Análisis",
-    icon: InsightsIcon,
-    route: ROUTES.INSIGHTS,
+    id: "tracking",
+    label: "Seguimiento",
+    icon: TrackingIcon,
+    route: "/tracking",
   },
   {
     id: "profile",
@@ -125,7 +151,23 @@ const SideDrawer: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { user } = useAuth();
-  const { logout } = useLogout();
+  const isAdmin = useIsAdmin();
+  const logout = useLogout();
+
+  // Agregar item de admin condicionalmente
+  const allNavigationItems = React.useMemo(() => {
+    const baseItems = [...navigationItems];
+    if (isAdmin) {
+      // Insertar admin antes del profile (último elemento)
+      baseItems.splice(-1, 0, {
+        id: "admin",
+        label: "Administración",
+        icon: AdminIcon,
+        route: "/admin",
+      });
+    }
+    return baseItems;
+  }, [isAdmin]);
 
   const handleNavigation = (route: string) => {
     navigate(route);
@@ -224,9 +266,10 @@ const SideDrawer: React.FC = () => {
 
             {/* Navigation Items */}
             <nav className="p-4">
-              {navigationItems.map((item) => {
+              {allNavigationItems.map((item) => {
                 const active = isActive(item.route);
                 const Icon = item.icon;
+                const isAdminButton = item.id === "admin";
 
                 return (
                   <button
@@ -235,6 +278,8 @@ const SideDrawer: React.FC = () => {
                     className={`w-full flex items-center gap-4 px-4 py-3 rounded-xl transition-all duration-200 mb-2 ${
                       active
                         ? "bg-[#C62328]/10 text-[#C62328]"
+                        : isAdminButton
+                        ? "text-[#C62328] hover:text-[#C62328] hover:bg-[#C62328]/10"
                         : "text-[#5b0108]/70 hover:text-[#5b0108] hover:bg-[#C62328]/5"
                     }`}
                     style={{
@@ -245,6 +290,9 @@ const SideDrawer: React.FC = () => {
                   >
                     <Icon className="w-5 h-5" />
                     <span className="font-medium">{item.label}</span>
+                    {isAdminButton && (
+                      <div className="ml-auto w-2 h-2 bg-[#C62328] rounded-full animate-pulse" />
+                    )}
                   </button>
                 );
               })}

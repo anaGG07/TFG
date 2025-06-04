@@ -1,6 +1,7 @@
 import React from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useIsAdmin } from "../hooks/useIsAdmin";
+import { useViewport } from "../hooks/useViewport";
 
 // Nuevo icono de Administración
 const AdminIcon = ({ className }: { className?: string }) => (
@@ -29,9 +30,10 @@ const AdminNavigation: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const isAdmin = useIsAdmin();
+  const { isDesktop } = useViewport();
 
-  // Si no es administrador, no renderizar nada
-  if (!isAdmin) {
+  // Solo mostrar en desktop y si es admin
+  if (!isAdmin || !isDesktop) {
     return null;
   }
 
@@ -45,12 +47,11 @@ const AdminNavigation: React.FC = () => {
 
   return (
     <>
-      {/* Botón de administración prominente */}
-      {isAdmin && (
-        <div
-          className="fixed bottom-6 left-6 z-50 group"
-          title="Panel de Administración"
-        >
+      {/* Botón de administración prominente - solo en desktop */}
+      <div
+        className="fixed bottom-6 left-6 z-50 group"
+        title="Panel de Administración"
+      >
           <div
             className={`relative w-20 h-20 rounded-full flex items-center justify-center text-white font-bold cursor-pointer
             shadow-2xl transition-all duration-300 transform hover:scale-115 hover:shadow-3xl
@@ -85,7 +86,6 @@ const AdminNavigation: React.FC = () => {
             </div>
           </div>
         </div>
-      )}
     </>
   );
 };
