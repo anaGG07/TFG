@@ -96,6 +96,45 @@ export const API_ROUTES = {
       createApiUrl(`/user/notifications/by-related/${entityType}/${entityId}`),
     DISMISS: (id: string) => createApiUrl(`/user/notifications/dismiss/${id}`),
   },
+
+  TRACKING: {
+    COMPANIONS: createApiUrl("/guests/companions"),
+    FOLLOWING: createApiUrl("/guests/following"),
+    INVITATIONS: createApiUrl("/invitation-codes"),
+    CREATE_INVITATION: createApiUrl("/invitation-codes/generate"),
+    VERIFY_CODE: (code: string) => createApiUrl(`/invitation-codes/verify/${code}`),
+    REDEEM_CODE: (code: string) => createApiUrl(`/invitation-codes/redeem/${code}`),
+    REVOKE_INVITATION: (id: string) => createApiUrl(`/invitation-codes/${id}`),
+    REVOKE_COMPANION: (id: string) => createApiUrl(`/guests/${id}`),
+    UPDATE_COMPANION_PERMISSIONS: (id: string) => createApiUrl(`/guests/${id}/permissions`),
+    UPDATE_MY_PREFERENCES: (id: string) => createApiUrl(`/guests/${id}/preferences`),
+    AVAILABLE_PERMISSIONS: createApiUrl("/guests/available-permissions"),
+  },
+
+  
+  ADMIN: {
+    USERS: {
+      LIST: createApiUrl('/admin/users'),
+      GET: (id: string) => createApiUrl(`/admin/users/${id}`),
+      UPDATE: (id: string) => createApiUrl(`/admin/users/${id}`),
+      DELETE: (id: string) => createApiUrl(`/admin/users/${id}`),
+    },
+    CONDITIONS: {
+      LIST: createApiUrl('/conditions'),
+      GET: (id: string) => createApiUrl(`/conditions/${id}`),
+      CREATE: createApiUrl('/conditions'),
+      UPDATE: (id: string) => createApiUrl(`/conditions/${id}`),
+      DELETE: (id: string) => createApiUrl(`/conditions/${id}`),
+      SEARCH: createApiUrl('/conditions/search'),
+    },
+    CONTENT: {
+      LIST: createApiUrl('/admin/content'),
+      GET: (id: string) => createApiUrl(`/admin/content/${id}`),
+      CREATE: createApiUrl('/admin/content'),
+      UPDATE: (id: string) => createApiUrl(`/admin/content/${id}`),
+      DELETE: (id: string) => createApiUrl(`/admin/content/${id}`),
+    },
+  },
 };
 
 export { API_URL };

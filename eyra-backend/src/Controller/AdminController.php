@@ -15,18 +15,25 @@ use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
+use App\Entity\Content;
+use App\Repository\ContentRepository;
+use App\Enum\ContentType;
+use App\Enum\CyclePhase;
+
 use DateTime;
 use Exception;
 use ValueError;
 
-#[Route('/api/admin')]
+#[Route('/admin')]
 #[IsGranted('ROLE_ADMIN')]
 class AdminController extends AbstractController
 {
     private LoggerInterface $logger;
 
+    /* ! 01/06/2025 - Añadido ContentRepository al constructor para solucionar error 500 */
     public function __construct(
         private UserRepository $userRepository,
+        private ContentRepository $contentRepository,
         private EntityManagerInterface $entityManager,
         private UserPasswordHasherInterface $passwordHasher,
         private ValidatorInterface $validator,
@@ -254,19 +261,15 @@ class AdminController extends AbstractController
      * @param Request $request Datos de la petición con posibles filtros
      * @return JsonResponse Lista paginada de usuarios
      * 
-     * ! 28/05/2025 - Implementado endpoint para listar usuarios con filtros para administradores
+     * ! 31/05/2025 - Endpoint simplificado y optimizado para evitar errores 500
      */
     #[Route('/users', name: 'admin_list_users', methods: ['GET'])]
     public function listUsers(Request $request): JsonResponse
     {
         try {
-            /** @var User|null $currentUser */
-            $currentUser = $this->getUser();
-            $adminId = ($currentUser instanceof \App\Entity\User) ? $currentUser->getId() : null;
-
             // Obtener parámetros de paginación y filtrado
             $page = max(1, $request->query->getInt('page', 1));
-            $limit = min(100, max(1, $request->query->getInt('limit', 20))); // Entre 1 y 100, default 20
+            $limit = min(100, max(1, $request->query->getInt('limit', 20)));
             $role = $request->query->get('role');
             $profileType = $request->query->get('profileType');
             $search = $request->query->get('search');
@@ -274,61 +277,25 @@ class AdminController extends AbstractController
             // Calcular offset para paginación
             $offset = ($page - 1) * $limit;
 
-            // Crear criterios de filtrado
-            $criteria = [];
-
-            // Si se proporciona un rol específico
-            if ($role) {
-                // No se puede filtrar directamente por rol en DQL simple, se manejará en PHP
-            }
-
-            // Si se proporciona un tipo de perfil
+            // Procesar filtro de tipo de perfil
+            $profileTypeEnum = null;
             if ($profileType) {
                 try {
                     $profileTypeEnum = ProfileType::from($profileType);
-                    $criteria['profileType'] = $profileTypeEnum;
                 } catch (ValueError $e) {
-                    // Ignorar filtro de profileType si es inválido
-                    $this->logger->warning('Filtro de profileType inválido', [
-                        'valor_proporcionado' => $profileType
-                    ]);
+                    // Ignorar filtro inválido
+                    $profileTypeEnum = null;
                 }
             }
 
-            // Obtener total de usuarios que coinciden con los criterios
-            $total = $this->userRepository->count($criteria);
-
-            // Obtener usuarios paginados
-            $users = $this->userRepository->findBy(
-                $criteria,
-                ['id' => 'ASC'],
-                $limit,
-                $offset
-            );
-
-            // Filtrar por rol si es necesario (no se puede hacer en la consulta directa)
-            if ($role) {
-                $users = array_filter($users, function (User $user) use ($role) {
-                    return in_array($role, $user->getRoles());
-                });
-            }
-
-            // Filtrar por búsqueda si se proporciona
-            if ($search) {
-                $search = strtolower($search);
-                $users = array_filter($users, function (User $user) use ($search) {
-                    return (
-                        str_contains(strtolower($user->getEmail()), $search) ||
-                        str_contains(strtolower($user->getUsername()), $search) ||
-                        str_contains(strtolower($user->getName()), $search) ||
-                        str_contains(strtolower($user->getLastName()), $search)
-                    );
-                });
-            }
+            // Obtener total y usuarios
+            $total = $this->userRepository->countUsersWithFilters($search, $role, $profileTypeEnum);
+            $users = $this->userRepository->findUsersWithFilters($search, $role, $profileTypeEnum, $limit, $offset);
 
             // Transformar usuarios en formato JSON
-            $usersData = array_map(function (User $user) {
-                return [
+            $usersData = [];
+            foreach ($users as $user) {
+                $usersData[] = [
                     'id' => $user->getId(),
                     'email' => $user->getEmail(),
                     'username' => $user->getUsername(),
@@ -341,21 +308,12 @@ class AdminController extends AbstractController
                     'updatedAt' => $user->getUpdatedAt() ? $user->getUpdatedAt()->format('c') : null,
                     'state' => $user->getState(),
                     'onboardingCompleted' => $user->isOnboardingCompleted(),
-                    // ! 28/05/2025 - Añadido campo avatar al listado de usuarios
                     'avatar' => $user->getAvatar()
                 ];
-            }, $users);
+            }
 
             // Calcular total de páginas
             $totalPages = ceil($total / $limit);
-
-            $this->logger->info('Listado de usuarios solicitado por administrador', [
-                'adminId' => $adminId,
-                'page' => $page,
-                'limit' => $limit,
-                'totalUsers' => $total,
-                'filteredUsers' => count($usersData)
-            ]);
 
             return $this->json([
                 'users' => $usersData,
@@ -367,12 +325,16 @@ class AdminController extends AbstractController
                 ]
             ]);
         } catch (Exception $e) {
-            $this->logger->error('Error al listar usuarios: ' . $e->getMessage(), [
-                'exception' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
+            $this->logger->error('Error al listar usuarios', [
+                'error' => $e->getMessage(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine()
             ]);
 
-            return $this->json(['message' => 'Error al listar usuarios: ' . $e->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
+            return $this->json([
+                'message' => 'Error interno del servidor',
+                'error' => 'No se pudieron cargar los usuarios'
+            ], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -516,6 +478,346 @@ class AdminController extends AbstractController
             ]);
 
             return $this->json(['message' => 'Error al desactivar usuario: ' . $e->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    // --- CRUD de Contenido ---
+
+    /**
+     * Listar todo el contenido
+     * 
+     * ! 01/06/2025 - Corregido método para usar el repositorio inyectado correctamente
+     * ! 01/06/2025 - Mejorado manejo de errores y robustez
+     */
+    #[Route('/content', name: 'admin_list_content', methods: ['GET'])]
+    public function listContent(): JsonResponse
+    {
+        try {
+            // Verificar que el repositorio esté disponible
+            if (!$this->contentRepository) {
+                $this->logger->error('ContentRepository no disponible');
+                return $this->json([
+                    'message' => 'Error de configuración',
+                    'error' => 'Repositorio de contenido no disponible'
+                ], Response::HTTP_INTERNAL_SERVER_ERROR);
+            }
+
+            $contents = $this->contentRepository->findAll();
+            $data = [];
+
+            if (empty($contents)) {
+                $this->logger->info('No hay contenido disponible');
+                return $this->json([]);
+            }
+
+            foreach ($contents as $content) {
+                try {
+                    $serializedContent = $this->serializeContent($content);
+                    $data[] = $serializedContent;
+                } catch (Exception $serializeException) {
+                    // Log el error pero continúa con otros contenidos
+                    $this->logger->warning('Error al serializar contenido individual', [
+                        'contentId' => $content->getId(),
+                        'error' => $serializeException->getMessage()
+                    ]);
+                    // Añadir un contenido de error para mantener la consistencia
+                    $data[] = [
+                        'id' => $content->getId(),
+                        'title' => 'Error al cargar contenido',
+                        'description' => 'No se pudo cargar la información completa',
+                        'content' => '',
+                        'type' => null,
+                        'target_phase' => null,
+                        'tags' => [],
+                        'image_url' => null,
+                        'created_at' => null,
+                        'updated_at' => null,
+                    ];
+                }
+            }
+
+            $this->logger->info('Contenido listado exitosamente por administrador', [
+                'total_items' => count($data),
+                'successful_items' => count($data)
+            ]);
+
+            return $this->json($data);
+        } catch (Exception $e) {
+            $this->logger->error('Error crítico al listar contenido: ' . $e->getMessage(), [
+                'exception' => $e->getMessage(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+                'trace' => $e->getTraceAsString()
+            ]);
+
+            return $this->json([
+                'message' => 'Error interno del servidor',
+                'error' => 'No se pudo cargar el contenido',
+                'debug' => $e->getMessage()
+            ], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    /**
+     * Obtener un contenido por ID
+     * 
+     * ! 01/06/2025 - Mejorado manejo de errores
+     */
+    #[Route('/content/{id}', name: 'admin_get_content', methods: ['GET'])]
+    public function getContent(int $id): JsonResponse
+    {
+        try {
+            $content = $this->contentRepository->find($id);
+
+            if (!$content) {
+                return $this->json(['message' => 'Contenido no encontrado'], Response::HTTP_NOT_FOUND);
+            }
+
+            return $this->json($this->serializeContent($content));
+        } catch (Exception $e) {
+            $this->logger->error('Error al obtener contenido: ' . $e->getMessage(), [
+                'contentId' => $id,
+                'exception' => $e->getMessage()
+            ]);
+
+            return $this->json([
+                'message' => 'Error al obtener contenido',
+                'error' => $e->getMessage()
+            ], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    /**
+     * Crear nuevo contenido
+     * 
+     * ! 01/06/2025 - Mejorado validación y manejo de enums
+     */
+    #[Route('/content', name: 'admin_create_content', methods: ['POST'])]
+    public function createContent(Request $request): JsonResponse
+    {
+        try {
+            $data = json_decode($request->getContent(), true);
+            if (!$data) {
+                return $this->json(['message' => 'Datos inválidos'], Response::HTTP_BAD_REQUEST);
+            }
+
+            $content = new Content();
+            $this->updateContentFromData($content, $data);
+
+            // Validar la entidad
+            $errors = $this->validator->validate($content);
+            if (count($errors) > 0) {
+                $errorMessages = [];
+                foreach ($errors as $error) {
+                    $errorMessages[$error->getPropertyPath()] = $error->getMessage();
+                }
+                return $this->json(['message' => 'Errores de validación', 'errors' => $errorMessages], Response::HTTP_BAD_REQUEST);
+            }
+
+            $this->entityManager->persist($content);
+            $this->entityManager->flush();
+
+            $this->logger->info('Contenido creado exitosamente', [
+                'contentId' => $content->getId(),
+                'title' => $content->getTitle()
+            ]);
+
+            return $this->json($this->serializeContent($content), Response::HTTP_CREATED);
+        } catch (Exception $e) {
+            $this->logger->error('Error al crear contenido: ' . $e->getMessage(), [
+                'exception' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+
+            return $this->json([
+                'message' => 'Error al crear contenido',
+                'error' => $e->getMessage()
+            ], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    /**
+     * Actualizar contenido existente
+     * 
+     * ! 01/06/2025 - Mejorado manejo de errores y validación
+     */
+    #[Route('/content/{id}', name: 'admin_update_content', methods: ['PUT', 'PATCH'])]
+    public function updateContent(int $id, Request $request): JsonResponse
+    {
+        try {
+            $content = $this->contentRepository->find($id);
+
+            if (!$content) {
+                return $this->json(['message' => 'Contenido no encontrado'], Response::HTTP_NOT_FOUND);
+            }
+
+            $data = json_decode($request->getContent(), true);
+            if (!$data) {
+                return $this->json(['message' => 'Datos inválidos'], Response::HTTP_BAD_REQUEST);
+            }
+
+            $this->updateContentFromData($content, $data);
+
+            // Validar la entidad
+            $errors = $this->validator->validate($content);
+            if (count($errors) > 0) {
+                $errorMessages = [];
+                foreach ($errors as $error) {
+                    $errorMessages[$error->getPropertyPath()] = $error->getMessage();
+                }
+                return $this->json(['message' => 'Errores de validación', 'errors' => $errorMessages], Response::HTTP_BAD_REQUEST);
+            }
+
+            $this->entityManager->flush();
+
+            $this->logger->info('Contenido actualizado exitosamente', [
+                'contentId' => $content->getId(),
+                'title' => $content->getTitle()
+            ]);
+
+            return $this->json($this->serializeContent($content));
+        } catch (Exception $e) {
+            $this->logger->error('Error al actualizar contenido: ' . $e->getMessage(), [
+                'contentId' => $id,
+                'exception' => $e->getMessage()
+            ]);
+
+            return $this->json([
+                'message' => 'Error al actualizar contenido',
+                'error' => $e->getMessage()
+            ], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    /**
+     * Eliminar contenido
+     * 
+     * ! 01/06/2025 - Mejorado manejo de errores
+     */
+    #[Route('/content/{id}', name: 'admin_delete_content', methods: ['DELETE'])]
+    public function deleteContent(int $id): JsonResponse
+    {
+        try {
+            $content = $this->contentRepository->find($id);
+
+            if (!$content) {
+                return $this->json(['message' => 'Contenido no encontrado'], Response::HTTP_NOT_FOUND);
+            }
+
+            $contentTitle = $content->getTitle(); // Guardar para log
+            $this->entityManager->remove($content);
+            $this->entityManager->flush();
+
+            $this->logger->info('Contenido eliminado exitosamente', [
+                'contentId' => $id,
+                'title' => $contentTitle
+            ]);
+
+            return $this->json(['message' => 'Contenido eliminado correctamente']);
+        } catch (Exception $e) {
+            $this->logger->error('Error al eliminar contenido: ' . $e->getMessage(), [
+                'contentId' => $id,
+                'exception' => $e->getMessage()
+            ]);
+
+            return $this->json([
+                'message' => 'Error al eliminar contenido',
+                'error' => $e->getMessage()
+            ], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    // --- Métodos auxiliares para serializar y actualizar ---
+
+    /**
+     * ! 01/06/2025 - Corregido método de serialización para manejar enums correctamente
+     * ! 01/06/2025 - Añadida protección contra errores de serialización
+     */
+    private function serializeContent(Content $content): array
+    {
+        try {
+            return [
+                'id' => $content->getId(),
+                'title' => $content->getTitle() ?? '',
+                'description' => $content->getDescription() ?? '',
+                'content' => $content->getContent() ?? '',
+                'type' => $content->getType() ? $content->getType()->value : null,
+                'target_phase' => $content->getTargetPhase() ? $content->getTargetPhase()->value : null,
+                'tags' => $content->getTags() ?? [],
+                'image_url' => $content->getImageUrl(),
+                'created_at' => $content->getCreatedAt()?->format('c'),
+                'updated_at' => $content->getUpdatedAt()?->format('c'),
+            ];
+        } catch (Exception $e) {
+            $this->logger->error('Error al serializar contenido', [
+                'contentId' => $content->getId(),
+                'error' => $e->getMessage()
+            ]);
+            // Retornar datos básicos en caso de error
+            return [
+                'id' => $content->getId(),
+                'title' => 'Error al cargar título',
+                'description' => 'Error al cargar descripción',
+                'content' => 'Error al cargar contenido',
+                'type' => null,
+                'target_phase' => null,
+                'tags' => [],
+                'image_url' => null,
+                'created_at' => null,
+                'updated_at' => null,
+            ];
+        }
+    }
+
+    /**
+     * ! 01/06/2025 - Corregido método para manejar enums correctamente y evitar errores
+     */
+    private function updateContentFromData(Content $content, array $data): void
+    {
+        if (isset($data['title'])) {
+            $content->setTitle($data['title']);
+        }
+
+        if (isset($data['description'])) {
+            $content->setDescription($data['description']);
+        }
+
+        if (isset($data['content'])) {
+            $content->setContent($data['content']);
+        }
+
+        if (isset($data['type'])) {
+            try {
+                $contentType = ContentType::from($data['type']);
+                $content->setType($contentType);
+            } catch (ValueError $e) {
+                $this->logger->warning('Tipo de contenido inválido proporcionado', [
+                    'tipo_proporcionado' => $data['type'],
+                    'tipos_validos' => array_map(fn($case) => $case->value, ContentType::cases())
+                ]);
+                // Si el tipo es inválido, mantener el actual
+            }
+        }
+
+        if (isset($data['target_phase'])) {
+            try {
+                $cyclePhase = CyclePhase::from($data['target_phase']);
+                $content->setTargetPhase($cyclePhase);
+            } catch (ValueError $e) {
+                $this->logger->warning('Fase de ciclo inválida proporcionada', [
+                    'fase_proporcionada' => $data['target_phase'],
+                    'fases_validas' => array_map(fn($case) => $case->value, CyclePhase::cases())
+                ]);
+                // Si la fase es inválida, mantener la actual
+            }
+        }
+
+        if (isset($data['tags'])) {
+            $content->setTags(is_array($data['tags']) ? $data['tags'] : []);
+        }
+
+        if (isset($data['image_url'])) {
+            $content->setImageUrl($data['image_url']);
         }
     }
 }
