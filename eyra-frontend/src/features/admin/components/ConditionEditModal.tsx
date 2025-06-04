@@ -4,7 +4,6 @@
 import React, { useState, useEffect } from 'react';
 import { Condition, ConditionUpdateData } from '../../../types/condition';
 import { adminConditionService } from '../../../services/adminConditionService';
-import '../../../styles/neomorphic.css';
 
 interface ConditionEditModalProps {
   condition: Condition;

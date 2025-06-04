@@ -4,7 +4,6 @@
 import React, { useState } from 'react';
 import { ConditionCreateData } from '../../../types/condition';
 import { adminConditionService } from '../../../services/adminConditionService';
-import '../../../styles/neomorphic.css';
 
 interface ConditionCreateModalProps {
   isOpen: boolean;

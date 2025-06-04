@@ -2,7 +2,6 @@
 import React, { useState, useEffect } from 'react';
 import { Content, ContentType } from '../../../types/domain';
 import { adminContentService } from '../../../services/adminContentService';
-import '../../../styles/neomorphic.css';
 
 interface ContentEditModalProps {
   content: Content;

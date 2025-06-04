@@ -8,7 +8,6 @@ import { adminService } from '../../../services/adminService';
 import UserEditModal from './UserEditModal';
 import UserViewModal from './UserViewModal';
 import UserCreateModal from './UserCreateModal';
-import '../../../styles/neomorphic.css';
 
 interface UsersTableProps {
   onRefresh?: () => void;

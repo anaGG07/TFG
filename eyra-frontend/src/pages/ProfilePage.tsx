@@ -228,7 +228,7 @@ const ProfilePage: React.FC = () => {
   return (
     <div className="flex flex-col lg:flex-row w-full min-h-screen" style={{ background: '#e7e0d5' }}>
       {/* Columna izquierda: Avatar */}
-      <div className="flex flex-col items-center justify-center w-full lg:w-[420px] lg:min-w-[340px] py-8 lg:py-16 gap-4 lg:gap-8 relative" style={{ minHeight: isEditingAvatar ? 'auto' : '50vh', minHeight: 'auto' }}>
+      <div className="flex flex-col items-center justify-center w-full lg:w-[420px] lg:min-w-[340px] py-8 lg:py-16 gap-4 lg:gap-8 relative" style={{ minHeight: isEditingAvatar ? 'auto' : '50vh' }}>
         {/* Línea de separación neumórfica - solo desktop */}
         <div className="hidden lg:block absolute top-0 right-0 h-full w-[2.5rem] flex items-center justify-center z-10">
           <div style={{

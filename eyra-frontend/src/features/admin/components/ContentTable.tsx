@@ -7,7 +7,6 @@ import { adminContentService } from '../../../services/adminContentService';
 import ContentEditModal from './ContentEditModal';
 import ContentViewModal from './ContentViewModal';
 import ContentCreateModal from './ContentCreateModal';
-import '../../../styles/neomorphic.css';
 
 interface ContentTableProps {
   onRefresh?: () => void;

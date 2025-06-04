@@ -1,7 +1,6 @@
 // ! 01/06/2025 - Corregidos campos: summary → description, body → content y enum actualizado
 import React from 'react';
 import { Content, ContentType } from '../../../types/domain';
-import '../../../styles/neomorphic.css';
 
 interface ContentViewModalProps {
   content: Content;

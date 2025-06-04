@@ -7,7 +7,6 @@ import { adminConditionService } from '../../../services/adminConditionService';
 import ConditionEditModal from './ConditionEditModal';
 import ConditionViewModal from './ConditionViewModal';
 import ConditionCreateModal from './ConditionCreateModal';
-import '../../../styles/neomorphic.css';
 
 interface ConditionsTableProps {
   onRefresh?: () => void;

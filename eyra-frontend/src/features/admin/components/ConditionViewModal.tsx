@@ -4,7 +4,6 @@
 import React from 'react';
 import { Condition } from '../../../types/condition';
 import { ContentType } from '../../../types/content';
-import '../../../styles/neomorphic.css';
 
 interface ConditionViewModalProps {
   condition: Condition;
