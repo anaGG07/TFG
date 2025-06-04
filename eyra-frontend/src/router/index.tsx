@@ -74,9 +74,9 @@ export const router = createBrowserRouter([
       {
         path: ROUTES.DASHBOARD,
         element: (
-          <PublicOnlyRoute>
+          <ProtectedRoute requireOnboarding={true}>
             <DashboardPage />
-          </PublicOnlyRoute>
+          </ProtectedRoute>
         ),
       },
       {
@@ -98,9 +98,9 @@ export const router = createBrowserRouter([
       {
         path: ROUTES.LIBRARY,
         element: (
-          <PublicOnlyRoute>
+          <ProtectedRoute requireOnboarding={true}>
             <LibraryPage />
-          </PublicOnlyRoute>
+          </ProtectedRoute>
         ),
       },
       {
