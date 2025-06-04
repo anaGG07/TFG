@@ -24,7 +24,7 @@ use DateTime;
 use Exception;
 use ValueError;
 
-#[Route('/api/admin')]
+#[Route('/admin')]
 #[IsGranted('ROLE_ADMIN')]
 class AdminController extends AbstractController
 {

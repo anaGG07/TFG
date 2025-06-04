@@ -15,7 +15,7 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 // ! 28/05/2025 - Controlador creado para gestionar endpoints de códigos de invitación
 
-#[Route('/api/invitation-codes')]
+#[Route('/invitation-codes')]
 class InvitationCodeController extends AbstractController
 {
     private InvitationCodeService $invitationCodeService;

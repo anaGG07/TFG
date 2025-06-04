@@ -14,7 +14,7 @@ use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 use Doctrine\ORM\EntityManagerInterface;
 
 // IMPORTANTE: Usar una ruta completamente diferente para evitar conflictos con API Platform
-#[Route('/api/user/notifications')]
+#[Route('/user/notifications')]
 class NotificationController extends AbstractController
 {
     public function __construct(
