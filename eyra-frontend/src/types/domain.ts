@@ -97,6 +97,9 @@ export interface CycleDay {
   mood: string[];
   flowIntensity?: number;
   hormoneLevels?: HormoneLevel[];
+  // Propiedades para predicciones
+  isPrediction?: boolean;
+  confidence?: number;
 }
 
 export interface HormoneLevel {

@@ -20,7 +20,6 @@ import {
 } from "date-fns";
 import { es } from "date-fns/locale";
 import {
-  Calendar as CalendarIcon,
   Grid3X3,
   Rows3,
   ChevronLeft,
@@ -36,13 +35,13 @@ import Button from "../../../components/Button";
 import { CycleDay, CyclePhase } from "../../../types/domain";
 import { phaseConfig } from "../config/phaseConfig";
 
-type ViewType = "month" | "week" | "day";
+type ViewType = "month" | "week"; // ! 02/06/2025 - Eliminada vista "day"
 
 interface NeomorphicCalendarProps {
   className?: string;
 }
 
-// COMPONENTE DAY CELL COMPACTO
+/* ! 02/06/2025 - Componente actualizado para manejar predicciones y nuevos estilos */
 const NeomorphicDayCell: React.FC<{
   date: Date;
   dayData?: CycleDay;
@@ -54,6 +53,28 @@ const NeomorphicDayCell: React.FC<{
   const [isHovered, setIsHovered] = useState(false);
 
   const phaseStyle = dayData?.phase ? phaseConfig[dayData.phase] : null;
+  const isPredicted = dayData?.isPrediction || false;
+  const confidence = dayData?.confidence || 0;
+
+  // ! 02/06/2025 - Lógica para determinar el estilo de la celda
+  const getCellStyle = () => {
+    if (!phaseStyle) {
+      return "bg-[#e7e0d5]"; // Color base sin fase
+    }
+
+    // Menstruación: fondo completo con color pastel
+    if (dayData?.phase === CyclePhase.MENSTRUAL) {
+      return phaseStyle.fullBackground;
+    }
+
+    // Primer día de ovulación: fondo completo
+    if (dayData?.phase === CyclePhase.OVULACION && dayData?.dayNumber === 1) {
+      return phaseStyle.fullBackground;
+    }
+
+    // Resto de fases: fondo base con óvalo superior
+    return "bg-[#e7e0d5]";
+  };
 
   return (
     <motion.div
@@ -67,7 +88,10 @@ const NeomorphicDayCell: React.FC<{
         ${isCurrentMonth ? "text-gray-900" : "text-gray-400"}
         ${isToday ? "ring-2 ring-[#7a2323] ring-opacity-50" : ""}
         w-full h-full rounded-lg
-        ${phaseStyle ? phaseStyle.gradient : "bg-[#e7e0d5]"}
+        ${getCellStyle()}
+        ${
+          isPredicted ? "opacity-70 border-2 border-dashed border-gray-400" : ""
+        }
         ${
           isSelected
             ? "shadow-inner shadow-[#7a2323]/20"
@@ -79,36 +103,60 @@ const NeomorphicDayCell: React.FC<{
       initial={false}
       animate={isSelected ? { scale: 0.95 } : { scale: 1 }}
     >
-      {/* DIA DEL MES COMPACTO */}
+      {/* DIA DEL MES COMPACTO CON INDICADOR DE PREDICCIÓN */}
       <motion.div
         className={`
           text-xs font-semibold
           ${isToday ? "text-[#7a2323] font-bold text-sm" : ""}
           ${!isCurrentMonth ? "opacity-50" : ""}
-          text-gray-800
+          ${isPredicted ? "text-gray-600 italic" : "text-gray-800"}
         `}
         animate={isToday ? { scale: [1, 1.1, 1] } : {}}
         transition={{ duration: 2, repeat: Infinity }}
       >
         {format(date, "d")}
+        {isPredicted && <span className="text-[8px] ml-0.5 opacity-60">?</span>}
       </motion.div>
-      {/* ICONO DE FASE SIEMPRE VISIBLE */}
+
+      {/* ÓVALO SUPERIOR PARA FASES (excepto menstruación y primer día ovulación) */}
+      {dayData?.phase &&
+        dayData.phase !== CyclePhase.MENSTRUAL &&
+        !(
+          dayData.phase === CyclePhase.OVULACION && dayData.dayNumber === 1
+        ) && (
+          <div
+            className={`absolute top-1 left-1/2 transform -translate-x-1/2 ${phaseStyle?.leftBorder}`}
+          />
+        )}
+
+      {/* ICONO DE FASE CON INDICADOR DE PREDICCIÓN */}
       {dayData?.phase && (
-        <div className="absolute bottom-1 right-1 text-lg opacity-80 pointer-events-none">
+        <div
+          className={`absolute bottom-1 right-1 text-lg pointer-events-none ${
+            isPredicted ? "opacity-50" : "opacity-80"
+          }`}
+        >
           {phaseConfig[dayData.phase].icon}
+          {isPredicted && (
+            <div className="absolute -top-1 -right-1 w-2 h-2 bg-blue-400 rounded-full flex items-center justify-center">
+              <span className="text-[6px] text-white font-bold">P</span>
+            </div>
+          )}
         </div>
       )}
 
-      {/* INDICADORES DE FLUJO MUY PEQUENOS */}
+      {/* INDICADORES DE FLUJO CON ESTILO PREDICCIÓN */}
       {dayData?.flowIntensity && dayData.flowIntensity > 0 && (
         <motion.div className="flex gap-0.5 mt-0.5">
           {[...Array(Math.min(dayData.flowIntensity, 5))].map((_, i) => (
             <motion.div
               key={i}
-              className="w-0.5 h-0.5 rounded-full bg-red-600"
+              className={`w-0.5 h-0.5 rounded-full ${
+                isPredicted ? "bg-red-400 opacity-60" : "bg-red-600"
+              }`}
               animate={{
                 scale: [1, 1.2, 1],
-                opacity: [0.7, 1, 0.7],
+                opacity: isPredicted ? [0.4, 0.7, 0.4] : [0.7, 1, 0.7],
               }}
               transition={{
                 duration: 1.5,
@@ -137,13 +185,25 @@ const NeomorphicDayCell: React.FC<{
         />
       )}
 
-      {/* INDICADOR DE HOY */}
+      {/* INDICADOR DE HOY CON TOOLTIP DE PREDICCIÓN */}
       {isToday && (
         <motion.div
           className="absolute -top-0.5 -right-0.5 w-2 h-2 bg-[#7a2323] rounded-full"
           animate={{ scale: [1, 1.2, 1] }}
           transition={{ duration: 1.5, repeat: Infinity }}
         />
+      )}
+
+      {/* TOOLTIP DE CONFIANZA PARA PREDICCIONES */}
+      {isPredicted && isHovered && confidence > 0 && (
+        <motion.div
+          className="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-black text-white text-[8px] px-1 py-0.5 rounded whitespace-nowrap z-10"
+          initial={{ opacity: 0, y: 5 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: 5 }}
+        >
+          Predicción {confidence}%
+        </motion.div>
       )}
 
       {/* EFECTO DE HOVER */}
@@ -172,7 +232,6 @@ const ViewSelector: React.FC<{
         {[
           { type: "month" as ViewType, icon: Grid3X3, label: "Mes" },
           { type: "week" as ViewType, icon: Rows3, label: "Semana" },
-          { type: "day" as ViewType, icon: CalendarIcon, label: "Día" },
         ].map(({ type, icon: Icon, label }) => (
           <motion.button
             key={type}
@@ -202,10 +261,11 @@ const ViewSelector: React.FC<{
 export const NeomorphicCalendar: React.FC<NeomorphicCalendarProps> = ({
   className = "",
 }) => {
-  // ESTADO SIMPLE
+  // ! 03/06/2025 - ESTADO MEJORADO con datos del día seleccionado
   const [currentDate, setCurrentDate] = useState(startOfDay(new Date()));
   const [viewType, setViewType] = useState<ViewType>("month");
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
+  const [selectedDayData, setSelectedDayData] = useState<CycleDay | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   // HOOKS CORRECTOS
@@ -219,12 +279,32 @@ export const NeomorphicCalendar: React.FC<NeomorphicCalendarProps> = ({
 
   console.log("calendarDays:", calendarDays);
 
-  // NAVEGACION
+  // ! 03/06/2025 - Función para convertir datos del día del ciclo a formato del modal
+  const convertCycleDayToModalData = (dayData: CycleDay | null) => {
+    if (!dayData) return {};
+
+    // Convertir array de notas a string
+    const notesString = Array.isArray(dayData.notes)
+      ? dayData.notes.join("\n")
+      : dayData.notes || "";
+
+    return {
+      date: dayData.date.slice(0, 10), // Solo la fecha YYYY-MM-DD
+      hasPeriod: (dayData.flowIntensity && dayData.flowIntensity > 0) || false,
+      flowIntensity: dayData.flowIntensity || 1,
+      hasPain: false, // Por ahora no tenemos este campo en la BD
+      painLevel: 1, // Por ahora no tenemos este campo en la BD
+      symptoms: dayData.symptoms || [],
+      mood: dayData.mood || [],
+      notes: notesString,
+      phase: dayData.phase,
+    };
+  };
+
+  // NAVEGACION - Solo mes y semana
   const navigatePrevious = () => {
     const newDate =
-      viewType === "day"
-        ? subDays(currentDate, 1)
-        : viewType === "week"
+      viewType === "week"
         ? subWeeks(currentDate, 1)
         : subMonths(currentDate, 1);
     setCurrentDate(startOfDay(newDate));
@@ -232,9 +312,7 @@ export const NeomorphicCalendar: React.FC<NeomorphicCalendarProps> = ({
 
   const navigateNext = () => {
     const newDate =
-      viewType === "day"
-        ? addDays(currentDate, 1)
-        : viewType === "week"
+      viewType === "week"
         ? addWeeks(currentDate, 1)
         : addMonths(currentDate, 1);
     setCurrentDate(startOfDay(newDate));
@@ -242,12 +320,8 @@ export const NeomorphicCalendar: React.FC<NeomorphicCalendarProps> = ({
 
   const goToToday = () => setCurrentDate(startOfDay(new Date()));
 
-  // GENERAR DIAS - INCLUYE DIAS ANTERIORES Y POSTERIORES
+  // GENERAR DIAS - Solo mes y semana
   const generateViewDays = (): Date[] => {
-    if (viewType === "day") {
-      return [startOfDay(currentDate)];
-    }
-
     if (viewType === "week") {
       const start = startOfWeek(currentDate, { weekStartsOn: 1 });
       const end = endOfWeek(currentDate, { weekStartsOn: 1 });
@@ -265,15 +339,29 @@ export const NeomorphicCalendar: React.FC<NeomorphicCalendarProps> = ({
     return eachDayOfInterval({ start: calendarStart, end: calendarEnd });
   };
 
+  // ! 03/06/2025 - Función mejorada para manejar clic en día con detección de datos existentes
   const handleDayClick = (date: Date) => {
+    const formattedDate = format(date, "yyyy-MM-dd");
+
+    // Buscar datos existentes para esta fecha
+    const existingDayData = calendarDays.find(
+      (day) => day.date.slice(0, 10) === formattedDate
+    );
+
+    console.log(
+      "Día seleccionado:",
+      formattedDate,
+      "Datos existentes:",
+      existingDayData
+    );
+
     setSelectedDate(date);
+    setSelectedDayData(existingDayData || null);
     setIsModalOpen(true);
   };
 
   const getViewTitle = (): string => {
     switch (viewType) {
-      case "day":
-        return format(currentDate, "EEEE, d MMMM yyyy", { locale: es });
       case "week":
         const weekStart = startOfWeek(currentDate, { weekStartsOn: 1 });
         const weekEnd = endOfWeek(currentDate, { weekStartsOn: 1 });
@@ -288,7 +376,7 @@ export const NeomorphicCalendar: React.FC<NeomorphicCalendarProps> = ({
     }
   };
 
-  // MAPEO DE DATOS DEL MODAL
+  // ! 03/06/2025 - MAPEO DE DATOS DEL MODAL corregido para backend
   const handleModalSave = async (modalData: any) => {
     if (!selectedDate || !addCycleDay) {
       console.error(
@@ -298,16 +386,24 @@ export const NeomorphicCalendar: React.FC<NeomorphicCalendarProps> = ({
     }
 
     try {
-      await addCycleDay({
+      // ! 03/06/2025 - Mapear los datos del modal al formato simple esperado por el backend
+      const cycleDayData = {
         date: format(selectedDate, "yyyy-MM-dd"),
-        flowIntensity: modalData.hasPeriod ? modalData.flowIntensity : 0,
-        notes: modalData.notes || "",
-        phase: modalData.phase || CyclePhase.MENSTRUAL,
         symptoms: modalData.symptoms || [],
         mood: modalData.mood || [],
-      });
+        notes: modalData.notes || "",
+        // Solo incluir flowIntensity si hay período
+        ...(modalData.hasPeriod &&
+          modalData.flowIntensity && {
+            flowIntensity: modalData.flowIntensity,
+          }),
+      };
 
+      console.log("Enviando datos del día del ciclo:", cycleDayData);
+
+      await addCycleDay(cycleDayData);
       setIsModalOpen(false);
+      setSelectedDayData(null); // Limpiar datos después de guardar
     } catch (error) {
       console.error("Error al guardar el día del ciclo:", error);
     }
@@ -317,18 +413,21 @@ export const NeomorphicCalendar: React.FC<NeomorphicCalendarProps> = ({
   const getCurrentPhaseInfo = (date: Date) => {
     const formattedDate = format(date, "yyyy-MM-dd");
     // Normalizo la comparación de fechas para ignorar la hora
-    const dayData = calendarDays.find(day => day.date.slice(0, 10) === formattedDate);
-    
+    const dayData = calendarDays.find(
+      (day) => day.date.slice(0, 10) === formattedDate
+    );
+
     if (!dayData) return { currentPhase: undefined, nextPhaseDate: undefined };
 
     // Encontrar el siguiente día con una fase diferente
-    const nextPhaseDay = calendarDays.find(day => 
-      day.date.slice(0, 10) > formattedDate && day.phase !== dayData.phase
+    const nextPhaseDay = calendarDays.find(
+      (day) =>
+        day.date.slice(0, 10) > formattedDate && day.phase !== dayData.phase
     );
 
     return {
       currentPhase: dayData.phase,
-      nextPhaseDate: nextPhaseDay ? new Date(nextPhaseDay.date) : undefined
+      nextPhaseDate: nextPhaseDay ? new Date(nextPhaseDay.date) : undefined,
     };
   };
 
@@ -396,18 +495,29 @@ export const NeomorphicCalendar: React.FC<NeomorphicCalendarProps> = ({
           <ViewSelector viewType={viewType} onViewChange={setViewType} />
         </div>
 
-        {/* LEYENDA COMPACTA */}
+        {/* LEYENDA COMPACTA CON INDICADOR DE PREDICCIONES */}
         <motion.div className="flex flex-wrap gap-2 mt-2">
           {Object.entries(phaseConfig).map(([phase, config]) => (
             <div key={phase} className="flex items-center gap-1 text-xs">
-              <div
-                className={`w-2.5 h-2.5 rounded-full ${config.gradient} border`}
-              />
+              <div className="relative w-6 h-4 bg-[#e7e0d5] rounded-sm border flex items-center justify-center">
+                {phase === "menstrual" ? (
+                  <div className="w-full h-full bg-[#ffe8e9] rounded-sm" />
+                ) : phase === "ovulacion" ? (
+                  <div className="w-full h-full bg-purple-50 rounded-sm" />
+                ) : (
+                  <div className={`absolute top-0.5 ${config.leftBorder}`} />
+                )}
+              </div>
               <span className="text-[#7a2323] capitalize font-medium">
                 {config.description}
               </span>
             </div>
           ))}
+          {/* Indicador de predicciones */}
+          <div className="flex items-center gap-1 text-xs border-l pl-2 ml-1">
+            <div className="w-2.5 h-2.5 rounded-full bg-blue-400 border-2 border-dashed border-gray-400 opacity-70" />
+            <span className="text-[#7a2323] font-medium">Predicción</span>
+          </div>
         </motion.div>
       </motion.div>
 
@@ -517,46 +627,19 @@ export const NeomorphicCalendar: React.FC<NeomorphicCalendarProps> = ({
               </div>
             </motion.div>
           )}
-
-          {/* VISTA DÍA */}
-          {viewType === "day" && (
-            <motion.div
-              key="day"
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 1.05 }}
-              className="h-full flex flex-col w-full items-center justify-center"
-            >
-              {viewDates.map((date) => {
-                const formattedDate = format(date, "yyyy-MM-dd");
-                const dayData = calendarDays.find(
-                  (day) => day.date.slice(0, 10) === formattedDate
-                );
-                const isCurrentDay = isToday(date);
-                return (
-                  <div key={formattedDate} className="w-full max-w-xs mx-auto">
-                    <NeomorphicDayCell
-                      date={date}
-                      dayData={dayData}
-                      isCurrentMonth={true}
-                      isToday={isCurrentDay}
-                      onClick={handleDayClick}
-                      isSelected={true}
-                    />
-                  </div>
-                );
-              })}
-            </motion.div>
-          )}
         </AnimatePresence>
       </div>
 
-      {/* MODAL */}
+      {/* ! 03/06/2025 - MODAL con datos existentes si los hay */}
       <AddCycleDayModal
         isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
+        onClose={() => {
+          setIsModalOpen(false);
+          setSelectedDayData(null); // Limpiar datos seleccionados
+        }}
         onSave={handleModalSave}
         date={selectedDate || new Date()}
+        initialData={convertCycleDayToModalData(selectedDayData)}
         {...(selectedDate ? getCurrentPhaseInfo(selectedDate) : {})}
       />
     </div>

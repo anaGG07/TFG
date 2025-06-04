@@ -8,10 +8,11 @@ import {
   startOfWeek,
   endOfWeek,
   addDays,
-  isBefore,
 } from "date-fns";
 import { apiFetch } from "../../../utils/httpClient";
 import { API_ROUTES } from "../../../config/apiRoutes";
+/* ! 04/06/2025 - Importar función simple para calendario */
+import { fetchCalendarWithPredictions } from "../../../services/simpleFetchCalendar";
 
 interface CalendarData {
   userCycles: any[];
@@ -28,7 +29,7 @@ interface UseCalendarDataResult {
 
 export const useCalendarData = (
   currentDate: Date,
-  viewType: "month" | "week" | "day"
+  viewType: "month" | "week" // ! 02/06/2025 - Eliminada vista "day"
 ): UseCalendarDataResult => {
   const [data, setData] = useState<CalendarData | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -36,31 +37,26 @@ export const useCalendarData = (
 
   const { calendarDays: cycleDays } = useCycle();
 
-  // Calcular rango de fechas basado en la vista
-  const getDateRange = useCallback(
-    (date: Date, view: "month" | "week" | "day") => {
-      switch (view) {
-        case "day":
-          return { start: date, end: date };
-        case "week":
-          return {
-            start: startOfWeek(date, { weekStartsOn: 1 }),
-            end: endOfWeek(date, { weekStartsOn: 1 }),
-          };
-        case "month":
-        default:
-          const monthStart = startOfMonth(date);
-          const monthEnd = endOfMonth(date);
-          return {
-            start: startOfWeek(monthStart, { weekStartsOn: 1 }),
-            end: endOfWeek(monthEnd, { weekStartsOn: 1 }),
-          };
-      }
-    },
-    []
-  );
+  // Calcular rango de fechas basado en la vista - Solo mes y semana
+  const getDateRange = useCallback((date: Date, view: "month" | "week") => {
+    switch (view) {
+      case "week":
+        return {
+          start: startOfWeek(date, { weekStartsOn: 1 }),
+          end: endOfWeek(date, { weekStartsOn: 1 }),
+        };
+      case "month":
+      default:
+        const monthStart = startOfMonth(date);
+        const monthEnd = endOfMonth(date);
+        return {
+          start: startOfWeek(monthStart, { weekStartsOn: 1 }),
+          end: endOfWeek(monthEnd, { weekStartsOn: 1 }),
+        };
+    }
+  }, []);
 
-  // Función para obtener datos del calendario desde el backend
+  /* ! 04/06/2025 - Función mejorada para obtener datos reales Y predicciones del backend */
   const fetchCalendarData = useCallback(
     async (startDate: Date, endDate: Date) => {
       setIsLoading(true);
@@ -70,17 +66,27 @@ export const useCalendarData = (
         const startStr = format(startDate, "yyyy-MM-dd");
         const endStr = format(endDate, "yyyy-MM-dd");
 
-        const result = await apiFetch<CalendarData>(
-          `${API_ROUTES.CYCLES.CALENDAR}?start=${startStr}&end=${endStr}`
+        console.log(`Fetching calendar data from ${startStr} to ${endStr}`);
+
+        // ! 04/06/2025 - Usar el servicio que incluye predicciones
+        const calendarData = await fetchCalendarWithPredictions(
+          startStr,
+          endStr
         );
+
+        console.log("Calendar data with predictions:", calendarData);
 
         // Procesar datos para el formato esperado
         const processedData: CalendarData = {
-          userCycles: result.userCycles || [],
-          hostCycles: result.hostCycles || [],
-          calendarDays: extractCalendarDays(result),
+          userCycles: calendarData,
+          hostCycles: [], // Por ahora no incluimos calendario compartido
+          calendarDays: extractCalendarDays({
+            userCycles: calendarData,
+            hostCycles: [],
+          }),
         };
 
+        console.log("Processed calendar data:", processedData);
         setData(processedData);
       } catch (err) {
         console.error("Error al obtener datos del calendario:", err);
@@ -88,10 +94,18 @@ export const useCalendarData = (
 
         // Fallback a datos locales si están disponibles
         if (cycleDays && cycleDays.length > 0) {
+          console.log("Using fallback cycle days:", cycleDays);
           setData({
             userCycles: [],
             hostCycles: [],
             calendarDays: cycleDays,
+          });
+        } else {
+          console.log("No fallback data available, setting empty data");
+          setData({
+            userCycles: [],
+            hostCycles: [],
+            calendarDays: [],
           });
         }
       } finally {
@@ -101,121 +115,111 @@ export const useCalendarData = (
     [cycleDays]
   );
 
-  // Función auxiliar para extraer días del calendario de la respuesta
+  /* ! 04/06/2025 - Función CORREGIDA para mostrar tanto fases reales como predicciones */
   const extractCalendarDays = (result: any): CycleDay[] => {
     const days: CycleDay[] = [];
 
-    // Extraer días de los ciclos del usuario
+    // Extraer días de los ciclos del usuario (datos reales + predicciones)
     if (result.userCycles) {
       result.userCycles.forEach((cycle: any) => {
-        // Mapear días existentes por fecha
-        const existingDays: Record<string, any> = {};
-        if (cycle.filteredCycleDays) {
-          cycle.filteredCycleDays.forEach((day: any) => {
-            const dateKey = day.date.slice(0, 10);
-            existingDays[dateKey] = { ...day, phase: cycle.phase };
-          });
-        }
-        // Si el ciclo tiene fases explícitas
-        if (cycle.phases && Array.isArray(cycle.phases)) {
-          cycle.phases.forEach((phase: any) => {
-            let current = new Date(phase.startDate);
-            const end = new Date(phase.endDate);
-            let dayNumber = 1;
-            while (isBefore(current, end)) {
-              const dateStr = format(current, "yyyy-MM-dd");
-              if (existingDays[dateStr]) {
-                days.push({
-                  ...existingDays[dateStr],
-                  id: String(existingDays[dateStr].id),
-                });
-              } else {
-                days.push({
-                  id: `${cycle.id}_${phase.phase}_${dateStr}`,
-                  date: dateStr,
-                  dayNumber,
-                  phase: phase.phase,
-                  flowIntensity: undefined,
-                  symptoms: [],
-                  mood: [],
-                  notes: [],
-                });
-              }
-              current = addDays(current, 1);
-              dayNumber++;
-            }
-          });
-        } else if (cycle.startDate && cycle.endDate && cycle.phase) {
-          // Fallback: si no hay fases, usar el rango del ciclo y la fase principal
+        const isPrediction = cycle.isPrediction || false;
+        const confidence = cycle.confidence || 0;
+
+        // SIEMPRE generar días basados en rango del ciclo (tanto reales como predicciones)
+        if (cycle.startDate && cycle.endDate && cycle.phase) {
           let current = new Date(cycle.startDate);
           const end = new Date(cycle.endDate);
           let dayNumber = 1;
-          while (isBefore(current, end)) {
+
+          while (current <= end) {
             const dateStr = format(current, "yyyy-MM-dd");
-            if (existingDays[dateStr]) {
-              days.push({
-                ...existingDays[dateStr],
-                id: String(existingDays[dateStr].id),
-              });
-            } else {
+
+            // Solo añadir si no existe ya un día para esta fecha
+            const existingDay = days.find(
+              (d) => d.date.slice(0, 10) === dateStr
+            );
+            if (!existingDay) {
               days.push({
                 id: `${cycle.id}_${cycle.phase}_${dateStr}`,
                 date: dateStr,
                 dayNumber,
                 phase: cycle.phase,
-                flowIntensity: undefined,
+                flowIntensity: cycle.phase === "menstrual" ? 2 : undefined,
                 symptoms: [],
                 mood: [],
                 notes: [],
+                isPrediction, // Usar el flag del ciclo
+                confidence, // Añadir confianza para predicciones
               });
             }
+
             current = addDays(current, 1);
             dayNumber++;
           }
-        } else {
-          // Si no hay fases ni rango, solo los días existentes
-          Object.values(existingDays).forEach((d) => days.push(d));
-        }
-      });
-    }
 
-    // Extraer días de los ciclos de anfitriones (calendario compartido)
-    if (result.hostCycles) {
-      result.hostCycles.forEach((hostData: any) => {
-        if (hostData.cycles) {
-          hostData.cycles.forEach((cycle: any) => {
-            if (cycle.filteredCycleDays) {
-              // Marcar días de anfitriones para distinguirlos
-              const hostDays = cycle.filteredCycleDays.map((day: CycleDay) => ({
-                ...day,
-                isHost: true,
-                hostName: hostData.hostName,
-                hostId: hostData.hostId,
-              }));
-              days.push(...hostDays);
+          const logMessage = isPrediction
+            ? `🔮 Generated ${dayNumber - 1} predicted days for cycle ${
+                cycle.id
+              } (${cycle.phase}, confidence: ${confidence}%)`
+            : `✅ Generated ${dayNumber - 1} real days for cycle ${cycle.id} (${
+                cycle.phase
+              })`;
+          console.log(logMessage);
+        }
+
+        // TAMBIÉN procesar filteredCycleDays si existen (datos registrados por el usuario)
+        if (cycle.filteredCycleDays && Array.isArray(cycle.filteredCycleDays)) {
+          cycle.filteredCycleDays.forEach((day: any) => {
+            const dateStr = day.date.slice(0, 10);
+            const existingDay = days.find(
+              (d) => d.date.slice(0, 10) === dateStr
+            );
+
+            if (existingDay) {
+              // Actualizar el día existente con datos registrados
+              Object.assign(existingDay, {
+                flowIntensity: day.flowIntensity || existingDay.flowIntensity,
+                symptoms: day.symptoms || existingDay.symptoms,
+                mood: day.mood || existingDay.mood,
+                notes: day.notes || existingDay.notes,
+              });
+              console.log(`⚙️ Updated day ${dateStr} with registered data`);
             }
           });
         }
       });
     }
 
-    // Eliminar duplicados por fecha
-    const uniqueDays = days.reduce((acc: CycleDay[], current: CycleDay) => {
-      const existing = acc.find((day) => day.date === current.date);
-      if (!existing) {
-        acc.push(current);
-      } else if ((current as any).isHost && !(existing as any).isHost) {
-        // Preferir datos del usuario sobre datos de anfitriones
-        return acc;
-      } else if (!(current as any).isHost && (existing as any).isHost) {
-        // Reemplazar datos de anfitrión con datos del usuario
-        const index = acc.findIndex((day) => day.date === current.date);
-        acc[index] = current;
-      }
-      return acc;
-    }, []);
+    // MERGEAR con datos del contexto local (cycleDays) para incluir registros nuevos
+    if (cycleDays && Array.isArray(cycleDays)) {
+      cycleDays.forEach((localDay: CycleDay) => {
+        const localDateStr = localDay.date.slice(0, 10);
+        const existingDay = days.find(
+          (d) => d.date.slice(0, 10) === localDateStr
+        );
 
-    return uniqueDays;
+        if (existingDay) {
+          // Actualizar día existente con datos locales más recientes
+          Object.assign(existingDay, {
+            flowIntensity: localDay.flowIntensity || existingDay.flowIntensity,
+            symptoms: localDay.symptoms || existingDay.symptoms,
+            mood: localDay.mood || existingDay.mood,
+            notes: localDay.notes || existingDay.notes,
+          });
+          console.log(`⚙️ Updated day ${localDateStr} with local data`);
+        } else {
+          // Añadir nuevo día desde datos locales
+          days.push({
+            ...localDay,
+            isPrediction: false,
+          });
+          console.log(`➕ Added new local day ${localDateStr}`);
+        }
+      });
+    }
+
+    console.log(`📅 Total calendar days processed: ${days.length}`);
+    return days;
   };
 
   // Refetch con parámetros específicos
@@ -226,10 +230,21 @@ export const useCalendarData = (
     [fetchCalendarData]
   );
 
-  // Efecto para cargar datos cuando cambia la fecha o vista
+  // ! 04/06/2025 - Efecto mejorado para cargar datos con predicciones sincronizadas
   useEffect(() => {
     const { start, end } = getDateRange(currentDate, viewType);
-    fetchCalendarData(start, end);
+
+    // Agregar un pequeño delay para asegurar que las predicciones base se carguen primero
+    const loadData = async () => {
+      setIsLoading(true);
+      try {
+        await fetchCalendarData(start, end);
+      } catch (error) {
+        console.error("Error in useEffect calendar data loading:", error);
+      }
+    };
+
+    loadData();
   }, [currentDate, viewType, fetchCalendarData, getDateRange]);
 
   return {

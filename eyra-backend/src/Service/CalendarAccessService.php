@@ -18,8 +18,7 @@ class CalendarAccessService
         private MenstrualCycleRepository $cycleRepository,
         private CycleDayRepository $cycleDayRepository,
         private EntityManagerInterface $entityManager
-    ) {
-    }
+    ) {}
 
     /**
      * Obtiene los datos de calendario de los anfitriones a los que tiene acceso el usuario invitado
@@ -38,7 +37,7 @@ class CalendarAccessService
         ]);
 
         // Filtrar accesos no expirados
-        $activeAccesses = array_filter($guestAccesses, function(GuestAccess $access) {
+        $activeAccesses = array_filter($guestAccesses, function (GuestAccess $access) {
             return $access->getExpiresAt() === null || $access->getExpiresAt() > new \DateTime();
         });
 
@@ -222,7 +221,7 @@ class CalendarAccessService
     private function getCurrentPhase(User $user): ?string
     {
         $currentPhases = $this->cycleRepository->findCurrentPhasesForUser($user->getId());
-        
+
         if (empty($currentPhases)) {
             return null;
         }
@@ -257,7 +256,7 @@ class CalendarAccessService
         return [
             'phases' => [
                 'phase_menstrual' => 'Fase Menstrual',
-                'phase_follicular' => 'Fase Folicular', 
+                'phase_follicular' => 'Fase Folicular',
                 'phase_ovulation' => 'Ovulación',
                 'phase_luteal' => 'Fase Lútea'
             ],
