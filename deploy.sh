@@ -8,7 +8,7 @@ echo "Iniciando proceso de despliegue..."
 
 # 1. Verificar las variables de entorno
 echo "Verificando variables de entorno..."
-if grep -q "VITE_API_URL=https://eyraclub.es/api" .env; then
+if grep -q "VITE_API_URL=https://old.eyraclub.es/api" .env; then
   echo "✅ Variable VITE_API_URL configurada correctamente."
 else
   echo "⚠️ La variable VITE_API_URL no parece estar configurada correctamente."
@@ -48,7 +48,7 @@ if grep -r "localhost:8000" ./eyra-frontend/dist/ > /dev/null; then
   echo "⚠️ ¡Se encontraron referencias a localhost:8000 en los archivos compilados!"
   echo "Aplicando corrección automática..."
   
-  find ./eyra-frontend/dist -type f -name "*.js" -exec sed -i 's|http://localhost:8000|https://eyraclub.es|g' {} \;
+  find ./eyra-frontend/dist -type f -name "*.js" -exec sed -i 's|http://localhost:8000|https://old.eyraclub.es|g' {} \;
   
   if grep -r "localhost:8000" ./eyra-frontend/dist/ > /dev/null; then
     echo "❌ La corrección automática falló. Todavía hay referencias a localhost:8000."
@@ -80,5 +80,5 @@ docker-compose ps
 
 echo ""
 echo "===== Despliegue completado ====="
-echo "Recuerda verificar la aplicación en el navegador accediendo a https://eyraclub.es"
+echo "Recuerda verificar la aplicación en el navegador accediendo a https://old.eyraclub.es"
 echo ""

@@ -1,4 +1,4 @@
-const API_URL = import.meta.env.VITE_API_URL || "https://eyraclub.es";
+const API_URL = import.meta.env.VITE_API_URL || "https://old.eyraclub.es";
 
 // Log para verificar API URL
 console.log("API_ROUTES utilizando URL base:", API_URL);
