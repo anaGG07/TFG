@@ -10,6 +10,9 @@ services:
       - ./nginx/mime.types:/etc/nginx/mime.types
       - /etc/letsencrypt:/etc/letsencrypt:ro
       - ./certbot-webroot:/usr/share/nginx/html/.well-known/acme-challenge
+      - /etc/letsencrypt/archive:/etc/letsencrypt/archive:ro
+      - /etc/letsencrypt/renewal:/etc/letsencrypt/renewal:ro
+
     depends_on:
       - eyra-api
       - eyra-web
