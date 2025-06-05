@@ -1,6 +1,7 @@
 import React from "react";
 import Blob from "../components/Blob";
 import { Link } from "react-router-dom";
+import { ROUTES } from "../router/paths";
 
 const EYRAEntrancePage = () => {
   // Tamaño de la ventana para el Blob
@@ -74,8 +75,8 @@ const EYRAEntrancePage = () => {
         </div>
         {/* Enlace About */}
         <Link
-          to="/about"
-          className="text-base hover:text-xl pointer-events-auto transition-all duration-600 ease-in-out"
+          to={ROUTES.ABOUT}
+          className="text-xl hover:text-2xl pointer-events-auto transition-all duration-600 ease-in-out"
           style={{ color: "#E7E0D5" }}
         >
           Sobre EYRA

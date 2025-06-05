@@ -216,11 +216,11 @@ CREATE INDEX IF NOT EXISTS idx_symptom_user_date ON symptom_log(user_id, date);
 -- Datos de ejemplo actualizados
 INSERT INTO "user" (email, username, name, last_name, password, profile_type, birth_date, roles)
 VALUES
-('ana@example.com', 'ana', 'Ana', 'García', '$2y$13$a1b2c3...', 'profile_women', '1990-05-12', ARRAY['ROLE_USER']),
-('carlos@example.com', 'carlos', 'Carlos', 'Pérez', '$2y$13$d4e5f6...', 'profile_women', '1980-07-23', ARRAY['ROLE_USER']),
-('mar@example.com', 'mar', 'Mar', 'Rodríguez', '$2y$13$g7h8i9...', 'profile_women', '1995-03-10', ARRAY['ROLE_USER']),
-('laura@example.com', 'laura', 'Laura', 'Sánchez', '$2y$13$j0k1l2...', 'profile_guest', '2002-11-30', ARRAY['ROLE_USER']),
-('sofia@example.com', 'sofia', 'Sofía', 'Martínez', '$2y$13$m3n4o5...', 'profile_women', '1998-01-01', ARRAY['ROLE_USER']);
+('ana@gmail.com', 'ana', 'Ana', 'García', '$2y$13$a1b2c3...', 'profile_women', '1990-05-12', ARRAY['ROLE_USER']),
+('admin@gmail.com', 'carlos', 'Carlos', 'Pérez', '$2y$13$d4e5f6...', 'profile_women', '1980-07-23', ARRAY['ROLE_USER']),
+('mar@gmail.com', 'mar', 'Mar', 'Rodríguez', '$2y$13$g7h8i9...', 'profile_women', '1995-03-10', ARRAY['ROLE_USER']),
+('laura@gmail.com', 'laura', 'Laura', 'Sánchez', '$2y$13$j0k1l2...', 'profile_guest', '2002-11-30', ARRAY['ROLE_USER']),
+('sofia@gmail.com', 'sofia', 'Sofía', 'Martínez', '$2y$13$m3n4o5...', 'profile_women', '1998-01-01', ARRAY['ROLE_USER']);
 
 -- Contenido
 INSERT INTO content (title, description, content, type, target_phase, tags)

@@ -235,7 +235,10 @@ const RegisterPage = () => {
           <div className="flex flex-row gap-4 w-full">
             <div className="flex flex-col gap-2 w-1/2">
               <div className="relative">
-                <User className="absolute left-2 top-1/2 -translate-y-1/2 text-[#E7E0D5]" size={18} />
+                <User
+                  className="absolute left-2 top-1/2 -translate-y-1/2 text-[#E7E0D5]"
+                  size={18}
+                />
                 <input
                   id="username"
                   type="text"
@@ -255,7 +258,10 @@ const RegisterPage = () => {
                 />
               </div>
               <div className="relative">
-                <Mail className="absolute left-2 top-1/2 -translate-y-1/2 text-[#E7E0D5]" size={18} />
+                <Mail
+                  className="absolute left-2 top-1/2 -translate-y-1/2 text-[#E7E0D5]"
+                  size={18}
+                />
                 <input
                   id="email"
                   type="email"
@@ -276,7 +282,10 @@ const RegisterPage = () => {
                 />
               </div>
               <div className="w-full flex justify-center relative">
-                <Calendar className="absolute left-2 top-1/2 -translate-y-1/2 text-[#E7E0D5]" size={18} />
+                <Calendar
+                  className="absolute left-2 top-1/2 -translate-y-1/2 text-[#E7E0D5]"
+                  size={18}
+                />
                 <input
                   id="birthDate"
                   type="date"
@@ -329,7 +338,10 @@ const RegisterPage = () => {
                 autoComplete="family-name"
               />
               <div className="relative">
-                <Lock className="absolute left-2 top-1/2 -translate-y-1/2 text-[#E7E0D5]" size={18} />
+                <Lock
+                  className="absolute left-2 top-1/2 -translate-y-1/2 text-[#E7E0D5]"
+                  size={18}
+                />
                 <input
                   id="password"
                   type={showPassword ? "text" : "password"}
@@ -353,7 +365,9 @@ const RegisterPage = () => {
                   className="absolute right-2 top-1/2 -translate-y-1/2 text-[#E7E0D5] focus:outline-none"
                   tabIndex={-1}
                   onClick={() => setShowPassword((v) => !v)}
-                  aria-label={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
+                  aria-label={
+                    showPassword ? "Ocultar contraseña" : "Mostrar contraseña"
+                  }
                   style={{ background: "none" }}
                 >
                   {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
@@ -375,7 +389,10 @@ const RegisterPage = () => {
                 ></div>
               </div>
               <div className="relative">
-                <Lock className="absolute left-2 top-1/2 -translate-y-1/2 text-[#E7E0D5]" size={18} />
+                <Lock
+                  className="absolute left-2 top-1/2 -translate-y-1/2 text-[#E7E0D5]"
+                  size={18}
+                />
                 <input
                   id="confirm-password"
                   type={showConfirmPassword ? "text" : "password"}
@@ -399,10 +416,18 @@ const RegisterPage = () => {
                   className="absolute right-2 top-1/2 -translate-y-1/2 text-[#E7E0D5] focus:outline-none"
                   tabIndex={-1}
                   onClick={() => setShowConfirmPassword((v) => !v)}
-                  aria-label={showConfirmPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
+                  aria-label={
+                    showConfirmPassword
+                      ? "Ocultar contraseña"
+                      : "Mostrar contraseña"
+                  }
                   style={{ background: "none" }}
                 >
-                  {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                  {showConfirmPassword ? (
+                    <EyeOff size={18} />
+                  ) : (
+                    <Eye size={18} />
+                  )}
                 </button>
               </div>
             </div>
@@ -459,47 +484,83 @@ const RegisterPage = () => {
               </a>
             </label>
           </div>
-          {/* Botón con diseño moderno y control de términos */}
-          <div className="flex justify-center mt-4">
-            <Button
+          
+          {/* Botón con diseño moderno */}
+          <div className="flex justify-center mt-2">
+            <button
               type="submit"
               disabled={!isFormValid || isLoading}
-              isLoading={isLoading}
-              variant="primary"
-              size="large"
-              className="group"
+              className="shadow-[0_5px_10px_0_#00000079] hover:shadow-[0_4px_24px_0_#E7E0D540] text-[#e7e0d5] cursor-pointer group relative px-12 py-3 font-semibold rounded-full overflow-hidden transition-all duration-300 transform hover:scale-105 active:scale-95 disabled:opacity-60 disabled:cursor-not-allowed disabled:transform-none"
             >
-              Crear cuenta
-              <svg
-                className={`w-4 h-4 transition-transform duration-300 ${
-                  isFormValid && !isLoading ? "group-hover:translate-x-1" : ""
-                }`}
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M9 5l7 7-7 7"
-                />
-              </svg>
-            </Button>
+              {/* Contenido del botón */}
+              <span className="relative z-10 flex items-center justify-center gap-2">
+                {isLoading ? (
+                  <>
+                    <svg
+                      className="animate-spin w-4 h-4"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                    >
+                      <circle
+                        className="opacity-25"
+                        cx="12"
+                        cy="12"
+                        r="10"
+                        stroke="currentColor"
+                        strokeWidth="4"
+                      />
+                      <path
+                        className="opacity-75"
+                        fill="currentColor"
+                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                      />
+                    </svg>
+                    Creando cuenta...
+                  </>
+                ) : (
+                  <>
+                    Crear cuenta
+                    <svg
+                      className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M9 5l7 7-7 7"
+                      />
+                    </svg>
+                  </>
+                )}
+              </span>
+
+              {/* Sombra interna */}
+              <div className="absolute inset-0 rounded-full" />
+            </button>
           </div>
         </form>
 
         <div className="mt-6 text-center pointer-events-auto">
-          <p className="text-sm" style={{ color: "#E7E0D5" }}>
+          <p className="text-sm mb-5 text-[#E7E0D5]">
             ¿Ya tienes una cuenta?{" "}
             <Link
               to={ROUTES.LOGIN}
-              className="hover:underline font-medium transition-all duration-200 hover:text-white pointer-events-auto"
+              className="hover:underline  font-medium transition-all duration-200 hover:text-white pointer-events-auto"
               style={{ color: "#E7E0D5", textDecorationColor: "#fff" }}
             >
               Iniciar Sesión
             </Link>
           </p>
+          {/* Enlace HOME */}
+          <Link
+            to={ROUTES.HOME}
+            className="text-2xl text-[#E7E0D5] hover:text-3xl pointer-events-auto transition-all duration-600 ease-in-out"
+          >
+            EYRA
+          </Link>
         </div>
       </main>
     </div>

@@ -5,6 +5,8 @@ import { ROUTES } from "../router/paths";
 import Blob from "../components/Blob";
 import LoadingSpinner from "../components/LoadingSpinner";
 import PasswordResetModal from "../components/PasswordResetModal";
+import { toast } from "react-hot-toast";
+import NeomorphicToast from "../components/ui/NeomorphicToast";
 
 const LoginPage = () => {
   const [email, setEmail] = useState("");
@@ -36,7 +38,14 @@ const LoginPage = () => {
     e.preventDefault();
 
     if (!email || !password) {
-      setError("Por favor completa todos los campos");
+      toast.custom((t) => (
+        <NeomorphicToast
+          message="Por favor completa todos los campos"
+          variant="error"
+          onClose={() => toast.dismiss(t.id)}
+          duration={6000}
+        />
+      ));
       return;
     }
 
@@ -47,7 +56,14 @@ const LoginPage = () => {
 
       const user = await login({ email, password });
       if (!user) {
-        setError("Credenciales incorrectas");
+        toast.custom((t) => (
+          <NeomorphicToast
+            message="Credenciales incorrectas"
+            variant="error"
+            onClose={() => toast.dismiss(t.id)}
+            duration={6000}
+          />
+        ));
         return;
       }
 
@@ -63,7 +79,14 @@ const LoginPage = () => {
       }
     } catch (error: any) {
       console.error("Error en login:", error);
-      setError(error.message || "Error al iniciar sesión");
+      toast.custom((t) => (
+        <NeomorphicToast
+          message={error.message === "Failed to fetch" ? "No se pudo conectar con el servidor." : (error.message || "Error al iniciar sesión")}
+          variant="error"
+          onClose={() => toast.dismiss(t.id)}
+          duration={6000}
+        />
+      ));
     } finally {
       setIsLoading(false);
     }
@@ -101,14 +124,6 @@ const LoginPage = () => {
               Accede a tu cuenta para continuar
             </p>
           </div>
-          {error && (
-            <div
-              className="shadow-md text-[#e7e0d5] text-center rounded-lg p-3 mb-6 text-md"
-              role="alert"
-            >
-              {error}
-            </div>
-          )}
 
           <form
             onSubmit={handleSubmit}
@@ -260,12 +275,12 @@ const LoginPage = () => {
               </button>
             </div>
           </form>
-          <div className="mt-6 text-center pointer-events-auto">
-            <p className="text-sm text-[#e7e0d5]">
+          <div className="mt-6 mb-5 text-center pointer-events-auto">
+            <p className="text-sm mb-5 text-[#e7e0d5]">
               ¿No tienes una cuenta?{" "}
               <Link
                 to={ROUTES.REGISTER}
-                className="hover:underline font-medium pointer-events-auto"
+                className="hover:underline font-medium pointer-events-auto "
                 style={{
                   color: "text-[#e7e0d5]",
                   textDecorationColor: "text-white",
@@ -274,6 +289,13 @@ const LoginPage = () => {
                 Regístrate
               </Link>
             </p>
+            {/* Enlace HOME */}
+            <Link
+              to={ROUTES.HOME}
+              className="text-2xl text-[#E7E0D5] hover:text-3xl pointer-events-auto transition-all duration-600 ease-in-out"
+            >
+              EYRA
+            </Link>
           </div>
         </main>
       </div>

@@ -11,4 +11,5 @@ export const ROUTES = {
   TRACKING: "/tracking",
   SETTINGS: "/settings",
   LIBRARY: "/library",
+  ABOUT: "/about",
 };

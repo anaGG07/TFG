@@ -12,22 +12,22 @@ interface NeomorphicToastProps {
 
 const colors = {
   success: {
-    bg: "#f5ede6",
+    bg: "#e7e0d5",
     border: "#7ac77a",
-    icon: <CheckCircle size={48} color="#7ac77a" className="animate-pulse" />,
-    shadow: "0 8px 32px #7ac77a44, 0 2px 8px #7ac77a22, 0 0 0 2px #fff8 inset",
+    icon: <CheckCircle size={32} color="#7ac77a" className="animate-pulse" />,
+    shadow: "2px 2px 8px #d1c7b6, -2px -2px 8px #fff",
   },
   error: {
-    bg: "#f5ede6",
+    bg: "#e7e0d5",
     border: "#C62328",
-    icon: <XCircle size={48} color="#C62328" className="animate-shake" />,
-    shadow: "0 8px 32px #C6232844, 0 2px 8px #C6232822, 0 0 0 2px #fff8 inset",
+    icon: <XCircle size={32} color="#C62328" className="animate-shake" />,
+    shadow: "2px 2px 8px #d1c7b6, -2px -2px 8px #fff",
   },
 };
 
-const CIRCLE_SIZE = 100;
-const BANNER_WIDTH = 380;
-const BANNER_HEIGHT = 100;
+const CIRCLE_SIZE = 64;
+const BANNER_WIDTH = 350;
+const BANNER_HEIGHT = 64;
 
 const NeomorphicToast: React.FC<NeomorphicToastProps> = ({
   message,
@@ -71,17 +71,17 @@ const NeomorphicToast: React.FC<NeomorphicToastProps> = ({
   return (
     <AnimatePresence>
       <motion.div
-        initial={{ y: 100, opacity: 0 }}
+        initial={{ y: -40, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
-        exit={{ y: 100, opacity: 0 }}
+        exit={{ y: -40, opacity: 0 }}
         transition={{
           type: "spring",
           stiffness: 300,
           damping: 25,
           duration: 0.6,
         }}
-        className="fixed left-1/2 bottom-8 z-[9999] flex flex-col items-center justify-center"
-        style={{ transform: "translateX(-50%)" }}
+        className="fixed top-8 right-8 z-[9999] flex flex-col items-center justify-center"
+        style={{ transform: "none" }}
       >
         {/* Contenedor principal con animaciones secuenciales */}
         <motion.div
@@ -111,14 +111,14 @@ const NeomorphicToast: React.FC<NeomorphicToastProps> = ({
               borderRadius: isExpanded ? 32 : CIRCLE_SIZE / 2,
             }}
             transition={{
-              duration: 0.6, // Expansión más lenta
+              duration: 0.7, // Expansión más lenta
               type: "spring",
               bounce: 0.15,
               ease: "easeOut",
             }}
             style={{
               background: colors[variant].bg,
-              border: `4px solid ${colors[variant].border}`,
+              border: `2px solid ${colors[variant].border}`,
               boxShadow: colors[variant].shadow,
               minHeight: CIRCLE_SIZE,
               minWidth: CIRCLE_SIZE,
@@ -129,20 +129,39 @@ const NeomorphicToast: React.FC<NeomorphicToastProps> = ({
               overflow: "hidden",
             }}
           >
-            {/* Icono que aparece inmediatamente en el círculo */}
-            <AnimatePresence mode="wait">
-              {!showContent && (
-                <motion.div
-                  initial={{ scale: 0, opacity: 0 }}
-                  animate={{ scale: 1, opacity: 1 }}
-                  exit={{ scale: 0, opacity: 0 }}
-                  transition={{ duration: 0.3, delay: 0.2 }}
-                  className="absolute inset-0 flex items-center justify-center"
-                >
-                  {colors[variant].icon}
-                </motion.div>
-              )}
-            </AnimatePresence>
+            {/* Icono animado de centro a izquierda */}
+            <motion.span
+              initial={{
+                left: "50%",
+                x: "-50%",
+                position: "absolute",
+                top: "50%",
+                y: "-50%",
+                scale: 1,
+              }}
+              animate={isExpanded ? {
+                left: 24,
+                x: 0,
+                top: "50%",
+                y: "-50%",
+                position: "absolute",
+                scale: 1,
+              } : {
+                left: "50%",
+                x: "-50%",
+                top: "50%",
+                y: "-50%",
+                position: "absolute",
+                scale: 1,
+              }}
+              transition={{
+                duration: 0.5,
+                ease: "easeInOut",
+              }}
+              style={{ zIndex: 2 }}
+            >
+              {colors[variant].icon}
+            </motion.span>
 
             {/* Contenido completo que aparece tras la expansión */}
             <AnimatePresence>
@@ -164,24 +183,16 @@ const NeomorphicToast: React.FC<NeomorphicToastProps> = ({
                     scale: 0.9,
                     transition: { duration: 0.2 },
                   }}
-                  className="flex flex-row items-center gap-4 w-full px-6"
-                  style={{ justifyContent: "center" }}
+                  className="flex flex-row items-center gap-4 w-full pl-20 pr-6"
+                  style={{ justifyContent: "flex-start" }}
                 >
-                  <motion.span
-                    initial={{ rotate: -10, scale: 0.8 }}
-                    animate={{ rotate: 0, scale: 1 }}
-                    transition={{ duration: 0.3, delay: 0.1 }}
-                  >
-                    {colors[variant].icon}
-                  </motion.span>
-
                   <motion.div
                     className="flex flex-col items-start flex-1"
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.3, delay: 0.2 }}
                   >
-                    <span className="text-lg font-serif text-[#7a2323] font-bold drop-shadow-lg">
+                    <span className="text-base font-serif text-[#7a2323] font-semibold drop-shadow">
                       {message}
                     </span>
                     {subtitle && (
