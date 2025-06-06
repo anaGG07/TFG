@@ -4,6 +4,11 @@ api_conditions:
     type: attribute
     prefix: /api
 
+api_symptoms:
+    resource: '../../src/Controller/SymptomController.php'
+    type: attribute
+    prefix: /api
+    
 api_platform:
     resource: .
     type: api_platform

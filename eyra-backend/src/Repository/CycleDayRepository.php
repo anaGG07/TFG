@@ -27,7 +27,8 @@ class CycleDayRepository extends ServiceEntityRepository
         $cacheKey = "days_user_{$user->getId()}_range_{$startDate->format('Ymd')}_{$endDate->format('Ymd')}";
 
         return $this->createQueryBuilder('cd')
-            ->join('cd.cyclePhase', 'c')
+            ->join('cd.cyclePhase', 'cp')
+            ->join('cp.cycle', 'c')
             ->andWhere('c.user = :user')
             ->andWhere('cd.date >= :startDate')
             ->andWhere('cd.date <= :endDate')
