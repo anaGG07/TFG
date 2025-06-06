@@ -46,6 +46,7 @@ class ConditionController extends AbstractController
 
         // Obtener todas las condiciones
         $conditions = $this->conditionRepository->findAll();
+        
         // Serializar manualmente para evitar hydra
         $data = [];
         foreach ($conditions as $condition) {
@@ -61,6 +62,7 @@ class ConditionController extends AbstractController
                 'updatedAt' => $condition->getUpdatedAt()?->format('c'),
             ];
         }
+        
         return $this->json($data);
     }
 
