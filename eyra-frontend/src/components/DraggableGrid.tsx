@@ -280,7 +280,9 @@ const DraggableGrid: React.FC<DraggableGridProps> = ({
         isMobile ? 'p-4' : isTablet ? 'p-6' : 'p-8'
       }`}>
         
-        <div className="w-full h-full flex flex-col gap-6">
+        <div className={`w-full h-full flex flex-col ${
+          isMobile ? 'gap-4' : 'gap-6'
+        }`}>
           {/* Item expandido - estilo neomorphic EYRA */}
           <motion.div
             key={expandedItem.id}
@@ -293,7 +295,8 @@ const DraggableGrid: React.FC<DraggableGridProps> = ({
             className="flex-1 relative cursor-pointer overflow-hidden"
             onClick={() => handleItemClick(expandedItem.id)}
             style={{
-              minHeight: isMobile ? "320px" : isTablet ? "360px" : "400px",
+              minHeight: isMobile ? "250px" : isTablet ? "360px" : "400px", // Reducida altura en móvil
+              maxHeight: isMobile ? "calc(100vh - 200px)" : undefined, // Altura máxima en móvil
               background: "#e7e0d5",
               borderRadius: isMobile ? "20px" : "24px",
               border: "1px solid rgba(91, 1, 8, 0.1)",
@@ -360,7 +363,7 @@ const DraggableGrid: React.FC<DraggableGridProps> = ({
           <motion.div
             className={`flex gap-4 flex-shrink-0 ${
               isMobile 
-                ? 'flex-col h-24 relative pb-2' // Aumentado altura y añadido padding bottom
+                ? 'flex-col h-20 relative' // Reducida altura en móvil
                 : isTablet 
                   ? 'flex-row h-20' 
                   : 'flex-row h-24'
@@ -475,7 +478,7 @@ const DraggableGrid: React.FC<DraggableGridProps> = ({
                   if (collapsedItems.length <= 1) return null;
                   
                   return (
-                    <div className="flex items-center justify-center mt-4 mb-2">
+                    <div className="flex items-center justify-center mt-2">
                       <div className="flex gap-2">
                         {collapsedItems.map((_, index) => (
                           <button
