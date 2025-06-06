@@ -9,6 +9,9 @@ services:
       - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
       - ./nginx/mime.types:/etc/nginx/mime.types
       - /etc/letsencrypt:/etc/letsencrypt:ro
+      - /etc/letsencrypt/renewal:/etc/letsencrypt/renewal:ro
+      - /etc/letsencrypt/live/eyraclub.es:/etc/letsencrypt/live/eyraclub.es:ro
+      - /etc/letsencrypt/archive/eyraclub.es:/etc/letsencrypt/archive/eyraclub.es:ro
       - ./certbot-webroot:/usr/share/nginx/html/.well-known/acme-challenge
     depends_on:
       - eyra-api
