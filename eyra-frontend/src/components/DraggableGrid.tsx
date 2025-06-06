@@ -1,4 +1,4 @@
-import React, { useState, ReactNode, ReactElement, useEffect, useCallback } from "react";
+import React, { useState, ReactNode, ReactElement, useEffect, useCallback, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useViewport } from "../hooks/useViewport";
 
@@ -26,9 +26,99 @@ const DraggableGrid: React.FC<DraggableGridProps> = ({
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0);
   const { mode: viewportMode, isMobile, isTablet, isDesktop } = useViewport();
+  const transitionTimeout = useRef<NodeJS.Timeout | undefined>(undefined);
   
   // Estado para navegación de items colapsados en móvil
   const [collapsedIndex, setCollapsedIndex] = useState(0);
+
+  // Optimización de animaciones
+  const getAnimationConfig = useCallback(() => ({
+    duration: isMobile ? 0.2 : 0.3,
+    ease: [0.25, 0.46, 0.45, 0.94],
+    type: "spring",
+    stiffness: 300,
+    damping: 30
+  }), [isMobile]);
+
+  // Limpieza de timeouts
+  useEffect(() => {
+    return () => {
+      if (transitionTimeout.current) {
+        clearTimeout(transitionTimeout.current);
+      }
+    };
+  }, []);
+
+  // Optimización del manejo de transiciones
+  const handleTransition = useCallback((callback: () => void) => {
+    setIsTransitioning(true);
+    if (transitionTimeout.current) {
+      clearTimeout(transitionTimeout.current);
+    }
+    callback();
+    transitionTimeout.current = setTimeout(() => {
+      setIsTransitioning(false);
+    }, 300);
+  }, []);
+
+  // Optimización del drag and drop
+  const handleDragStart = useCallback((e: React.DragEvent, itemId: string) => {
+    e.dataTransfer.effectAllowed = "move";
+    e.dataTransfer.setData("text/plain", itemId);
+    setDraggedItem(itemId);
+  }, []);
+
+  const handleDragEnd = useCallback(() => {
+    setDraggedItem(null);
+  }, []);
+
+  const handleDrop = useCallback(
+    (e: React.DragEvent, targetId: string) => {
+      e.preventDefault();
+
+      if (!draggedItem || draggedItem === targetId) {
+        handleDragEnd();
+        return;
+      }
+
+      handleTransition(() => {
+        const newItems = [...items];
+        const draggedIndex = newItems.findIndex(
+          (item) => item.id === draggedItem
+        );
+        const targetIndex = newItems.findIndex((item) => item.id === targetId);
+
+        if (draggedIndex !== -1 && targetIndex !== -1) {
+          [newItems[draggedIndex], newItems[targetIndex]] = [
+            newItems[targetIndex],
+            newItems[draggedIndex],
+          ];
+          setItems(newItems);
+          onItemsChange?.(newItems);
+        }
+
+        handleDragEnd();
+      });
+    },
+    [draggedItem, items, onItemsChange, handleTransition, handleDragEnd]
+  );
+
+  // Optimización del manejo de expansión
+  const handleItemClick = useCallback(
+    (itemId: string) => {
+      if (draggedItem || isTransitioning) return;
+
+      handleTransition(() => {
+        const newItems = items.map((item) => ({
+          ...item,
+          isExpanded: item.id === itemId ? !item.isExpanded : false,
+        }));
+        setItems(newItems);
+        onItemsChange?.(newItems);
+      });
+    },
+    [items, onItemsChange, draggedItem, isTransitioning, handleTransition]
+  );
 
   // Helper function to safely clone React elements
   const safeCloneElement = useCallback((element: ReactNode, props: any) => {
@@ -74,67 +164,23 @@ const DraggableGrid: React.FC<DraggableGridProps> = ({
     return visibleItems;
   }, [currentIndex, itemsPerView, items]);
 
-  const handleDragStart = useCallback((e: React.DragEvent, itemId: string) => {
-    setDraggedItem(itemId);
-    e.dataTransfer.effectAllowed = "move";
-    e.dataTransfer.setData("text/plain", itemId);
-  }, []);
-
   const handleDragOver = useCallback((e: React.DragEvent) => {
     e.preventDefault();
     e.dataTransfer.dropEffect = "move";
   }, []);
 
-  const handleDrop = useCallback(
-    (e: React.DragEvent, targetId: string) => {
-      e.preventDefault();
+  // Funciones de navegación para vista expandida (hooks en nivel superior)
+  const navigateToNext = useCallback(() => {
+    const currentExpandedIndex = items.findIndex(item => item.isExpanded);
+    const nextIndex = (currentExpandedIndex + 1) % items.length;
+    handleItemClick(items[nextIndex].id);
+  }, [items, handleItemClick]);
 
-      if (!draggedItem || draggedItem === targetId) {
-        setDraggedItem(null);
-        return;
-      }
-
-      setIsTransitioning(true);
-
-      const newItems = [...items];
-      const draggedIndex = newItems.findIndex(
-        (item) => item.id === draggedItem
-      );
-      const targetIndex = newItems.findIndex((item) => item.id === targetId);
-
-      if (draggedIndex !== -1 && targetIndex !== -1) {
-        [newItems[draggedIndex], newItems[targetIndex]] = [
-          newItems[targetIndex],
-          newItems[draggedIndex],
-        ];
-        setItems(newItems);
-        onItemsChange?.(newItems);
-      }
-
-      setTimeout(() => {
-        setDraggedItem(null);
-        setIsTransitioning(false);
-      }, 100);
-    },
-    [draggedItem, items, onItemsChange]
-  );
-
-  const handleItemClick = useCallback(
-    (itemId: string) => {
-      if (draggedItem || isTransitioning) return;
-
-      setIsTransitioning(true);
-      const newItems = items.map((item) => ({
-        ...item,
-        isExpanded: item.id === itemId ? !item.isExpanded : false,
-      }));
-      setItems(newItems);
-      onItemsChange?.(newItems);
-
-      setTimeout(() => setIsTransitioning(false), 300);
-    },
-    [items, onItemsChange, draggedItem, isTransitioning]
-  );
+  const navigateToPrev = useCallback(() => {
+    const currentExpandedIndex = items.findIndex(item => item.isExpanded);
+    const prevIndex = currentExpandedIndex === 0 ? items.length - 1 : currentExpandedIndex - 1;
+    handleItemClick(items[prevIndex].id);
+  }, [items, handleItemClick]);
 
   const hasExpandedItem = items.some((item) => item.isExpanded);
   const expandedItem = items.find((item) => item.isExpanded);
@@ -233,6 +279,7 @@ const DraggableGrid: React.FC<DraggableGridProps> = ({
       <div className={`w-full h-full overflow-hidden ${
         isMobile ? 'p-4' : isTablet ? 'p-6' : 'p-8'
       }`}>
+        
         <div className="w-full h-full flex flex-col gap-6">
           {/* Item expandido - estilo neomorphic EYRA */}
           <motion.div
@@ -313,7 +360,7 @@ const DraggableGrid: React.FC<DraggableGridProps> = ({
           <motion.div
             className={`flex gap-4 flex-shrink-0 ${
               isMobile 
-                ? 'flex-col h-20 relative' 
+                ? 'flex-col h-24 relative pb-2' // Aumentado altura y añadido padding bottom
                 : isTablet 
                   ? 'flex-row h-20' 
                   : 'flex-row h-24'
@@ -323,87 +370,118 @@ const DraggableGrid: React.FC<DraggableGridProps> = ({
             transition={{ duration: 0.3, delay: 0.1 }}
           >
             {isMobile ? (
-              // Móvil: Sistema de paginación para items colapsados
+              // Móvil: Layout horizontal con botones de navegación y caja central
               <>
-                {/* Contenedor del item actual */}
-                <div className="flex-1 flex items-center justify-center">
-                  {(() => {
-                    const collapsedItems = items.filter(item => !item.isExpanded);
-                    if (collapsedItems.length === 0) return null;
-                    
-                    const currentCollapsedItem = collapsedItems[collapsedIndex % collapsedItems.length];
-                    if (!currentCollapsedItem) return null;
-                    
-                    return (
-                      <motion.div
-                        key={currentCollapsedItem.id}
-                        layoutId={currentCollapsedItem.id}
-                        initial={false}
-                        transition={{
-                          duration: 0.4,
-                          ease: [0.25, 0.46, 0.45, 0.94],
-                        }}
-                        draggable={!isTransitioning}
-                        onDragStart={(e) => handleDragStart(e as any, currentCollapsedItem.id)}
-                        onDragOver={handleDragOver}
-                        onDrop={(e) => handleDrop(e as any, currentCollapsedItem.id)}
-                        onClick={() => handleItemClick(currentCollapsedItem.id)}
-                        className="w-full h-16 relative group cursor-pointer overflow-hidden"
-                        style={{
-                          background: "#e7e0d5",
-                          borderRadius: "12px",
-                          border: "1px solid rgba(91, 1, 8, 0.1)",
-                          boxShadow: `
-                            6px 6px 12px rgba(91, 1, 8, 0.06),
-                            -6px -6px 12px rgba(255, 255, 255, 0.25)
-                          `,
-                        }}
-                        whileTap={{ scale: 0.98 }}
-                      >
-                        <div className="h-full flex items-center justify-center p-2">
-                          <h4 className="font-serif text-[#5b0108] text-center font-medium leading-tight text-xs px-1">
-                            {currentCollapsedItem.title}
-                          </h4>
-                        </div>
-                      </motion.div>
-                    );
-                  })()}
+                <div className="flex items-center justify-between gap-3">
+                  {/* Botón anterior - solo si hay más de 1 item */}
+                  {items.length > 1 ? (
+                    <button
+                      onClick={() => setCollapsedIndex(prev => {
+                        const collapsedItems = items.filter(item => !item.isExpanded);
+                        return prev === 0 ? collapsedItems.length - 1 : prev - 1;
+                      })}
+                      className="w-10 h-10 rounded-full flex items-center justify-center transition-all duration-200 flex-shrink-0"
+                      style={{
+                        background: "linear-gradient(145deg, #f4f1ed, #e7e0d5)",
+                        border: "1px solid rgba(91, 1, 8, 0.08)",
+                        boxShadow: `
+                          4px 4px 8px rgba(91, 1, 8, 0.06),
+                          -4px -4px 8px rgba(255, 255, 255, 0.7)
+                        `,
+                      }}
+                    >
+                      <svg className="w-5 h-5 text-[#C62328]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7"/>
+                      </svg>
+                    </button>
+                  ) : (
+                    <div className="w-10 h-10 flex-shrink-0"></div> /* Spacer cuando solo hay 1 item */
+                  )}
+
+                  {/* Contenedor del item actual - más estrecho */}
+                  <div className="flex-1 flex items-center justify-center max-w-xs">
+                    {(() => {
+                      const collapsedItems = items.filter(item => !item.isExpanded);
+                      if (collapsedItems.length === 0) return null;
+                      
+                      const currentCollapsedItem = collapsedItems[collapsedIndex % collapsedItems.length];
+                      if (!currentCollapsedItem) return null;
+                      
+                      return (
+                        <motion.div
+                          key={currentCollapsedItem.id}
+                          layoutId={currentCollapsedItem.id}
+                          initial={false}
+                          transition={{
+                            duration: 0.4,
+                            ease: [0.25, 0.46, 0.45, 0.94],
+                          }}
+                          draggable={!isTransitioning}
+                          onDragStart={(e) => handleDragStart(e as any, currentCollapsedItem.id)}
+                          onDragOver={handleDragOver}
+                          onDrop={(e) => handleDrop(e as any, currentCollapsedItem.id)}
+                          onClick={() => handleItemClick(currentCollapsedItem.id)}
+                          className="w-full h-16 relative group cursor-pointer overflow-hidden"
+                          style={{
+                            background: "#e7e0d5",
+                            borderRadius: "12px",
+                            border: "1px solid rgba(91, 1, 8, 0.1)",
+                            boxShadow: `
+                              6px 6px 12px rgba(91, 1, 8, 0.06),
+                              -6px -6px 12px rgba(255, 255, 255, 0.25)
+                            `,
+                          }}
+                          whileTap={{ scale: 0.98 }}
+                        >
+                          <div className="h-full flex items-center justify-center p-2">
+                            <h4 className="font-serif text-[#5b0108] text-center font-medium leading-tight text-xs px-1">
+                              {currentCollapsedItem.title}
+                            </h4>
+                          </div>
+                        </motion.div>
+                      );
+                    })()}
+                  </div>
+
+                  {/* Botón siguiente - solo si hay más de 1 item */}
+                  {items.length > 1 ? (
+                    <button
+                      onClick={() => setCollapsedIndex(prev => {
+                        const collapsedItems = items.filter(item => !item.isExpanded);
+                        return (prev + 1) % collapsedItems.length;
+                      })}
+                      className="w-10 h-10 rounded-full flex items-center justify-center transition-all duration-200 flex-shrink-0"
+                      style={{
+                        background: "linear-gradient(145deg, #f4f1ed, #e7e0d5)",
+                        border: "1px solid rgba(91, 1, 8, 0.08)",
+                        boxShadow: `
+                          4px 4px 8px rgba(91, 1, 8, 0.06),
+                          -4px -4px 8px rgba(255, 255, 255, 0.7)
+                        `,
+                      }}
+                    >
+                      <svg className="w-5 h-5 text-[#C62328]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7"/>
+                      </svg>
+                    </button>
+                  ) : (
+                    <div className="w-10 h-10 flex-shrink-0"></div> /* Spacer cuando solo hay 1 item */
+                  )}
                 </div>
                 
-                {/* Navegación e indicadores */}
+                {/* Indicadores de página centrados debajo */}
                 {(() => {
                   const collapsedItems = items.filter(item => !item.isExpanded);
                   if (collapsedItems.length <= 1) return null;
                   
                   return (
-                    <div className="flex items-center justify-between mt-2">
-                      {/* Botón anterior */}
-                      <button
-                        onClick={() => setCollapsedIndex(prev => 
-                          prev === 0 ? collapsedItems.length - 1 : prev - 1
-                        )}
-                        className="w-8 h-8 rounded-full flex items-center justify-center transition-all duration-200"
-                        style={{
-                          background: "linear-gradient(145deg, #f4f1ed, #e7e0d5)",
-                          border: "1px solid rgba(91, 1, 8, 0.08)",
-                          boxShadow: `
-                            2px 2px 4px rgba(91, 1, 8, 0.06),
-                            -2px -2px 4px rgba(255, 255, 255, 0.7)
-                          `,
-                        }}
-                      >
-                        <svg className="w-4 h-4 text-[#C62328]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7"/>
-                        </svg>
-                      </button>
-                      
-                      {/* Indicadores de página */}
-                      <div className="flex gap-1">
+                    <div className="flex items-center justify-center mt-4 mb-2">
+                      <div className="flex gap-2">
                         {collapsedItems.map((_, index) => (
                           <button
                             key={index}
                             onClick={() => setCollapsedIndex(index)}
-                            className={`w-2 h-2 rounded-full transition-all duration-200 ${
+                            className={`w-2.5 h-2.5 rounded-full transition-all duration-200 ${
                               index === (collapsedIndex % collapsedItems.length)
                                 ? 'bg-[#C62328] scale-125'
                                 : 'bg-[#C62328]/30'
@@ -411,26 +489,6 @@ const DraggableGrid: React.FC<DraggableGridProps> = ({
                           />
                         ))}
                       </div>
-                      
-                      {/* Botón siguiente */}
-                      <button
-                        onClick={() => setCollapsedIndex(prev => 
-                          (prev + 1) % collapsedItems.length
-                        )}
-                        className="w-8 h-8 rounded-full flex items-center justify-center transition-all duration-200"
-                        style={{
-                          background: "linear-gradient(145deg, #f4f1ed, #e7e0d5)",
-                          border: "1px solid rgba(91, 1, 8, 0.08)",
-                          boxShadow: `
-                            2px 2px 4px rgba(91, 1, 8, 0.06),
-                            -2px -2px 4px rgba(255, 255, 255, 0.7)
-                          `,
-                        }}
-                      >
-                        <svg className="w-4 h-4 text-[#C62328]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7"/>
-                        </svg>
-                      </button>
                     </div>
                   );
                 })()}
@@ -571,22 +629,47 @@ const DraggableGrid: React.FC<DraggableGridProps> = ({
 
   // Grid normal cuando no hay elementos expandidos - responsive optimizado
   return (
-    <div className={`w-full h-full overflow-hidden ${
-      isMobile ? 'p-3' : isTablet ? 'p-6' : 'p-4 md:p-8'
-    }`}>
+    <div className={`w-full ${
+      isMobile && !isLibrary ? 'h-auto overflow-y-auto' : 'h-full overflow-hidden'
+    } ${isMobile ? 'p-3' : isTablet ? 'p-6' : 'p-4 md:p-8'}`}>
       <div 
-        className={`gap-4 md:gap-8 h-full ${
-          isMobile 
-            ? 'grid grid-cols-1 auto-rows-fr' 
-            : isTablet 
-              ? 'grid grid-cols-2 auto-rows-fr' 
-              : 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 auto-rows-fr'
+        className={`gap-4 md:gap-8 ${
+          isMobile && !isLibrary ? '' : 'h-full'
+        } ${
+          isMobile && !isLibrary
+            ? 'relative' // Posicionamiento relativo para mobile dashboard (efecto apilado)
+            : isMobile 
+              ? 'grid grid-cols-1 auto-rows-fr' 
+              : isTablet 
+                ? 'grid grid-cols-2 auto-rows-fr' 
+                : 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 auto-rows-fr'
         }`}
-        style={isDesktop ? { gridTemplateRows: "repeat(2, 1fr)" } : {}}
+        style={{
+          ...(isDesktop ? { gridTemplateRows: "repeat(2, 1fr)" } : {}),
+          // Altura calculada para el efecto apilado en móvil
+          ...(isMobile && !isLibrary ? { 
+            height: `${200 + (items.length - 1) * 90}px`, // Primera carta (200px) + cartas apiladas (90px cada una)
+            minHeight: '400px' // Altura mínima para asegurar que se vea bien
+          } : {})
+        }}
       >
         <AnimatePresence mode="sync">
-          {items.map((item) => {
+          {items.map((item, index) => {
             const isDragged = draggedItem === item.id;
+            
+            // Cálculo de posicionamiento para efecto apilado en móvil (solo dashboard)
+            const cardHeight = 200; // Altura base de las cartas en móvil
+            const stackingOffset = index * 90; // Aumentado de 60px a 90px para mostrar más de cada carta
+            
+            // Estilo de posicionamiento para móvil dashboard
+            const mobileStackingStyle = isMobile && !isLibrary ? {
+              position: 'absolute' as const,
+              top: `${stackingOffset}px`, // Primera carta arriba (0px), siguientes más abajo
+              left: '0px',
+              right: '0px',
+              height: `${cardHeight}px`,
+              zIndex: index + 1, // Z-index creciente: primera carta z-index=1 (fondo), siguientes más altos
+            } : {};
 
             return (
               <motion.div
@@ -594,28 +677,27 @@ const DraggableGrid: React.FC<DraggableGridProps> = ({
                 layoutId={item.id}
                 initial={false}
                 animate={{
-                  opacity: isDragged ? 0.7 : 1,
                   scale: isDragged ? 0.95 : 1,
-                  zIndex: isDragged ? 50 : 1,
+                  opacity: isDragged ? 0.7 : 1,
+                  zIndex: isDragged ? 50 : (isMobile && !isLibrary ? index + 1 : 1),
                 }}
-                transition={{
-                  duration: 0.2,
-                  ease: "easeOut",
-                  layout: {
-                    duration: 0.5,
-                    ease: [0.25, 0.46, 0.45, 0.94],
-                  },
-                }}
+                transition={getAnimationConfig()}
                 draggable={!isTransitioning}
                 onDragStart={(e) => handleDragStart(e as any, item.id)}
+                onDragEnd={handleDragEnd}
                 onDragOver={handleDragOver}
                 onDrop={(e) => handleDrop(e as any, item.id)}
                 onClick={() => handleItemClick(item.id)}
-                className={`col-span-1 row-span-1 relative group cursor-grab active:cursor-grabbing overflow-hidden transform-gpu will-change-transform transition-all duration-200 ${
+                className={`${
+                  isMobile && !isLibrary 
+                    ? 'w-full' // Móvil dashboard: ancho completo para apilado
+                    : 'col-span-1 row-span-1' // Otros casos: grid normal
+                } relative group cursor-grab active:cursor-grabbing overflow-hidden transform-gpu will-change-transform ${
                   !isTransitioning && isDesktop ? 'hover:scale-[1.02]' : ''
                 } ${isLibrary ? 'library-tent-container' : ''}`}
-                style={!isLibrary ? {
-                  minHeight: isMobile ? "200px" : isTablet ? "220px" : "240px",
+                style={{
+                  ...mobileStackingStyle, // Aplicar estilo de apilado en móvil
+                  minHeight: isMobile ? `${cardHeight}px` : isTablet ? "220px" : "240px",
                   background: "#e7e0d5",
                   borderRadius: isMobile ? "16px" : "20px",
                   border: "1px solid rgba(91, 1, 8, 0.1)",
@@ -629,9 +711,6 @@ const DraggableGrid: React.FC<DraggableGridProps> = ({
                     inset 0 1px 0 rgba(255, 255, 255, 0.15)
                   `,
                   pointerEvents: isTransitioning ? "none" : "auto",
-                } : {
-                  minHeight: isMobile ? "200px" : isTablet ? "220px" : "240px",
-                  pointerEvents: isTransitioning ? "none" : "auto",
                 }}
                 whileHover={
                   !isDragged && !isTransitioning && !isLibrary && isDesktop
@@ -644,12 +723,6 @@ const DraggableGrid: React.FC<DraggableGridProps> = ({
                           inset 0 1px 0 rgba(255, 255, 255, 0.2),
                           0 6px 20px rgba(91, 1, 8, 0.08)
                         `,
-                        transition: { duration: 0.2 },
-                      }
-                    : isLibrary && !isDragged && !isTransitioning && isDesktop
-                    ? {
-                        scale: 1.01,
-                        transition: { duration: 0.2 },
                       }
                     : {}
                 }
@@ -657,7 +730,6 @@ const DraggableGrid: React.FC<DraggableGridProps> = ({
                   !isDragged && !isTransitioning && !isLibrary && !isMobile
                     ? {
                         scale: 0.98,
-                        transition: { duration: 0.1 },
                       }
                     : {}
                 }

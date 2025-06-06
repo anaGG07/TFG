@@ -101,11 +101,13 @@ const CycleVisual: React.FC<CycleVisualProps> = ({ expanded = true, onMoodColorC
     return (
       <div style={{ 
         width: '100%', 
-        height: isMobile ? 240 : isTablet ? 280 : 320, 
+        height: '100%', 
         display: 'flex', 
         alignItems: 'center', 
         justifyContent: 'center', 
-        background: 'transparent' 
+        background: 'transparent',
+        padding: isMobile ? 16 : 24,
+        minHeight: 'auto'
       }}>
         <img 
           src="/img/UteroRojo.svg" 
@@ -113,7 +115,8 @@ const CycleVisual: React.FC<CycleVisualProps> = ({ expanded = true, onMoodColorC
           style={{ 
             width: uterusSize.width, 
             height: uterusSize.height, 
-            opacity: 0.97 
+            opacity: 0.97,
+            objectFit: 'contain'
           }} 
         />
       </div>

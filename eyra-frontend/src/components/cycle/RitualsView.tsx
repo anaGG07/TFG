@@ -171,7 +171,7 @@ const RitualsView: React.FC<RitualsViewProps> = ({ expanded = true }) => {
           background: 'transparent',
           borderRadius: 18,
           padding: isMobile ? 16 : 24,
-          minHeight: isMobile ? 160 : 180,
+          height: '100%',
           width: '100%',
           overflow: 'hidden',
         }}
@@ -182,7 +182,8 @@ const RitualsView: React.FC<RitualsViewProps> = ({ expanded = true }) => {
           style={{ 
             width: svgSize.width, 
             height: svgSize.height, 
-            opacity: 0.97 
+            opacity: 0.97,
+            objectFit: 'contain'
           }} 
         />
       </motion.div>

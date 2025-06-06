@@ -126,7 +126,7 @@ El Panel de Administración de EYRA representa una de las funcionalidades centra
 
 ## 🚀 Rendimiento y Optimizaciones
 
-### Optimizaciones Implementadas
+### Optimizaciones Implementadas 
 
 1. **Paginación**: Cargas eficientes de grandes datasets
 2. **Lazy Loading**: Carga bajo demanda de componentes

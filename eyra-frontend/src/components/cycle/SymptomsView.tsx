@@ -13,7 +13,6 @@ import {
   Legend,
   Filler,
 } from 'chart.js';
-import { useCycle } from '../../context/CycleContext';
 import { SYMPTOM_OPTIONS } from '../../constants/cycle';
 import { SymptomIcons } from '../icons/CycleIcons';
 import { getSymptomHistory, getSymptomPatterns, SymptomLog, SymptomPattern } from '../../services/symptomService';
@@ -146,7 +145,7 @@ const SymptomsView: React.FC<SymptomsViewProps> = ({ expanded = true }) => {
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            minHeight: isMobile ? 160 : 180,
+            height: '100%',
             width: '100%',
           }}
         >
@@ -174,7 +173,7 @@ const SymptomsView: React.FC<SymptomsViewProps> = ({ expanded = true }) => {
           background: 'transparent',
           borderRadius: 18,
           padding: isMobile ? 16 : 24,
-          minHeight: isMobile ? 160 : 180,
+          height: '100%',
           width: '100%',
           overflow: 'hidden',
         }}
@@ -185,7 +184,8 @@ const SymptomsView: React.FC<SymptomsViewProps> = ({ expanded = true }) => {
           style={{ 
             width: svgSize.width, 
             height: svgSize.height, 
-            opacity: 0.97 
+            opacity: 0.97,
+            objectFit: 'contain'
           }} 
         />
       </motion.div>
