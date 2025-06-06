@@ -1,3 +1,9 @@
+# Cargar primero los controladores personalizados para que tengan precedencia
+api_conditions:
+    resource: '../../src/Controller/ConditionController.php'
+    type: attribute
+    prefix: /api
+
 api_platform:
     resource: .
     type: api_platform
