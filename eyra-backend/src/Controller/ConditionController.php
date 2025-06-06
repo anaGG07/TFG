@@ -34,6 +34,7 @@ class ConditionController extends AbstractController
     }
 
     #[Route('', name: 'api_conditions_list', methods: ['GET'])]
+    #[IsGranted('ROLE_ADMIN')]
     public function getConditions(): JsonResponse
     {
         // Verificar autenticación
