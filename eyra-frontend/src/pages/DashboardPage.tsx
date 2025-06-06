@@ -74,6 +74,7 @@ const DashboardPage: React.FC = () => {
       {
         id: "reminders",
         title: "Recordatorios",
+        isExpanded: expandedId === "reminders",
         component: (
           <div className="h-full flex flex-col">
             <div className="flex items-center justify-center mb-6">
@@ -159,6 +160,7 @@ const DashboardPage: React.FC = () => {
       {
         id: "wellness",
         title: "Bienestar",
+        isExpanded: expandedId === "wellness",
         component: (
           <div className="h-full flex flex-col">
             <div className="flex items-center justify-center mb-6">
@@ -238,6 +240,7 @@ const DashboardPage: React.FC = () => {
       {
         id: "community",
         title: "Comunidad",
+        isExpanded: expandedId === "community",
         component: (
           <div className="h-full flex flex-col">
             <div className="flex items-center justify-center mb-6">
@@ -305,19 +308,7 @@ const DashboardPage: React.FC = () => {
         ),
       },
     ],
-    [
-      user?.onboarding?.completed,
-      currentCycle,
-      todayData,
-      statistics,
-      notifications,
-      insights,
-      isLoading,
-      error,
-      refreshData,
-      expandedId,
-      cycleMoodColor,
-    ]
+    [expandedId, cycleMoodColor, isMobile, notifications, insights]
   );
 
   return (

@@ -24,7 +24,7 @@ const AboutPage = () => {
           width={dimensions.width}
           height={dimensions.height}
           color="#C62328"
-          radius={Math.max(dimensions.width, dimensions.height) * 0.4}
+          radius={dimensions.width < 700 ? Math.max(dimensions.width, dimensions.height) * 0.5 : Math.max(dimensions.width, dimensions.height) * 0.4}
         />
         {/* SVG decorativo centrado */}
         <img
@@ -32,7 +32,7 @@ const AboutPage = () => {
           alt="Decoración EYRA"
           className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none select-none"
           style={{
-            width: dimensions.width > 900 ? "700px" : "70vw",
+            width: dimensions.width > 900 ? "700px" : "90vw",
             maxWidth: "100vw",
             opacity: 0.5,
             zIndex: 1,
@@ -40,9 +40,9 @@ const AboutPage = () => {
         />
       </div>
 
-      <main className="p-6 md:p-8 w-full max-w-4xl z-10 relative text-center">
+      <main className="p-2 md:p-6 w-full max-w-xl z-10 relative text-center flex flex-col gap-2 md:gap-6">
         <h1
-          className="font-serif text-5xl md:text-6xl font-extrabold mb-6 drop-shadow-[0_4px_24px_rgba(198,35,40,0.5)]"
+          className="font-serif text-2xl md:text-4xl font-extrabold mb-2 md:mb-4 drop-shadow-[0_4px_24px_rgba(198,35,40,0.5)]"
           style={{
             color: "#E7E0D5",
             letterSpacing: "0.04em",
@@ -52,29 +52,29 @@ const AboutPage = () => {
           Sobre EYRA
         </h1>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
-          <div className="bg-[#E7E0D5]/10 backdrop-blur-sm rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all duration-300">
+        <div className="flex flex-col md:grid md:grid-cols-2 gap-2 md:gap-6 mb-2 md:mb-4">
+          <div className="bg-[#E7E0D5]/10 backdrop-blur-sm rounded-2xl p-2 md:p-4 shadow-lg hover:shadow-xl transition-all duration-300">
             <h2
-              className="text-2xl font-bold mb-4"
+              className="text-base md:text-xl font-bold mb-1 md:mb-2"
               style={{ color: "#E7E0D5" }}
             >
               Nuestra Misión
             </h2>
-            <p className="text-lg" style={{ color: "#E7E0D5" }}>
+            <p className="text-xs md:text-base" style={{ color: "#E7E0D5" }}>
               EYRA nace como un espacio seguro y completo para el seguimiento y
               comprensión del ciclo femenino. Más que una app, somos tu
               compañera en cada fase de tu vida.
             </p>
           </div>
 
-          <div className="bg-[#E7E0D5]/10 backdrop-blur-sm rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all duration-300">
+          <div className="bg-[#E7E0D5]/10 backdrop-blur-sm rounded-2xl p-2 md:p-4 shadow-lg hover:shadow-xl transition-all duration-300">
             <h2
-              className="text-2xl font-bold mb-4"
+              className="text-base md:text-xl font-bold mb-1 md:mb-2"
               style={{ color: "#E7E0D5" }}
             >
               Características Principales
             </h2>
-            <ul className="text-lg space-y-2" style={{ color: "#E7E0D5" }}>
+            <ul className="text-xs md:text-base space-y-1 md:space-y-2" style={{ color: "#E7E0D5" }}>
               <li>• Seguimiento personalizado del ciclo</li>
               <li>• Alertas inteligentes y recordatorios</li>
               <li>• Recomendaciones nutricionales y de ejercicio</li>
@@ -83,11 +83,11 @@ const AboutPage = () => {
           </div>
         </div>
 
-        <div className="bg-[#E7E0D5]/10 backdrop-blur-sm rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 mb-8">
-          <h2 className="text-2xl font-bold mb-4" style={{ color: "#E7E0D5" }}>
+        <div className="bg-[#E7E0D5]/10 backdrop-blur-sm rounded-2xl p-2 md:p-4 shadow-lg hover:shadow-xl transition-all duration-300 mb-2 md:mb-6">
+          <h2 className="text-xl md:text-2xl font-bold mb-2 md:mb-4" style={{ color: "#E7E0D5" }}>
             Compromiso con la Inclusividad
           </h2>
-          <p className="text-lg" style={{ color: "#E7E0D5" }}>
+          <p className="text-xs md:text-base" style={{ color: "#E7E0D5" }}>
             EYRA es un espacio para todas las personas. Acompañamos a mujeres,
             personas en transición, parejas y familias en su viaje hacia una
             mejor comprensión y cuidado de la salud femenina.
@@ -96,7 +96,7 @@ const AboutPage = () => {
 
         <Link
           to={ROUTES.HOME}
-          className="inline-block bg-[#E7E0D5] px-8 py-3 text-[#5b0108] font-bold text-lg rounded-full shadow-lg transition-all hover:shadow-[0_4px_24px_0_#E7E0D540]"
+          className="inline-block bg-[#E7E0D5] px-4 py-1 md:px-6 md:py-2 text-[#5b0108] font-bold text-xs md:text-base rounded-full shadow-lg transition-all hover:shadow-[0_4px_24px_0_#E7E0D540]"
           style={{
             letterSpacing: "0.02em",
           }}
