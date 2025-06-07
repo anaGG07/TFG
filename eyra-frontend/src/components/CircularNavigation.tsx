@@ -4,6 +4,8 @@ import { useAuth } from "../context/AuthContext";
 import { ROUTES } from "../router/paths";
 import Blob from "./Blob";
 import { useLogout } from "../hooks/useLogout";
+import { useIsAdmin } from "../hooks/useIsAdmin";
+import UserAvatar from "./UserAvatar";
 
 interface NavigationItem {
   id: string;
@@ -144,6 +146,7 @@ const CircularNavigation: React.FC = () => {
   const location = useLocation();
   const { user } = useAuth();
   const handleLogout = useLogout();
+  const isAdmin = useIsAdmin();
 
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isVisible, setIsVisible] = useState(false);
@@ -355,6 +358,13 @@ const CircularNavigation: React.FC = () => {
           {getDisplayText()}
         </p>
       </div>
+
+      {/* Avatar grande para usuarios no admin - Pegado al borde inferior */}
+      {!isAdmin && (
+        <div className="fixed bottom-4 left-[125px] transform -translate-x-1/2 z-40">
+          <UserAvatar user={user} size="lg" />
+        </div>
+      )}
     </div>
   );
 };
