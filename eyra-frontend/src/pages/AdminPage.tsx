@@ -247,7 +247,7 @@ const AdminPage = () => {
         </div>
         {/* Contenido por pestañas */}
         <div className="w-full flex-1 flex flex-col items-center">
-          <div className="w-full max-w-5xl min-h-[520px] bg-transparent rounded-lg shadow-none p-0 flex-1 flex flex-col justify-start">
+          <div className="w-full max-w-5xl min-w-[1100px] min-h-[520px] bg-transparent rounded-lg shadow-none p-0 flex-1 flex flex-col justify-start">
             <AnimatePresence mode="wait">
               {activeTab === "overview" && (
                 <motion.div

@@ -293,21 +293,21 @@ const UsersTable: React.FC<UsersTableProps> = ({ onRefresh }) => {
 
       {/* Tabla */}
       <div className="overflow-x-auto">
-        <table className="neo-table">
+        <table className="neo-table table-fixed w-full">
           <thead>
             <tr>
-              <th>Nombre</th>
-              <th>Email</th>
-              <th>Rol</th>
-              <th>Estado</th>
-              <th>Fecha de Creación</th>
-              <th>Acciones</th>
+              <th className="px-4">Nombre</th>
+              <th className="px-4">Email</th>
+              <th className="px-4">Rol</th>
+              <th className="px-4">Estado</th>
+              <th className="px-4">Fecha de Creación</th>
+              <th className="px-4">Acciones</th>
             </tr>
           </thead>
           <tbody>
             {users.map((user) => (
               <tr key={user.id}>
-                <td>
+                <td className="px-4">
                   <div className="flex items-center">
                     <div className="flex-shrink-0 h-10 w-10">
                       <div className="neo-avatar h-10 w-10 bg-[#b91c1c] text-white flex items-center justify-center font-semibold">
@@ -324,25 +324,25 @@ const UsersTable: React.FC<UsersTableProps> = ({ onRefresh }) => {
                     </div>
                   </div>
                 </td>
-                <td>
+                <td className="px-4">
                   <span className="text-sm text-gray-900" title={user.email}>
                     {user.email}
                   </span>
                 </td>
-                <td>
+                <td className="px-4">
                   <div className="flex flex-wrap gap-1">
                     {user.roles.map((role) => (
                       <span key={role} className={`neo-badge ${role === 'ROLE_ADMIN' ? 'neo-badge-purple' : role === 'ROLE_GUEST' ? 'neo-badge-gray' : 'neo-badge-blue'}`}>{RoleLabels[role] || role}</span>
                     ))}
                   </div>
                 </td>
-                <td>
+                <td className="px-4">
                   <span className={`neo-badge ${user.state ? 'neo-badge-green' : 'neo-badge-red'}`}> 
                     {user.state ? 'Activo' : 'Inactivo'}
                   </span>
                 </td>
-                <td className="text-sm text-gray-900">{formatDate(user.createdAt)}</td>
-                <td>
+                <td className="px-4 text-sm text-gray-900">{formatDate(user.createdAt)}</td>
+                <td className="px-4">
                   <div className="flex space-x-2">
                     <button
                       onClick={() => handleViewUser(user)}
