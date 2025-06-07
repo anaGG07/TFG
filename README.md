@@ -4,7 +4,7 @@ EYRA es una aplicación web completa para el seguimiento menstrual y salud repro
 
 ## 🌐 Acceso Directo
 **Enlace al repositorio GIT**: [https://github.com/anaGG07/TFG](https://github.com/anaGG07/TFG)
-**URL de la aplicación**: [https://old.eyraclub.es/](https://old.eyraclub.es/)
+**URL de la aplicación**: [https://eyraclub.es/](https://eyraclub.es/)
 
 ### Credenciales de prueba
 - **Usuario administrador**: `admin@gmail.com`
@@ -133,7 +133,7 @@ npm run dev
 ## 📖 Uso de la aplicación
 
 ### Para usuarios nuevos:
-1. Accede a [https://old.eyraclub.es/](https://old.eyraclub.es/)
+1. Accede a [https://eyraclub.es/](https://eyraclub.es/)
 2. Regístrate con tu email y contraseña
 3. Completa el proceso de onboarding
 4. Comienza a registrar tu información diaria
@@ -154,7 +154,7 @@ EYRA sigue una guía de estilos específica basada en:
 
 ## 🔧 API y documentación
 
-- **Documentación de la API**: `https://old.eyraclub.es/api/docs`
+- **Documentación de la API**: `https://eyraclub.es/api/docs`
 - **Endpoints principales**:
   - Autenticación: `/api/auth`
   - Usuarios: `/api/users`
