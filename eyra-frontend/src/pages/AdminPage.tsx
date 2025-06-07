@@ -96,29 +96,26 @@ const DiskIcon = ({ className }: { className?: string }) => (
   </svg>
 );
 
-// Iconos SVG para las cajas de resumen (solo línea, sin fondo ni relleno)
+// Iconos SVG para las cajas de resumen (ajustados para ocupar todo el viewBox)
 const UsersSummaryIcon = ({ className }: { className?: string }) => (
   <svg className={className} viewBox="0 0 32 32" fill="none" stroke="#C62328" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-    <circle cx="16" cy="11" r="6" fill="none" />
-    <circle cx="16" cy="11" r="6" stroke="#C62328" strokeWidth="2.2" fill="none" />
-    <path d="M8 27v-2a8 8 0 0 1 16 0v2" stroke="#C62328" strokeWidth="2.2" fill="none" />
+    <circle cx="16" cy="12" r="10" fill="none" stroke="#C62328" strokeWidth="2.2" />
+    <path d="M4 30v-2c0-6.627 5.373-12 12-12s12 5.373 12 12v2" stroke="#C62328" strokeWidth="2.2" fill="none" />
   </svg>
 );
 const ActiveSummaryIcon = ({ className }: { className?: string }) => (
   <svg className={className} viewBox="0 0 32 32" fill="none" stroke="#15803d" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-    <circle cx="16" cy="11" r="6" fill="none" />
-    <circle cx="16" cy="11" r="6" stroke="#15803d" strokeWidth="2.2" fill="none" />
-    <path d="M8 27v-2a8 8 0 0 1 16 0v2" stroke="#15803d" strokeWidth="2.2" fill="none" />
-    <path d="M13 14l3 3 4-4" stroke="#15803d" strokeWidth="2.2" fill="none" />
+    <circle cx="16" cy="12" r="10" fill="none" stroke="#15803d" strokeWidth="2.2" />
+    <path d="M4 30v-2c0-6.627 5.373-12 12-12s12 5.373 12 12v2" stroke="#15803d" strokeWidth="2.2" fill="none" />
+    <path d="M12 16l4 4 6-6" stroke="#15803d" strokeWidth="2.2" fill="none" />
   </svg>
 );
 const AdminSummaryIcon = ({ className }: { className?: string }) => (
   <svg className={className} viewBox="0 0 32 32" fill="none" stroke="#7c2d12" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-    <circle cx="16" cy="11" r="6" fill="none" />
-    <circle cx="16" cy="11" r="6" stroke="#7c2d12" strokeWidth="2.2" fill="none" />
-    <path d="M8 27v-2a8 8 0 0 1 16 0v2" stroke="#7c2d12" strokeWidth="2.2" fill="none" />
-    <circle cx="16" cy="11" r="2" fill="none" stroke="#7c2d12" strokeWidth="1.5" />
-    <path d="M16 7v4" stroke="#7c2d12" strokeWidth="2.2" />
+    <circle cx="16" cy="12" r="10" fill="none" stroke="#7c2d12" strokeWidth="2.2" />
+    <path d="M4 30v-2c0-6.627 5.373-12 12-12s12 5.373 12 12v2" stroke="#7c2d12" strokeWidth="2.2" fill="none" />
+    <circle cx="16" cy="12" r="3.5" fill="none" stroke="#7c2d12" strokeWidth="1.5" />
+    <path d="M16 7v6" stroke="#7c2d12" strokeWidth="2.2" />
   </svg>
 );
 
