@@ -223,8 +223,12 @@ const AdminPage = () => {
       <div className="max-w-7xl mx-auto pl-8 pr-4 pt-6 pb-6 flex flex-col h-full min-h-0">
         {/* Header */}
         <div className="mb-6">
-          <h1 className="text-4xl font-bold text-[#7a2323] mb-2 font-serif">Panel de Administración</h1>
-          <p className="text-[#7a2323]/70">Bienvenido/a, {user.name}. Aquí puedes gestionar el sistema EYRA.</p>
+          <h1 className="text-4xl font-bold text-[#7a2323] mb-2 font-serif">
+            Panel de Administración
+          </h1>
+          <p className="text-[#7a2323]/70">
+            Bienvenido/a, {user.name}. Aquí puedes gestionar el sistema EYRA.
+          </p>
         </div>
         {/* Navegación por pestañas */}
         <div className="flex flex-row gap-3 items-center mb-2">
@@ -233,7 +237,11 @@ const AdminPage = () => {
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
               className={`rounded-xl px-5 py-2 font-semibold text-base font-serif transition-all duration-200 focus:outline-none neo-shadow-sm
-                ${activeTab === tab.id ? "bg-[#f8b4b4]/60 ring-2 ring-[#C62328] shadow-inner text-[#C62328]" : "bg-transparent hover:bg-[#f8b4b4]/30 text-[#7a2323]"}
+                ${
+                  activeTab === tab.id
+                    ? "bg-[#f8b4b4]/60 ring-2 ring-[#C62328] shadow-inner text-[#C62328]"
+                    : "bg-transparent hover:bg-[#f8b4b4]/30 text-[#7a2323]"
+                }
               `}
               aria-label={tab.label}
             >
@@ -258,14 +266,22 @@ const AdminPage = () => {
                   <div className="flex flex-col items-center gap-4">
                     <div className="flex gap-2 mb-2">
                       <button
-                        className={`rounded-full p-2 transition-all duration-200 ${!showChart ? "ring-2 ring-[#a7f3d0] bg-white" : "bg-transparent"}`}
+                        className={`rounded-full p-2 transition-all duration-200 ${
+                          !showChart
+                            ? "ring-2 ring-[#a7f3d0] bg-white"
+                            : "bg-transparent"
+                        }`}
                         onClick={() => setShowChart(false)}
                         aria-label="Ver resumen"
                       >
                         <TableToggleIcon active={!showChart} />
                       </button>
                       <button
-                        className={`rounded-full p-2 transition-all duration-200 ${showChart ? "ring-2 ring-[#f8b4b4] bg-white" : "bg-transparent"}`}
+                        className={`rounded-full p-2 transition-all duration-200 ${
+                          showChart
+                            ? "ring-2 ring-[#f8b4b4] bg-white"
+                            : "bg-transparent"
+                        }`}
                         onClick={() => setShowChart(true)}
                         aria-label="Ver gráfica"
                       >
@@ -282,11 +298,18 @@ const AdminPage = () => {
                           transition={{ duration: 0.4, ease: "easeInOut" }}
                           className="w-full max-w-xs mx-auto rounded-full p-0 flex items-center justify-center relative"
                         >
-                          <Doughnut data={doughnutData} options={doughnutOptions} />
+                          <Doughnut
+                            data={doughnutData}
+                            options={doughnutOptions}
+                          />
                           {/* Círculo central con total de usuarios */}
                           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col items-center justify-center">
-                            <span className="text-4xl font-bold text-[#C62328] font-serif drop-shadow">{stats?.totalUsers?.toLocaleString() || "0"}</span>
-                            <span className="text-base text-[#7a2323]/70 font-serif">Usuarios</span>
+                            <span className="text-4xl font-bold text-[#C62328] font-serif drop-shadow">
+                              {stats?.totalUsers?.toLocaleString() || "0"}
+                            </span>
+                            <span className="text-base text-[#7a2323]/70 font-serif">
+                              Usuarios
+                            </span>
                           </div>
                         </motion.div>
                       ) : (
@@ -299,30 +322,42 @@ const AdminPage = () => {
                           className="grid grid-cols-1 md:grid-cols-3 gap-8 w-full justify-center mt-4 mb-4"
                         >
                           <div className="flex flex-col items-center">
-                            <div className="w-20 h-20 rounded-full shadow-[0_2px_12px_rgba(91,1,8,0.10),0_-2px_12px_rgba(255,255,255,0.25)] flex items-center justify-center -mb-8 z-10 bg-transparent">
+                            <div className="w-20 h-20 rounded-full shadow-[0_2px_12px_rgba(91,1,8,0.10),0_-2px_12px_rgba(255,255,255,0.25)] flex items-center justify-center -mb-8 z-10 bg-[#e7e0d5]">
                               <UsersSummaryIcon className="w-16 h-16" />
                             </div>
                             <NeomorphicCard className="flex flex-col items-center justify-center gap-3 bg-[#f8b4b4]/30 w-36 h-36 min-w-[8rem] min-h-[8rem] max-w-[9rem] max-h-[9rem] p-0 z-0">
-                              <h3 className="text-base font-semibold text-[#C62328] font-serif mt-8">Usuarios</h3>
-                              <p className="text-3xl font-bold text-[#991b1b]">{stats?.totalUsers?.toLocaleString() || "0"}</p>
+                              <h3 className="text-base font-semibold text-[#C62328] font-serif mt-8">
+                                Usuarios
+                              </h3>
+                              <p className="text-3xl font-bold text-[#991b1b]">
+                                {stats?.totalUsers?.toLocaleString() || "0"}
+                              </p>
                             </NeomorphicCard>
                           </div>
                           <div className="flex flex-col items-center">
-                            <div className="w-20 h-20 rounded-full shadow-[0_2px_12px_rgba(21,128,61,0.10),0_-2px_12px_rgba(255,255,255,0.25)] flex items-center justify-center -mb-8 z-10 bg-transparent">
+                            <div className="w-20 h-20 rounded-full shadow-[0_2px_12px_rgba(21,128,61,0.10),0_-2px_12px_rgba(255,255,255,0.25)] flex items-center justify-center -mb-8 z-10 bg-[#e7e0d5]">
                               <ActiveSummaryIcon className="w-16 h-16" />
                             </div>
                             <NeomorphicCard className="flex flex-col items-center justify-center gap-3 bg-[#a7f3d0]/30 w-36 h-36 min-w-[8rem] min-h-[8rem] max-w-[9rem] max-h-[9rem] p-0 z-0">
-                              <h3 className="text-base font-semibold text-[#15803d] font-serif mt-8">Activos</h3>
-                              <p className="text-3xl font-bold text-[#15803d]">{stats?.activeUsers?.toLocaleString() || "0"}</p>
+                              <h3 className="text-base font-semibold text-[#15803d] font-serif mt-8">
+                                Activos
+                              </h3>
+                              <p className="text-3xl font-bold text-[#15803d]">
+                                {stats?.activeUsers?.toLocaleString() || "0"}
+                              </p>
                             </NeomorphicCard>
                           </div>
                           <div className="flex flex-col items-center">
-                            <div className="w-20 h-20 rounded-full shadow-[0_2px_12px_rgba(124,45,18,0.10),0_-2px_12px_rgba(255,255,255,0.25)] flex items-center justify-center -mb-8 z-10 bg-transparent">
+                            <div className="w-20 h-20 rounded-full shadow-[0_2px_12px_rgba(124,45,18,0.10),0_-2px_12px_rgba(255,255,255,0.25)] flex items-center justify-center -mb-8 z-10 bg-[#e7e0d5]">
                               <AdminSummaryIcon className="w-16 h-16" />
                             </div>
                             <NeomorphicCard className="flex flex-col items-center justify-center gap-3 bg-[#ddd6fe]/30 w-36 h-36 min-w-[8rem] min-h-[8rem] max-w-[9rem] max-h-[9rem] p-0 z-0">
-                              <h3 className="text-base font-semibold text-[#7c2d12] font-serif mt-8">Admins</h3>
-                              <p className="text-3xl font-bold text-[#7c2d12]">{stats?.adminUsers?.toLocaleString() || "0"}</p>
+                              <h3 className="text-base font-semibold text-[#7c2d12] font-serif mt-8">
+                                Admins
+                              </h3>
+                              <p className="text-3xl font-bold text-[#7c2d12]">
+                                {stats?.adminUsers?.toLocaleString() || "0"}
+                              </p>
                             </NeomorphicCard>
                           </div>
                         </motion.div>
@@ -331,7 +366,9 @@ const AdminPage = () => {
                   </div>
                   {/* Columna 2: Actividad reciente */}
                   <div className="flex flex-col gap-4">
-                    <h3 className="text-xl font-semibold text-[#7a2323] font-serif mb-2">Actividad Reciente</h3>
+                    <h3 className="text-xl font-semibold text-[#7a2323] font-serif mb-2">
+                      Actividad Reciente
+                    </h3>
                     <div className="space-y-3">
                       {isLoadingStats ? (
                         <div className="animate-pulse flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
@@ -358,9 +395,14 @@ const AdminPage = () => {
 
                           // Mostrar nombre en registro de usuario
                           let title = activity.title;
-                          if (activity.type === "user_registered" && activity.description) {
+                          if (
+                            activity.type === "user_registered" &&
+                            activity.description
+                          ) {
                             // Extraer nombre del usuario del description
-                            const match = activity.description.match(/([\wáéíóúüñÁÉÍÓÚÜÑ\s\-\.]+)/i);
+                            const match = activity.description.match(
+                              /([\wáéíóúüñÁÉÍÓÚÜÑ\s\-\.]+)/i
+                            );
                             const nombre = match ? match[1].trim() : "";
                             title = `Nuevo usuario: ${nombre}`;
                           }
@@ -370,19 +412,35 @@ const AdminPage = () => {
                               key={activity.id}
                               className={`flex items-center space-x-3 p-3 ${bgColor} rounded-lg border`}
                             >
-                              <span className="flex items-center justify-center neo-shadow-sm rounded-full bg-white/80 border border-white" style={{ width: 38, height: 38, minWidth: 38, minHeight: 38 }}>
+                              <span
+                                className="flex items-center justify-center neo-shadow-sm rounded-full bg-white/80 border border-white"
+                                style={{
+                                  width: 38,
+                                  height: 38,
+                                  minWidth: 38,
+                                  minHeight: 38,
+                                }}
+                              >
                                 <Icon className="w-7 h-7" />
                               </span>
                               <div className="flex-1">
-                                <div className="text-sm font-medium text-[#7a2323]">{title}</div>
-                                <div className="text-xs text-[#7a2323]/60">{adminStatsService.formatRelativeTime(activity.timestamp)}</div>
+                                <div className="text-sm font-medium text-[#7a2323]">
+                                  {title}
+                                </div>
+                                <div className="text-xs text-[#7a2323]/60">
+                                  {adminStatsService.formatRelativeTime(
+                                    activity.timestamp
+                                  )}
+                                </div>
                               </div>
                             </div>
                           );
                         })
                       )}
                       {!isLoadingStats && recentActivity.length === 0 && (
-                        <div className="text-center py-4 text-gray-500">No hay actividad reciente</div>
+                        <div className="text-center py-4 text-gray-500">
+                          No hay actividad reciente
+                        </div>
                       )}
                     </div>
                   </div>
@@ -398,7 +456,9 @@ const AdminPage = () => {
                   className="w-full"
                   style={{ minWidth: 0 }}
                 >
-                  <h2 className="text-2xl font-semibold mb-6">Gestión de Usuarios</h2>
+                  <h2 className="text-2xl font-semibold mb-6">
+                    Gestión de Usuarios
+                  </h2>
                   <UsersTable onRefresh={() => loadData()} />
                 </motion.div>
               )}
@@ -412,7 +472,9 @@ const AdminPage = () => {
                   className="w-full"
                   style={{ minWidth: 0 }}
                 >
-                  <h2 className="text-2xl font-semibold mb-6">Gestión de Condiciones</h2>
+                  <h2 className="text-2xl font-semibold mb-6">
+                    Gestión de Condiciones
+                  </h2>
                   <ConditionsTable onRefresh={() => loadData()} />
                 </motion.div>
               )}
@@ -426,7 +488,9 @@ const AdminPage = () => {
                   className="w-full"
                   style={{ minWidth: 0 }}
                 >
-                  <h2 className="text-2xl font-semibold mb-6">Gestión de Contenido</h2>
+                  <h2 className="text-2xl font-semibold mb-6">
+                    Gestión de Contenido
+                  </h2>
                   <ContentTable onRefresh={() => loadData()} />
                 </motion.div>
               )}
