@@ -18,6 +18,7 @@ import LogoutPage from "../pages/LogoutPage";
 import SettingsPage from "../pages/SettingsPage";
 import LibraryPage from "../pages/LibraryPage";
 import AboutPage from "../pages/AboutPage";
+import AIAssistantPage from "../pages/AIAssistantPage";
 
 // Restricciones para rutas
 import ProtectedRoute from "./ProtectedRoute";
@@ -130,6 +131,14 @@ export const router = createBrowserRouter([
           <RoleRoute allowedRoles={["ROLE_ADMIN"]} requireOnboarding={true}>
             <AdminPage />
           </RoleRoute>
+        ),
+      },
+      {
+        path: ROUTES.AI_ASSISTANT,
+        element: (
+          <ProtectedRoute requireOnboarding={true}>
+            <AIAssistantPage />
+          </ProtectedRoute>
         ),
       },
     ],

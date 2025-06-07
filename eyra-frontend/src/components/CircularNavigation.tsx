@@ -192,7 +192,7 @@ const CircularNavigation: React.FC = () => {
       id: "ai-assistant",
       label: "Asistente IA",
       icon: AIIcon,
-      route: "/ai-assistant",
+      route: ROUTES.AI_ASSISTANT,
       color: "#470002",
     },
     {

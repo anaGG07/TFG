@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import { ROUTES } from '../../router/paths';
 
 export const Footer = () => {
   const currentYear = new Date().getFullYear();
@@ -33,7 +34,7 @@ export const Footer = () => {
                 </Link>
               </li>
               <li>
-                <Link to="/assistant" className="text-gray-300 hover:text-white transition">
+                <Link to={ROUTES.AI_ASSISTANT} className="text-gray-300 hover:text-white transition">
                   Asistente IA
                 </Link>
               </li>
