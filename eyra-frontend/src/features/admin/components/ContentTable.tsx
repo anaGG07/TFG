@@ -8,13 +8,15 @@ import ContentEditModal from './ContentEditModal';
 import ContentViewModal from './ContentViewModal';
 import ContentCreateModal from './ContentCreateModal';
 
+type SafeContent = Content & { description?: string; summary?: string };
+
 interface ContentTableProps {
   onRefresh?: () => void;
 }
 
 const ContentTable: React.FC<ContentTableProps> = ({ onRefresh }) => {
-  const [contents, setContents] = useState<Content[]>([]);
-  const [allContents, setAllContents] = useState<Content[]>([]);
+  const [contents, setContents] = useState<SafeContent[]>([]);
+  const [allContents, setAllContents] = useState<SafeContent[]>([]);
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -25,7 +27,7 @@ const ContentTable: React.FC<ContentTableProps> = ({ onRefresh }) => {
   const [phaseFilter, setPhaseFilter] = useState<string>('all');
   
   // Modales
-  const [selectedContent, setSelectedContent] = useState<Content | null>(null);
+  const [selectedContent, setSelectedContent] = useState<SafeContent | null>(null);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
@@ -53,7 +55,7 @@ const ContentTable: React.FC<ContentTableProps> = ({ onRefresh }) => {
       const term = searchTerm.toLowerCase();
       filteredContents = filteredContents.filter(content =>
         content.title.toLowerCase().includes(term) ||
-        content.summary.toLowerCase().includes(term) ||
+        (content.summary || content.description || "").toLowerCase().includes(term) ||
         content.tags?.some(tag => tag.toLowerCase().includes(term))
       );
     }
@@ -81,17 +83,17 @@ const ContentTable: React.FC<ContentTableProps> = ({ onRefresh }) => {
     setPhaseFilter('all');
   };
 
-  const handleViewContent = (content: Content) => {
+  const handleViewContent = (content: SafeContent) => {
     setSelectedContent(content);
     setIsViewModalOpen(true);
   };
 
-  const handleEditContent = (content: Content) => {
+  const handleEditContent = (content: SafeContent) => {
     setSelectedContent(content);
     setIsEditModalOpen(true);
   };
 
-  const handleDeleteContent = async (content: Content) => {
+  const handleDeleteContent = async (content: SafeContent) => {
     if (!confirm(`¿Estás seguro de que quieres eliminar el contenido "${content.title}"?`)) {
       return;
     }
@@ -299,10 +301,10 @@ const ContentTable: React.FC<ContentTableProps> = ({ onRefresh }) => {
                   </div>
                 </td>
                 <td>
-                  <span className="text-sm text-gray-900" title={content.summary}>
-                    {content.summary.length > 100 
-                      ? content.summary.substring(0, 100) + '...' 
-                      : content.summary}
+                  <span className="text-sm text-gray-900" title={content.summary || content.description || ""}>
+                    {(content.summary || content.description || "").length > 100 
+                      ? (content.summary || content.description || "").substring(0, 100) + '...' 
+                      : (content.summary || content.description || "")}
                   </span>
                 </td>
                 <td>

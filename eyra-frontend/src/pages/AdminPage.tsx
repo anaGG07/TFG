@@ -96,29 +96,29 @@ const DiskIcon = ({ className }: { className?: string }) => (
   </svg>
 );
 
-// Iconos SVG para las cajas de resumen
+// Iconos SVG para las cajas de resumen (rediseñados estilo CircularNavigation)
 const UsersSummaryIcon = ({ className }: { className?: string }) => (
-  <svg className={className} viewBox="0 0 32 32" fill="none" stroke="#C62328" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-    <circle cx="16" cy="11" r="6" fill="#f8b4b4" />
-    <path d="M5 27v-2a7 7 0 0 1 7-7h8a7 7 0 0 1 7 7v2" fill="#fff" />
-    <circle cx="16" cy="11" r="6" stroke="#C62328" strokeWidth="2.5" fill="none" />
+  <svg className={className} viewBox="0 0 32 32" fill="none" stroke="#C62328" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="16" cy="11" r="6" fill="#fff" />
+    <circle cx="16" cy="11" r="6" stroke="#C62328" strokeWidth="2.2" fill="none" />
+    <path d="M8 27v-2a8 8 0 0 1 16 0v2" stroke="#C62328" strokeWidth="2.2" fill="none" />
   </svg>
 );
 const ActiveSummaryIcon = ({ className }: { className?: string }) => (
-  <svg className={className} viewBox="0 0 32 32" fill="none" stroke="#15803d" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-    <circle cx="16" cy="11" r="6" fill="#a7f3d0" />
-    <path d="M5 27v-2a7 7 0 0 1 7-7h8a7 7 0 0 1 7 7v2" fill="#fff" />
-    <circle cx="16" cy="11" r="6" stroke="#15803d" strokeWidth="2.5" fill="none" />
-    <path d="M12 15l3 3 5-5" stroke="#15803d" strokeWidth="2.5" />
+  <svg className={className} viewBox="0 0 32 32" fill="none" stroke="#15803d" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="16" cy="11" r="6" fill="#fff" />
+    <circle cx="16" cy="11" r="6" stroke="#15803d" strokeWidth="2.2" fill="none" />
+    <path d="M8 27v-2a8 8 0 0 1 16 0v2" stroke="#15803d" strokeWidth="2.2" fill="none" />
+    <path d="M13 14l3 3 4-4" stroke="#15803d" strokeWidth="2.2" fill="none" />
   </svg>
 );
 const AdminSummaryIcon = ({ className }: { className?: string }) => (
-  <svg className={className} viewBox="0 0 32 32" fill="none" stroke="#7c2d12" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-    <circle cx="16" cy="11" r="6" fill="#ddd6fe" />
-    <path d="M5 27v-2a7 7 0 0 1 7-7h8a7 7 0 0 1 7 7v2" fill="#fff" />
-    <circle cx="16" cy="11" r="6" stroke="#7c2d12" strokeWidth="2.5" fill="none" />
-    <path d="M16 7v4" stroke="#7c2d12" strokeWidth="2.5" />
-    <circle cx="16" cy="11" r="2" fill="#fff" stroke="#7c2d12" strokeWidth="2" />
+  <svg className={className} viewBox="0 0 32 32" fill="none" stroke="#7c2d12" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="16" cy="11" r="6" fill="#fff" />
+    <circle cx="16" cy="11" r="6" stroke="#7c2d12" strokeWidth="2.2" fill="none" />
+    <path d="M8 27v-2a8 8 0 0 1 16 0v2" stroke="#7c2d12" strokeWidth="2.2" fill="none" />
+    <circle cx="16" cy="11" r="2" fill="#fff" stroke="#7c2d12" strokeWidth="1.5" />
+    <path d="M16 7v4" stroke="#7c2d12" strokeWidth="2.2" />
   </svg>
 );
 
@@ -246,191 +246,208 @@ const AdminPage = () => {
           ))}
         </div>
         {/* Contenido por pestañas */}
-        <div className="bg-transparent rounded-lg shadow-none p-0 flex-1 min-h-0">
-          <AnimatePresence mode="wait">
-            {activeTab === "overview" && (
-              <motion.div
-                key="overview"
-                initial={{ opacity: 0, y: 30 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -30 }}
-                className="grid grid-cols-1 md:grid-cols-[1fr_370px] gap-12 items-start mt-8 min-h-[420px]"
-              >
-                {/* Columna 1: Resumen o gráfica con toggle */}
-                <div className="flex flex-col items-center gap-4">
-                  <div className="flex gap-2 mb-2">
-                    <button
-                      className={`rounded-full p-2 transition-all duration-200 ${!showChart ? "ring-2 ring-[#a7f3d0] bg-white" : "bg-transparent"}`}
-                      onClick={() => setShowChart(false)}
-                      aria-label="Ver resumen"
-                    >
-                      <TableToggleIcon active={!showChart} />
-                    </button>
-                    <button
-                      className={`rounded-full p-2 transition-all duration-200 ${showChart ? "ring-2 ring-[#f8b4b4] bg-white" : "bg-transparent"}`}
-                      onClick={() => setShowChart(true)}
-                      aria-label="Ver gráfica"
-                    >
-                      <ChartToggleIcon active={showChart} />
-                    </button>
-                  </div>
-                  <AnimatePresence mode="wait">
-                    {showChart ? (
-                      <motion.div
-                        key="doughnut"
-                        initial={{ opacity: 0, scale: 0.95 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        exit={{ opacity: 0, scale: 0.95 }}
-                        transition={{ duration: 0.4, ease: "easeInOut" }}
-                        className="w-full max-w-xs mx-auto rounded-full p-0 flex items-center justify-center relative"
+        <div className="w-full flex-1 flex flex-col items-center">
+          <div className="w-full max-w-5xl min-h-[520px] bg-transparent rounded-lg shadow-none p-0 flex-1 flex flex-col justify-start">
+            <AnimatePresence mode="wait">
+              {activeTab === "overview" && (
+                <motion.div
+                  key="overview"
+                  initial={{ opacity: 0, y: 30 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -30 }}
+                  className="grid grid-cols-1 md:grid-cols-[1fr_370px] gap-12 items-start mt-8 min-h-[420px]"
+                  style={{ minWidth: 0 }}
+                >
+                  {/* Columna 1: Resumen o gráfica con toggle */}
+                  <div className="flex flex-col items-center gap-4">
+                    <div className="flex gap-2 mb-2">
+                      <button
+                        className={`rounded-full p-2 transition-all duration-200 ${!showChart ? "ring-2 ring-[#a7f3d0] bg-white" : "bg-transparent"}`}
+                        onClick={() => setShowChart(false)}
+                        aria-label="Ver resumen"
                       >
-                        <Doughnut data={doughnutData} options={doughnutOptions} />
-                        {/* Círculo central con total de usuarios */}
-                        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col items-center justify-center">
-                          <span className="text-4xl font-bold text-[#C62328] font-serif drop-shadow">{stats?.totalUsers?.toLocaleString() || "0"}</span>
-                          <span className="text-base text-[#7a2323]/70 font-serif">Usuarios</span>
-                        </div>
-                      </motion.div>
-                    ) : (
-                      <motion.div
-                        key="resumen"
-                        initial={{ opacity: 0, scale: 0.95 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        exit={{ opacity: 0, scale: 0.95 }}
-                        transition={{ duration: 0.4, ease: "easeInOut" }}
-                        className="grid grid-cols-3 gap-4 w-full justify-center"
+                        <TableToggleIcon active={!showChart} />
+                      </button>
+                      <button
+                        className={`rounded-full p-2 transition-all duration-200 ${showChart ? "ring-2 ring-[#f8b4b4] bg-white" : "bg-transparent"}`}
+                        onClick={() => setShowChart(true)}
+                        aria-label="Ver gráfica"
                       >
-                        <NeomorphicCard className="flex flex-col items-center justify-center gap-2 bg-[#f8b4b4]/30 w-28 h-28 min-w-[6.5rem] min-h-[6.5rem] max-w-[7rem] max-h-[7rem]">
-                          <span className="flex items-center justify-center neo-shadow-sm rounded-full bg-white/80 border border-white mb-1" style={{ width: 44, height: 44, minWidth: 44, minHeight: 44 }}>
-                            <UsersSummaryIcon className="w-9 h-9" />
-                          </span>
-                          <h3 className="text-base font-semibold text-[#C62328] font-serif">Usuarios</h3>
-                          <p className="text-3xl font-bold text-[#991b1b]">{stats?.totalUsers?.toLocaleString() || "0"}</p>
-                        </NeomorphicCard>
-                        <NeomorphicCard className="flex flex-col items-center justify-center gap-2 bg-[#a7f3d0]/30 w-28 h-28 min-w-[6.5rem] min-h-[6.5rem] max-w-[7rem] max-h-[7rem]">
-                          <span className="flex items-center justify-center neo-shadow-sm rounded-full bg-white/80 border border-white mb-1" style={{ width: 44, height: 44, minWidth: 44, minHeight: 44 }}>
-                            <ActiveSummaryIcon className="w-9 h-9" />
-                          </span>
-                          <h3 className="text-base font-semibold text-[#15803d] font-serif">Activos</h3>
-                          <p className="text-3xl font-bold text-[#15803d]">{stats?.activeUsers?.toLocaleString() || "0"}</p>
-                        </NeomorphicCard>
-                        <NeomorphicCard className="flex flex-col items-center justify-center gap-2 bg-[#ddd6fe]/30 w-28 h-28 min-w-[6.5rem] min-h-[6.5rem] max-w-[7rem] max-h-[7rem]">
-                          <span className="flex items-center justify-center neo-shadow-sm rounded-full bg-white/80 border border-white mb-1" style={{ width: 44, height: 44, minWidth: 44, minHeight: 44 }}>
-                            <AdminSummaryIcon className="w-9 h-9" />
-                          </span>
-                          <h3 className="text-base font-semibold text-[#7c2d12] font-serif">Admins</h3>
-                          <p className="text-3xl font-bold text-[#7c2d12]">{stats?.adminUsers?.toLocaleString() || "0"}</p>
-                        </NeomorphicCard>
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-                </div>
-                {/* Columna 2: Actividad reciente */}
-                <div className="flex flex-col gap-4">
-                  <h3 className="text-xl font-semibold text-[#7a2323] font-serif mb-2">Actividad Reciente</h3>
-                  <div className="space-y-3">
-                    {isLoadingStats ? (
-                      <div className="animate-pulse flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
-                        <div className="w-6 h-6 bg-gray-200 rounded"></div>
-                        <div className="flex-1">
-                          <div className="h-4 bg-gray-200 rounded mb-2"></div>
-                          <div className="h-3 bg-gray-200 rounded w-1/2"></div>
-                        </div>
-                      </div>
-                    ) : (
-                      recentActivity.slice(0, 5).map((activity) => {
-                        const bgColor =
-                          activity.color === "green"
-                            ? "bg-[#a7f3d0]/30 border-[#bbf7d0]"
-                            : activity.color === "red"
-                            ? "bg-[#f8b4b4]/30 border-[#fecaca]"
-                            : "bg-[#ddd6fe]/30 border-[#e9d5ff]";
-
-                        // Elegir icono SVG según tipo/color
-                        let Icon = null;
-                        if (activity.color === "green") Icon = CheckIcon;
-                        else if (activity.color === "red") Icon = UserIcon;
-                        else Icon = DiskIcon;
-
-                        // Mostrar nombre en registro de usuario
-                        let title = activity.title;
-                        if (activity.type === "user_registered" && activity.description) {
-                          // Extraer nombre del usuario del description
-                          const match = activity.description.match(/([\wáéíóúüñÁÉÍÓÚÜÑ\s\-\.]+)/i);
-                          const nombre = match ? match[1].trim() : "";
-                          title = `Nuevo usuario: ${nombre}`;
-                        }
-
-                        return (
-                          <div
-                            key={activity.id}
-                            className={`flex items-center space-x-3 p-3 ${bgColor} rounded-lg border`}
-                          >
-                            <span className="flex items-center justify-center neo-shadow-sm rounded-full bg-white/80 border border-white" style={{ width: 38, height: 38, minWidth: 38, minHeight: 38 }}>
-                              <Icon className="w-7 h-7" />
-                            </span>
-                            <div className="flex-1">
-                              <div className="text-sm font-medium text-[#7a2323]">{title}</div>
-                              <div className="text-xs text-[#7a2323]/60">{adminStatsService.formatRelativeTime(activity.timestamp)}</div>
-                            </div>
+                        <ChartToggleIcon active={showChart} />
+                      </button>
+                    </div>
+                    <AnimatePresence mode="wait">
+                      {showChart ? (
+                        <motion.div
+                          key="doughnut"
+                          initial={{ opacity: 0, scale: 0.95 }}
+                          animate={{ opacity: 1, scale: 1 }}
+                          exit={{ opacity: 0, scale: 0.95 }}
+                          transition={{ duration: 0.4, ease: "easeInOut" }}
+                          className="w-full max-w-xs mx-auto rounded-full p-0 flex items-center justify-center relative"
+                        >
+                          <Doughnut data={doughnutData} options={doughnutOptions} />
+                          {/* Círculo central con total de usuarios */}
+                          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col items-center justify-center">
+                            <span className="text-4xl font-bold text-[#C62328] font-serif drop-shadow">{stats?.totalUsers?.toLocaleString() || "0"}</span>
+                            <span className="text-base text-[#7a2323]/70 font-serif">Usuarios</span>
                           </div>
-                        );
-                      })
-                    )}
-                    {!isLoadingStats && recentActivity.length === 0 && (
-                      <div className="text-center py-4 text-gray-500">No hay actividad reciente</div>
-                    )}
+                        </motion.div>
+                      ) : (
+                        <motion.div
+                          key="resumen"
+                          initial={{ opacity: 0, scale: 0.95 }}
+                          animate={{ opacity: 1, scale: 1 }}
+                          exit={{ opacity: 0, scale: 0.95 }}
+                          transition={{ duration: 0.4, ease: "easeInOut" }}
+                          className="grid grid-cols-1 md:grid-cols-3 gap-8 w-full justify-center mt-4 mb-4"
+                        >
+                          <NeomorphicCard className="flex flex-col items-center justify-center gap-3 bg-[#f8b4b4]/30 w-36 h-36 min-w-[8rem] min-h-[8rem] max-w-[9rem] max-h-[9rem]">
+                            <span className="flex items-center justify-center neo-shadow-sm rounded-full bg-white/80 border border-white mb-2" style={{ width: 56, height: 56, minWidth: 56, minHeight: 56 }}>
+                              <UsersSummaryIcon className="w-12 h-12" />
+                            </span>
+                            <h3 className="text-base font-semibold text-[#C62328] font-serif">Usuarios</h3>
+                            <p className="text-3xl font-bold text-[#991b1b]">{stats?.totalUsers?.toLocaleString() || "0"}</p>
+                          </NeomorphicCard>
+                          <NeomorphicCard className="flex flex-col items-center justify-center gap-3 bg-[#a7f3d0]/30 w-36 h-36 min-w-[8rem] min-h-[8rem] max-w-[9rem] max-h-[9rem]">
+                            <span className="flex items-center justify-center neo-shadow-sm rounded-full bg-white/80 border border-white mb-2" style={{ width: 56, height: 56, minWidth: 56, minHeight: 56 }}>
+                              <ActiveSummaryIcon className="w-12 h-12" />
+                            </span>
+                            <h3 className="text-base font-semibold text-[#15803d] font-serif">Activos</h3>
+                            <p className="text-3xl font-bold text-[#15803d]">{stats?.activeUsers?.toLocaleString() || "0"}</p>
+                          </NeomorphicCard>
+                          <NeomorphicCard className="flex flex-col items-center justify-center gap-3 bg-[#ddd6fe]/30 w-36 h-36 min-w-[8rem] min-h-[8rem] max-w-[9rem] max-h-[9rem]">
+                            <span className="flex items-center justify-center neo-shadow-sm rounded-full bg-white/80 border border-white mb-2" style={{ width: 56, height: 56, minWidth: 56, minHeight: 56 }}>
+                              <AdminSummaryIcon className="w-12 h-12" />
+                            </span>
+                            <h3 className="text-base font-semibold text-[#7c2d12] font-serif">Admins</h3>
+                            <p className="text-3xl font-bold text-[#7c2d12]">{stats?.adminUsers?.toLocaleString() || "0"}</p>
+                          </NeomorphicCard>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </div>
+                  {/* Columna 2: Actividad reciente */}
+                  <div className="flex flex-col gap-4">
+                    <h3 className="text-xl font-semibold text-[#7a2323] font-serif mb-2">Actividad Reciente</h3>
+                    <div className="space-y-3">
+                      {isLoadingStats ? (
+                        <div className="animate-pulse flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
+                          <div className="w-6 h-6 bg-gray-200 rounded"></div>
+                          <div className="flex-1">
+                            <div className="h-4 bg-gray-200 rounded mb-2"></div>
+                            <div className="h-3 bg-gray-200 rounded w-1/2"></div>
+                          </div>
+                        </div>
+                      ) : (
+                        recentActivity.slice(0, 5).map((activity) => {
+                          const bgColor =
+                            activity.color === "green"
+                              ? "bg-[#a7f3d0]/30 border-[#bbf7d0]"
+                              : activity.color === "red"
+                              ? "bg-[#f8b4b4]/30 border-[#fecaca]"
+                              : "bg-[#ddd6fe]/30 border-[#e9d5ff]";
+
+                          // Elegir icono SVG según tipo/color
+                          let Icon = null;
+                          if (activity.color === "green") Icon = CheckIcon;
+                          else if (activity.color === "red") Icon = UserIcon;
+                          else Icon = DiskIcon;
+
+                          // Mostrar nombre en registro de usuario
+                          let title = activity.title;
+                          if (activity.type === "user_registered" && activity.description) {
+                            // Extraer nombre del usuario del description
+                            const match = activity.description.match(/([\wáéíóúüñÁÉÍÓÚÜÑ\s\-\.]+)/i);
+                            const nombre = match ? match[1].trim() : "";
+                            title = `Nuevo usuario: ${nombre}`;
+                          }
+
+                          return (
+                            <div
+                              key={activity.id}
+                              className={`flex items-center space-x-3 p-3 ${bgColor} rounded-lg border`}
+                            >
+                              <span className="flex items-center justify-center neo-shadow-sm rounded-full bg-white/80 border border-white" style={{ width: 38, height: 38, minWidth: 38, minHeight: 38 }}>
+                                <Icon className="w-7 h-7" />
+                              </span>
+                              <div className="flex-1">
+                                <div className="text-sm font-medium text-[#7a2323]">{title}</div>
+                                <div className="text-xs text-[#7a2323]/60">{adminStatsService.formatRelativeTime(activity.timestamp)}</div>
+                              </div>
+                            </div>
+                          );
+                        })
+                      )}
+                      {!isLoadingStats && recentActivity.length === 0 && (
+                        <div className="text-center py-4 text-gray-500">No hay actividad reciente</div>
+                      )}
+                    </div>
+                  </div>
+                </motion.div>
+              )}
+
+              {activeTab === "users" && (
+                <motion.div
+                  key="users"
+                  initial={{ opacity: 0, y: 30 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -30 }}
+                  className="w-full"
+                  style={{ minWidth: 0 }}
+                >
+                  <h2 className="text-2xl font-semibold mb-6">Gestión de Usuarios</h2>
+                  <UsersTable onRefresh={() => loadData()} />
+                </motion.div>
+              )}
+
+              {activeTab === "conditions" && (
+                <motion.div
+                  key="conditions"
+                  initial={{ opacity: 0, y: 30 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -30 }}
+                  className="w-full"
+                  style={{ minWidth: 0 }}
+                >
+                  <h2 className="text-2xl font-semibold mb-6">Gestión de Condiciones</h2>
+                  <ConditionsTable onRefresh={() => loadData()} />
+                </motion.div>
+              )}
+
+              {activeTab === "content" && (
+                <motion.div
+                  key="content"
+                  initial={{ opacity: 0, y: 30 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -30 }}
+                  className="w-full"
+                  style={{ minWidth: 0 }}
+                >
+                  <h2 className="text-2xl font-semibold mb-6">Gestión de Contenido</h2>
+                  <ContentTable onRefresh={() => loadData()} />
+                </motion.div>
+              )}
+
+              {activeTab === "settings" && (
+                <div>
+                  <h2 className="text-2xl font-semibold mb-6">
+                    Configuración del Sistema
+                  </h2>
+                  <div className="text-center py-12">
+                    <span className="text-6xl mb-4 block">⚙️</span>
+                    <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                      Próximamente
+                    </h3>
+                    <p className="text-gray-600">
+                      Las configuraciones del sistema estarán disponibles en una
+                      próxima actualización.
+                    </p>
                   </div>
                 </div>
-              </motion.div>
-            )}
-
-            {activeTab === "users" && (
-              <div>
-                <h2 className="text-2xl font-semibold mb-6">
-                  Gestión de Usuarios
-                </h2>
-                <UsersTable onRefresh={() => loadData()} />
-              </div>
-            )}
-
-            {/* ! 01/06/2025 - Nueva sección para CRUD de condiciones médicas */}
-            {activeTab === "conditions" && (
-              <div>
-                <h2 className="text-2xl font-semibold mb-6">
-                  Gestión de Condiciones Médicas
-                </h2>
-                <ConditionsTable onRefresh={() => loadData()} />
-              </div>
-            )}
-
-            {activeTab === "content" && (
-              <div>
-                <h2 className="text-2xl font-semibold mb-6">
-                  Gestión de Contenido
-                </h2>
-                <ContentTable onRefresh={() => loadData()} />
-              </div>
-            )}
-
-            {activeTab === "settings" && (
-              <div>
-                <h2 className="text-2xl font-semibold mb-6">
-                  Configuración del Sistema
-                </h2>
-                <div className="text-center py-12">
-                  <span className="text-6xl mb-4 block">⚙️</span>
-                  <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                    Próximamente
-                  </h3>
-                  <p className="text-gray-600">
-                    Las configuraciones del sistema estarán disponibles en una
-                    próxima actualización.
-                  </p>
-                </div>
-              </div>
-            )}
-          </AnimatePresence>
+              )}
+            </AnimatePresence>
+          </div>
         </div>
       </div>
     </div>
