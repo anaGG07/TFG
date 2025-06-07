@@ -26,6 +26,7 @@ import PublicOnlyRoute from "./PublicOnlyRoute";
 import RoleRoute from "./RoleRoute";
 import AuthGuard from "../components/auth/AuthGuard";
 import TrackingPage from "../pages/TrackingPage";
+import ResetPasswordPage from "../pages/ResetPasswordPage";
 
 // Router simplificado sin layouts duplicados
 export const router = createBrowserRouter([
@@ -56,6 +57,14 @@ export const router = createBrowserRouter([
         element: (
           <PublicOnlyRoute>
             <RegisterPage />
+          </PublicOnlyRoute>
+        ),
+      },
+      {
+        path: ROUTES.RESET_PASSWORD,
+        element: (
+          <PublicOnlyRoute>
+            <ResetPasswordPage />
           </PublicOnlyRoute>
         ),
       },

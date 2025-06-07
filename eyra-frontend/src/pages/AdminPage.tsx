@@ -96,25 +96,91 @@ const DiskIcon = ({ className }: { className?: string }) => (
   </svg>
 );
 
-// Iconos SVG para las cajas de resumen (ajustados para círculo neomórfico)
+// Iconos SVG para las cajas de resumen con diseño neomórfico y gradiente
 const UsersSummaryIcon = ({ className }: { className?: string }) => (
-  <svg className={className} viewBox="0 0 64 64" width="100%" height="100%" fill="none" stroke="#C62328" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-    <circle cx="32" cy="26" r="12" />
-    <path d="M16 50c0-8 7-14 16-14s16 6 16 14" />
+  <svg className={className} viewBox="0 0 64 64" width="100%" height="100%" fill="none">
+    <defs>
+      <filter id="userShadow">
+        <feGaussianBlur in="SourceAlpha" stdDeviation="3"/>
+        <feOffset dx="2" dy="2" result="offsetblur"/>
+        <feFlood floodColor="#00000020"/>
+        <feComposite in2="offsetblur" operator="in"/>
+        <feMerge>
+          <feMergeNode/>
+          <feMergeNode in="SourceGraphic"/>
+        </feMerge>
+      </filter>
+      <linearGradient id="userGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#DC2626" />
+        <stop offset="100%" stopColor="#B91C1C" />
+      </linearGradient>
+    </defs>
+    <g filter="url(#userShadow)">
+      <circle cx="20" cy="24" r="8" fill="url(#userGradient)" />
+      <circle cx="44" cy="24" r="8" fill="url(#userGradient)" />
+      <path d="M8 44c0-6 5.4-11 12-11s12 5 12 11" fill="url(#userGradient)" />
+      <path d="M32 44c0-6 5.4-11 12-11s12 5 12 11" fill="url(#userGradient)" />
+    </g>
   </svg>
 );
+
 const ActiveSummaryIcon = ({ className }: { className?: string }) => (
-  <svg className={className} viewBox="0 0 64 64" width="100%" height="100%" fill="none" stroke="#15803d" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-    <circle cx="32" cy="26" r="12" />
-    <path d="M16 50c0-8 7-14 16-14s16 6 16 14" />
-    <polyline points="38 38 46 46 58 30" stroke="#15803d" strokeWidth="4" fill="none" />
+  <svg className={className} viewBox="0 0 64 64" width="100%" height="100%" fill="none">
+    <defs>
+      <filter id="activeShadow">
+        <feGaussianBlur in="SourceAlpha" stdDeviation="3"/>
+        <feOffset dx="2" dy="2" result="offsetblur"/>
+        <feFlood floodColor="#00000020"/>
+        <feComposite in2="offsetblur" operator="in"/>
+        <feMerge>
+          <feMergeNode/>
+          <feMergeNode in="SourceGraphic"/>
+        </feMerge>
+      </filter>
+      <linearGradient id="activeGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#22C55E" />
+        <stop offset="100%" stopColor="#16A34A" />
+      </linearGradient>
+    </defs>
+    <g filter="url(#activeShadow)">
+      <circle cx="32" cy="22" r="10" fill="url(#activeGradient)" />
+      <path d="M18 44c0-7 6.3-13 14-13s14 6 14 13" fill="url(#activeGradient)" />
+      <circle cx="48" cy="16" r="8" fill="#10B981" stroke="#ffffff" strokeWidth="2"/>
+      <path d="M44 16l3 3 5-6" stroke="#ffffff" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" fill="none"/>
+    </g>
   </svg>
 );
+
 const AdminSummaryIcon = ({ className }: { className?: string }) => (
-  <svg className={className} viewBox="0 0 64 64" width="100%" height="100%" fill="none" stroke="#7c2d12" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-    <circle cx="32" cy="26" r="12" />
-    <path d="M16 50c0-8 7-14 16-14s16 6 16 14" />
-    <path d="M32 8l4 6 6-2-4 6" stroke="#7c2d12" strokeWidth="2.5" fill="none" />
+  <svg className={className} viewBox="0 0 64 64" width="100%" height="100%" fill="none">
+    <defs>
+      <filter id="adminShadow">
+        <feGaussianBlur in="SourceAlpha" stdDeviation="3"/>
+        <feOffset dx="2" dy="2" result="offsetblur"/>
+        <feFlood floodColor="#00000020"/>
+        <feComposite in2="offsetblur" operator="in"/>
+        <feMerge>
+          <feMergeNode/>
+          <feMergeNode in="SourceGraphic"/>
+        </feMerge>
+      </filter>
+      <linearGradient id="adminGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#F59E0B" />
+        <stop offset="100%" stopColor="#D97706" />
+      </linearGradient>
+      <linearGradient id="crownGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#FCD34D" />
+        <stop offset="100%" stopColor="#F59E0B" />
+      </linearGradient>
+    </defs>
+    <g filter="url(#adminShadow)">
+      <circle cx="32" cy="26" r="10" fill="url(#adminGradient)" />
+      <path d="M18 48c0-7 6.3-13 14-13s14 6 14 13" fill="url(#adminGradient)" />
+      <path d="M24 12l3 6h10l3-6 2 4-2 4h-16l-2-4z" fill="url(#crownGradient)" stroke="#F59E0B" strokeWidth="1"/>
+      <circle cx="24" cy="12" r="2" fill="#FCD34D"/>
+      <circle cx="32" cy="10" r="2" fill="#FCD34D"/>
+      <circle cx="40" cy="12" r="2" fill="#FCD34D"/>
+    </g>
   </svg>
 );
 
@@ -239,7 +305,7 @@ const AdminPage = () => {
               className={`rounded-xl px-5 py-2 font-semibold text-base font-serif transition-all duration-200 focus:outline-none neo-shadow-sm
                 ${
                   activeTab === tab.id
-                    ? "bg-[#f8b4b4]/60 ring-2 ring-[#C62328] shadow-inner text-[#C62328]"
+                    ? "bg-[#e7e0d5]/30 ring-2 ring-[#C62328] shadow-inner text-[#C62328]"
                     : "bg-transparent hover:bg-[#f8b4b4]/30 text-[#7a2323]"
                 }
               `}

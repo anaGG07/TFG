@@ -23,6 +23,7 @@ export const API_ROUTES = {
     ONBOARDING: createApiUrl("/onboarding"),
     REFRESH_TOKEN: createApiUrl("/refresh-token"),
     PASSWORD_RESET: createApiUrl("/password-reset"),
+    PASSWORD_RESET_CONFIRM: createApiUrl("/password-reset/confirm"),
     PASSWORD_CHANGE: createApiUrl("/password-change"),
   },
 
@@ -108,36 +109,41 @@ export const API_ROUTES = {
     FOLLOWING: createApiUrl("/guests/following"),
     INVITATIONS: createApiUrl("/invitation-codes"),
     CREATE_INVITATION: createApiUrl("/invitation-codes/generate"),
-    CREATE_INVITATION_AND_SEND: createApiUrl("/invitation-codes/generate-and-send"),
-    VERIFY_CODE: (code: string) => createApiUrl(`/invitation-codes/verify/${code}`),
-    REDEEM_CODE: (code: string) => createApiUrl(`/invitation-codes/redeem/${code}`),
+    CREATE_INVITATION_AND_SEND: createApiUrl(
+      "/invitation-codes/generate-and-send"
+    ),
+    VERIFY_CODE: (code: string) =>
+      createApiUrl(`/invitation-codes/verify/${code}`),
+    REDEEM_CODE: (code: string) =>
+      createApiUrl(`/invitation-codes/redeem/${code}`),
     REVOKE_INVITATION: (id: string) => createApiUrl(`/invitation-codes/${id}`),
     REVOKE_COMPANION: (id: string) => createApiUrl(`/guests/${id}`),
-    UPDATE_COMPANION_PERMISSIONS: (id: string) => createApiUrl(`/guests/${id}/permissions`),
-    UPDATE_MY_PREFERENCES: (id: string) => createApiUrl(`/guests/${id}/preferences`),
+    UPDATE_COMPANION_PERMISSIONS: (id: string) =>
+      createApiUrl(`/guests/${id}/permissions`),
+    UPDATE_MY_PREFERENCES: (id: string) =>
+      createApiUrl(`/guests/${id}/preferences`),
     AVAILABLE_PERMISSIONS: createApiUrl("/guests/available-permissions"),
   },
 
-  
   ADMIN: {
     USERS: {
-      LIST: createApiUrl('/admin/users'),
+      LIST: createApiUrl("/admin/users"),
       GET: (id: string) => createApiUrl(`/admin/users/${id}`),
       UPDATE: (id: string) => createApiUrl(`/admin/users/${id}`),
       DELETE: (id: string) => createApiUrl(`/admin/users/${id}`),
     },
     CONDITIONS: {
-      LIST: createApiUrl('/conditions'),
+      LIST: createApiUrl("/conditions"),
       GET: (id: string) => createApiUrl(`/conditions/${id}`),
-      CREATE: createApiUrl('/conditions'),
+      CREATE: createApiUrl("/conditions"),
       UPDATE: (id: string) => createApiUrl(`/conditions/${id}`),
       DELETE: (id: string) => createApiUrl(`/conditions/${id}`),
-      SEARCH: createApiUrl('/conditions/search'),
+      SEARCH: createApiUrl("/conditions/search"),
     },
     CONTENT: {
-      LIST: createApiUrl('/admin/content'),
+      LIST: createApiUrl("/admin/content"),
       GET: (id: string) => createApiUrl(`/admin/content/${id}`),
-      CREATE: createApiUrl('/admin/content'),
+      CREATE: createApiUrl("/admin/content"),
       UPDATE: (id: string) => createApiUrl(`/admin/content/${id}`),
       DELETE: (id: string) => createApiUrl(`/admin/content/${id}`),
     },
