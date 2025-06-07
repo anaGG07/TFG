@@ -18,7 +18,7 @@ class EmailService
     {
         try {
             $email = (new TemplatedEmail())
-                ->from('noreply@eyraclub.es')
+                ->from('info@eyraclub.es')
                 ->to($userEmail)
                 ->subject('EYRA - Restablecer contraseña')
                 ->htmlTemplate('emails/password_reset.html.twig')
@@ -51,7 +51,7 @@ class EmailService
     {
         try {
             $email = (new TemplatedEmail())
-                ->from('noreply@eyraclub.es')
+                ->from('info@eyraclub.es')
                 ->to($userEmail)
                 ->subject('¡Bienvenida a EYRA!')
                 ->htmlTemplate('emails/welcome.html.twig')
@@ -81,7 +81,7 @@ class EmailService
     {
         try {
             $email = (new TemplatedEmail())
-                ->from('noreply@eyraclub.es')
+                ->from('info@eyraclub.es')
                 ->to($userEmail)
                 ->subject('EYRA - Recordatorio de tu ciclo')
                 ->htmlTemplate('emails/cycle_reminder.html.twig')
@@ -119,7 +119,7 @@ class EmailService
     ): bool {
         try {
             $email = (new TemplatedEmail())
-                ->from('noreply@eyraclub.es')
+                ->from('info@eyraclub.es')
                 ->to($inviterEmail)
                 ->subject('EYRA - Invitación enviada exitosamente')
                 ->htmlTemplate('emails/invitation_sent.html.twig')
@@ -163,7 +163,7 @@ class EmailService
     ): bool {
         try {
             $email = (new TemplatedEmail())
-                ->from('noreply@eyraclub.es')
+                ->from('info@eyraclub.es')
                 ->to($invitedEmail)
                 ->subject('EYRA - Te han invitado a acceder')
                 ->htmlTemplate('emails/invitation_received.html.twig')
