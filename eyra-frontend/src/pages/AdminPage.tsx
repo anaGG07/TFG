@@ -15,6 +15,7 @@ import { NeomorphicCard } from "../components/ui/NeomorphicComponents";
 import { Doughnut } from "react-chartjs-2";
 import {
   Chart as ChartJS,
+  ArcElement,
   CategoryScale,
   LinearScale,
   BarElement,
@@ -23,7 +24,7 @@ import {
   Legend,
 } from "chart.js";
 
-ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
+ChartJS.register(ArcElement, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
 // Iconos para las pestañas
 const OverviewIcon = ({ active }: { active: boolean }) => (
@@ -173,15 +174,15 @@ const AdminPage = () => {
   };
 
   return (
-    <div className="w-full h-full min-h-0 flex flex-col overflow-hidden bg-[#f7f3ef]">
-      <div className="max-w-7xl mx-auto p-6 flex flex-col h-full min-h-0">
+    <div className="w-full h-full min-h-0 flex flex-col overflow-hidden bg-transparent">
+      <div className="max-w-7xl mx-auto pl-8 pr-4 pt-6 pb-6 flex flex-col h-full min-h-0">
         {/* Header */}
         <div className="mb-6">
           <h1 className="text-4xl font-bold text-[#7a2323] mb-2 font-serif">Panel de Administración</h1>
           <p className="text-[#7a2323]/70">Bienvenido/a, {user.name}. Aquí puedes gestionar el sistema EYRA.</p>
         </div>
         {/* Navegación por pestañas */}
-        <NeomorphicCard className="mb-0 p-0 flex flex-row gap-2 items-center justify-start shadow-neomorphic" compact>
+        <div className="flex flex-row gap-3 items-center mb-2">
           {tabs.map((tab) => {
             const Icon = tab.icon;
             return (
@@ -194,12 +195,13 @@ const AdminPage = () => {
                     : "bg-transparent hover:bg-[#f8b4b4]/30"}
                 `}
                 aria-label={tab.label}
+                style={{ minWidth: 44, minHeight: 44 }}
               >
                 <Icon active={activeTab === tab.id} />
               </button>
             );
           })}
-        </NeomorphicCard>
+        </div>
         {/* Contenido por pestañas */}
         <div className="bg-transparent rounded-lg shadow-none p-0 flex-1 min-h-0">
           {activeTab === "overview" && (
@@ -223,7 +225,7 @@ const AdminPage = () => {
                   </button>
                 </div>
                 {showChart ? (
-                  <div className="w-full max-w-xs mx-auto rounded-full p-6 bg-white/80 shadow-neomorphic flex items-center justify-center relative" style={{ backdropFilter: "blur(6px)" }}>
+                  <div className="w-full max-w-xs mx-auto rounded-full p-0 flex items-center justify-center relative">
                     <Doughnut data={doughnutData} options={doughnutOptions} />
                     {/* Círculo central con total de usuarios */}
                     <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col items-center justify-center">
@@ -232,17 +234,17 @@ const AdminPage = () => {
                     </div>
                   </div>
                 ) : (
-                  <div className="grid grid-cols-1 gap-4 w-full">
-                    <NeomorphicCard className="flex flex-col items-center justify-center gap-2 bg-[#f8b4b4]/30">
-                      <h3 className="text-lg font-semibold text-[#C62328] font-serif">Usuarios</h3>
+                  <div className="grid grid-cols-3 gap-4 w-full justify-center">
+                    <NeomorphicCard className="flex flex-col items-center justify-center gap-1 bg-[#f8b4b4]/30 w-28 h-28 min-w-[6.5rem] min-h-[6.5rem] max-w-[7rem] max-h-[7rem]">
+                      <h3 className="text-base font-semibold text-[#C62328] font-serif">Usuarios</h3>
                       <p className="text-3xl font-bold text-[#991b1b]">{stats?.totalUsers?.toLocaleString() || "0"}</p>
                     </NeomorphicCard>
-                    <NeomorphicCard className="flex flex-col items-center justify-center gap-2 bg-[#a7f3d0]/30">
-                      <h3 className="text-lg font-semibold text-[#15803d] font-serif">Activos</h3>
+                    <NeomorphicCard className="flex flex-col items-center justify-center gap-1 bg-[#a7f3d0]/30 w-28 h-28 min-w-[6.5rem] min-h-[6.5rem] max-w-[7rem] max-h-[7rem]">
+                      <h3 className="text-base font-semibold text-[#15803d] font-serif">Activos</h3>
                       <p className="text-3xl font-bold text-[#15803d]">{stats?.activeUsers?.toLocaleString() || "0"}</p>
                     </NeomorphicCard>
-                    <NeomorphicCard className="flex flex-col items-center justify-center gap-2 bg-[#ddd6fe]/30">
-                      <h3 className="text-lg font-semibold text-[#7c2d12] font-serif">Admins</h3>
+                    <NeomorphicCard className="flex flex-col items-center justify-center gap-1 bg-[#ddd6fe]/30 w-28 h-28 min-w-[6.5rem] min-h-[6.5rem] max-w-[7rem] max-h-[7rem]">
+                      <h3 className="text-base font-semibold text-[#7c2d12] font-serif">Admins</h3>
                       <p className="text-3xl font-bold text-[#7c2d12]">{stats?.adminUsers?.toLocaleString() || "0"}</p>
                     </NeomorphicCard>
                   </div>
@@ -348,4 +350,5 @@ const AdminPage = () => {
     </div>
   );
 };
+//comentario de control
 export default AdminPage;
