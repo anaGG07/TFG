@@ -125,7 +125,8 @@ CREATE TABLE public.content (
     tags json,
     image_url character varying(255) DEFAULT NULL::character varying,
     created_at timestamp(0) without time zone NOT NULL,
-    updated_at timestamp(0) without time zone DEFAULT NULL::timestamp without time zone
+    updated_at timestamp(0) without time zone DEFAULT NULL::timestamp without time zone,
+    CONSTRAINT check_target_phase_enum CHECK (((target_phase IS NULL) OR ((target_phase)::text = ANY ((ARRAY['menstrual'::character varying, 'folicular'::character varying, 'ovulacion'::character varying, 'lutea'::character varying])::text[]))))
 );
 
 
@@ -242,6 +243,13 @@ CREATE TABLE public.guest_access (
 
 
 ALTER TABLE public.guest_access OWNER TO postgres;
+
+--
+-- Name: COLUMN guest_access.guest_preferences; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN public.guest_access.guest_preferences IS 'Preferencias del invitado para filtrar información del anfitrión en calendario compartido';
+
 
 --
 -- Name: guest_access_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
@@ -1013,6 +1021,14 @@ ALTER TABLE ONLY public.password_reset_tokens
 
 
 --
+-- Name: password_reset_tokens password_reset_tokens_token_key; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.password_reset_tokens
+    ADD CONSTRAINT password_reset_tokens_token_key UNIQUE (token);
+
+
+--
 -- Name: pregnancy_log pregnancy_log_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -1026,14 +1042,6 @@ ALTER TABLE ONLY public.pregnancy_log
 
 ALTER TABLE ONLY public.symptom_log
     ADD CONSTRAINT symptom_log_pkey PRIMARY KEY (id);
-
-
---
--- Name: password_reset_tokens uniq_3967a2165f37a13b; Type: CONSTRAINT; Schema: public; Owner: postgres
---
-
-ALTER TABLE ONLY public.password_reset_tokens
-    ADD CONSTRAINT uniq_3967a2165f37a13b UNIQUE (token);
 
 
 --
@@ -1205,6 +1213,27 @@ CREATE INDEX idx_bf5476ca8f2f21aa ON public.notification USING btree (guest_acce
 --
 
 CREATE INDEX idx_bf5476caa76ed395 ON public.notification USING btree (user_id);
+
+
+--
+-- Name: idx_condition_category; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX idx_condition_category ON public.condition USING btree (category);
+
+
+--
+-- Name: idx_condition_severity; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX idx_condition_severity ON public.condition USING btree (severity);
+
+
+--
+-- Name: idx_condition_state; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX idx_condition_state ON public.condition USING btree (state);
 
 
 --

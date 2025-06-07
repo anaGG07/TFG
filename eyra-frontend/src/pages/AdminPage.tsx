@@ -2,6 +2,7 @@
 // ! 31/05/2025 - Activados componentes de gestión de usuarios
 
 import { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useAuth } from "../context/AuthContext";
 import {
   adminStatsService,
@@ -196,6 +197,7 @@ const AdminPage = () => {
   const [isLoadingStats, setIsLoadingStats] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [showChart, setShowChart] = useState(false);
+  const [showChart, setShowChart] = useState(false);
 
   // Cargar datos cuando el componente se monta
   const loadData = async () => {
@@ -284,7 +286,37 @@ const AdminPage = () => {
     cutout: "70%",
   };
 
+  // Datos para la gráfica circular
+  const doughnutData = {
+    labels: ["Usuarios", "Activos", "Admins"],
+    datasets: [
+      {
+        label: "Cantidad",
+        data: [stats?.totalUsers || 0, stats?.activeUsers || 0, stats?.adminUsers || 0],
+        backgroundColor: [
+          "#F8B4B4", // pastel rojo
+          "#A7F3D0", // pastel verde
+          "#DDD6FE", // pastel violeta
+        ],
+        borderWidth: 6,
+        borderColor: "#fff",
+        hoverOffset: 10,
+        cutout: "70%",
+      },
+    ],
+  };
+  const doughnutOptions = {
+    responsive: true,
+    plugins: {
+      legend: { display: false },
+      tooltip: { enabled: true },
+    },
+    cutout: "70%",
+  };
+
   return (
+    <div className="w-full h-full min-h-0 flex flex-col overflow-hidden bg-transparent">
+      <div className="max-w-7xl mx-auto pl-8 pr-4 pt-6 pb-6 flex flex-col h-full min-h-0">
     <div className="w-full h-full min-h-0 flex flex-col overflow-hidden bg-transparent">
       <div className="max-w-7xl mx-auto pl-8 pr-4 pt-6 pb-6 flex flex-col h-full min-h-0">
         {/* Header */}
