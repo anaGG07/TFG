@@ -56,25 +56,25 @@ const LoginPage = () => {
     if (typeof error.message === "string") {
       if (error.message.includes("401")) {
         return {
-          message: "Credenciales incorrectas",
+          message: "",
           subtitle: "Revisa tu email y contraseña e inténtalo de nuevo.",
         };
       }
       if (error.message.includes("403")) {
         return {
-          message: "Acceso denegado",
+          message: "",
           subtitle: "Tu cuenta no tiene permisos para acceder.",
         };
       }
       if (error.message.includes("404")) {
         return {
-          message: "Usuario no encontrado",
+          message: "",
           subtitle: "Verifica tu email o regístrate si aún no tienes cuenta.",
         };
       }
       if (error.message.includes("500")) {
         return {
-          message: "Error interno del servidor",
+          message: "",
           subtitle:
             "Nuestro equipo ya está trabajando en ello. Intenta más tarde.",
         };
@@ -83,7 +83,7 @@ const LoginPage = () => {
       if (error.message.startsWith("Error en la petición:")) {
         // Si el backend devuelve un mensaje más específico, lo mostramos
         return {
-          message: "No se pudo iniciar sesión",
+          message: "",
           subtitle: "Verifica tus datos o intenta más tarde.",
         };
       }

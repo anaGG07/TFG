@@ -152,7 +152,7 @@ const RegisterPage = () => {
     // Errores de red
     if (error.message === "Failed to fetch") {
       return {
-        message: "No se pudo conectar con el servidor.",
+        message: "",
         subtitle: "Verifica tu conexión a internet o inténtalo más tarde.",
       };
     }
@@ -160,38 +160,38 @@ const RegisterPage = () => {
     if (typeof error.message === "string") {
       if (error.message.includes("409")) {
         return {
-          message: "El email o usuario ya está registrado",
-          subtitle: "Intenta con otro email o usuario diferente.",
+          message: "",
+          subtitle: "El email o usuario ya está registrado",
         };
       }
       if (error.message.includes("401")) {
         return {
-          message: "No autorizado",
+          message: "",
           subtitle: "No tienes permisos para realizar esta acción.",
         };
       }
       if (error.message.includes("403")) {
         return {
-          message: "Acceso denegado",
+          message: "",
           subtitle: "No tienes permisos para registrarte.",
         };
       }
       if (error.message.includes("404")) {
         return {
-          message: "No se pudo registrar",
-          subtitle: "El servicio no está disponible. Intenta más tarde.",
+          message: "",
+          subtitle: "El servicio no está disponible.",
         };
       }
       if (error.message.includes("500")) {
         return {
-          message: "Error interno del servidor",
-          subtitle: "Nuestro equipo ya está trabajando en ello. Intenta más tarde.",
+          message: "",
+          subtitle: "Nuestro equipo ya está trabajando en ello.",
         };
       }
       // Mensaje personalizado del backend
       if (error.message.startsWith("Error en la petición:")) {
         return {
-          message: "No se pudo crear la cuenta",
+          message: "",
           subtitle: "Verifica tus datos o intenta más tarde.",
         };
       }
