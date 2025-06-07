@@ -96,17 +96,17 @@ const DiskIcon = ({ className }: { className?: string }) => (
   </svg>
 );
 
-// Iconos SVG para las cajas de resumen (rediseñados estilo CircularNavigation)
+// Iconos SVG para las cajas de resumen (solo línea, sin fondo ni relleno)
 const UsersSummaryIcon = ({ className }: { className?: string }) => (
   <svg className={className} viewBox="0 0 32 32" fill="none" stroke="#C62328" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-    <circle cx="16" cy="11" r="6" fill="#fff" />
+    <circle cx="16" cy="11" r="6" fill="none" />
     <circle cx="16" cy="11" r="6" stroke="#C62328" strokeWidth="2.2" fill="none" />
     <path d="M8 27v-2a8 8 0 0 1 16 0v2" stroke="#C62328" strokeWidth="2.2" fill="none" />
   </svg>
 );
 const ActiveSummaryIcon = ({ className }: { className?: string }) => (
   <svg className={className} viewBox="0 0 32 32" fill="none" stroke="#15803d" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-    <circle cx="16" cy="11" r="6" fill="#fff" />
+    <circle cx="16" cy="11" r="6" fill="none" />
     <circle cx="16" cy="11" r="6" stroke="#15803d" strokeWidth="2.2" fill="none" />
     <path d="M8 27v-2a8 8 0 0 1 16 0v2" stroke="#15803d" strokeWidth="2.2" fill="none" />
     <path d="M13 14l3 3 4-4" stroke="#15803d" strokeWidth="2.2" fill="none" />
@@ -114,10 +114,10 @@ const ActiveSummaryIcon = ({ className }: { className?: string }) => (
 );
 const AdminSummaryIcon = ({ className }: { className?: string }) => (
   <svg className={className} viewBox="0 0 32 32" fill="none" stroke="#7c2d12" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-    <circle cx="16" cy="11" r="6" fill="#fff" />
+    <circle cx="16" cy="11" r="6" fill="none" />
     <circle cx="16" cy="11" r="6" stroke="#7c2d12" strokeWidth="2.2" fill="none" />
     <path d="M8 27v-2a8 8 0 0 1 16 0v2" stroke="#7c2d12" strokeWidth="2.2" fill="none" />
-    <circle cx="16" cy="11" r="2" fill="#fff" stroke="#7c2d12" strokeWidth="1.5" />
+    <circle cx="16" cy="11" r="2" fill="none" stroke="#7c2d12" strokeWidth="1.5" />
     <path d="M16 7v4" stroke="#7c2d12" strokeWidth="2.2" />
   </svg>
 );
@@ -303,23 +303,17 @@ const AdminPage = () => {
                           className="grid grid-cols-1 md:grid-cols-3 gap-8 w-full justify-center mt-4 mb-4"
                         >
                           <NeomorphicCard className="flex flex-col items-center justify-center gap-3 bg-[#f8b4b4]/30 w-36 h-36 min-w-[8rem] min-h-[8rem] max-w-[9rem] max-h-[9rem]">
-                            <span className="flex items-center justify-center neo-shadow-sm rounded-full bg-white/80 border border-white mb-2" style={{ width: 56, height: 56, minWidth: 56, minHeight: 56 }}>
-                              <UsersSummaryIcon className="w-12 h-12" />
-                            </span>
+                            <UsersSummaryIcon className="w-12 h-12" />
                             <h3 className="text-base font-semibold text-[#C62328] font-serif">Usuarios</h3>
                             <p className="text-3xl font-bold text-[#991b1b]">{stats?.totalUsers?.toLocaleString() || "0"}</p>
                           </NeomorphicCard>
                           <NeomorphicCard className="flex flex-col items-center justify-center gap-3 bg-[#a7f3d0]/30 w-36 h-36 min-w-[8rem] min-h-[8rem] max-w-[9rem] max-h-[9rem]">
-                            <span className="flex items-center justify-center neo-shadow-sm rounded-full bg-white/80 border border-white mb-2" style={{ width: 56, height: 56, minWidth: 56, minHeight: 56 }}>
-                              <ActiveSummaryIcon className="w-12 h-12" />
-                            </span>
+                            <ActiveSummaryIcon className="w-12 h-12" />
                             <h3 className="text-base font-semibold text-[#15803d] font-serif">Activos</h3>
                             <p className="text-3xl font-bold text-[#15803d]">{stats?.activeUsers?.toLocaleString() || "0"}</p>
                           </NeomorphicCard>
                           <NeomorphicCard className="flex flex-col items-center justify-center gap-3 bg-[#ddd6fe]/30 w-36 h-36 min-w-[8rem] min-h-[8rem] max-w-[9rem] max-h-[9rem]">
-                            <span className="flex items-center justify-center neo-shadow-sm rounded-full bg-white/80 border border-white mb-2" style={{ width: 56, height: 56, minWidth: 56, minHeight: 56 }}>
-                              <AdminSummaryIcon className="w-12 h-12" />
-                            </span>
+                            <AdminSummaryIcon className="w-12 h-12" />
                             <h3 className="text-base font-semibold text-[#7c2d12] font-serif">Admins</h3>
                             <p className="text-3xl font-bold text-[#7c2d12]">{stats?.adminUsers?.toLocaleString() || "0"}</p>
                           </NeomorphicCard>
