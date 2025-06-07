@@ -57,19 +57,19 @@ const LoginPage = () => {
       if (error.message.includes("401")) {
         return {
           message: "",
-          subtitle: "Revisa tu email y contraseña e inténtalo de nuevo.",
+          subtitle: "Email o contraseña incorrectos.",
         };
       }
       if (error.message.includes("403")) {
         return {
           message: "",
-          subtitle: "Tu cuenta no tiene permisos para acceder.",
+          subtitle: "No tienes permisos para acceder.",
         };
       }
       if (error.message.includes("404")) {
         return {
           message: "",
-          subtitle: "Verifica tu email o regístrate si aún no tienes cuenta.",
+          subtitle: "Email no válido.",
         };
       }
       if (error.message.includes("500")) {
