@@ -308,13 +308,10 @@ const UsersTable: React.FC<UsersTableProps> = ({ onRefresh }) => {
           <tbody>
             {users.map((user) => (
               <tr key={user.id}>
-                <td className="px-4 text-center">
-                  <div className="flex items-center justify-center">
+                <td className="px-4">
+                  <div className="flex items-center justify-start gap-2">
                     <UserAvatar user={user} size="md" />
-                  </div>
-                  <div className="ml-2 inline-block text-left align-middle">
-                    <div className="text-sm font-medium text-gray-900">{user.name}</div>
-                    <div className="text-sm text-gray-500">ID: {user.id}</div>
+                    <span className="text-sm font-medium text-gray-900">{user.name}</span>
                   </div>
                 </td>
                 <td className="px-4 text-center">
@@ -323,7 +320,7 @@ const UsersTable: React.FC<UsersTableProps> = ({ onRefresh }) => {
                   </span>
                 </td>
                 <td className="px-4 text-center">
-                  <div className="flex flex-wrap gap-1">
+                  <div className="flex flex-wrap gap-1 justify-center">
                     {user.roles.map((role) => (
                       <span key={role} className={`neo-badge ${role === 'ROLE_ADMIN' ? 'neo-badge-purple' : role === 'ROLE_GUEST' ? 'neo-badge-gray' : 'neo-badge-blue'}`}>{RoleLabels[role] || role}</span>
                     ))}
@@ -336,7 +333,7 @@ const UsersTable: React.FC<UsersTableProps> = ({ onRefresh }) => {
                 </td>
                 <td className="px-4 text-center text-sm text-gray-900">{formatDate(user.createdAt)}</td>
                 <td className="px-4 text-center">
-                  <div className="flex space-x-2">
+                  <div className="flex justify-center space-x-2">
                     <button
                       onClick={() => handleViewUser(user)}
                       className="neo-button text-blue-600 hover:text-blue-900"

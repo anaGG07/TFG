@@ -328,7 +328,7 @@ const ConditionsTable: React.FC<ConditionsTableProps> = ({ onRefresh }) => {
                   {formatDate(condition.createdAt)}
                 </td>
                 <td className="px-4 text-center">
-                  <div className="flex space-x-2">
+                  <div className="flex justify-center space-x-2">
                     <button
                       onClick={() => handleViewCondition(condition)}
                       className="neo-button text-blue-600 hover:text-blue-900"
