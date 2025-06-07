@@ -4,8 +4,8 @@ import { ROUTES } from "../router/paths";
 
 const AIAssistantPage: React.FC = () => {
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-[#f8e9ea]">
-      <div className="bg-white/80 rounded-2xl shadow-xl p-10 flex flex-col items-center border border-[#C62328]/20">
+    <div className="min-h-screen flex flex-col items-center justify-center">
+      <div className="bg-white rounded-2xl p-10 flex flex-col items-center shadow-neomorphic border border-[#f3f3f3]">
         <svg
           width="80"
           height="80"
@@ -38,7 +38,7 @@ const AIAssistantPage: React.FC = () => {
           to={ROUTES.DASHBOARD}
           className="mt-4 px-6 py-2 bg-[#C62328] text-white rounded-full font-semibold shadow hover:bg-[#a81b1b] transition"
         >
-          Volver al Dashboard
+          Volver
         </Link>
       </div>
     </div>
