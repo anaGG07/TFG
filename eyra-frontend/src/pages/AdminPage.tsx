@@ -96,25 +96,25 @@ const DiskIcon = ({ className }: { className?: string }) => (
   </svg>
 );
 
-// Iconos SVG para las cajas de resumen (silueta grande y moderna)
+// Iconos SVG para las cajas de resumen (silueta grande, centrada y ocupando todo el viewBox)
 const UsersSummaryIcon = ({ className }: { className?: string }) => (
-  <svg className={className} viewBox="0 0 64 64" fill="none" stroke="#C62328" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-    <circle cx="32" cy="24" r="14" />
-    <path d="M8 56c0-10.5 9.5-19 24-19s24 8.5 24 19" />
+  <svg className={className} viewBox="0 0 64 64" width="100%" height="100%" fill="none" stroke="#C62328" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="32" cy="22" r="14" />
+    <path d="M8 60c0-12 10-22 24-22s24 10 24 22" />
   </svg>
 );
 const ActiveSummaryIcon = ({ className }: { className?: string }) => (
-  <svg className={className} viewBox="0 0 64 64" fill="none" stroke="#15803d" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-    <circle cx="32" cy="24" r="14" />
-    <path d="M8 56c0-10.5 9.5-19 24-19s24 8.5 24 19" />
-    <polyline points="40 36 48 44 60 32" stroke="#15803d" strokeWidth="4" fill="none" />
+  <svg className={className} viewBox="0 0 64 64" width="100%" height="100%" fill="none" stroke="#15803d" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="32" cy="22" r="14" />
+    <path d="M8 60c0-12 10-22 24-22s24 10 24 22" />
+    <polyline points="40 40 50 50 60 34" stroke="#15803d" strokeWidth="5" fill="none" />
   </svg>
 );
 const AdminSummaryIcon = ({ className }: { className?: string }) => (
-  <svg className={className} viewBox="0 0 64 64" fill="none" stroke="#7c2d12" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-    <circle cx="32" cy="24" r="14" />
-    <path d="M8 56c0-10.5 9.5-19 24-19s24 8.5 24 19" />
-    <path d="M32 6l4 8 8-2-4 8" stroke="#7c2d12" strokeWidth="3" fill="none" />
+  <svg className={className} viewBox="0 0 64 64" width="100%" height="100%" fill="none" stroke="#7c2d12" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="32" cy="22" r="14" />
+    <path d="M8 60c0-12 10-22 24-22s24 10 24 22" />
+    <path d="M32 2l6 10 10-4-6 10" stroke="#7c2d12" strokeWidth="3.5" fill="none" />
   </svg>
 );
 
