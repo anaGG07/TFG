@@ -12,6 +12,22 @@ interface ConditionsTableProps {
   onRefresh?: () => void;
 }
 
+function useAutoRowsPerPage(min = 1, max = 50) {
+  const [rows, setRows] = useState(8);
+  useEffect(() => {
+    function updateRows() {
+      const height = window.innerHeight;
+      if (height < 500) setRows(Math.max(min, 1));
+      else if (height < 800) setRows(Math.max(min, 4));
+      else setRows(Math.max(min, 8));
+    }
+    updateRows();
+    window.addEventListener('resize', updateRows);
+    return () => window.removeEventListener('resize', updateRows);
+  }, [min]);
+  return rows;
+}
+
 const ConditionsTable: React.FC<ConditionsTableProps> = ({ onRefresh }) => {
   const [conditions, setConditions] = useState<Condition[]>([]);
   const [allConditions, setAllConditions] = useState<Condition[]>([]);
@@ -29,6 +45,11 @@ const ConditionsTable: React.FC<ConditionsTableProps> = ({ onRefresh }) => {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+
+  const rowsPerPage = useAutoRowsPerPage(1, 50);
+  const [page, setPage] = useState(0);
+  const totalPages = Math.ceil(conditions.length / rowsPerPage);
+  const paginatedConditions = conditions.slice(page * rowsPerPage, (page + 1) * rowsPerPage);
 
   const loadConditions = async () => {
     try {
@@ -282,7 +303,7 @@ const ConditionsTable: React.FC<ConditionsTableProps> = ({ onRefresh }) => {
             </tr>
           </thead>
           <tbody>
-            {conditions.map((condition) => (
+            {paginatedConditions.map((condition) => (
               <tr key={condition.id}>
                 <td className="px-4 text-center">
                   <div className="flex items-center">
@@ -398,6 +419,61 @@ const ConditionsTable: React.FC<ConditionsTableProps> = ({ onRefresh }) => {
         onClose={() => setIsCreateModalOpen(false)}
         onSave={handleConditionCreated}
       />
+
+      {totalPages > 1 && (
+        <div className="flex justify-center items-center gap-4 mt-6 mb-4">
+          <button
+            onClick={() => setPage((p) => Math.max(0, p - 1))}
+            disabled={page === 0}
+            className={`p-2 rounded-lg ${page === 0 ? 'opacity-40 cursor-not-allowed' : 'hover:bg-[#C62328]/10 cursor-pointer'} transition-all duration-200`}
+            style={{
+              background: page === 0 ? 'transparent' : 'linear-gradient(145deg, #fafaf9, #e7e5e4)',
+              boxShadow: page === 0 ? 'none' : '3px 3px 6px rgba(91, 1, 8, 0.06), -3px -3px 6px rgba(255, 255, 255, 0.4)',
+            }}
+            aria-label="Página anterior"
+          >
+            <svg className="w-4 h-4 text-[#C62328]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7"/></svg>
+          </button>
+          <div className="flex items-center gap-2">
+            {Array.from({ length: totalPages }, (_, i) => {
+              if (i === 0 || i === totalPages - 1 || Math.abs(i - page) <= 1 || (page < 3 && i < 4) || (page > totalPages - 4 && i > totalPages - 5)) {
+                return (
+                  <button
+                    key={i}
+                    onClick={() => setPage(i)}
+                    className={`w-8 h-8 rounded-lg transition-all duration-200 flex items-center justify-center text-sm font-medium ${i === page ? 'text-white' : 'text-[#C62328] hover:text-white'}`}
+                    style={{
+                      background: i === page ? 'linear-gradient(135deg, #C62328, #9d0d0b)' : 'linear-gradient(145deg, #fafaf9, #e7e5e4)',
+                      boxShadow: i === page ? 'inset 2px 2px 4px rgba(91, 1, 8, 0.3), inset -2px -2px 4px rgba(255, 108, 92, 0.2)' : '3px 3px 6px rgba(91, 1, 8, 0.06), -3px -3px 6px rgba(255, 255, 255, 0.4)',
+                    }}
+                    aria-label={`Página ${i + 1}`}
+                  >
+                    {i + 1}
+                  </button>
+                );
+              } else if (
+                (i === page - 2 && page > 2) ||
+                (i === page + 2 && page < totalPages - 3)
+              ) {
+                return <span key={i} className="w-8 h-8 flex items-center justify-center text-[#C62328]">...</span>;
+              }
+              return null;
+            })}
+          </div>
+          <button
+            onClick={() => setPage((p) => Math.min(totalPages - 1, p + 1))}
+            disabled={page === totalPages - 1}
+            className={`p-2 rounded-lg ${page === totalPages - 1 ? 'opacity-40 cursor-not-allowed' : 'hover:bg-[#C62328]/10 cursor-pointer'} transition-all duration-200`}
+            style={{
+              background: page === totalPages - 1 ? 'transparent' : 'linear-gradient(145deg, #fafaf9, #e7e5e4)',
+              boxShadow: page === totalPages - 1 ? 'none' : '3px 3px 6px rgba(91, 1, 8, 0.06), -3px -3px 6px rgba(255, 255, 255, 0.4)',
+            }}
+            aria-label="Página siguiente"
+          >
+            <svg className="w-4 h-4 text-[#C62328]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7"/></svg>
+          </button>
+        </div>
+      )}
     </div>
   );
 };

@@ -28,25 +28,53 @@ const RoleLabels: Record<string, string> = {
   'ROLE_GUEST': 'Invitado',
 };
 
-// Iconos SVG para acciones
+// Nuevo icono de ver detalles (ojo)
 const ViewIcon = () => (
-  <svg className="w-5 h-5" fill="none" stroke="#2563eb" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke="#2563eb" strokeWidth="2.2" fill="#e0e7ff"/><circle cx="12" cy="12" r="4" stroke="#2563eb" strokeWidth="2.2" fill="#fff"/></svg>
+  <svg className="w-5 h-5 neo-shadow-sm" viewBox="0 0 24 24" fill="none" stroke="#2563eb" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+    <path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z" />
+    <circle cx="12" cy="12" r="3.5" />
+  </svg>
 );
+// Nuevo icono de editar (lápiz)
 const EditIcon = () => (
-  <svg className="w-5 h-5" fill="none" stroke="#7c3aed" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24"><rect x="4" y="17" width="16" height="3" rx="1.5" fill="#ede9fe"/><path d="M16.5 6.5l1 1a2 2 0 0 1 0 2.8l-7.5 7.5-3 1 1-3 7.5-7.5a2 2 0 0 1 2.8 0z" fill="#fff" stroke="#7c3aed"/></svg>
+  <svg className="w-5 h-5 neo-shadow-sm" viewBox="0 0 24 24" fill="none" stroke="#a21caf" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+    <path d="M12 20h9" />
+    <path d="M16.5 3.5a2.121 2.121 0 1 1 3 3L7 19.5 3 21l1.5-4L16.5 3.5z" />
+  </svg>
 );
-const DeleteIcon = () => (
-  <svg className="w-5 h-5" fill="none" stroke="#dc2626" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24"><rect x="5" y="7" width="14" height="12" rx="2" fill="#fee2e2"/><path d="M10 11v4M14 11v4" stroke="#dc2626"/><path d="M9 7V5a3 3 0 0 1 6 0v2" stroke="#dc2626"/></svg>
-);
-
-// Añadir un icono de check para activar
+// Icono toggle (papelera y check) mejorados, estilo neomorphic
 const ToggleActiveIcon = ({ active }: { active: boolean }) => (
   active ? (
-    <svg className="w-5 h-5" fill="none" stroke="#dc2626" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24"><rect x="5" y="7" width="14" height="12" rx="2" fill="#fee2e2"/><path d="M10 11v4M14 11v4" stroke="#dc2626"/><path d="M9 7V5a3 3 0 0 1 6 0v2" stroke="#dc2626"/></svg>
+    <svg className="w-5 h-5 neo-shadow-sm" viewBox="0 0 24 24" fill="none" stroke="#dc2626" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <rect x="5" y="7" width="14" height="12" rx="2" fill="#fee2e2" stroke="#dc2626" />
+      <path d="M10 11v4M14 11v4" stroke="#dc2626" />
+      <path d="M9 7V5a3 3 0 0 1 6 0v2" stroke="#dc2626" />
+    </svg>
   ) : (
-    <svg className="w-5 h-5" fill="none" stroke="#16a34a" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="#bbf7d0" stroke="#16a34a"/><path d="M8 12l3 3 5-5" stroke="#16a34a" strokeWidth="2.2"/></svg>
+    <svg className="w-5 h-5 neo-shadow-sm" viewBox="0 0 24 24" fill="none" stroke="#16a34a" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <circle cx="12" cy="12" r="10" fill="#bbf7d0" stroke="#16a34a" />
+      <path d="M8 12l3 3 5-5" stroke="#16a34a" strokeWidth="2.2" />
+    </svg>
   )
 );
+
+// Hook para calcular registros por página según pantalla
+function useAutoRowsPerPage(min = 1, max = 50) {
+  const [rows, setRows] = useState(8);
+  useEffect(() => {
+    function updateRows() {
+      const height = window.innerHeight;
+      // Estimación: caben 8 filas en escritorio, 4 en tablet, 1 en móvil
+      if (height < 500) setRows(Math.max(min, 1));
+      else if (height < 800) setRows(Math.max(min, 4));
+      else setRows(Math.max(min, 8));
+    }
+    updateRows();
+    window.addEventListener('resize', updateRows);
+    return () => window.removeEventListener('resize', updateRows);
+  }, [min]);
+  return rows;
+}
 
 const UsersTable: React.FC<UsersTableProps> = ({ onRefresh }) => {
   const [users, setUsers] = useState<User[]>([]);
@@ -65,6 +93,11 @@ const UsersTable: React.FC<UsersTableProps> = ({ onRefresh }) => {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+
+  const rowsPerPage = useAutoRowsPerPage(1, 50);
+  const [page, setPage] = useState(0);
+  const totalPages = Math.ceil(users.length / rowsPerPage);
+  const paginatedUsers = users.slice(page * rowsPerPage, (page + 1) * rowsPerPage);
 
   const loadUsers = async () => {
     try {
@@ -315,10 +348,10 @@ const UsersTable: React.FC<UsersTableProps> = ({ onRefresh }) => {
             </tr>
           </thead>
           <tbody>
-            {users.map((user) => (
+            {paginatedUsers.map((user) => (
               <tr key={user.id}>
                 <td className="px-4">
-                  <div className="flex items-center justify-start gap-2">
+                  <div className="flex items-center justify-start gap-4">
                     <UserAvatar user={user} size="md" />
                     <span className="text-sm font-medium text-gray-900">{user.name}</span>
                   </div>
@@ -346,19 +379,21 @@ const UsersTable: React.FC<UsersTableProps> = ({ onRefresh }) => {
                     <button
                       onClick={() => handleViewUser(user)}
                       className="neo-button text-blue-600 hover:text-blue-900"
+                      aria-label="Ver detalles del usuario"
                     >
                       <ViewIcon />
                     </button>
                     <button
                       onClick={() => handleEditUser(user)}
-                      className="neo-button text-indigo-600 hover:text-indigo-900"
+                      className="neo-button text-purple-700 hover:text-purple-900"
+                      aria-label="Editar usuario"
                     >
                       <EditIcon />
                     </button>
                     <button
                       onClick={() => handleToggleState(user)}
                       className={`neo-button ${user.state ? 'text-red-600 hover:text-red-900' : 'text-green-600 hover:text-green-900'}`}
-                      title={user.state ? 'Desactivar usuario' : 'Activar usuario'}
+                      aria-label={user.state ? 'Desactivar usuario' : 'Activar usuario'}
                     >
                       <ToggleActiveIcon active={user.state} />
                     </button>
@@ -374,6 +409,63 @@ const UsersTable: React.FC<UsersTableProps> = ({ onRefresh }) => {
       {users.length === 0 && (
         <div className="text-center py-8 text-gray-500">
           No se encontraron usuarios que coincidan con los filtros seleccionados.
+        </div>
+      )}
+
+      {/* Paginación */}
+      {totalPages > 1 && (
+        <div className="flex justify-center items-center gap-4 mt-6 mb-4">
+          <button
+            onClick={() => setPage((p) => Math.max(0, p - 1))}
+            disabled={page === 0}
+            className={`p-2 rounded-lg ${page === 0 ? 'opacity-40 cursor-not-allowed' : 'hover:bg-[#C62328]/10 cursor-pointer'} transition-all duration-200`}
+            style={{
+              background: page === 0 ? 'transparent' : 'linear-gradient(145deg, #fafaf9, #e7e5e4)',
+              boxShadow: page === 0 ? 'none' : '3px 3px 6px rgba(91, 1, 8, 0.06), -3px -3px 6px rgba(255, 255, 255, 0.4)',
+            }}
+            aria-label="Página anterior"
+          >
+            <svg className="w-4 h-4 text-[#C62328]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7"/></svg>
+          </button>
+          <div className="flex items-center gap-2">
+            {Array.from({ length: totalPages }, (_, i) => {
+              // Mostrar solo primeras 2, últimas 2 y 2 alrededor de la actual
+              if (i === 0 || i === totalPages - 1 || Math.abs(i - page) <= 1 || (page < 3 && i < 4) || (page > totalPages - 4 && i > totalPages - 5)) {
+                return (
+                  <button
+                    key={i}
+                    onClick={() => setPage(i)}
+                    className={`w-8 h-8 rounded-lg transition-all duration-200 flex items-center justify-center text-sm font-medium ${i === page ? 'text-white' : 'text-[#C62328] hover:text-white'}`}
+                    style={{
+                      background: i === page ? 'linear-gradient(135deg, #C62328, #9d0d0b)' : 'linear-gradient(145deg, #fafaf9, #e7e5e4)',
+                      boxShadow: i === page ? 'inset 2px 2px 4px rgba(91, 1, 8, 0.3), inset -2px -2px 4px rgba(255, 108, 92, 0.2)' : '3px 3px 6px rgba(91, 1, 8, 0.06), -3px -3px 6px rgba(255, 255, 255, 0.4)',
+                    }}
+                    aria-label={`Página ${i + 1}`}
+                  >
+                    {i + 1}
+                  </button>
+                );
+              } else if (
+                (i === page - 2 && page > 2) ||
+                (i === page + 2 && page < totalPages - 3)
+              ) {
+                return <span key={i} className="w-8 h-8 flex items-center justify-center text-[#C62328]">...</span>;
+              }
+              return null;
+            })}
+          </div>
+          <button
+            onClick={() => setPage((p) => Math.min(totalPages - 1, p + 1))}
+            disabled={page === totalPages - 1}
+            className={`p-2 rounded-lg ${page === totalPages - 1 ? 'opacity-40 cursor-not-allowed' : 'hover:bg-[#C62328]/10 cursor-pointer'} transition-all duration-200`}
+            style={{
+              background: page === totalPages - 1 ? 'transparent' : 'linear-gradient(145deg, #fafaf9, #e7e5e4)',
+              boxShadow: page === totalPages - 1 ? 'none' : '3px 3px 6px rgba(91, 1, 8, 0.06), -3px -3px 6px rgba(255, 255, 255, 0.4)',
+            }}
+            aria-label="Página siguiente"
+          >
+            <svg className="w-4 h-4 text-[#C62328]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7"/></svg>
+          </button>
         </div>
       )}
 
