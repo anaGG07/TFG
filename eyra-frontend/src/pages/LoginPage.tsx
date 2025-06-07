@@ -8,7 +8,6 @@ import PasswordResetModal from "../components/PasswordResetModal";
 import { toast } from "react-hot-toast";
 import NeomorphicToast from "../components/ui/NeomorphicToast";
 
-// comentario de control
 const LoginPage = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
