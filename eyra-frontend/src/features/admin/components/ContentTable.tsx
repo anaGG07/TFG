@@ -277,18 +277,18 @@ const ContentTable: React.FC<ContentTableProps> = ({ onRefresh }) => {
         <table className="neo-table table-fixed w-full">
           <thead>
             <tr>
-              <th className="px-4">Título</th>
-              <th className="px-4">Descripción</th>
-              <th className="px-4">Tipo</th>
-              <th className="px-4">Fase</th>
-              <th className="px-4">Etiquetas</th>
-              <th className="px-4">Acciones</th>
+              <th className="px-4 text-center">Título</th>
+              <th className="px-4 text-center">Descripción</th>
+              <th className="px-4 text-center">Tipo</th>
+              <th className="px-4 text-center">Fase</th>
+              <th className="px-4 text-center">Etiquetas</th>
+              <th className="px-4 text-center">Acciones</th>
             </tr>
           </thead>
           <tbody>
             {contents.map((content) => (
               <tr key={content.id}>
-                <td className="px-4">
+                <td className="px-4 text-center">
                   <div className="flex items-center">                    
                     <div className="ml-4">
                       <div className="text-sm font-medium text-gray-900">
@@ -300,22 +300,22 @@ const ContentTable: React.FC<ContentTableProps> = ({ onRefresh }) => {
                     </div>
                   </div>
                 </td>
-                <td className="px-4">
+                <td className="px-4 text-center">
                   <span className="text-sm text-gray-900" title={content.summary || content.description || ""}>
                     {(content.summary || content.description || "").length > 100 
                       ? (content.summary || content.description || "").substring(0, 100) + '...' 
                       : (content.summary || content.description || "")}
                   </span>
                 </td>
-                <td className="px-4">
+                <td className="px-4 text-center">
                   <span className={`neo-badge ${getContentTypeColor(content.type).replace('bg-', 'neo-badge-').replace(' text-', '')}`}>
                     {getContentTypeName(content.type)}
                   </span>
                 </td>
-                <td className="px-4">
+                <td className="px-4 text-center">
                   {content.targetPhase || 'Todas'}
                 </td>
-                <td className="px-4">
+                <td className="px-4 text-center">
                   <div className="flex flex-wrap gap-1">
                     {content.tags?.map((tag, index) => (
                       <span
@@ -327,7 +327,7 @@ const ContentTable: React.FC<ContentTableProps> = ({ onRefresh }) => {
                     ))}
                   </div>
                 </td>
-                <td className="px-4">
+                <td className="px-4 text-center">
                   <div className="flex space-x-2">
                     <button
                       onClick={() => handleViewContent(content)}

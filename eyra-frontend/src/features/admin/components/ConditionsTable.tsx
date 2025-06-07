@@ -270,21 +270,21 @@ const ConditionsTable: React.FC<ConditionsTableProps> = ({ onRefresh }) => {
 
       {/* Tabla */}
       <div className="overflow-x-auto">
-        <table className="neo-table">
+        <table className="neo-table table-fixed w-full">
           <thead>
             <tr>
-              <th>Nombre</th>
-              <th>Descripción</th>
-              <th>Tipo</th>
-              <th>Estado</th>
-              <th>Fecha de Creación</th>
-              <th>Acciones</th>
+              <th className="px-4 text-center">Nombre</th>
+              <th className="px-4 text-center">Descripción</th>
+              <th className="px-4 text-center">Tipo</th>
+              <th className="px-4 text-center">Estado</th>
+              <th className="px-4 text-center">Fecha de Creación</th>
+              <th className="px-4 text-center">Acciones</th>
             </tr>
           </thead>
           <tbody>
             {conditions.map((condition) => (
               <tr key={condition.id}>
-                <td>
+                <td className="px-4 text-center">
                   <div className="flex items-center">
                     <div className="flex-shrink-0 h-10 w-10">
                       <div className="neo-avatar h-10 w-10 bg-[#b91c1c] text-white flex items-center justify-center font-semibold">
@@ -301,12 +301,12 @@ const ConditionsTable: React.FC<ConditionsTableProps> = ({ onRefresh }) => {
                     </div>
                   </div>
                 </td>
-                <td>
+                <td className="px-4 text-center">
                   <span className="text-sm text-gray-900" title={condition.description}>
                     {truncateDescription(condition.description)}
                   </span>
                 </td>
-                <td>
+                <td className="px-4 text-center">
                   <span className={`neo-badge ${
                     condition.isChronic 
                       ? 'neo-badge-orange' 
@@ -315,7 +315,7 @@ const ConditionsTable: React.FC<ConditionsTableProps> = ({ onRefresh }) => {
                     {condition.isChronic ? 'Crónica' : 'Aguda'}
                   </span>
                 </td>
-                <td>
+                <td className="px-4 text-center">
                   <span className={`neo-badge ${
                     condition.state 
                       ? 'neo-badge-green' 
@@ -324,10 +324,10 @@ const ConditionsTable: React.FC<ConditionsTableProps> = ({ onRefresh }) => {
                     {condition.state ? 'Activa' : 'Inactiva'}
                   </span>
                 </td>
-                <td className="text-sm text-gray-900">
+                <td className="px-4 text-center">
                   {formatDate(condition.createdAt)}
                 </td>
-                <td>
+                <td className="px-4 text-center">
                   <div className="flex space-x-2">
                     <button
                       onClick={() => handleViewCondition(condition)}

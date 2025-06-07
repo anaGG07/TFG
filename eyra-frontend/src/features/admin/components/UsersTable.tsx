@@ -8,6 +8,7 @@ import { adminService } from '../../../services/adminService';
 import UserEditModal from './UserEditModal';
 import UserViewModal from './UserViewModal';
 import UserCreateModal from './UserCreateModal';
+import UserAvatar from '../../../components/UserAvatar';
 
 interface UsersTableProps {
   onRefresh?: () => void;
@@ -296,53 +297,45 @@ const UsersTable: React.FC<UsersTableProps> = ({ onRefresh }) => {
         <table className="neo-table table-fixed w-full">
           <thead>
             <tr>
-              <th className="px-4">Nombre</th>
-              <th className="px-4">Email</th>
-              <th className="px-4">Rol</th>
-              <th className="px-4">Estado</th>
-              <th className="px-4">Fecha de Creación</th>
-              <th className="px-4">Acciones</th>
+              <th className="px-4 text-center">Nombre</th>
+              <th className="px-4 text-center">Email</th>
+              <th className="px-4 text-center">Rol</th>
+              <th className="px-4 text-center">Estado</th>
+              <th className="px-4 text-center">Fecha de Creación</th>
+              <th className="px-4 text-center">Acciones</th>
             </tr>
           </thead>
           <tbody>
             {users.map((user) => (
               <tr key={user.id}>
-                <td className="px-4">
-                  <div className="flex items-center">
-                    <div className="flex-shrink-0 h-10 w-10">
-                      <div className="neo-avatar h-10 w-10 bg-[#b91c1c] text-white flex items-center justify-center font-semibold">
-                        {user.name.charAt(0).toUpperCase()}
-                      </div>
-                    </div>
-                    <div className="ml-4">
-                      <div className="text-sm font-medium text-gray-900">
-                        {user.name}
-                      </div>
-                      <div className="text-sm text-gray-500">
-                        ID: {user.id}
-                      </div>
-                    </div>
+                <td className="px-4 text-center">
+                  <div className="flex items-center justify-center">
+                    <UserAvatar user={user} size="md" />
+                  </div>
+                  <div className="ml-2 inline-block text-left align-middle">
+                    <div className="text-sm font-medium text-gray-900">{user.name}</div>
+                    <div className="text-sm text-gray-500">ID: {user.id}</div>
                   </div>
                 </td>
-                <td className="px-4">
+                <td className="px-4 text-center">
                   <span className="text-sm text-gray-900" title={user.email}>
                     {user.email}
                   </span>
                 </td>
-                <td className="px-4">
+                <td className="px-4 text-center">
                   <div className="flex flex-wrap gap-1">
                     {user.roles.map((role) => (
                       <span key={role} className={`neo-badge ${role === 'ROLE_ADMIN' ? 'neo-badge-purple' : role === 'ROLE_GUEST' ? 'neo-badge-gray' : 'neo-badge-blue'}`}>{RoleLabels[role] || role}</span>
                     ))}
                   </div>
                 </td>
-                <td className="px-4">
+                <td className="px-4 text-center">
                   <span className={`neo-badge ${user.state ? 'neo-badge-green' : 'neo-badge-red'}`}> 
                     {user.state ? 'Activo' : 'Inactivo'}
                   </span>
                 </td>
-                <td className="px-4 text-sm text-gray-900">{formatDate(user.createdAt)}</td>
-                <td className="px-4">
+                <td className="px-4 text-center text-sm text-gray-900">{formatDate(user.createdAt)}</td>
+                <td className="px-4 text-center">
                   <div className="flex space-x-2">
                     <button
                       onClick={() => handleViewUser(user)}
