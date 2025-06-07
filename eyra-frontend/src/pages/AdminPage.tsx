@@ -25,6 +25,24 @@ import {
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
+// Icono SVG para toggle (tabla vs gráfica)
+const ChartToggleIcon = ({ active }: { active: boolean }) => (
+  <svg width="36" height="36" viewBox="0 0 36 36" fill="none">
+    <circle cx="18" cy="18" r="16" fill={active ? "#f8b4b4" : "#e7e0d5"} style={{ filter: active ? "blur(2px)" : "none" }} />
+    <path d="M12 24V16" stroke="#C62328" strokeWidth="2.5" strokeLinecap="round" />
+    <path d="M18 24V12" stroke="#C62328" strokeWidth="2.5" strokeLinecap="round" />
+    <path d="M24 24V20" stroke="#C62328" strokeWidth="2.5" strokeLinecap="round" />
+  </svg>
+);
+const TableToggleIcon = ({ active }: { active: boolean }) => (
+  <svg width="36" height="36" viewBox="0 0 36 36" fill="none">
+    <circle cx="18" cy="18" r="16" fill={active ? "#a7f3d0" : "#e7e0d5"} style={{ filter: active ? "blur(2px)" : "none" }} />
+    <rect x="11" y="13" width="14" height="10" rx="2" fill="#C62328" fillOpacity={active ? 0.7 : 0.3} />
+    <rect x="13" y="15" width="3" height="6" rx="1" fill="#fff" />
+    <rect x="20" y="15" width="3" height="6" rx="1" fill="#fff" />
+  </svg>
+);
+
 const AdminPage = () => {
   const { user, isLoading: authLoading } = useAuth();
   const [activeTab, setActiveTab] = useState<
@@ -162,170 +180,94 @@ const AdminPage = () => {
             </button>
           ))}
         </NeomorphicCard>
-        {/* Toggle gráfico/cajas */}
-        <div className="flex items-center gap-3 mt-4 mb-4">
-          <label className="flex items-center gap-2 cursor-pointer select-none">
-            <input
-              type="checkbox"
-              checked={showChart}
-              onChange={() => setShowChart((v) => !v)}
-              className="accent-[#C62328] w-5 h-5 rounded"
-            />
-            <span className="text-[#7a2323] font-medium">Ver como gráfica</span>
-          </label>
-        </div>
         {/* Contenido por pestañas */}
         <div className="bg-transparent rounded-lg shadow-none p-0 flex-1 min-h-0">
           {activeTab === "overview" && (
-            <div className="flex flex-col gap-6">
-              <h2 className="text-2xl font-semibold mb-2 text-[#7a2323] font-serif">Resumen del Sistema</h2>
-              {/* Estadísticas simples o gráfica */}
-              {showChart ? (
-                <div className="w-full max-w-lg mx-auto bg-white rounded-2xl p-6 shadow-neomorphic">
-                  <Bar data={chartData} options={chartOptions} height={180} />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start mt-8">
+              {/* Columna 1: Resumen o gráfica con toggle */}
+              <div className="flex flex-col items-center gap-4">
+                <div className="flex gap-2 mb-2">
+                  <button
+                    className={`rounded-full p-2 transition-all duration-200 ${!showChart ? "ring-2 ring-[#a7f3d0] bg-white" : "bg-transparent"}`}
+                    onClick={() => setShowChart(false)}
+                    aria-label="Ver resumen"
+                  >
+                    <TableToggleIcon active={!showChart} />
+                  </button>
+                  <button
+                    className={`rounded-full p-2 transition-all duration-200 ${showChart ? "ring-2 ring-[#f8b4b4] bg-white" : "bg-transparent"}`}
+                    onClick={() => setShowChart(true)}
+                    aria-label="Ver gráfica"
+                  >
+                    <ChartToggleIcon active={showChart} />
+                  </button>
                 </div>
-              ) : (
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <NeomorphicCard className="flex flex-col items-center justify-center gap-2 bg-[#f8b4b4]/30">
-                    <h3 className="text-lg font-semibold text-[#C62328] font-serif">Usuarios</h3>
-                    <p className="text-3xl font-bold text-[#991b1b]">{stats?.totalUsers?.toLocaleString() || "0"}</p>
-                  </NeomorphicCard>
-                  <NeomorphicCard className="flex flex-col items-center justify-center gap-2 bg-[#a7f3d0]/30">
-                    <h3 className="text-lg font-semibold text-[#15803d] font-serif">Activos</h3>
-                    <p className="text-3xl font-bold text-[#15803d]">{stats?.activeUsers?.toLocaleString() || "0"}</p>
-                  </NeomorphicCard>
-                  <NeomorphicCard className="flex flex-col items-center justify-center gap-2 bg-[#ddd6fe]/30">
-                    <h3 className="text-lg font-semibold text-[#7c2d12] font-serif">Admins</h3>
-                    <p className="text-3xl font-bold text-[#7c2d12]">{stats?.adminUsers?.toLocaleString() || "0"}</p>
-                  </NeomorphicCard>
-                </div>
-              )}
-              {/* Acciones rápidas */}
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <div>
-                  <h3 className="text-lg font-semibold mb-4">
-                    Acciones Rápidas
-                  </h3>
-                  <div className="space-y-3">
-                    <button
-                      onClick={() => setActiveTab("users")}
-                      className="w-full text-left p-4 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors"
-                    >
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <div className="font-medium text-gray-900">
-                            Gestionar Usuarios
-                          </div>
-                          <div className="text-sm text-gray-500">
-                            Ver, editar y administrar cuentas
-                          </div>
-                        </div>
-                        <span className="text-2xl">👥</span>
-                      </div>
-                    </button>
-
-                    <button
-                      onClick={() => setActiveTab("conditions")}
-                      className="w-full text-left p-4 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors"
-                    >
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <div className="font-medium text-gray-900">
-                            Gestionar Condiciones
-                          </div>
-                          <div className="text-sm text-gray-500">
-                            Administrar condiciones médicas
-                          </div>
-                        </div>
-                        <span className="text-2xl">🎯</span>
-                      </div>
-                    </button>
-
-                    <button
-                      onClick={() => setActiveTab("content")}
-                      className="w-full text-left p-4 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors"
-                    >
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <div className="font-medium text-gray-900">
-                            Gestionar Contenido
-                          </div>
-                          <div className="text-sm text-gray-500">
-                            Administrar artículos y recursos
-                          </div>
-                        </div>
-                        <span className="text-2xl">📝</span>
-                      </div>
-                    </button>
+                {showChart ? (
+                  <div className="w-full max-w-xs mx-auto rounded-full p-6 bg-white/80 shadow-neomorphic" style={{ backdropFilter: "blur(6px)" }}>
+                    <Bar data={chartData} options={{ ...chartOptions, aspectRatio: 1 }} />
                   </div>
-                </div>
-
-                <div>
-                  <h3 className="text-lg font-semibold mb-4">
-                    Actividad Reciente
-                  </h3>
-                  <div className="space-y-3">
-                    {isLoadingStats ? (
-                      // Skeleton loading para actividad reciente
-                      <>
-                        <div className="animate-pulse flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
-                          <div className="w-6 h-6 bg-gray-200 rounded"></div>
-                          <div className="flex-1">
-                            <div className="h-4 bg-gray-200 rounded mb-2"></div>
-                            <div className="h-3 bg-gray-200 rounded w-1/2"></div>
-                          </div>
-                        </div>
-                        <div className="animate-pulse flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
-                          <div className="w-6 h-6 bg-gray-200 rounded"></div>
-                          <div className="flex-1">
-                            <div className="h-4 bg-gray-200 rounded mb-2"></div>
-                            <div className="h-3 bg-gray-200 rounded w-1/2"></div>
-                          </div>
-                        </div>
-                      </>
-                    ) : (
-                      recentActivity.slice(0, 5).map((activity) => {
-                        const bgColor =
-                          activity.color === "green"
-                            ? "bg-[#f0fdf4] border-[#bbf7d0]"
-                            : activity.color === "red"
-                            ? "bg-[#fff1f1] border-[#fecaca]"
-                            : "bg-[#f0f9ff] border-[#bae6fd]";
-
-                        const textColor =
-                          activity.color === "green"
-                            ? "text-[#15803d]"
-                            : activity.color === "red"
-                            ? "text-[#d30006]"
-                            : "text-[#0369a1]";
-
-                        return (
-                          <div
-                            key={activity.id}
-                            className={`flex items-center space-x-3 p-3 ${bgColor} rounded-lg border`}
-                          >
-                            <span className={textColor}>{activity.icon}</span>
-                            <div className="flex-1">
-                              <div className="text-sm font-medium text-gray-900">
-                                {activity.title}
-                              </div>
-                              <div className="text-xs text-gray-500">
-                                {adminStatsService.formatRelativeTime(
-                                  activity.timestamp
-                                )}
-                              </div>
-                            </div>
-                          </div>
-                        );
-                      })
-                    )}
-
-                    {!isLoadingStats && recentActivity.length === 0 && (
-                      <div className="text-center py-4 text-gray-500">
-                        No hay actividad reciente
-                      </div>
-                    )}
+                ) : (
+                  <div className="grid grid-cols-1 gap-4 w-full">
+                    <NeomorphicCard className="flex flex-col items-center justify-center gap-2 bg-[#f8b4b4]/30">
+                      <h3 className="text-lg font-semibold text-[#C62328] font-serif">Usuarios</h3>
+                      <p className="text-3xl font-bold text-[#991b1b]">{stats?.totalUsers?.toLocaleString() || "0"}</p>
+                    </NeomorphicCard>
+                    <NeomorphicCard className="flex flex-col items-center justify-center gap-2 bg-[#a7f3d0]/30">
+                      <h3 className="text-lg font-semibold text-[#15803d] font-serif">Activos</h3>
+                      <p className="text-3xl font-bold text-[#15803d]">{stats?.activeUsers?.toLocaleString() || "0"}</p>
+                    </NeomorphicCard>
+                    <NeomorphicCard className="flex flex-col items-center justify-center gap-2 bg-[#ddd6fe]/30">
+                      <h3 className="text-lg font-semibold text-[#7c2d12] font-serif">Admins</h3>
+                      <p className="text-3xl font-bold text-[#7c2d12]">{stats?.adminUsers?.toLocaleString() || "0"}</p>
+                    </NeomorphicCard>
                   </div>
+                )}
+              </div>
+              {/* Columna 2: Actividad reciente */}
+              <div className="flex flex-col gap-4">
+                <h3 className="text-xl font-semibold text-[#7a2323] font-serif mb-2">Actividad Reciente</h3>
+                <div className="space-y-3">
+                  {isLoadingStats ? (
+                    <div className="animate-pulse flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
+                      <div className="w-6 h-6 bg-gray-200 rounded"></div>
+                      <div className="flex-1">
+                        <div className="h-4 bg-gray-200 rounded mb-2"></div>
+                        <div className="h-3 bg-gray-200 rounded w-1/2"></div>
+                      </div>
+                    </div>
+                  ) : (
+                    recentActivity.slice(0, 5).map((activity) => {
+                      const bgColor =
+                        activity.color === "green"
+                          ? "bg-[#a7f3d0]/30 border-[#bbf7d0]"
+                          : activity.color === "red"
+                          ? "bg-[#f8b4b4]/30 border-[#fecaca]"
+                          : "bg-[#ddd6fe]/30 border-[#e9d5ff]";
+
+                      const textColor =
+                        activity.color === "green"
+                          ? "text-[#15803d]"
+                          : activity.color === "red"
+                          ? "text-[#d30006]"
+                          : "text-[#7c2d12]";
+
+                      return (
+                        <div
+                          key={activity.id}
+                          className={`flex items-center space-x-3 p-3 ${bgColor} rounded-lg border`}
+                        >
+                          <span className={textColor}>{activity.icon}</span>
+                          <div className="flex-1">
+                            <div className="text-sm font-medium text-[#7a2323]">{activity.title}</div>
+                            <div className="text-xs text-[#7a2323]/60">{adminStatsService.formatRelativeTime(activity.timestamp)}</div>
+                          </div>
+                        </div>
+                      );
+                    })
+                  )}
+                  {!isLoadingStats && recentActivity.length === 0 && (
+                    <div className="text-center py-4 text-gray-500">No hay actividad reciente</div>
+                  )}
                 </div>
               </div>
             </div>
