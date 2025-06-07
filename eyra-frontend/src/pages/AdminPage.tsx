@@ -1,7 +1,7 @@
 // ! 31/05/2025 - Página de administración completamente actualizada con gestión de usuarios
 // ! 31/05/2025 - Activados componentes de gestión de usuarios
 
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useAuth } from "../context/AuthContext";
 import {
   adminStatsService,
@@ -11,6 +11,19 @@ import {
 import UsersTable from "../features/admin/components/UsersTable";
 import ConditionsTable from "../features/admin/components/ConditionsTable"; // ! 01/06/2025 - CRUD de condiciones médicas
 import ContentTable from "../features/admin/components/ContentTable"; // ! 01/06/2025 - CRUD de contenido
+import { NeomorphicCard } from "../components/ui/NeomorphicComponents";
+import { Bar } from "react-chartjs-2";
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend,
+} from "chart.js";
+
+ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
 const AdminPage = () => {
   const { user, isLoading: authLoading } = useAuth();
@@ -23,6 +36,7 @@ const AdminPage = () => {
   const [recentActivity, setRecentActivity] = useState<RecentActivity[]>([]);
   const [isLoadingStats, setIsLoadingStats] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [showChart, setShowChart] = useState(false);
 
   // Cargar datos cuando el componente se monta
   const loadData = async () => {
@@ -84,121 +98,108 @@ const AdminPage = () => {
     { id: "settings", label: "Configuración", icon: "⚙️" },
   ] as const;
 
+  // Datos para la gráfica
+  const chartData = {
+    labels: ["Usuarios", "Activos", "Admins"],
+    datasets: [
+      {
+        label: "Cantidad",
+        data: [stats?.totalUsers || 0, stats?.activeUsers || 0, stats?.adminUsers || 0],
+        backgroundColor: [
+          "#F8B4B4", // pastel rojo
+          "#A7F3D0", // pastel verde
+          "#DDD6FE", // pastel violeta
+        ],
+        borderRadius: 12,
+        borderWidth: 0,
+      },
+    ],
+  };
+  const chartOptions = {
+    responsive: true,
+    plugins: {
+      legend: { display: false },
+      title: { display: false },
+      tooltip: { enabled: true },
+    },
+    scales: {
+      x: {
+        grid: { display: false },
+        ticks: { color: "#7a2323", font: { weight: 'bold' as const } },
+      },
+      y: {
+        grid: { color: "#f3f3f3" },
+        ticks: { color: "#7a2323", font: { weight: 'bold' as const }, stepSize: 1 },
+        beginAtZero: true,
+        precision: 0,
+      },
+    },
+  };
+
   return (
-    <div className="w-full h-full  overflow-auto">
-      <div className="max-w-7xl mx-auto p-6">
+    <div className="w-full h-full min-h-0 flex flex-col overflow-hidden bg-[#f7f3ef]">
+      <div className="max-w-7xl mx-auto p-6 flex flex-col h-full min-h-0">
         {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold text-[#bd30006] mb-2">
-            Panel de Administración
-          </h1>
-          <p className="text-gray-600">
-            Bienvenido/a, {user.name}. Aquí puedes gestionar el sistema EYRA.
-          </p>
+        <div className="mb-6">
+          <h1 className="text-4xl font-bold text-[#7a2323] mb-2 font-serif">Panel de Administración</h1>
+          <p className="text-[#7a2323]/70">Bienvenido/a, {user.name}. Aquí puedes gestionar el sistema EYRA.</p>
         </div>
-
         {/* Navegación por pestañas */}
-        <div className="mb-8">
-          <div className="border-b border-gray-200 bg-white rounded-t-lg">
-            <nav className="-mb-px flex space-x-8 px-6">
-              {tabs.map((tab) => (
-                <button
-                  key={tab.id}
-                  onClick={() => setActiveTab(tab.id)}
-                  className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors duration-200 ${
-                    activeTab === tab.id
-                      ? "border-[#d30006] text-[#d30006]"
-                      : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
-                  }`}
-                >
-                  <span className="mr-2">{tab.icon}</span>
-                  {tab.label}
-                </button>
-              ))}
-            </nav>
-          </div>
+        <NeomorphicCard className="mb-0 p-0 flex flex-row gap-2 items-center justify-start shadow-neomorphic" compact>
+          {tabs.map((tab) => (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              className={`px-5 py-2 rounded-xl font-semibold text-base transition-all duration-200 focus:outline-none font-serif
+                ${activeTab === tab.id
+                  ? "bg-[#f8b4b4]/60 text-[#C62328] shadow-inner"
+                  : "bg-transparent text-[#7a2323]/70 hover:bg-[#f8b4b4]/30"}
+              `}
+              style={{ minWidth: 120 }}
+            >
+              <span className="mr-2">{tab.icon}</span>
+              {tab.label}
+            </button>
+          ))}
+        </NeomorphicCard>
+        {/* Toggle gráfico/cajas */}
+        <div className="flex items-center gap-3 mt-4 mb-4">
+          <label className="flex items-center gap-2 cursor-pointer select-none">
+            <input
+              type="checkbox"
+              checked={showChart}
+              onChange={() => setShowChart((v) => !v)}
+              className="accent-[#C62328] w-5 h-5 rounded"
+            />
+            <span className="text-[#7a2323] font-medium">Ver como gráfica</span>
+          </label>
         </div>
-
         {/* Contenido por pestañas */}
-        <div className="bg-white rounded-lg shadow-sm p-6">
+        <div className="bg-transparent rounded-lg shadow-none p-0 flex-1 min-h-0">
           {activeTab === "overview" && (
-            <div>
-              <h2 className="text-2xl font-semibold mb-6">
-                Resumen del Sistema
-              </h2>
-
-              {error && (
-                <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
-                  <p className="text-red-800">Error al cargar datos: {error}</p>
-                  <button
-                    onClick={() => window.location.reload()}
-                    className="mt-2 text-sm text-red-600 hover:text-red-800 underline"
-                  >
-                    Recargar página
-                  </button>
+            <div className="flex flex-col gap-6">
+              <h2 className="text-2xl font-semibold mb-2 text-[#7a2323] font-serif">Resumen del Sistema</h2>
+              {/* Estadísticas simples o gráfica */}
+              {showChart ? (
+                <div className="w-full max-w-lg mx-auto bg-white rounded-2xl p-6 shadow-neomorphic">
+                  <Bar data={chartData} options={chartOptions} height={180} />
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <NeomorphicCard className="flex flex-col items-center justify-center gap-2 bg-[#f8b4b4]/30">
+                    <h3 className="text-lg font-semibold text-[#C62328] font-serif">Usuarios</h3>
+                    <p className="text-3xl font-bold text-[#991b1b]">{stats?.totalUsers?.toLocaleString() || "0"}</p>
+                  </NeomorphicCard>
+                  <NeomorphicCard className="flex flex-col items-center justify-center gap-2 bg-[#a7f3d0]/30">
+                    <h3 className="text-lg font-semibold text-[#15803d] font-serif">Activos</h3>
+                    <p className="text-3xl font-bold text-[#15803d]">{stats?.activeUsers?.toLocaleString() || "0"}</p>
+                  </NeomorphicCard>
+                  <NeomorphicCard className="flex flex-col items-center justify-center gap-2 bg-[#ddd6fe]/30">
+                    <h3 className="text-lg font-semibold text-[#7c2d12] font-serif">Admins</h3>
+                    <p className="text-3xl font-bold text-[#7c2d12]">{stats?.adminUsers?.toLocaleString() || "0"}</p>
+                  </NeomorphicCard>
                 </div>
               )}
-
-              {/* Estadísticas simples */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                <div className="bg-[#fff1f1] p-6 rounded-lg border border-[#fecaca]">
-                  <h3 className="text-lg font-semibold text-[#d30006] mb-2">
-                    👥 Usuarios
-                  </h3>
-                  {isLoadingStats ? (
-                    <div className="animate-pulse">
-                      <div className="h-8 bg-gray-200 rounded mb-2"></div>
-                      <div className="h-4 bg-gray-200 rounded w-3/4"></div>
-                    </div>
-                  ) : (
-                    <>
-                      <p className="text-3xl font-bold text-[#991b1b]">
-                        {stats?.totalUsers.toLocaleString() || "0"}
-                      </p>
-                      <p className="text-sm text-[#d30006]">
-                        Total de usuarios
-                      </p>
-                    </>
-                  )}
-                </div>
-                <div className="bg-[#f0fdf4] p-6 rounded-lg border border-[#bbf7d0]">
-                  <h3 className="text-lg font-semibold text-[#166534] mb-2">
-                    ✅ Activos
-                  </h3>
-                  {isLoadingStats ? (
-                    <div className="animate-pulse">
-                      <div className="h-8 bg-gray-200 rounded mb-2"></div>
-                      <div className="h-4 bg-gray-200 rounded w-3/4"></div>
-                    </div>
-                  ) : (
-                    <>
-                      <p className="text-3xl font-bold text-[#15803d]">
-                        {stats?.activeUsers.toLocaleString() || "0"}
-                      </p>
-                      <p className="text-sm text-[#166534]">Usuarios activos</p>
-                    </>
-                  )}
-                </div>
-                <div className="bg-[#fdf4ff] p-6 rounded-lg border border-[#e9d5ff]">
-                  <h3 className="text-lg font-semibold text-[#7c2d12] mb-2">
-                    👑 Admins
-                  </h3>
-                  {isLoadingStats ? (
-                    <div className="animate-pulse">
-                      <div className="h-8 bg-gray-200 rounded mb-2"></div>
-                      <div className="h-4 bg-gray-200 rounded w-3/4"></div>
-                    </div>
-                  ) : (
-                    <>
-                      <p className="text-3xl font-bold text-[#a16207]">
-                        {stats?.adminUsers.toLocaleString() || "0"}
-                      </p>
-                      <p className="text-sm text-[#7c2d12]">Administradores</p>
-                    </>
-                  )}
-                </div>
-              </div>
-
               {/* Acciones rápidas */}
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 <div>
