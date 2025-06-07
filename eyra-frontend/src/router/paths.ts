@@ -12,4 +12,5 @@ export const ROUTES = {
   SETTINGS: "/settings",
   LIBRARY: "/library",
   ABOUT: "/about",
+  AI_ASSISTANT: "/ai-assistant",
 };

@@ -142,6 +142,69 @@ const RegisterPage = () => {
     }
   };
 
+  // Función para traducir errores técnicos a mensajes UX amigables
+  const getFriendlyRegisterError = (
+    error: any
+  ): { message: string; subtitle?: string } => {
+    if (!error || typeof error !== "object") {
+      return { message: "Ha ocurrido un error inesperado. Intenta de nuevo." };
+    }
+    // Errores de red
+    if (error.message === "Failed to fetch") {
+      return {
+        message: "",
+        subtitle: "Verifica tu conexión a internet o inténtalo más tarde.",
+      };
+    }
+    // Errores de backend conocidos
+    if (typeof error.message === "string") {
+      if (error.message.includes("409")) {
+        return {
+          message: "",
+          subtitle: "El email o usuario ya está registrado",
+        };
+      }
+      if (error.message.includes("401")) {
+        return {
+          message: "",
+          subtitle: "No tienes permisos para realizar esta acción.",
+        };
+      }
+      if (error.message.includes("403")) {
+        return {
+          message: "",
+          subtitle: "No tienes permisos para registrarte.",
+        };
+      }
+      if (error.message.includes("404")) {
+        return {
+          message: "",
+          subtitle: "El servicio no está disponible.",
+        };
+      }
+      if (error.message.includes("500")) {
+        return {
+          message: "",
+          subtitle: "Nuestro equipo ya está trabajando en ello.",
+        };
+      }
+      // Mensaje personalizado del backend
+      if (error.message.startsWith("Error en la petición:")) {
+        return {
+          message: "",
+          subtitle: "Verifica tus datos o intenta más tarde.",
+        };
+      }
+    }
+    // Fallback
+    return {
+      message:
+        error && error.message
+          ? error.message
+          : "No se pudo crear la cuenta. Intenta de nuevo.",
+    };
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -178,7 +241,17 @@ const RegisterPage = () => {
       await register(formattedRequest);
       navigate(ROUTES.LOGIN);
     } catch (error: any) {
-      setError(error.message || "Error al registrar usuario");
+      const friendly = getFriendlyRegisterError(error);
+      setError(friendly.message + (friendly.subtitle ? `\n${friendly.subtitle}` : ""));
+      toast.custom((t) => (
+        <NeomorphicToast
+          message={friendly.message}
+          subtitle={friendly.subtitle}
+          variant="error"
+          duration={6000}
+          onClose={() => toast.dismiss(t.id)}
+        />
+      ));
     } finally {
       setIsLoading(false);
     }

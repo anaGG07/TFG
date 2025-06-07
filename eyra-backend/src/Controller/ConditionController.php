@@ -34,6 +34,7 @@ class ConditionController extends AbstractController
     }
 
     #[Route('', name: 'api_conditions_list', methods: ['GET'])]
+    #[IsGranted('ROLE_ADMIN')]
     public function getConditions(): JsonResponse
     {
         // Verificar autenticación
@@ -45,6 +46,7 @@ class ConditionController extends AbstractController
 
         // Obtener todas las condiciones
         $conditions = $this->conditionRepository->findAll();
+        
         // Serializar manualmente para evitar hydra
         $data = [];
         foreach ($conditions as $condition) {
@@ -60,6 +62,7 @@ class ConditionController extends AbstractController
                 'updatedAt' => $condition->getUpdatedAt()?->format('c'),
             ];
         }
+        
         return $this->json($data);
     }
 

@@ -16,12 +16,13 @@ security:
         login:
             pattern: ^/api/login_check
             stateless: true
+            user_checker: App\Security\UserChecker
             json_login:
                 check_path: /api/login_check
                 username_path: email
                 password_path: password
                 success_handler: App\Security\JwtCookieSuccessHandler
-                failure_handler: lexik_jwt_authentication.handler.authentication_failure
+                failure_handler: App\Security\CustomAuthenticationFailureHandler
         
         api:
             pattern: ^/api

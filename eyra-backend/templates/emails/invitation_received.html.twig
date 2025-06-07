@@ -1,0 +1,56 @@
+{% extends 'emails/base.html.twig' %}
+
+{% block title %}EYRA - Te han invitado{% endblock %}
+
+{% block content %}
+    <div class="greeting">
+        ¡Tienes una invitación!
+    </div>
+    
+    <div class="content">
+        <p><strong>{{ inviterName }}</strong> te ha invitado a acceder a su información de salud en EYRA.</p>
+        
+        <div class="info-box">
+            <strong>🎟️ Tu código de invitación:</strong><br>
+            <div style="text-align: center; margin: 20px 0;">
+                <span style="font-family: monospace; font-size: 24px; font-weight: bold; color: #F15B5B; background-color: #FFF5F5; padding: 15px 20px; border-radius: 8px; border: 2px dashed #FF8383; display: inline-block;">
+                    {{ invitationCode }}
+                </span>
+            </div>
+            <strong>⏰ Válido hasta:</strong> {{ expirationDate }}
+        </div>
+        
+        <h3 style="color: #F15B5B; margin-top: 30px;">¿Qué puedes hacer?</h3>
+        
+        <p>Con esta invitación como <strong>{{ guestTypeLabel }}</strong> podrás:</p>
+        
+        <ul style="list-style: none; padding: 0;">
+            {% for permission in accessPermissions %}
+                <li style="margin-bottom: 10px;">
+                    <span style="color: #F15B5B; font-weight: bold;">✓</span> 
+                    {{ permission }}
+                </li>
+            {% endfor %}
+        </ul>
+        
+        <p style="text-align: center; margin-top: 30px;">
+            <a href="{{ invitationUrl }}" class="button">Aceptar Invitación</a>
+        </p>
+        
+        <div style="background-color: #E6F3FF; padding: 20px; border-radius: 8px; margin-top: 30px;">
+            <p style="margin: 0; font-size: 14px; color: #666;">
+                <strong>¿Nuevo en EYRA?</strong><br>
+                Si no tienes cuenta, puedes registrarte gratis y luego usar este código para acceder a la información compartida.
+            </p>
+        </div>
+        
+        <div style="background-color: #FFE6E6; padding: 20px; border-radius: 8px; margin-top: 20px;">
+            <p style="margin: 0; font-size: 14px; color: #666;">
+                <strong>Privacidad y Seguridad:</strong><br>
+                • Solo tendrás acceso a la información específica autorizada<br>
+                • El acceso puede ser revocado en cualquier momento<br>
+                • Toda la información está protegida y encriptada
+            </p>
+        </div>
+    </div>
+{% endblock %}

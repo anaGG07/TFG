@@ -43,6 +43,11 @@ services:
       - ./eyra-backend:/var/www/html
       - ./eyra-backend/config/jwt:/var/www/html/config/jwt
     environment:
+      - MAILER_DSN=smtps://info@eyraclub.es:avGT24!07!avGT24!07@authsmtp.securemail.pro:465 
+      - FRONTEND_RESET_PASSWORD_PATH=/reset-password 
+      - FRONTEND_BASE_URL=https://eyraclub.es
+      - FRONTEND_DASHBOARD_PATH=/dashboard 
+      - FRONTEND_INVITATION_PATH=/invitation
       - DATABASE_URL=${DATABASE_URL}
       - APP_ENV=${APP_ENV}
       - APP_SECRET=${APP_SECRET}

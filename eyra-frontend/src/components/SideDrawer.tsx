@@ -113,6 +113,29 @@ const AdminIcon = ({ className }: { className?: string }) => (
   </svg>
 );
 
+// Icono IA igual que en CircularNavigation
+const AIIcon = ({ className }: { className?: string }) => (
+  <svg
+    className={className}
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="#C62328"
+    strokeWidth="2.5"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
+    <circle cx="12" cy="12" r="3" />
+    <path d="M12 1v6" />
+    <path d="M12 17v6" />
+    <path d="M4.22 4.22l4.24 4.24" />
+    <path d="M15.54 15.54l4.24 4.24" />
+    <path d="M1 12h6" />
+    <path d="M17 12h6" />
+    <path d="M4.22 19.78l4.24-4.24" />
+    <path d="M15.54 8.46l4.24-4.24" />
+  </svg>
+);
+
 const navigationItems: NavigationItem[] = [
   {
     id: "dashboard",
@@ -143,6 +166,12 @@ const navigationItems: NavigationItem[] = [
     label: "Perfil",
     icon: ProfileIcon,
     route: ROUTES.PROFILE,
+  },
+  {
+    id: "ai-assistant",
+    label: "Asistente IA",
+    icon: AIIcon,
+    route: ROUTES.AI_ASSISTANT,
   },
 ];
 

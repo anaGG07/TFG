@@ -54,15 +54,34 @@ const SymptomsView: React.FC<SymptomsViewProps> = ({ expanded = true }) => {
         const startDate = new Date();
         startDate.setDate(startDate.getDate() - 90);
         
-        const [history, patterns] = await Promise.all([
+        const [historyResult, patternsResult] = await Promise.allSettled([
           getSymptomHistory(String(user.id), startDate.toISOString(), endDate),
           getSymptomPatterns(String(user.id))
         ]);
 
-        setSymptomHistory(history);
-        setSymptomPatterns(patterns);
+        // Manejar resultado del historial
+        if (historyResult.status === 'fulfilled') {
+          const history = Array.isArray(historyResult.value) ? historyResult.value : [];
+          setSymptomHistory(history);
+        } else {
+          console.warn('Failed to fetch symptom history:', historyResult.reason);
+          setSymptomHistory([]);
+        }
+
+        // Manejar resultado de los patrones
+        if (patternsResult.status === 'fulfilled') {
+          const patterns = Array.isArray(patternsResult.value) ? patternsResult.value : [];
+          setSymptomPatterns(patterns);
+        } else {
+          console.warn('Failed to fetch symptom patterns:', patternsResult.reason);
+          setSymptomPatterns([]);
+        }
+
       } catch (error) {
         console.error('Error al cargar datos de síntomas:', error);
+        // Asegurar que siempre tenemos arrays válidos
+        setSymptomHistory([]);
+        setSymptomPatterns([]);
       } finally {
         setLoading(false);
       }

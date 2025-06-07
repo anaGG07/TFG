@@ -1,0 +1,45 @@
+{% extends 'emails/base.html.twig' %}
+
+{% block title %}EYRA - Invitación enviada{% endblock %}
+
+{% block content %}
+    <div class="greeting">
+        ¡Hola {{ inviterName }}!
+    </div>
+    
+    <div class="content">
+        <p>Tu invitación ha sido enviada exitosamente.</p>
+        
+        <div class="info-box">
+            <strong>📧 Detalles de la invitación:</strong><br>
+            <strong>Para:</strong> {{ invitedEmail }}<br>
+            <strong>Tipo de acceso:</strong> {{ guestTypeLabel }}<br>
+            <strong>Código:</strong> <span style="font-family: monospace; font-size: 18px; font-weight: bold; color: #F15B5B;">{{ invitationCode }}</span><br>
+            <strong>Expira:</strong> {{ expirationDate }}
+        </div>
+        
+        <h3 style="color: #F15B5B; margin-top: 30px;">¿Qué puede hacer {{ invitedEmail }}?</h3>
+        
+        <ul style="list-style: none; padding: 0;">
+            {% for permission in accessPermissions %}
+                <li style="margin-bottom: 10px;">
+                    <span style="color: #F15B5B; font-weight: bold;">✓</span> 
+                    {{ permission }}
+                </li>
+            {% endfor %}
+        </ul>
+        
+        <p>El destinatario recibirá un email separado con las instrucciones para acceder usando el código de invitación.</p>
+        
+        <p style="text-align: center; margin-top: 30px;">
+            <a href="{{ dashboardUrl }}" class="button">Ver mis invitaciones</a>
+        </p>
+        
+        <div style="background-color: #FFE6E6; padding: 20px; border-radius: 8px; margin-top: 30px;">
+            <p style="margin: 0; font-size: 14px; color: #666;">
+                <strong>Gestiona tus invitaciones:</strong><br>
+                Puedes revocar este acceso en cualquier momento desde tu panel de control en EYRA.
+            </p>
+        </div>
+    </div>
+{% endblock %}
