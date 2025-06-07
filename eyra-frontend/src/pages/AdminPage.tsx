@@ -96,25 +96,25 @@ const DiskIcon = ({ className }: { className?: string }) => (
   </svg>
 );
 
-// Iconos SVG para las cajas de resumen (silueta grande, centrada y ocupando todo el viewBox)
+// Iconos SVG para las cajas de resumen (ajustados para círculo neomórfico)
 const UsersSummaryIcon = ({ className }: { className?: string }) => (
-  <svg className={className} viewBox="0 0 64 64" width="100%" height="100%" fill="none" stroke="#C62328" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round">
-    <circle cx="32" cy="22" r="14" />
-    <path d="M8 60c0-12 10-22 24-22s24 10 24 22" />
+  <svg className={className} viewBox="0 0 64 64" width="100%" height="100%" fill="none" stroke="#C62328" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="32" cy="26" r="12" />
+    <path d="M16 50c0-8 7-14 16-14s16 6 16 14" />
   </svg>
 );
 const ActiveSummaryIcon = ({ className }: { className?: string }) => (
-  <svg className={className} viewBox="0 0 64 64" width="100%" height="100%" fill="none" stroke="#15803d" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round">
-    <circle cx="32" cy="22" r="14" />
-    <path d="M8 60c0-12 10-22 24-22s24 10 24 22" />
-    <polyline points="40 40 50 50 60 34" stroke="#15803d" strokeWidth="5" fill="none" />
+  <svg className={className} viewBox="0 0 64 64" width="100%" height="100%" fill="none" stroke="#15803d" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="32" cy="26" r="12" />
+    <path d="M16 50c0-8 7-14 16-14s16 6 16 14" />
+    <polyline points="38 38 46 46 58 30" stroke="#15803d" strokeWidth="4" fill="none" />
   </svg>
 );
 const AdminSummaryIcon = ({ className }: { className?: string }) => (
-  <svg className={className} viewBox="0 0 64 64" width="100%" height="100%" fill="none" stroke="#7c2d12" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round">
-    <circle cx="32" cy="22" r="14" />
-    <path d="M8 60c0-12 10-22 24-22s24 10 24 22" />
-    <path d="M32 2l6 10 10-4-6 10" stroke="#7c2d12" strokeWidth="3.5" fill="none" />
+  <svg className={className} viewBox="0 0 64 64" width="100%" height="100%" fill="none" stroke="#7c2d12" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="32" cy="26" r="12" />
+    <path d="M16 50c0-8 7-14 16-14s16 6 16 14" />
+    <path d="M32 8l4 6 6-2-4 6" stroke="#7c2d12" strokeWidth="2.5" fill="none" />
   </svg>
 );
 
@@ -299,23 +299,29 @@ const AdminPage = () => {
                           className="grid grid-cols-1 md:grid-cols-3 gap-8 w-full justify-center mt-4 mb-4"
                         >
                           <div className="flex flex-col items-center">
-                            <UsersSummaryIcon className="w-40 h-40 mb-2" />
-                            <NeomorphicCard className="flex flex-col items-center justify-center gap-3 bg-[#f8b4b4]/30 w-36 h-36 min-w-[8rem] min-h-[8rem] max-w-[9rem] max-h-[9rem] p-0">
-                              <h3 className="text-base font-semibold text-[#C62328] font-serif">Usuarios</h3>
+                            <div className="w-28 h-28 rounded-full bg-white shadow-[6px_6px_18px_rgba(91,1,8,0.10),-6px_-6px_18px_rgba(255,255,255,0.45)] flex items-center justify-center -mb-12 z-10">
+                              <UsersSummaryIcon className="w-20 h-20" />
+                            </div>
+                            <NeomorphicCard className="flex flex-col items-center justify-center gap-3 bg-[#f8b4b4]/30 w-36 h-36 min-w-[8rem] min-h-[8rem] max-w-[9rem] max-h-[9rem] p-0 z-0">
+                              <h3 className="text-base font-semibold text-[#C62328] font-serif mt-12">Usuarios</h3>
                               <p className="text-3xl font-bold text-[#991b1b]">{stats?.totalUsers?.toLocaleString() || "0"}</p>
                             </NeomorphicCard>
                           </div>
                           <div className="flex flex-col items-center">
-                            <ActiveSummaryIcon className="w-40 h-40 mb-2" />
-                            <NeomorphicCard className="flex flex-col items-center justify-center gap-3 bg-[#a7f3d0]/30 w-36 h-36 min-w-[8rem] min-h-[8rem] max-w-[9rem] max-h-[9rem] p-0">
-                              <h3 className="text-base font-semibold text-[#15803d] font-serif">Activos</h3>
+                            <div className="w-28 h-28 rounded-full bg-white shadow-[6px_6px_18px_rgba(21,128,61,0.10),-6px_-6px_18px_rgba(255,255,255,0.45)] flex items-center justify-center -mb-12 z-10">
+                              <ActiveSummaryIcon className="w-20 h-20" />
+                            </div>
+                            <NeomorphicCard className="flex flex-col items-center justify-center gap-3 bg-[#a7f3d0]/30 w-36 h-36 min-w-[8rem] min-h-[8rem] max-w-[9rem] max-h-[9rem] p-0 z-0">
+                              <h3 className="text-base font-semibold text-[#15803d] font-serif mt-12">Activos</h3>
                               <p className="text-3xl font-bold text-[#15803d]">{stats?.activeUsers?.toLocaleString() || "0"}</p>
                             </NeomorphicCard>
                           </div>
                           <div className="flex flex-col items-center">
-                            <AdminSummaryIcon className="w-40 h-40 mb-2" />
-                            <NeomorphicCard className="flex flex-col items-center justify-center gap-3 bg-[#ddd6fe]/30 w-36 h-36 min-w-[8rem] min-h-[8rem] max-w-[9rem] max-h-[9rem] p-0">
-                              <h3 className="text-base font-semibold text-[#7c2d12] font-serif">Admins</h3>
+                            <div className="w-28 h-28 rounded-full bg-white shadow-[6px_6px_18px_rgba(124,45,18,0.10),-6px_-6px_18px_rgba(255,255,255,0.45)] flex items-center justify-center -mb-12 z-10">
+                              <AdminSummaryIcon className="w-20 h-20" />
+                            </div>
+                            <NeomorphicCard className="flex flex-col items-center justify-center gap-3 bg-[#ddd6fe]/30 w-36 h-36 min-w-[8rem] min-h-[8rem] max-w-[9rem] max-h-[9rem] p-0 z-0">
+                              <h3 className="text-base font-semibold text-[#7c2d12] font-serif mt-12">Admins</h3>
                               <p className="text-3xl font-bold text-[#7c2d12]">{stats?.adminUsers?.toLocaleString() || "0"}</p>
                             </NeomorphicCard>
                           </div>
