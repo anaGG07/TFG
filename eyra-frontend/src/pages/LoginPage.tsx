@@ -8,6 +8,7 @@ import PasswordResetModal from "../components/PasswordResetModal";
 import { toast } from "react-hot-toast";
 import NeomorphicToast from "../components/ui/NeomorphicToast";
 
+// comentario de control
 const LoginPage = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -20,9 +21,13 @@ const LoginPage = () => {
   const navigate = useNavigate();
 
   // Tamaño de la ventana para el Blob
-  const [dimensions, setDimensions] = React.useState({ width: window.innerWidth, height: window.innerHeight });
+  const [dimensions, setDimensions] = React.useState({
+    width: window.innerWidth,
+    height: window.innerHeight,
+  });
   React.useEffect(() => {
-    const handleResize = () => setDimensions({ width: window.innerWidth, height: window.innerHeight });
+    const handleResize = () =>
+      setDimensions({ width: window.innerWidth, height: window.innerHeight });
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
@@ -33,6 +38,65 @@ const LoginPage = () => {
       navigate(ROUTES.DASHBOARD, { replace: true });
     }
   }, [isAuthenticated, authLoading, navigate]);
+
+  // Función para traducir errores técnicos a mensajes UX amigables
+  const getFriendlyLoginError = (
+    error: any
+  ): { message: string; subtitle?: string } => {
+    if (!error || typeof error !== "object") {
+      return { message: "Ha ocurrido un error inesperado. Intenta de nuevo." };
+    }
+    // Errores de red
+    if (error.message === "Failed to fetch") {
+      return {
+        message: "No se pudo conectar con el servidor.",
+        subtitle: "Verifica tu conexión a internet o inténtalo más tarde.",
+      };
+    }
+    // Errores de backend conocidos
+    if (typeof error.message === "string") {
+      if (error.message.includes("401")) {
+        return {
+          message: "Credenciales incorrectas",
+          subtitle: "Revisa tu email y contraseña e inténtalo de nuevo.",
+        };
+      }
+      if (error.message.includes("403")) {
+        return {
+          message: "Acceso denegado",
+          subtitle: "Tu cuenta no tiene permisos para acceder.",
+        };
+      }
+      if (error.message.includes("404")) {
+        return {
+          message: "Usuario no encontrado",
+          subtitle: "Verifica tu email o regístrate si aún no tienes cuenta.",
+        };
+      }
+      if (error.message.includes("500")) {
+        return {
+          message: "Error interno del servidor",
+          subtitle:
+            "Nuestro equipo ya está trabajando en ello. Intenta más tarde.",
+        };
+      }
+      // Mensaje personalizado del backend
+      if (error.message.startsWith("Error en la petición:")) {
+        // Si el backend devuelve un mensaje más específico, lo mostramos
+        return {
+          message: "No se pudo iniciar sesión",
+          subtitle: "Verifica tus datos o intenta más tarde.",
+        };
+      }
+    }
+    // Fallback
+    return {
+      message:
+        error && error.message
+          ? error.message
+          : "No se pudo iniciar sesión. Intenta de nuevo.",
+    };
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -67,7 +131,10 @@ const LoginPage = () => {
         return;
       }
 
-      console.log("Login exitoso. Estado onboarding:", user.onboardingCompleted);
+      console.log(
+        "Login exitoso. Estado onboarding:",
+        user.onboardingCompleted
+      );
 
       // Redirigir basado en el estado del onboarding
       if (!user.onboardingCompleted) {
@@ -79,9 +146,11 @@ const LoginPage = () => {
       }
     } catch (error: any) {
       console.error("Error en login:", error);
+      const friendly = getFriendlyLoginError(error);
       toast.custom((t) => (
         <NeomorphicToast
-          message={error.message === "Failed to fetch" ? "No se pudo conectar con el servidor." : (error.message || "Error al iniciar sesión")}
+          message={friendly.message}
+          subtitle={friendly.subtitle}
           variant="error"
           onClose={() => toast.dismiss(t.id)}
           duration={6000}
@@ -94,9 +163,7 @@ const LoginPage = () => {
 
   // Si está cargando la autenticación, mostrar spinner
   if (authLoading) {
-    return (
-      <LoadingSpinner />
-    );
+    return <LoadingSpinner />;
   }
 
   return (
