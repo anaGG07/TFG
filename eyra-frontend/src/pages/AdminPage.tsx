@@ -298,21 +298,27 @@ const AdminPage = () => {
                           transition={{ duration: 0.4, ease: "easeInOut" }}
                           className="grid grid-cols-1 md:grid-cols-3 gap-8 w-full justify-center mt-4 mb-4"
                         >
-                          <NeomorphicCard className="flex flex-col items-center justify-center gap-3 bg-[#f8b4b4]/30 w-36 h-36 min-w-[8rem] min-h-[8rem] max-w-[9rem] max-h-[9rem] p-0">
-                            <UsersSummaryIcon className="w-36 h-36" />
-                            <h3 className="text-base font-semibold text-[#C62328] font-serif">Usuarios</h3>
-                            <p className="text-3xl font-bold text-[#991b1b]">{stats?.totalUsers?.toLocaleString() || "0"}</p>
-                          </NeomorphicCard>
-                          <NeomorphicCard className="flex flex-col items-center justify-center gap-3 bg-[#a7f3d0]/30 w-36 h-36 min-w-[8rem] min-h-[8rem] max-w-[9rem] max-h-[9rem] p-0">
-                            <ActiveSummaryIcon className="w-36 h-36" />
-                            <h3 className="text-base font-semibold text-[#15803d] font-serif">Activos</h3>
-                            <p className="text-3xl font-bold text-[#15803d]">{stats?.activeUsers?.toLocaleString() || "0"}</p>
-                          </NeomorphicCard>
-                          <NeomorphicCard className="flex flex-col items-center justify-center gap-3 bg-[#ddd6fe]/30 w-36 h-36 min-w-[8rem] min-h-[8rem] max-w-[9rem] max-h-[9rem] p-0">
-                            <AdminSummaryIcon className="w-36 h-36" />
-                            <h3 className="text-base font-semibold text-[#7c2d12] font-serif">Admins</h3>
-                            <p className="text-3xl font-bold text-[#7c2d12]">{stats?.adminUsers?.toLocaleString() || "0"}</p>
-                          </NeomorphicCard>
+                          <div className="flex flex-col items-center">
+                            <UsersSummaryIcon className="w-40 h-40 mb-2" />
+                            <NeomorphicCard className="flex flex-col items-center justify-center gap-3 bg-[#f8b4b4]/30 w-36 h-36 min-w-[8rem] min-h-[8rem] max-w-[9rem] max-h-[9rem] p-0">
+                              <h3 className="text-base font-semibold text-[#C62328] font-serif">Usuarios</h3>
+                              <p className="text-3xl font-bold text-[#991b1b]">{stats?.totalUsers?.toLocaleString() || "0"}</p>
+                            </NeomorphicCard>
+                          </div>
+                          <div className="flex flex-col items-center">
+                            <ActiveSummaryIcon className="w-40 h-40 mb-2" />
+                            <NeomorphicCard className="flex flex-col items-center justify-center gap-3 bg-[#a7f3d0]/30 w-36 h-36 min-w-[8rem] min-h-[8rem] max-w-[9rem] max-h-[9rem] p-0">
+                              <h3 className="text-base font-semibold text-[#15803d] font-serif">Activos</h3>
+                              <p className="text-3xl font-bold text-[#15803d]">{stats?.activeUsers?.toLocaleString() || "0"}</p>
+                            </NeomorphicCard>
+                          </div>
+                          <div className="flex flex-col items-center">
+                            <AdminSummaryIcon className="w-40 h-40 mb-2" />
+                            <NeomorphicCard className="flex flex-col items-center justify-center gap-3 bg-[#ddd6fe]/30 w-36 h-36 min-w-[8rem] min-h-[8rem] max-w-[9rem] max-h-[9rem] p-0">
+                              <h3 className="text-base font-semibold text-[#7c2d12] font-serif">Admins</h3>
+                              <p className="text-3xl font-bold text-[#7c2d12]">{stats?.adminUsers?.toLocaleString() || "0"}</p>
+                            </NeomorphicCard>
+                          </div>
                         </motion.div>
                       )}
                     </AnimatePresence>
