@@ -8,7 +8,7 @@ interface NeoModalProps {
   children: React.ReactNode;
   footer?: React.ReactNode;
 }
-
+// comentario de control
 const NeoModal: React.FC<NeoModalProps> = ({ isOpen, onClose, title, loading = false, children, footer }) => {
   if (!isOpen) return null;
   return (
