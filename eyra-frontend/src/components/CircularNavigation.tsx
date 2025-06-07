@@ -5,7 +5,7 @@ import { ROUTES } from "../router/paths";
 import Blob from "./Blob";
 import { useLogout } from "../hooks/useLogout";
 import { useIsAdmin } from "../hooks/useIsAdmin";
-import UserAvatar from "./UserAvatar";
+import AvatarPreview from "./avatarBuilder/AvatarPreview";
 
 interface NavigationItem {
   id: string;
@@ -362,7 +362,34 @@ const CircularNavigation: React.FC = () => {
       {/* Avatar grande para usuarios no admin - Pegado al borde inferior */}
       {!isAdmin && (
         <div className="fixed bottom-4 left-[125px] transform -translate-x-1/2 z-40">
-          <UserAvatar user={user} size="lg" />
+          <div className="w-48 h-64 relative">
+            {/* Contenedor con forma de ventana con arco */}
+            <div 
+              className="w-full h-full overflow-hidden shadow-2xl border-4 border-white/20"
+              style={{
+                borderRadius: '50% 50% 10% 10% / 30% 30% 10% 10%',
+                background: 'linear-gradient(135deg, #f8f4f0, #e7ddd5)',
+              }}
+            >
+              {user?.avatar ? (
+                <div className="w-full h-full flex items-center justify-center pt-6">
+                  <div className="w-36 h-36">
+                    <AvatarPreview 
+                      config={user.avatar} 
+                      className="w-full h-full"
+                    />
+                  </div>
+                </div>
+              ) : (
+                <div className="w-full h-full flex items-center justify-center pt-6">
+                  <div className="w-36 h-36 rounded-full flex items-center justify-center text-white font-bold text-5xl shadow-lg"
+                       style={{ background: "linear-gradient(135deg, #C62328, #9d0d0b)" }}>
+                    {user?.name ? user.name[0].toUpperCase() : "U"}
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
         </div>
       )}
     </div>

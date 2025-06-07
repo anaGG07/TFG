@@ -12,28 +12,32 @@ interface NeoModalProps {
 const NeoModal: React.FC<NeoModalProps> = ({ isOpen, onClose, title, loading = false, children, footer }) => {
   if (!isOpen) return null;
   return (
-    <div className="fixed inset-0 flex items-center justify-center z-50 p-4">
-      <div className="neo-modal max-w-2xl w-full max-h-[90vh] overflow-y-auto animate-fade-in rounded-2xl" style={{ backgroundColor: '#e7e0d5' }}>
-        {/* Header */}
-        <div className="neo-modal-header flex items-center justify-between p-6 border-b">
-          <h2 className="text-2xl font-serif text-[#b91c1c]">{title}</h2>
-          <button
-            onClick={onClose}
-            className="neo-button text-gray-400 hover:text-gray-600"
-            disabled={loading}
-            aria-label="Cerrar"
-          >
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </button>
+    <>
+      {/* Overlay con blur */}
+      <div className="fixed inset-0 z-40 bg-transparent backdrop-blur-sm"></div>
+      <div className="fixed inset-0 flex items-center justify-center z-50 p-4">
+        <div className="neo-modal max-w-2xl w-full max-h-[90vh] overflow-y-auto animate-fade-in rounded-2xl shadow-2xl" style={{ backgroundColor: '#e7e0d5' }}>
+          {/* Header */}
+          <div className="neo-modal-header flex items-center justify-between p-6 border-b">
+            <h2 className="text-2xl font-serif text-[#b91c1c]">{title}</h2>
+            <button
+              onClick={onClose}
+              className="neo-button text-gray-400 hover:text-gray-600"
+              disabled={loading}
+              aria-label="Cerrar"
+            >
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+          {/* Content */}
+          <div className="neo-modal-content p-6">{children}</div>
+          {/* Footer */}
+          {footer && <div className="neo-modal-footer flex justify-end space-x-3 p-6 border-t">{footer}</div>}
         </div>
-        {/* Content */}
-        <div className="neo-modal-content p-6">{children}</div>
-        {/* Footer */}
-        {footer && <div className="neo-modal-footer flex justify-end space-x-3 p-6 border-t">{footer}</div>}
       </div>
-    </div>
+    </>
   );
 };
 
