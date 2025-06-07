@@ -303,84 +303,91 @@ const ConditionsTable: React.FC<ConditionsTableProps> = ({ onRefresh }) => {
             </tr>
           </thead>
           <tbody>
-            {paginatedConditions.map((condition) => (
-              <tr key={condition.id}>
-                <td className="px-4 text-center">
-                  <div className="flex items-center">
-                    <div className="flex-shrink-0 h-10 w-10">
-                      <div className="neo-avatar h-10 w-10 bg-[#b91c1c] text-white flex items-center justify-center font-semibold">
-                        {condition.name.charAt(0).toUpperCase()}
+            {paginatedConditions.map((condition, idx) => (
+              <>
+                <tr key={condition.id}>
+                  <td className="px-4 text-center">
+                    <div className="flex items-center">
+                      <div className="flex-shrink-0 h-10 w-10">
+                        <div className="neo-avatar h-10 w-10 bg-[#b91c1c] text-white flex items-center justify-center font-semibold">
+                          {condition.name.charAt(0).toUpperCase()}
+                        </div>
+                      </div>
+                      <div className="ml-4">
+                        <div className="text-sm font-medium text-gray-900">
+                          {condition.name}
+                        </div>
+                        <div className="text-sm text-gray-500">
+                          ID: {condition.id}
+                        </div>
                       </div>
                     </div>
-                    <div className="ml-4">
-                      <div className="text-sm font-medium text-gray-900">
-                        {condition.name}
-                      </div>
-                      <div className="text-sm text-gray-500">
-                        ID: {condition.id}
-                      </div>
+                  </td>
+                  <td className="px-4 text-center">
+                    <span className="text-sm text-gray-900" title={condition.description}>
+                      {truncateDescription(condition.description)}
+                    </span>
+                  </td>
+                  <td className="px-4 text-center">
+                    <span className={`neo-badge ${
+                      condition.isChronic 
+                        ? 'neo-badge-orange' 
+                        : 'neo-badge-blue'
+                    }`}>
+                      {condition.isChronic ? 'Crónica' : 'Aguda'}
+                    </span>
+                  </td>
+                  <td className="px-4 text-center">
+                    <span className={`neo-badge ${
+                      condition.state 
+                        ? 'neo-badge-green' 
+                        : 'neo-badge-red'
+                    }`}>
+                      {condition.state ? 'Activa' : 'Inactiva'}
+                    </span>
+                  </td>
+                  <td className="px-4 text-center">
+                    {formatDate(condition.createdAt)}
+                  </td>
+                  <td className="px-4 text-center">
+                    <div className="flex justify-center space-x-2">
+                      <button
+                        onClick={() => handleViewCondition(condition)}
+                        className="neo-button text-blue-600 hover:text-blue-900"
+                      >
+                        <ViewIcon />
+                      </button>
+                      <button
+                        onClick={() => handleEditCondition(condition)}
+                        className="neo-button text-indigo-600 hover:text-indigo-900"
+                      >
+                        <EditIcon />
+                      </button>
+                      <button
+                        onClick={() => handleToggleState(condition)}
+                        className={`neo-button ${
+                          condition.state 
+                            ? 'text-orange-600 hover:text-orange-900'
+                            : 'text-green-600 hover:text-green-900'
+                        }`}
+                      >
+                        {condition.state ? 'Desactivar' : 'Activar'}
+                      </button>
+                      <button
+                        onClick={() => handleDeleteCondition(condition)}
+                        className="neo-button text-red-600 hover:text-red-900"
+                      >
+                        <DeleteIcon />
+                      </button>
                     </div>
-                  </div>
-                </td>
-                <td className="px-4 text-center">
-                  <span className="text-sm text-gray-900" title={condition.description}>
-                    {truncateDescription(condition.description)}
-                  </span>
-                </td>
-                <td className="px-4 text-center">
-                  <span className={`neo-badge ${
-                    condition.isChronic 
-                      ? 'neo-badge-orange' 
-                      : 'neo-badge-blue'
-                  }`}>
-                    {condition.isChronic ? 'Crónica' : 'Aguda'}
-                  </span>
-                </td>
-                <td className="px-4 text-center">
-                  <span className={`neo-badge ${
-                    condition.state 
-                      ? 'neo-badge-green' 
-                      : 'neo-badge-red'
-                  }`}>
-                    {condition.state ? 'Activa' : 'Inactiva'}
-                  </span>
-                </td>
-                <td className="px-4 text-center">
-                  {formatDate(condition.createdAt)}
-                </td>
-                <td className="px-4 text-center">
-                  <div className="flex justify-center space-x-2">
-                    <button
-                      onClick={() => handleViewCondition(condition)}
-                      className="neo-button text-blue-600 hover:text-blue-900"
-                    >
-                      <ViewIcon />
-                    </button>
-                    <button
-                      onClick={() => handleEditCondition(condition)}
-                      className="neo-button text-indigo-600 hover:text-indigo-900"
-                    >
-                      <EditIcon />
-                    </button>
-                    <button
-                      onClick={() => handleToggleState(condition)}
-                      className={`neo-button ${
-                        condition.state 
-                          ? 'text-orange-600 hover:text-orange-900'
-                          : 'text-green-600 hover:text-green-900'
-                      }`}
-                    >
-                      {condition.state ? 'Desactivar' : 'Activar'}
-                    </button>
-                    <button
-                      onClick={() => handleDeleteCondition(condition)}
-                      className="neo-button text-red-600 hover:text-red-900"
-                    >
-                      <DeleteIcon />
-                    </button>
-                  </div>
-                </td>
-              </tr>
+                  </td>
+                </tr>
+                {idx < paginatedConditions.length - 1 && (
+                  <tr className="neo-divider-row">
+                    <td colSpan={6} className="p-0"><div className="neo-divider mx-auto" /></td>
+                  </tr>
+                )}
+              </>
             ))}
           </tbody>
         </table>

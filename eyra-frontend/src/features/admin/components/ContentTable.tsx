@@ -307,70 +307,77 @@ const ContentTable: React.FC<ContentTableProps> = ({ onRefresh }) => {
             </tr>
           </thead>
           <tbody>
-            {paginatedContents.map((content) => (
-              <tr key={content.id}>
-                <td className="px-4 text-center">
-                  <div className="flex items-center">                    
-                    <div className="ml-4">
-                      <div className="text-sm font-medium text-gray-900">
-                        {content.title}
-                      </div>
-                      <div className="text-sm text-gray-500">
-                        ID: {content.id}
+            {paginatedContents.map((content, idx) => (
+              <>
+                <tr key={content.id}>
+                  <td className="px-4 text-center">
+                    <div className="flex items-center">                    
+                      <div className="ml-4">
+                        <div className="text-sm font-medium text-gray-900">
+                          {content.title}
+                        </div>
+                        <div className="text-sm text-gray-500">
+                          ID: {content.id}
+                        </div>
                       </div>
                     </div>
-                  </div>
-                </td>
-                <td className="px-4 text-center">
-                  <span className="text-sm text-gray-900" title={content.summary || content.description || ""}>
-                    {(content.summary || content.description || "").length > 100 
-                      ? (content.summary || content.description || "").substring(0, 100) + '...' 
-                      : (content.summary || content.description || "")}
-                  </span>
-                </td>
-                <td className="px-4 text-center">
-                  <span className={`neo-badge ${getContentTypeColor(content.type).replace('bg-', 'neo-badge-').replace(' text-', '')}`}>
-                    {getContentTypeName(content.type)}
-                  </span>
-                </td>
-                <td className="px-4 text-center">
-                  {content.targetPhase || 'Todas'}
-                </td>
-                <td className="px-4 text-center">
-                  <div className="flex flex-wrap gap-1">
-                    {content.tags?.map((tag, index) => (
-                      <span
-                        key={index}
-                        className="neo-badge neo-badge-gray"
+                  </td>
+                  <td className="px-4 text-center">
+                    <span className="text-sm text-gray-900" title={content.summary || content.description || ""}>
+                      {(content.summary || content.description || "").length > 100 
+                        ? (content.summary || content.description || "").substring(0, 100) + '...' 
+                        : (content.summary || content.description || "")}
+                    </span>
+                  </td>
+                  <td className="px-4 text-center">
+                    <span className={`neo-badge ${getContentTypeColor(content.type).replace('bg-', 'neo-badge-').replace(' text-', '')}`}>
+                      {getContentTypeName(content.type)}
+                    </span>
+                  </td>
+                  <td className="px-4 text-center">
+                    {content.targetPhase || 'Todas'}
+                  </td>
+                  <td className="px-4 text-center">
+                    <div className="flex flex-wrap gap-1">
+                      {content.tags?.map((tag, index) => (
+                        <span
+                          key={index}
+                          className="neo-badge neo-badge-gray"
+                        >
+                          {tag}
+                        </span>
+                      ))}
+                    </div>
+                  </td>
+                  <td className="px-4 text-center">
+                    <div className="flex justify-center space-x-2">
+                      <button
+                        onClick={() => handleViewContent(content)}
+                        className="neo-button text-blue-600 hover:text-blue-900"
                       >
-                        {tag}
-                      </span>
-                    ))}
-                  </div>
-                </td>
-                <td className="px-4 text-center">
-                  <div className="flex justify-center space-x-2">
-                    <button
-                      onClick={() => handleViewContent(content)}
-                      className="neo-button text-blue-600 hover:text-blue-900"
-                    >
-                      <ViewIcon />
-                    </button>
-                    <button
-                      onClick={() => handleEditContent(content)}
-                      className="neo-button text-indigo-600 hover:text-indigo-900"
-                    >
-                      <EditIcon />
-                    </button>
-                    <button
-                      onClick={() => handleDeleteContent(content)}
-                      className="neo-button text-red-600 hover:text-red-900"
-                    >
-                      <DeleteIcon />
-                    </button>
-                  </div>
-                </td>
-              </tr>
+                        <ViewIcon />
+                      </button>
+                      <button
+                        onClick={() => handleEditContent(content)}
+                        className="neo-button text-indigo-600 hover:text-indigo-900"
+                      >
+                        <EditIcon />
+                      </button>
+                      <button
+                        onClick={() => handleDeleteContent(content)}
+                        className="neo-button text-red-600 hover:text-red-900"
+                      >
+                        <DeleteIcon />
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+                {idx < paginatedContents.length - 1 && (
+                  <tr className="neo-divider-row">
+                    <td colSpan={6} className="p-0"><div className="neo-divider mx-auto" /></td>
+                  </tr>
+                )}
+              </>
             ))}
           </tbody>
         </table>

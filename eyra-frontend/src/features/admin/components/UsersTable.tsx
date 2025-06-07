@@ -348,58 +348,65 @@ const UsersTable: React.FC<UsersTableProps> = ({ onRefresh }) => {
             </tr>
           </thead>
           <tbody>
-            {paginatedUsers.map((user) => (
-              <tr key={user.id}>
-                <td className="px-4">
-                  <div className="flex items-center justify-start gap-4">
-                    <UserAvatar user={user} size="md" />
-                    <span className="text-sm font-medium text-gray-900">{user.name}</span>
-                  </div>
-                </td>
-                <td className="px-4 text-center">
-                  <span className="text-sm text-gray-900" title={user.email}>
-                    {user.email}
-                  </span>
-                </td>
-                <td className="px-4 text-center">
-                  <div className="flex flex-wrap gap-1 justify-center">
-                    {user.roles.map((role) => (
-                      <span key={role} className={`neo-badge ${role === 'ROLE_ADMIN' ? 'neo-badge-purple' : role === 'ROLE_GUEST' ? 'neo-badge-gray' : 'neo-badge-blue'}`}>{RoleLabels[role] || role}</span>
-                    ))}
-                  </div>
-                </td>
-                <td className="px-4 text-center">
-                  <span className={`neo-badge ${user.state ? 'neo-badge-green' : 'neo-badge-red'}`}> 
-                    {user.state ? 'Activo' : 'Inactivo'}
-                  </span>
-                </td>
-                <td className="px-4 text-center text-sm text-gray-900">{formatDate(user.createdAt)}</td>
-                <td className="px-4 text-center">
-                  <div className="flex justify-center space-x-2">
-                    <button
-                      onClick={() => handleViewUser(user)}
-                      className="neo-button text-blue-600 hover:text-blue-900"
-                      aria-label="Ver detalles del usuario"
-                    >
-                      <ViewIcon />
-                    </button>
-                    <button
-                      onClick={() => handleEditUser(user)}
-                      className="neo-button text-purple-700 hover:text-purple-900"
-                      aria-label="Editar usuario"
-                    >
-                      <EditIcon />
-                    </button>
-                    <button
-                      onClick={() => handleToggleState(user)}
-                      className={`neo-button ${user.state ? 'text-red-600 hover:text-red-900' : 'text-green-600 hover:text-green-900'}`}
-                      aria-label={user.state ? 'Desactivar usuario' : 'Activar usuario'}
-                    >
-                      <ToggleActiveIcon active={user.state} />
-                    </button>
-                  </div>
-                </td>
-              </tr>
+            {paginatedUsers.map((user, idx) => (
+              <>
+                <tr key={user.id}>
+                  <td className="px-4">
+                    <div className="flex items-center justify-start gap-4">
+                      <UserAvatar user={user} size="md" />
+                      <span className="text-sm font-medium text-gray-900">{user.name}</span>
+                    </div>
+                  </td>
+                  <td className="px-4 text-center">
+                    <span className="text-sm text-gray-900" title={user.email}>
+                      {user.email}
+                    </span>
+                  </td>
+                  <td className="px-4 text-center">
+                    <div className="flex flex-wrap gap-1 justify-center">
+                      {user.roles.map((role) => (
+                        <span key={role} className={`neo-badge ${role === 'ROLE_ADMIN' ? 'neo-badge-purple' : role === 'ROLE_GUEST' ? 'neo-badge-gray' : 'neo-badge-blue'}`}>{RoleLabels[role] || role}</span>
+                      ))}
+                    </div>
+                  </td>
+                  <td className="px-4 text-center">
+                    <span className={`neo-badge ${user.state ? 'neo-badge-green' : 'neo-badge-red'}`}> 
+                      {user.state ? 'Activo' : 'Inactivo'}
+                    </span>
+                  </td>
+                  <td className="px-4 text-center text-sm text-gray-900">{formatDate(user.createdAt)}</td>
+                  <td className="px-4 text-center">
+                    <div className="flex justify-center space-x-2">
+                      <button
+                        onClick={() => handleViewUser(user)}
+                        className="neo-button text-blue-600 hover:text-blue-900"
+                        aria-label="Ver detalles del usuario"
+                      >
+                        <ViewIcon />
+                      </button>
+                      <button
+                        onClick={() => handleEditUser(user)}
+                        className="neo-button text-purple-700 hover:text-purple-900"
+                        aria-label="Editar usuario"
+                      >
+                        <EditIcon />
+                      </button>
+                      <button
+                        onClick={() => handleToggleState(user)}
+                        className={`neo-button ${user.state ? 'text-red-600 hover:text-red-900' : 'text-green-600 hover:text-green-900'}`}
+                        aria-label={user.state ? 'Desactivar usuario' : 'Activar usuario'}
+                      >
+                        <ToggleActiveIcon active={user.state} />
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+                {idx < paginatedUsers.length - 1 && (
+                  <tr className="neo-divider-row">
+                    <td colSpan={6} className="p-0"><div className="neo-divider mx-auto" /></td>
+                  </tr>
+                )}
+              </>
             ))}
           </tbody>
         </table>
