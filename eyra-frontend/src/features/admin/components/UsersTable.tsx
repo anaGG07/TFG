@@ -15,36 +15,34 @@ interface UsersTableProps {
 
 // ! 31/05/2025 - Corregidas las etiquetas del ProfileType para coincidir con el enum del backend
 // ! 01/06/2025 - Eliminado PROFILE_TRANSGENDER
-/*
 const ProfileTypeLabels: Record<string, string> = {
-  [ProfileType.PROFILE_WOMEN]: 'Mujer',
-  [ProfileType.PROFILE_MEN]: 'Hombre',
-  [ProfileType.PROFILE_NB]: 'No Binario',  
-  [ProfileType.PROFILE_CUSTOM]: 'Personalizado',
-  [ProfileType.PROFILE_PARENT]: 'Padre/Madre',
-  [ProfileType.PROFILE_PARTNER]: 'Pareja',
-  [ProfileType.PROFILE_PROVIDER]: 'Proveedor',
-  [ProfileType.PROFILE_GUEST]: 'Invitado',
-  // Compatibilidad con valores antiguos
-  [ProfileType.PROFILE_TRANS]: 'Transgénero',
-  [ProfileType.PROFILE_UNDERAGE]: 'Menor de Edad',
+  [ProfileType.USER]: 'Usuario',
+  [ProfileType.GUEST]: 'Invitado',
+  [ProfileType.ADMIN]: 'Administrador',
 };
-*/
+
 const RoleLabels: Record<string, string> = {
   'ROLE_USER': 'Usuario',
   'ROLE_ADMIN': 'Administrador',
   'ROLE_GUEST': 'Invitado',
 };
 
+// Iconos SVG para acciones
+const ViewIcon = () => (
+  <svg className="w-5 h-5" fill="none" stroke="#2563eb" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke="#2563eb" strokeWidth="2.2" fill="#e0e7ff"/><circle cx="12" cy="12" r="4" stroke="#2563eb" strokeWidth="2.2" fill="#fff"/></svg>
+);
+const EditIcon = () => (
+  <svg className="w-5 h-5" fill="none" stroke="#7c3aed" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24"><rect x="4" y="17" width="16" height="3" rx="1.5" fill="#ede9fe"/><path d="M16.5 6.5l1 1a2 2 0 0 1 0 2.8l-7.5 7.5-3 1 1-3 7.5-7.5a2 2 0 0 1 2.8 0z" fill="#fff" stroke="#7c3aed"/></svg>
+);
+const DeleteIcon = () => (
+  <svg className="w-5 h-5" fill="none" stroke="#dc2626" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24"><rect x="5" y="7" width="14" height="12" rx="2" fill="#fee2e2"/><path d="M10 11v4M14 11v4" stroke="#dc2626"/><path d="M9 7V5a3 3 0 0 1 6 0v2" stroke="#dc2626"/></svg>
+);
+
 const UsersTable: React.FC<UsersTableProps> = ({ onRefresh }) => {
   const [users, setUsers] = useState<User[]>([]);
   const [allUsers, setAllUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
-  const [totalUsers, setTotalUsers] = useState(0);
-  const [limit] = useState(10);
   
   // Filtros
   const [searchTerm, setSearchTerm] = useState('');
@@ -63,14 +61,8 @@ const UsersTable: React.FC<UsersTableProps> = ({ onRefresh }) => {
       setLoading(true);
       setError(null);
       
-      const response = await adminService.listUsers({
-        page: currentPage,
-        limit,
-      });
-      
+      const response = await adminService.listUsers();
       setAllUsers(response.users);
-      setTotalPages(response.pagination.totalPages);
-      setTotalUsers(response.pagination.total);
     } catch (err: any) {
       setError(err.message || 'Error al cargar usuarios');
     } finally {
@@ -117,7 +109,7 @@ const UsersTable: React.FC<UsersTableProps> = ({ onRefresh }) => {
 
   useEffect(() => {
     loadUsers();
-  }, [currentPage]);
+  }, []);
 
   const handleReset = () => {
     setSearchTerm('');
@@ -186,10 +178,6 @@ const UsersTable: React.FC<UsersTableProps> = ({ onRefresh }) => {
     });
   };
 
-  const formatRoles = (roles: string[]) => {
-    return roles.map(role => RoleLabels[role] || role).join(', ');
-  };
-
   if (loading && users.length === 0) {
     return (
       <div className="neo-container">
@@ -219,7 +207,7 @@ const UsersTable: React.FC<UsersTableProps> = ({ onRefresh }) => {
   return (
     <div className="neo-container">
       {/* Filtros */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+      <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mb-6">
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
             Buscar
@@ -244,6 +232,21 @@ const UsersTable: React.FC<UsersTableProps> = ({ onRefresh }) => {
             <option value="all">Todos los roles</option>
             <option value="admin">Administrador</option>
             <option value="user">Usuario</option>
+          </select>
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Tipo de Perfil
+          </label>
+          <select
+            value={profileTypeFilter}
+            onChange={(e) => setProfileTypeFilter(e.target.value)}
+            className="neo-select w-full"
+          >
+            <option value="">Todos los perfiles</option>
+            {Object.values(ProfileType).map((type) => (
+              <option key={type} value={type}>{ProfileTypeLabels[type]}</option>
+            ))}
           </select>
         </div>
         <div>
@@ -297,6 +300,7 @@ const UsersTable: React.FC<UsersTableProps> = ({ onRefresh }) => {
               <th>Email</th>
               <th>Rol</th>
               <th>Estado</th>
+              <th>Fecha de Creación</th>
               <th>Acciones</th>
             </tr>
           </thead>
@@ -326,28 +330,31 @@ const UsersTable: React.FC<UsersTableProps> = ({ onRefresh }) => {
                   </span>
                 </td>
                 <td>
-                  <span className={`neo-badge ${user.roles.includes('ROLE_ADMIN') ? 'neo-badge-purple' : 'neo-badge-blue'}`}> 
-                    {user.roles.includes('ROLE_ADMIN') ? 'Administrador' : 'Usuario'}
-                  </span>
+                  <div className="flex flex-wrap gap-1">
+                    {user.roles.map((role) => (
+                      <span key={role} className={`neo-badge ${role === 'ROLE_ADMIN' ? 'neo-badge-purple' : role === 'ROLE_GUEST' ? 'neo-badge-gray' : 'neo-badge-blue'}`}>{RoleLabels[role] || role}</span>
+                    ))}
+                  </div>
                 </td>
                 <td>
                   <span className={`neo-badge ${user.state ? 'neo-badge-green' : 'neo-badge-red'}`}> 
                     {user.state ? 'Activo' : 'Inactivo'}
                   </span>
                 </td>
+                <td className="text-sm text-gray-900">{formatDate(user.createdAt)}</td>
                 <td>
                   <div className="flex space-x-2">
                     <button
                       onClick={() => handleViewUser(user)}
                       className="neo-button text-blue-600 hover:text-blue-900"
                     >
-                      Ver
+                      <ViewIcon />
                     </button>
                     <button
                       onClick={() => handleEditUser(user)}
                       className="neo-button text-indigo-600 hover:text-indigo-900"
                     >
-                      Editar
+                      <EditIcon />
                     </button>
                     <button
                       onClick={() => handleToggleState(user)}
@@ -359,7 +366,7 @@ const UsersTable: React.FC<UsersTableProps> = ({ onRefresh }) => {
                       onClick={() => handleDeleteUser(user)}
                       className="neo-button text-red-600 hover:text-red-900"
                     >
-                      Eliminar
+                      <DeleteIcon />
                     </button>
                   </div>
                 </td>

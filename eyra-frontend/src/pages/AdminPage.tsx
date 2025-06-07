@@ -96,6 +96,32 @@ const DiskIcon = ({ className }: { className?: string }) => (
   </svg>
 );
 
+// Iconos SVG para las cajas de resumen
+const UsersSummaryIcon = ({ className }: { className?: string }) => (
+  <svg className={className} viewBox="0 0 32 32" fill="none" stroke="#C62328" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="16" cy="11" r="6" fill="#f8b4b4" />
+    <path d="M5 27v-2a7 7 0 0 1 7-7h8a7 7 0 0 1 7 7v2" fill="#fff" />
+    <circle cx="16" cy="11" r="6" stroke="#C62328" strokeWidth="2.5" fill="none" />
+  </svg>
+);
+const ActiveSummaryIcon = ({ className }: { className?: string }) => (
+  <svg className={className} viewBox="0 0 32 32" fill="none" stroke="#15803d" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="16" cy="11" r="6" fill="#a7f3d0" />
+    <path d="M5 27v-2a7 7 0 0 1 7-7h8a7 7 0 0 1 7 7v2" fill="#fff" />
+    <circle cx="16" cy="11" r="6" stroke="#15803d" strokeWidth="2.5" fill="none" />
+    <path d="M12 15l3 3 5-5" stroke="#15803d" strokeWidth="2.5" />
+  </svg>
+);
+const AdminSummaryIcon = ({ className }: { className?: string }) => (
+  <svg className={className} viewBox="0 0 32 32" fill="none" stroke="#7c2d12" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="16" cy="11" r="6" fill="#ddd6fe" />
+    <path d="M5 27v-2a7 7 0 0 1 7-7h8a7 7 0 0 1 7 7v2" fill="#fff" />
+    <circle cx="16" cy="11" r="6" stroke="#7c2d12" strokeWidth="2.5" fill="none" />
+    <path d="M16 7v4" stroke="#7c2d12" strokeWidth="2.5" />
+    <circle cx="16" cy="11" r="2" fill="#fff" stroke="#7c2d12" strokeWidth="2" />
+  </svg>
+);
+
 const AdminPage = () => {
   const { user, isLoading: authLoading } = useAuth();
   const [activeTab, setActiveTab] = useState<
@@ -228,8 +254,7 @@ const AdminPage = () => {
                 initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -30 }}
-                transition={{ duration: 0.4, ease: "easeInOut" }}
-                className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start mt-8"
+                className="grid grid-cols-1 md:grid-cols-[1fr_370px] gap-12 items-start mt-8 min-h-[420px]"
               >
                 {/* Columna 1: Resumen o gráfica con toggle */}
                 <div className="flex flex-col items-center gap-4">
@@ -275,15 +300,24 @@ const AdminPage = () => {
                         transition={{ duration: 0.4, ease: "easeInOut" }}
                         className="grid grid-cols-3 gap-4 w-full justify-center"
                       >
-                        <NeomorphicCard className="flex flex-col items-center justify-center gap-1 bg-[#f8b4b4]/30 w-28 h-28 min-w-[6.5rem] min-h-[6.5rem] max-w-[7rem] max-h-[7rem]">
+                        <NeomorphicCard className="flex flex-col items-center justify-center gap-2 bg-[#f8b4b4]/30 w-28 h-28 min-w-[6.5rem] min-h-[6.5rem] max-w-[7rem] max-h-[7rem]">
+                          <span className="flex items-center justify-center neo-shadow-sm rounded-full bg-white/80 border border-white mb-1" style={{ width: 44, height: 44, minWidth: 44, minHeight: 44 }}>
+                            <UsersSummaryIcon className="w-9 h-9" />
+                          </span>
                           <h3 className="text-base font-semibold text-[#C62328] font-serif">Usuarios</h3>
                           <p className="text-3xl font-bold text-[#991b1b]">{stats?.totalUsers?.toLocaleString() || "0"}</p>
                         </NeomorphicCard>
-                        <NeomorphicCard className="flex flex-col items-center justify-center gap-1 bg-[#a7f3d0]/30 w-28 h-28 min-w-[6.5rem] min-h-[6.5rem] max-w-[7rem] max-h-[7rem]">
+                        <NeomorphicCard className="flex flex-col items-center justify-center gap-2 bg-[#a7f3d0]/30 w-28 h-28 min-w-[6.5rem] min-h-[6.5rem] max-w-[7rem] max-h-[7rem]">
+                          <span className="flex items-center justify-center neo-shadow-sm rounded-full bg-white/80 border border-white mb-1" style={{ width: 44, height: 44, minWidth: 44, minHeight: 44 }}>
+                            <ActiveSummaryIcon className="w-9 h-9" />
+                          </span>
                           <h3 className="text-base font-semibold text-[#15803d] font-serif">Activos</h3>
                           <p className="text-3xl font-bold text-[#15803d]">{stats?.activeUsers?.toLocaleString() || "0"}</p>
                         </NeomorphicCard>
-                        <NeomorphicCard className="flex flex-col items-center justify-center gap-1 bg-[#ddd6fe]/30 w-28 h-28 min-w-[6.5rem] min-h-[6.5rem] max-w-[7rem] max-h-[7rem]">
+                        <NeomorphicCard className="flex flex-col items-center justify-center gap-2 bg-[#ddd6fe]/30 w-28 h-28 min-w-[6.5rem] min-h-[6.5rem] max-w-[7rem] max-h-[7rem]">
+                          <span className="flex items-center justify-center neo-shadow-sm rounded-full bg-white/80 border border-white mb-1" style={{ width: 44, height: 44, minWidth: 44, minHeight: 44 }}>
+                            <AdminSummaryIcon className="w-9 h-9" />
+                          </span>
                           <h3 className="text-base font-semibold text-[#7c2d12] font-serif">Admins</h3>
                           <p className="text-3xl font-bold text-[#7c2d12]">{stats?.adminUsers?.toLocaleString() || "0"}</p>
                         </NeomorphicCard>
@@ -311,13 +345,6 @@ const AdminPage = () => {
                             : activity.color === "red"
                             ? "bg-[#f8b4b4]/30 border-[#fecaca]"
                             : "bg-[#ddd6fe]/30 border-[#e9d5ff]";
-
-                        const textColor =
-                          activity.color === "green"
-                            ? "text-[#15803d]"
-                            : activity.color === "red"
-                            ? "text-[#d30006]"
-                            : "text-[#7c2d12]";
 
                         // Elegir icono SVG según tipo/color
                         let Icon = null;

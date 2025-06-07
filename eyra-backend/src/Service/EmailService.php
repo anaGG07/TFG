@@ -220,10 +220,10 @@ class EmailService
     private function getGuestTypeLabel(string $guestType): string
     {
         return match($guestType) {
-            'PARTNER' => 'Pareja',
-            'HEALTHCARE_PROVIDER' => 'Profesional de la Salud',
-            'FAMILY_MEMBER' => 'Familiar',
-            'FRIEND' => 'Amiga',
+            'partner' => 'Pareja',
+            'healthcare_provider' => 'Profesional de la Salud',
+            'parental' => 'Familiar',
+            'friend' => 'Amigo/a',
             default => 'Invitado'
         };
     }
@@ -233,12 +233,12 @@ class EmailService
         $formatted = [];
         foreach ($permissions as $permission) {
             $formatted[] = match($permission) {
-                'VIEW_CYCLES' => 'Ver información de ciclos menstruales',
-                'VIEW_SYMPTOMS' => 'Ver síntomas registrados',
-                'VIEW_MOODS' => 'Ver estados de ánimo',
-                'VIEW_CALENDAR' => 'Acceder al calendario',
-                'VIEW_ANALYTICS' => 'Ver análisis y estadísticas',
-                'VIEW_PREDICTIONS' => 'Ver predicciones del ciclo',
+                'view_cycle' => 'Ver información de ciclos menstruales',
+                'view_symptoms' => 'Ver síntomas registrados',
+                'view_moods' => 'Ver estados de ánimo',
+                'view_calendar' => 'Acceder al calendario',
+                'view_analytics' => 'Ver análisis y estadísticas',
+                'view_predictions' => 'Ver predicciones del ciclo',
                 default => $permission
             };
         }

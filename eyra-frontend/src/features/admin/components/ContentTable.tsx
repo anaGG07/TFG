@@ -53,7 +53,7 @@ const ContentTable: React.FC<ContentTableProps> = ({ onRefresh }) => {
       const term = searchTerm.toLowerCase();
       filteredContents = filteredContents.filter(content =>
         content.title.toLowerCase().includes(term) ||
-        content.description.toLowerCase().includes(term) ||
+        content.summary.toLowerCase().includes(term) ||
         content.tags?.some(tag => tag.toLowerCase().includes(term))
       );
     }
@@ -118,18 +118,8 @@ const ContentTable: React.FC<ContentTableProps> = ({ onRefresh }) => {
     onRefresh?.();
   };
 
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('es-ES', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-    });
-  };
-
   const getContentTypeName = (type: ContentType) => {
     switch (type) {
-      case ContentType.RECIPE:
-        return 'Receta';
       case ContentType.NUTRITION:
         return 'Nutrición';
       case ContentType.EXERCISE:
@@ -140,12 +130,6 @@ const ContentTable: React.FC<ContentTableProps> = ({ onRefresh }) => {
         return 'Autocuidado';
       case ContentType.RECOMMENDATION:
         return 'Recomendación';
-      case ContentType.TIP:
-        return 'Consejo';
-      case ContentType.GUIDE:
-        return 'Guía';
-      case ContentType.WELLNESS:
-        return 'Bienestar';
       default:
         return 'Contenido';
     }
@@ -153,8 +137,6 @@ const ContentTable: React.FC<ContentTableProps> = ({ onRefresh }) => {
 
   const getContentTypeColor = (type: ContentType) => {
     switch (type) {
-      case ContentType.RECIPE:
-        return 'bg-green-100 text-green-800';
       case ContentType.NUTRITION:
         return 'bg-emerald-100 text-emerald-800';
       case ContentType.EXERCISE:
@@ -165,16 +147,21 @@ const ContentTable: React.FC<ContentTableProps> = ({ onRefresh }) => {
         return 'bg-pink-100 text-pink-800';
       case ContentType.RECOMMENDATION:
         return 'bg-yellow-100 text-yellow-800';
-      case ContentType.TIP:
-        return 'bg-orange-100 text-orange-800';
-      case ContentType.GUIDE:
-        return 'bg-indigo-100 text-indigo-800';
-      case ContentType.WELLNESS:
-        return 'bg-teal-100 text-teal-800';
       default:
         return 'bg-gray-100 text-gray-800';
     }
   };
+
+  // Iconos SVG para acciones
+  const ViewIcon = () => (
+    <svg className="w-5 h-5" fill="none" stroke="#2563eb" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke="#2563eb" strokeWidth="2.2" fill="#e0e7ff"/><circle cx="12" cy="12" r="4" stroke="#2563eb" strokeWidth="2.2" fill="#fff"/></svg>
+  );
+  const EditIcon = () => (
+    <svg className="w-5 h-5" fill="none" stroke="#7c3aed" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24"><rect x="4" y="17" width="16" height="3" rx="1.5" fill="#ede9fe"/><path d="M16.5 6.5l1 1a2 2 0 0 1 0 2.8l-7.5 7.5-3 1 1-3 7.5-7.5a2 2 0 0 1 2.8 0z" fill="#fff" stroke="#7c3aed"/></svg>
+  );
+  const DeleteIcon = () => (
+    <svg className="w-5 h-5" fill="none" stroke="#dc2626" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24"><rect x="5" y="7" width="14" height="12" rx="2" fill="#fee2e2"/><path d="M10 11v4M14 11v4" stroke="#dc2626"/><path d="M9 7V5a3 3 0 0 1 6 0v2" stroke="#dc2626"/></svg>
+  );
 
   if (loading && contents.length === 0) {
     return (
@@ -229,15 +216,11 @@ const ContentTable: React.FC<ContentTableProps> = ({ onRefresh }) => {
             className="neo-select w-full"
           >
             <option value="all">Todos los tipos</option>
-            <option value={ContentType.RECIPE}>Receta</option>
             <option value={ContentType.NUTRITION}>Nutrición</option>
             <option value={ContentType.EXERCISE}>Ejercicio</option>
             <option value={ContentType.ARTICLE}>Artículo</option>
             <option value={ContentType.SELFCARE}>Autocuidado</option>
             <option value={ContentType.RECOMMENDATION}>Recomendación</option>
-            <option value={ContentType.TIP}>Consejo</option>
-            <option value={ContentType.GUIDE}>Guía</option>
-            <option value={ContentType.WELLNESS}>Bienestar</option>
           </select>
         </div>
 
@@ -316,10 +299,10 @@ const ContentTable: React.FC<ContentTableProps> = ({ onRefresh }) => {
                   </div>
                 </td>
                 <td>
-                  <span className="text-sm text-gray-900" title={content.description}>
-                    {content.description.length > 100 
-                      ? content.description.substring(0, 100) + '...' 
-                      : content.description}
+                  <span className="text-sm text-gray-900" title={content.summary}>
+                    {content.summary.length > 100 
+                      ? content.summary.substring(0, 100) + '...' 
+                      : content.summary}
                   </span>
                 </td>
                 <td>
@@ -348,19 +331,19 @@ const ContentTable: React.FC<ContentTableProps> = ({ onRefresh }) => {
                       onClick={() => handleViewContent(content)}
                       className="neo-button text-blue-600 hover:text-blue-900"
                     >
-                      Ver
+                      <ViewIcon />
                     </button>
                     <button
                       onClick={() => handleEditContent(content)}
                       className="neo-button text-indigo-600 hover:text-indigo-900"
                     >
-                      Editar
+                      <EditIcon />
                     </button>
                     <button
                       onClick={() => handleDeleteContent(content)}
                       className="neo-button text-red-600 hover:text-red-900"
                     >
-                      Eliminar
+                      <DeleteIcon />
                     </button>
                   </div>
                 </td>

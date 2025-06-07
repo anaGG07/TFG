@@ -159,6 +159,17 @@ const ConditionsTable: React.FC<ConditionsTableProps> = ({ onRefresh }) => {
     return description.substr(0, maxLength) + '...';
   };
 
+  // Iconos SVG para acciones
+  const ViewIcon = () => (
+    <svg className="w-5 h-5" fill="none" stroke="#2563eb" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke="#2563eb" strokeWidth="2.2" fill="#e0e7ff"/><circle cx="12" cy="12" r="4" stroke="#2563eb" strokeWidth="2.2" fill="#fff"/></svg>
+  );
+  const EditIcon = () => (
+    <svg className="w-5 h-5" fill="none" stroke="#7c3aed" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24"><rect x="4" y="17" width="16" height="3" rx="1.5" fill="#ede9fe"/><path d="M16.5 6.5l1 1a2 2 0 0 1 0 2.8l-7.5 7.5-3 1 1-3 7.5-7.5a2 2 0 0 1 2.8 0z" fill="#fff" stroke="#7c3aed"/></svg>
+  );
+  const DeleteIcon = () => (
+    <svg className="w-5 h-5" fill="none" stroke="#dc2626" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24"><rect x="5" y="7" width="14" height="12" rx="2" fill="#fee2e2"/><path d="M10 11v4M14 11v4" stroke="#dc2626"/><path d="M9 7V5a3 3 0 0 1 6 0v2" stroke="#dc2626"/></svg>
+  );
+
   if (loading && conditions.length === 0) {
     return (
       <div className="neo-container">
@@ -217,19 +228,25 @@ const ConditionsTable: React.FC<ConditionsTableProps> = ({ onRefresh }) => {
           </select>
         </div>
 
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+        <div className="flex flex-col justify-end">
+          <label className="block text-sm font-medium text-gray-700 mb-2 invisible">
             Estado
           </label>
           <select
             value={stateFilter}
             onChange={(e) => setStateFilter(e.target.value as 'all' | 'active' | 'inactive')}
-            className="neo-select w-full"
+            className="neo-select w-full mb-2"
           >
             <option value="all">Todos los estados</option>
             <option value="active">Activas</option>
             <option value="inactive">Inactivas</option>
           </select>
+          <button
+            onClick={handleReset}
+            className="neo-button w-full mt-2"
+          >
+            Reset
+          </button>
         </div>
       </div>
 
@@ -316,13 +333,13 @@ const ConditionsTable: React.FC<ConditionsTableProps> = ({ onRefresh }) => {
                       onClick={() => handleViewCondition(condition)}
                       className="neo-button text-blue-600 hover:text-blue-900"
                     >
-                      Ver
+                      <ViewIcon />
                     </button>
                     <button
                       onClick={() => handleEditCondition(condition)}
                       className="neo-button text-indigo-600 hover:text-indigo-900"
                     >
-                      Editar
+                      <EditIcon />
                     </button>
                     <button
                       onClick={() => handleToggleState(condition)}
@@ -338,7 +355,7 @@ const ConditionsTable: React.FC<ConditionsTableProps> = ({ onRefresh }) => {
                       onClick={() => handleDeleteCondition(condition)}
                       className="neo-button text-red-600 hover:text-red-900"
                     >
-                      Eliminar
+                      <DeleteIcon />
                     </button>
                   </div>
                 </td>

@@ -97,11 +97,18 @@ export const API_ROUTES = {
     DISMISS: (id: string) => createApiUrl(`/user/notifications/dismiss/${id}`),
   },
 
+  USER_SEARCH: {
+    BY_EMAIL: createApiUrl("/users/search/email"),
+    BY_USERNAME: createApiUrl("/users/search/username"),
+    INVITE_USER: createApiUrl("/users/search/invite"),
+  },
+
   TRACKING: {
     COMPANIONS: createApiUrl("/guests/companions"),
     FOLLOWING: createApiUrl("/guests/following"),
     INVITATIONS: createApiUrl("/invitation-codes"),
     CREATE_INVITATION: createApiUrl("/invitation-codes/generate"),
+    CREATE_INVITATION_AND_SEND: createApiUrl("/invitation-codes/generate-and-send"),
     VERIFY_CODE: (code: string) => createApiUrl(`/invitation-codes/verify/${code}`),
     REDEEM_CODE: (code: string) => createApiUrl(`/invitation-codes/redeem/${code}`),
     REVOKE_INVITATION: (id: string) => createApiUrl(`/invitation-codes/${id}`),

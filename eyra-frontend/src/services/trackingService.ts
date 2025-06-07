@@ -122,6 +122,47 @@ export const trackingService = {
     }
   },
 
+  // Crear invitación y enviar emails
+  async createInvitationAndSend(data: InvitationCreateRequest & { invitedEmail: string }): Promise<{
+    invitation: Invitation;
+    emails: { inviterNotified: boolean; invitedNotified: boolean };
+  }> {
+    try {
+      console.log("Creando invitación con envío de emails:", data);
+      console.log("URL:", API_ROUTES.TRACKING.CREATE_INVITATION_AND_SEND);
+
+      const response = await apiFetch(API_ROUTES.TRACKING.CREATE_INVITATION_AND_SEND, {
+        method: "POST",
+        body: data,
+      }) as {
+        success: boolean;
+        invitation: any;
+        emails: { inviterNotified: boolean; invitedNotified: boolean };
+      };
+
+      console.log("Invitación creada y emails enviados:", response);
+      
+      // Mapear la respuesta al formato esperado
+      const invitation: Invitation = {
+        id: response.invitation.id.toString(),
+        code: response.invitation.code,
+        type: response.invitation.type,
+        createdAt: response.invitation.createdAt,
+        expiresAt: response.invitation.expiresAt,
+        status: response.invitation.status,
+        accessPermissions: response.invitation.accessPermissions,
+      };
+
+      return {
+        invitation,
+        emails: response.emails
+      };
+    } catch (error) {
+      console.error("Error creando invitación con emails:", error);
+      throw error;
+    }
+  },
+
   // Verificar código de invitación
   async verifyInvitationCode(code: string): Promise<any> {
     return apiFetch(API_ROUTES.TRACKING.VERIFY_CODE(code), {

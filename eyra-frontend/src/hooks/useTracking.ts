@@ -84,6 +84,23 @@ export const useTracking = () => {
     }
   };
 
+  const createInvitationAndSend = async (data: {
+    guestType: "partner" | "parental" | "friend" | "healthcare_provider";
+    accessPermissions: string[];
+    expirationHours?: number;
+    invitedEmail: string;
+  }) => {
+    try {
+      const result = await trackingService.createInvitationAndSend(data);
+      // Recargar toda la lista para asegurar consistencia
+      await loadTrackingData();
+      return result;
+    } catch (err) {
+      setError("Error al crear y enviar invitación");
+      throw err;
+    }
+  };
+
   const revokeInvitation = async (id: string) => {
     try {
       await trackingService.revokeInvitation(id);
@@ -128,6 +145,7 @@ export const useTracking = () => {
     error,
     refresh: loadTrackingData,
     createInvitation,
+    createInvitationAndSend,
     revokeInvitation,
     revokeCompanion,
     redeemInvitationCode,

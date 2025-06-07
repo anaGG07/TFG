@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { API_ROUTES } from "../config/apiRoutes";
 
 interface UsePasswordResetReturn {
   requestReset: (email: string) => Promise<void>;
@@ -33,7 +34,7 @@ export const usePasswordReset = (): UsePasswordResetReturn => {
       setIsLoading(true);
       setError(null);
 
-      const response = await fetch("/password-reset", {
+      const response = await fetch(API_ROUTES.AUTH.PASSWORD_RESET, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

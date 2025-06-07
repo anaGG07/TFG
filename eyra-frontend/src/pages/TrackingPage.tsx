@@ -2,8 +2,12 @@ import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import LoadingSpinner from "../components/LoadingSpinner";
 import { PermissionsModal } from "../components/PermissionsManager";
+import InvitationWithEmailModal, { InvitationModalData } from "../components/InvitationWithEmailModal";
+import UserSearchModal, { UserSearchData } from "../components/UserSearchModal";
+import RelationshipTypeModal, { RelationshipTypeData } from "../components/RelationshipTypeModal";
 import { useTracking } from "../hooks/useTracking";
 import { Companion, Following, Invitation } from "../services/trackingService";
+import { userSearchService } from "../services/userSearchService";
 
 // Iconos SVG exactos de la web actual
 const CompanionsIcon = ({ className }: { className?: string }) => (
@@ -141,6 +145,7 @@ const TrackingPage: React.FC = () => {
     loading,
     error,
     createInvitation,
+    createInvitationAndSend,
     redeemInvitationCode,
     revokeCompanion,
     refresh,
@@ -155,6 +160,11 @@ const TrackingPage: React.FC = () => {
   const [isRedeeming, setIsRedeeming] = useState(false);
   const [copiedCode, setCopiedCode] = useState<string | null>(null);
   const [creatingInvitation, setCreatingInvitation] = useState(false);
+  const [creatingInvitationWithEmail, setCreatingInvitationWithEmail] = useState(false);
+  const [showInvitationModal, setShowInvitationModal] = useState(false);
+  const [showInviteWithEmailDialog, setShowInviteWithEmailDialog] = useState(false);
+  const [showUserSearchDialog, setShowUserSearchDialog] = useState(false);
+  const [showRelationshipTypeDialog, setShowRelationshipTypeDialog] = useState(false);
 
   // Estado para el modal de permisos
   const [permissionsModal, setPermissionsModal] = useState<{
@@ -173,20 +183,64 @@ const TrackingPage: React.FC = () => {
 
   // Handlers para eventos reales
   const handleCreateInvitation = async () => {
+    // En lugar de hardcodear "partner", abrimos el modal de selección
+    setShowRelationshipTypeDialog(true);
+  };
+
+  const handleCreateInvitationWithType = async (data: RelationshipTypeData) => {
     if (creatingInvitation) return;
 
     try {
       setCreatingInvitation(true);
       await createInvitation({
-        guestType: "partner",
-        accessPermissions: ["view_cycle", "view_symptoms"],
-        expirationHours: 48,
+        guestType: data.guestType,
+        accessPermissions: data.accessPermissions,
+        expirationHours: data.expirationHours,
       });
+      alert(`¡Código de invitación generado exitosamente!`);
     } catch (error) {
       console.error("Error creando invitación:", error);
-      alert("Error al crear invitación. Inténtalo de nuevo.");
+      throw error; // Re-lanzar para que el modal pueda manejarlo
     } finally {
       setCreatingInvitation(false);
+    }
+  };
+
+  const handleCreateInvitationWithEmail = async (data: InvitationModalData) => {
+    setCreatingInvitationWithEmail(true);
+    try {
+      const result = await createInvitationAndSend(data);
+      console.log("Invitación enviada exitosamente:", result);
+      alert(`¡Invitación enviada! Código: ${result.invitation.code}`);
+    } catch (error) {
+      console.error("Error enviando invitación:", error);
+      throw error; // Re-lanzar para que el modal pueda manejarlo
+    } finally {
+      setCreatingInvitationWithEmail(false);
+    }
+  };
+
+  const handleInviteButtonClick = () => {
+    setShowUserSearchDialog(true);
+  };
+
+  const handleDirectEmailInvite = () => {
+    setShowInviteWithEmailDialog(true);
+  };
+
+  const handleInviteFoundUser = async (data: UserSearchData) => {
+    setCreatingInvitationWithEmail(true);
+    try {
+      const result = await userSearchService.inviteFoundUser(data);
+      console.log("Usuario invitado exitosamente:", result);
+      alert(`¡Invitación enviada al usuario!`);
+      // Recargar datos
+      refresh();
+    } catch (error) {
+      console.error("Error invitando usuario:", error);
+      throw error;
+    } finally {
+      setCreatingInvitationWithEmail(false);
     }
   };
 
@@ -457,15 +511,29 @@ const TrackingPage: React.FC = () => {
                     )}
                   </div>
 
-                  <button
-                    onClick={handleCreateInvitation}
-                    disabled={creatingInvitation}
-                    className="w-full py-3 bg-[#C62328] text-white rounded-xl font-medium hover:bg-[#9d0d0b] transition-colors disabled:opacity-50"
-                  >
-                    {creatingInvitation
-                      ? "Creando..."
-                      : "+ Invitar Acompañante"}
-                  </button>
+                  <div className="space-y-2">
+                    <button
+                      onClick={handleInviteButtonClick}
+                      className="w-full py-3 bg-[#C62328] text-white rounded-xl font-medium hover:bg-[#9d0d0b] transition-colors"
+                    >
+                      🔍 Buscar Usuario
+                    </button>
+                    <button
+                      onClick={handleDirectEmailInvite}
+                      className="w-full py-2 bg-transparent border border-[#C62328] text-[#C62328] rounded-xl font-medium hover:bg-[#C62328] hover:text-white transition-colors"
+                    >
+                      📧 Invitar por Email
+                    </button>
+                    <button
+                      onClick={handleCreateInvitation}
+                      disabled={creatingInvitation}
+                      className="w-full py-2 bg-transparent border border-gray-400 text-gray-600 rounded-xl font-medium hover:bg-gray-100 hover:text-gray-800 transition-colors disabled:opacity-50 text-sm"
+                    >
+                      {creatingInvitation
+                        ? "Generando..."
+                        : "📋 Solo Código"}
+                    </button>
+                  </div>
                 </div>
 
                 {/* Conectar con Alguien */}
@@ -777,6 +845,33 @@ const TrackingPage: React.FC = () => {
         onUpdate={() => {
           refresh(); // Recargar datos después de actualizar permisos
         }}
+      />
+
+      {/* Modal de invitación con email */}
+      <InvitationWithEmailModal
+        isOpen={showInviteWithEmailDialog}
+        onClose={() => setShowInviteWithEmailDialog(false)}
+        onSubmit={handleCreateInvitationWithEmail}
+        isLoading={creatingInvitationWithEmail}
+      />
+
+      {/* Modal de búsqueda de usuario */}
+      <UserSearchModal
+        isOpen={showUserSearchDialog}
+        onClose={() => setShowUserSearchDialog(false)}
+        onInviteUser={handleInviteFoundUser}
+        onInviteEmail={handleCreateInvitationWithEmail}
+        isLoading={creatingInvitationWithEmail}
+      />
+
+      {/* Modal de selección de tipo de relación */}
+      <RelationshipTypeModal
+        isOpen={showRelationshipTypeDialog}
+        onClose={() => setShowRelationshipTypeDialog(false)}
+        onSubmit={handleCreateInvitationWithType}
+        isLoading={creatingInvitation}
+        title="Tipo de Relación"
+        subtitle="Selecciona qué tipo de relación tienes con esta persona para generar un código adecuado"
       />
     </>
   );
