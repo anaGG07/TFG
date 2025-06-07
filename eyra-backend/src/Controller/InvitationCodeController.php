@@ -3,8 +3,10 @@
 namespace App\Controller;
 
 use App\Entity\InvitationCode;
+use App\Entity\User;
 use App\Service\InvitationCodeService;
 use App\Repository\InvitationCodeRepository;
+use App\Service\EmailService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -20,13 +22,16 @@ class InvitationCodeController extends AbstractController
 {
     private InvitationCodeService $invitationCodeService;
     private InvitationCodeRepository $invitationCodeRepository;
+    private EmailService $emailService;
 
     public function __construct(
         InvitationCodeService $invitationCodeService,
-        InvitationCodeRepository $invitationCodeRepository
+        InvitationCodeRepository $invitationCodeRepository,
+        EmailService $emailService
     ) {
         $this->invitationCodeService = $invitationCodeService;
         $this->invitationCodeRepository = $invitationCodeRepository;
+        $this->emailService = $emailService;
     }
 
     // ! 28/05/2025 - Endpoint para generar un nuevo código de invitación
@@ -42,7 +47,12 @@ class InvitationCodeController extends AbstractController
             return $this->json(['errors' => $violations], Response::HTTP_BAD_REQUEST);
         }
 
+        /** @var User|null $user */
         $user = $this->getUser();
+        if (!$user instanceof User) {
+            return $this->json(['error' => 'User not authenticated'], Response::HTTP_UNAUTHORIZED);
+        }
+
         $guestType = $data['guestType'];
         $accessPermissions = $data['accessPermissions'] ?? [];
         $expirationHours = $data['expirationHours'] ?? 48;
@@ -72,10 +82,11 @@ class InvitationCodeController extends AbstractController
     {
         try {
             $status = $request->query->get('status');
-            $user = $this->getUser();
             
-            if (!$user) {
-                return $this->json(['error' => 'User not authenticated'], 401);
+            /** @var User|null $user */
+            $user = $this->getUser();
+            if (!$user instanceof User) {
+                return $this->json(['error' => 'User not authenticated'], Response::HTTP_UNAUTHORIZED);
             }
 
             $codes = $this->invitationCodeRepository->findByCreatorAndStatus($user, $status);
@@ -140,7 +151,13 @@ class InvitationCodeController extends AbstractController
     public function redeemCode(string $code): JsonResponse
     {
         try {
-            $guestAccess = $this->invitationCodeService->redeemCode($code, $this->getUser());
+            /** @var User|null $user */
+            $user = $this->getUser();
+            if (!$user instanceof User) {
+                return $this->json(['error' => 'User not authenticated'], Response::HTTP_UNAUTHORIZED);
+            }
+
+            $guestAccess = $this->invitationCodeService->redeemCode($code, $user);
 
             return $this->json([
                 'success' => true,
@@ -169,7 +186,13 @@ class InvitationCodeController extends AbstractController
     public function revokeCode(int $id): JsonResponse
     {
         try {
-            $this->invitationCodeService->revokeCode($id, $this->getUser());
+            /** @var User|null $user */
+            $user = $this->getUser();
+            if (!$user instanceof User) {
+                return $this->json(['error' => 'User not authenticated'], Response::HTTP_UNAUTHORIZED);
+            }
+
+            $this->invitationCodeService->revokeCode($id, $user);
 
             return $this->json([
                 'success' => true,
@@ -200,6 +223,107 @@ class InvitationCodeController extends AbstractController
 
         if (isset($data['accessPermissions']) && !is_array($data['accessPermissions'])) {
             $violations[] = 'accessPermissions must be an array';
+        }
+
+        return $violations;
+    }
+
+    // ! 07/06/2025 - Nuevo endpoint para generar código y enviar emails
+    #[Route('/generate-and-send', name: 'invitation_code_generate_and_send', methods: ['POST'])]
+    #[IsGranted('ROLE_USER')]
+    public function generateAndSendCode(Request $request): JsonResponse
+    {
+        $data = json_decode($request->getContent(), true);
+
+        // Validar datos de la solicitud (incluyendo email del invitado)
+        $violations = $this->validateGenerateAndSendRequest($data);
+        if (count($violations) > 0) {
+            return $this->json(['errors' => $violations], Response::HTTP_BAD_REQUEST);
+        }
+
+        /** @var User|null $user */
+        $user = $this->getUser();
+        if (!$user instanceof User) {
+            return $this->json(['error' => 'User not authenticated'], Response::HTTP_UNAUTHORIZED);
+        }
+
+        $invitedEmail = $data['invitedEmail'];
+        $guestType = $data['guestType'];
+        $accessPermissions = $data['accessPermissions'] ?? [];
+        $expirationHours = $data['expirationHours'] ?? 48;
+
+        // Generar código de invitación
+        $code = $this->invitationCodeService->generateCode(
+            $user,
+            $guestType,
+            $accessPermissions,
+            $expirationHours
+        );
+
+        // Enviar emails
+        $inviterEmailSent = $this->emailService->sendInvitationSentEmail(
+            $user->getEmail(),
+            $user->getName(),
+            $invitedEmail,
+            $code->getCode(),
+            $guestType,
+            $accessPermissions,
+            $code->getExpiresAt()
+        );
+
+        $invitedEmailSent = $this->emailService->sendInvitationReceivedEmail(
+            $invitedEmail,
+            $user->getName(),
+            $code->getCode(),
+            $guestType,
+            $accessPermissions,
+            $code->getExpiresAt()
+        );
+
+        return $this->json([
+            'success' => true,
+            'invitation' => [
+                'id' => $code->getId(),
+                'code' => $code->getCode(),
+                'type' => $code->getGuestType(),
+                'status' => 'active',
+                'createdAt' => $code->getCreatedAt()->format('c'),
+                'accessPermissions' => $code->getAccessPermissions(),
+                'expiresAt' => $code->getExpiresAt()->format('c'),
+                'invitedEmail' => $invitedEmail
+            ],
+            'emails' => [
+                'inviterNotified' => $inviterEmailSent,
+                'invitedNotified' => $invitedEmailSent
+            ]
+        ], Response::HTTP_CREATED);
+    }
+
+    // ! 07/06/2025 - Validación para generar y enviar invitación
+    private function validateGenerateAndSendRequest(array $data): array
+    {
+        $violations = [];
+
+        // Validaciones existentes
+        if (!isset($data['guestType'])) {
+            $violations[] = 'guestType is required';
+        } elseif (!in_array($data['guestType'], InvitationCode::getValidGuestTypes())) {
+            $violations[] = 'Invalid guestType value';
+        }
+
+        if (isset($data['expirationHours']) && (!is_int($data['expirationHours']) || $data['expirationHours'] < 1 || $data['expirationHours'] > 168)) {
+            $violations[] = 'expirationHours must be between 1 and 168';
+        }
+
+        if (isset($data['accessPermissions']) && !is_array($data['accessPermissions'])) {
+            $violations[] = 'accessPermissions must be an array';
+        }
+
+        // Nueva validación para email del invitado
+        if (!isset($data['invitedEmail'])) {
+            $violations[] = 'invitedEmail is required';
+        } elseif (!filter_var($data['invitedEmail'], FILTER_VALIDATE_EMAIL)) {
+            $violations[] = 'invitedEmail must be a valid email address';
         }
 
         return $violations;

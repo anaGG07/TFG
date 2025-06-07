@@ -3,18 +3,15 @@
 namespace App\Service;
 
 use Symfony\Component\Mailer\MailerInterface;
-use Symfony\Component\Mime\Email;
 use Symfony\Bridge\Twig\Mime\TemplatedEmail;
 use Psr\Log\LoggerInterface;
-use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 
-// ! 29/05/2025 - Servicio para manejar el envío de emails de la aplicación
+// ! 07/06/2025 - Servicio simplificado para manejar el envío de emails
 class EmailService
 {
     public function __construct(
         private MailerInterface $mailer,
-        private LoggerInterface $logger,
-        private ParameterBagInterface $params
+        private LoggerInterface $logger
     ) {}
 
     public function sendPasswordResetEmail(string $userEmail, string $userName, string $resetToken): bool
@@ -111,7 +108,95 @@ class EmailService
         }
     }
 
-    // ! 29/05/2025 - URLs del frontend ahora configurables mediante variables de entorno
+    public function sendInvitationSentEmail(
+        string $inviterEmail, 
+        string $inviterName, 
+        string $invitedEmail, 
+        string $invitationCode,
+        string $guestType,
+        array $accessPermissions,
+        \DateTime $expirationDate
+    ): bool {
+        try {
+            $email = (new TemplatedEmail())
+                ->from('noreply@eyraclub.es')
+                ->to($inviterEmail)
+                ->subject('EYRA - Invitación enviada exitosamente')
+                ->htmlTemplate('emails/invitation_sent.html.twig')
+                ->context([
+                    'inviterName' => $inviterName,
+                    'invitedEmail' => $invitedEmail,
+                    'invitationCode' => $invitationCode,
+                    'guestTypeLabel' => $this->getGuestTypeLabel($guestType),
+                    'accessPermissions' => $this->formatAccessPermissions($accessPermissions),
+                    'expirationDate' => $expirationDate->format('d/m/Y H:i'),
+                    'dashboardUrl' => $this->generateDashboardUrl()
+                ]);
+
+            $this->mailer->send($email);
+            
+            $this->logger->info('Email de confirmación de invitación enviado', [
+                'inviter' => $inviterEmail,
+                'invited' => $invitedEmail,
+                'code' => substr($invitationCode, 0, 4) . '...'
+            ]);
+            
+            return true;
+        } catch (\Exception $e) {
+            $this->logger->error('Error al enviar email de confirmación de invitación', [
+                'inviter' => $inviterEmail,
+                'invited' => $invitedEmail,
+                'error' => $e->getMessage()
+            ]);
+            
+            return false;
+        }
+    }
+
+    public function sendInvitationReceivedEmail(
+        string $invitedEmail,
+        string $inviterName,
+        string $invitationCode,
+        string $guestType,
+        array $accessPermissions,
+        \DateTime $expirationDate
+    ): bool {
+        try {
+            $email = (new TemplatedEmail())
+                ->from('noreply@eyraclub.es')
+                ->to($invitedEmail)
+                ->subject('EYRA - Te han invitado a acceder')
+                ->htmlTemplate('emails/invitation_received.html.twig')
+                ->context([
+                    'inviterName' => $inviterName,
+                    'invitationCode' => $invitationCode,
+                    'guestTypeLabel' => $this->getGuestTypeLabel($guestType),
+                    'accessPermissions' => $this->formatAccessPermissions($accessPermissions),
+                    'expirationDate' => $expirationDate->format('d/m/Y H:i'),
+                    'invitationUrl' => $this->generateInvitationUrl($invitationCode)
+                ]);
+
+            $this->mailer->send($email);
+            
+            $this->logger->info('Email de invitación enviado', [
+                'recipient' => $invitedEmail,
+                'inviter' => $inviterName,
+                'code' => substr($invitationCode, 0, 4) . '...'
+            ]);
+            
+            return true;
+        } catch (\Exception $e) {
+            $this->logger->error('Error al enviar email de invitación', [
+                'recipient' => $invitedEmail,
+                'inviter' => $inviterName,
+                'error' => $e->getMessage()
+            ]);
+            
+            return false;
+        }
+    }
+
+    // Métodos auxiliares
     private function generateResetUrl(string $token): string
     {
         $baseUrl = $_ENV['FRONTEND_BASE_URL'] ?? 'http://localhost:5173';
@@ -130,5 +215,40 @@ class EmailService
     {
         $baseUrl = $_ENV['FRONTEND_BASE_URL'] ?? 'http://localhost:5173';
         return $baseUrl . '/calendar';
+    }
+
+    private function getGuestTypeLabel(string $guestType): string
+    {
+        return match($guestType) {
+            'PARTNER' => 'Pareja',
+            'HEALTHCARE_PROVIDER' => 'Profesional de la Salud',
+            'FAMILY_MEMBER' => 'Familiar',
+            'FRIEND' => 'Amiga',
+            default => 'Invitado'
+        };
+    }
+
+    private function formatAccessPermissions(array $permissions): array
+    {
+        $formatted = [];
+        foreach ($permissions as $permission) {
+            $formatted[] = match($permission) {
+                'VIEW_CYCLES' => 'Ver información de ciclos menstruales',
+                'VIEW_SYMPTOMS' => 'Ver síntomas registrados',
+                'VIEW_MOODS' => 'Ver estados de ánimo',
+                'VIEW_CALENDAR' => 'Acceder al calendario',
+                'VIEW_ANALYTICS' => 'Ver análisis y estadísticas',
+                'VIEW_PREDICTIONS' => 'Ver predicciones del ciclo',
+                default => $permission
+            };
+        }
+        return $formatted;
+    }
+
+    private function generateInvitationUrl(string $code): string
+    {
+        $baseUrl = $_ENV['FRONTEND_BASE_URL'] ?? 'http://localhost:5173';
+        $invitationPath = $_ENV['FRONTEND_INVITATION_PATH'] ?? '/invitation';
+        return $baseUrl . $invitationPath . '?code=' . $code;
     }
 }

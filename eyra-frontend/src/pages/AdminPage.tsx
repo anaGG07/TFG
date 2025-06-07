@@ -12,7 +12,7 @@ import UsersTable from "../features/admin/components/UsersTable";
 import ConditionsTable from "../features/admin/components/ConditionsTable"; // ! 01/06/2025 - CRUD de condiciones médicas
 import ContentTable from "../features/admin/components/ContentTable"; // ! 01/06/2025 - CRUD de contenido
 import { NeomorphicCard } from "../components/ui/NeomorphicComponents";
-import { Bar } from "react-chartjs-2";
+import { Doughnut } from "react-chartjs-2";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -25,7 +25,36 @@ import {
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
-// Icono SVG para toggle (tabla vs gráfica)
+// Iconos para las pestañas
+const OverviewIcon = ({ active }: { active: boolean }) => (
+  <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+    <rect x="4" y="16" width="4" height="8" rx="2" fill={active ? "#f8b4b4" : "#e7e0d5"} />
+    <rect x="12" y="8" width="4" height="16" rx="2" fill={active ? "#a7f3d0" : "#e7e0d5"} />
+    <rect x="20" y="4" width="4" height="20" rx="2" fill={active ? "#ddd6fe" : "#e7e0d5"} />
+  </svg>
+);
+const UsersIcon = ({ active }: { active: boolean }) => (
+  <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+    <circle cx="10" cy="12" r="4" fill={active ? "#f8b4b4" : "#e7e0d5"} />
+    <circle cx="18" cy="12" r="4" fill={active ? "#a7f3d0" : "#e7e0d5"} />
+    <ellipse cx="14" cy="20" rx="8" ry="4" fill={active ? "#ddd6fe" : "#e7e0d5"} />
+  </svg>
+);
+const ConditionsIcon = ({ active }: { active: boolean }) => (
+  <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+    <circle cx="14" cy="14" r="12" fill={active ? "#a7f3d0" : "#e7e0d5"} />
+    <path d="M14 8v8" stroke="#C62328" strokeWidth="2.5" strokeLinecap="round" />
+    <circle cx="14" cy="20" r="1.5" fill="#C62328" />
+  </svg>
+);
+const ContentIcon = ({ active }: { active: boolean }) => (
+  <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+    <rect x="6" y="6" width="16" height="16" rx="4" fill={active ? "#f8b4b4" : "#e7e0d5"} />
+    <path d="M10 12h8M10 16h8" stroke="#C62328" strokeWidth="2" strokeLinecap="round" />
+  </svg>
+);
+
+// Iconos para el toggle de gráfica/tabla
 const ChartToggleIcon = ({ active }: { active: boolean }) => (
   <svg width="36" height="36" viewBox="0 0 36 36" fill="none">
     <circle cx="18" cy="18" r="16" fill={active ? "#f8b4b4" : "#e7e0d5"} style={{ filter: active ? "blur(2px)" : "none" }} />
@@ -109,15 +138,14 @@ const AdminPage = () => {
   }
 
   const tabs = [
-    { id: "overview", label: "Resumen", icon: "📊" },
-    { id: "users", label: "Usuarios", icon: "👥" },
-    { id: "conditions", label: "Condiciones", icon: "🎯" }, // ! 01/06/2025 - Nueva pestaña condiciones
-    { id: "content", label: "Contenido", icon: "📝" },
-    { id: "settings", label: "Configuración", icon: "⚙️" },
+    { id: "overview", label: "Resumen", icon: OverviewIcon },
+    { id: "users", label: "Usuarios", icon: UsersIcon },
+    { id: "conditions", label: "Condiciones", icon: ConditionsIcon },
+    { id: "content", label: "Contenido", icon: ContentIcon },
   ] as const;
 
-  // Datos para la gráfica
-  const chartData = {
+  // Datos para la gráfica circular
+  const doughnutData = {
     labels: ["Usuarios", "Activos", "Admins"],
     datasets: [
       {
@@ -128,30 +156,20 @@ const AdminPage = () => {
           "#A7F3D0", // pastel verde
           "#DDD6FE", // pastel violeta
         ],
-        borderRadius: 12,
-        borderWidth: 0,
+        borderWidth: 6,
+        borderColor: "#fff",
+        hoverOffset: 10,
+        cutout: "70%",
       },
     ],
   };
-  const chartOptions = {
+  const doughnutOptions = {
     responsive: true,
     plugins: {
       legend: { display: false },
-      title: { display: false },
       tooltip: { enabled: true },
     },
-    scales: {
-      x: {
-        grid: { display: false },
-        ticks: { color: "#7a2323", font: { weight: 'bold' as const } },
-      },
-      y: {
-        grid: { color: "#f3f3f3" },
-        ticks: { color: "#7a2323", font: { weight: 'bold' as const }, stepSize: 1 },
-        beginAtZero: true,
-        precision: 0,
-      },
-    },
+    cutout: "70%",
   };
 
   return (
@@ -164,21 +182,23 @@ const AdminPage = () => {
         </div>
         {/* Navegación por pestañas */}
         <NeomorphicCard className="mb-0 p-0 flex flex-row gap-2 items-center justify-start shadow-neomorphic" compact>
-          {tabs.map((tab) => (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
-              className={`px-5 py-2 rounded-xl font-semibold text-base transition-all duration-200 focus:outline-none font-serif
-                ${activeTab === tab.id
-                  ? "bg-[#f8b4b4]/60 text-[#C62328] shadow-inner"
-                  : "bg-transparent text-[#7a2323]/70 hover:bg-[#f8b4b4]/30"}
-              `}
-              style={{ minWidth: 120 }}
-            >
-              <span className="mr-2">{tab.icon}</span>
-              {tab.label}
-            </button>
-          ))}
+          {tabs.map((tab) => {
+            const Icon = tab.icon;
+            return (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id)}
+                className={`rounded-xl p-2 transition-all duration-200 focus:outline-none flex items-center justify-center
+                  ${activeTab === tab.id
+                    ? "bg-[#f8b4b4]/60 ring-2 ring-[#C62328] shadow-inner"
+                    : "bg-transparent hover:bg-[#f8b4b4]/30"}
+                `}
+                aria-label={tab.label}
+              >
+                <Icon active={activeTab === tab.id} />
+              </button>
+            );
+          })}
         </NeomorphicCard>
         {/* Contenido por pestañas */}
         <div className="bg-transparent rounded-lg shadow-none p-0 flex-1 min-h-0">
@@ -203,8 +223,13 @@ const AdminPage = () => {
                   </button>
                 </div>
                 {showChart ? (
-                  <div className="w-full max-w-xs mx-auto rounded-full p-6 bg-white/80 shadow-neomorphic" style={{ backdropFilter: "blur(6px)" }}>
-                    <Bar data={chartData} options={{ ...chartOptions, aspectRatio: 1 }} />
+                  <div className="w-full max-w-xs mx-auto rounded-full p-6 bg-white/80 shadow-neomorphic flex items-center justify-center relative" style={{ backdropFilter: "blur(6px)" }}>
+                    <Doughnut data={doughnutData} options={doughnutOptions} />
+                    {/* Círculo central con total de usuarios */}
+                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col items-center justify-center">
+                      <span className="text-4xl font-bold text-[#C62328] font-serif drop-shadow">{stats?.totalUsers?.toLocaleString() || "0"}</span>
+                      <span className="text-base text-[#7a2323]/70 font-serif">Usuarios</span>
+                    </div>
                   </div>
                 ) : (
                   <div className="grid grid-cols-1 gap-4 w-full">
