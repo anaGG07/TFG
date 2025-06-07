@@ -39,6 +39,15 @@ const DeleteIcon = () => (
   <svg className="w-5 h-5" fill="none" stroke="#dc2626" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24"><rect x="5" y="7" width="14" height="12" rx="2" fill="#fee2e2"/><path d="M10 11v4M14 11v4" stroke="#dc2626"/><path d="M9 7V5a3 3 0 0 1 6 0v2" stroke="#dc2626"/></svg>
 );
 
+// Añadir un icono de check para activar
+const ToggleActiveIcon = ({ active }: { active: boolean }) => (
+  active ? (
+    <svg className="w-5 h-5" fill="none" stroke="#dc2626" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24"><rect x="5" y="7" width="14" height="12" rx="2" fill="#fee2e2"/><path d="M10 11v4M14 11v4" stroke="#dc2626"/><path d="M9 7V5a3 3 0 0 1 6 0v2" stroke="#dc2626"/></svg>
+  ) : (
+    <svg className="w-5 h-5" fill="none" stroke="#16a34a" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="#bbf7d0" stroke="#16a34a"/><path d="M8 12l3 3 5-5" stroke="#16a34a" strokeWidth="2.2"/></svg>
+  )
+);
+
 const UsersTable: React.FC<UsersTableProps> = ({ onRefresh }) => {
   const [users, setUsers] = useState<User[]>([]);
   const [allUsers, setAllUsers] = useState<User[]>([]);
@@ -348,15 +357,10 @@ const UsersTable: React.FC<UsersTableProps> = ({ onRefresh }) => {
                     </button>
                     <button
                       onClick={() => handleToggleState(user)}
-                      className={`neo-button ${user.state ? 'text-orange-600 hover:text-orange-900' : 'text-green-600 hover:text-green-900'}`}
+                      className={`neo-button ${user.state ? 'text-red-600 hover:text-red-900' : 'text-green-600 hover:text-green-900'}`}
+                      title={user.state ? 'Desactivar usuario' : 'Activar usuario'}
                     >
-                      {user.state ? 'Desactivar' : 'Activar'}
-                    </button>
-                    <button
-                      onClick={() => handleDeleteUser(user)}
-                      className="neo-button text-red-600 hover:text-red-900"
-                    >
-                      <DeleteIcon />
+                      <ToggleActiveIcon active={user.state} />
                     </button>
                   </div>
                 </td>
