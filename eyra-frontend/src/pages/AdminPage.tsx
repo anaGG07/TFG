@@ -96,26 +96,25 @@ const DiskIcon = ({ className }: { className?: string }) => (
   </svg>
 );
 
-// Iconos SVG para las cajas de resumen (máximo tamaño)
+// Iconos SVG para las cajas de resumen (silueta grande y moderna)
 const UsersSummaryIcon = ({ className }: { className?: string }) => (
-  <svg className={className} viewBox="0 0 32 32" fill="none" stroke="#C62328" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-    <circle cx="16" cy="16" r="15.5" fill="none" stroke="#C62328" strokeWidth="2.5" />
-    <path d="M4 30v-2c0-6.627 5.373-12 12-12s12 5.373 12 12v2" stroke="#C62328" strokeWidth="2.5" fill="none" />
+  <svg className={className} viewBox="0 0 64 64" fill="none" stroke="#C62328" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="32" cy="24" r="14" />
+    <path d="M8 56c0-10.5 9.5-19 24-19s24 8.5 24 19" />
   </svg>
 );
 const ActiveSummaryIcon = ({ className }: { className?: string }) => (
-  <svg className={className} viewBox="0 0 32 32" fill="none" stroke="#15803d" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-    <circle cx="16" cy="16" r="15.5" fill="none" stroke="#15803d" strokeWidth="2.5" />
-    <path d="M4 30v-2c0-6.627 5.373-12 12-12s12 5.373 12 12v2" stroke="#15803d" strokeWidth="2.5" fill="none" />
-    <path d="M12 18l4 4 6-6" stroke="#15803d" strokeWidth="2.5" fill="none" />
+  <svg className={className} viewBox="0 0 64 64" fill="none" stroke="#15803d" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="32" cy="24" r="14" />
+    <path d="M8 56c0-10.5 9.5-19 24-19s24 8.5 24 19" />
+    <polyline points="40 36 48 44 60 32" stroke="#15803d" strokeWidth="4" fill="none" />
   </svg>
 );
 const AdminSummaryIcon = ({ className }: { className?: string }) => (
-  <svg className={className} viewBox="0 0 32 32" fill="none" stroke="#7c2d12" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-    <circle cx="16" cy="16" r="15.5" fill="none" stroke="#7c2d12" strokeWidth="2.5" />
-    <path d="M4 30v-2c0-6.627 5.373-12 12-12s12 5.373 12 12v2" stroke="#7c2d12" strokeWidth="2.5" fill="none" />
-    <circle cx="16" cy="16" r="5" fill="none" stroke="#7c2d12" strokeWidth="1.7" />
-    <path d="M16 9v8" stroke="#7c2d12" strokeWidth="2.5" />
+  <svg className={className} viewBox="0 0 64 64" fill="none" stroke="#7c2d12" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="32" cy="24" r="14" />
+    <path d="M8 56c0-10.5 9.5-19 24-19s24 8.5 24 19" />
+    <path d="M32 6l4 8 8-2-4 8" stroke="#7c2d12" strokeWidth="3" fill="none" />
   </svg>
 );
 
