@@ -246,14 +246,17 @@ const ProfilePage: React.FC = () => {
           }} />
         </div>
         {/* Avatar neumórfico circular con pulso de luz + botón alineado */}
-        <div className="relative flex flex-col items-center w-full justify-center">
+        <div className="relative flex flex-col items-center w-full justify-center" style={{minHeight: (isMobile ? 320 : 400)}}>
           <span className="absolute z-0 animate-avatar-pulse" style={{
-            width: isEditingAvatar ? 200 : (isMobile ? 250 : 340),
-            height: isEditingAvatar ? 200 : (isMobile ? 250 : 340),
+            width: isEditingAvatar ? 220 : (isMobile ? 250 : 340),
+            height: isEditingAvatar ? 220 : (isMobile ? 250 : 340),
             borderRadius: '50%',
             boxShadow: '0 0 0 0 #fff0, 0 0 32px 8px #fff6',
             background: 'radial-gradient(circle, #fff8 0%, #fff0 70%)',
             pointerEvents: 'none',
+            left: '50%',
+            top: '50%',
+            transform: 'translate(-50%, -50%)',
           }} />
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
@@ -261,15 +264,18 @@ const ProfilePage: React.FC = () => {
             transition={{ duration: 0.5 }}
             className="flex items-center justify-center rounded-full shadow-lg relative z-10"
             style={{
-              width: isEditingAvatar ? 180 : (isMobile ? 220 : 320),
-              height: isEditingAvatar ? 180 : (isMobile ? 220 : 320),
+              width: isEditingAvatar ? 200 : (isMobile ? 220 : 320),
+              height: isEditingAvatar ? 200 : (isMobile ? 220 : 320),
               background: (isEditingAvatar ? tempAvatar.backgroundColor : form.avatar.backgroundColor) || '#f5ede6',
               boxShadow: '0 8px 32px #c6232822, 8px 8px 24px #e7e0d5, -8px -8px 24px #fff8',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
             }}
           >
             <AvatarPreview 
               config={isEditingAvatar ? tempAvatar : getAvatarConfig()} 
-              className={isEditingAvatar ? "w-[120px] h-[120px]" : (isMobile ? "w-[160px] h-[160px]" : "w-[220px] h-[220px]")}
+              className={isEditingAvatar ? "w-[140px] h-[140px]" : (isMobile ? "w-[180px] h-[180px]" : "w-[260px] h-[260px]")}
             />
           </motion.div>
           <NeomorphicButton
@@ -278,7 +284,7 @@ const ProfilePage: React.FC = () => {
               setTempAvatar(form.avatar);
               setIsEditingAvatar(true);
             }}
-            className="mt-6 px-4 lg:px-8 py-2 lg:py-3 text-base lg:text-lg"
+            className="mt-8 px-4 lg:px-8 py-2 lg:py-3 text-base lg:text-lg"
           >
             Editar avatar
           </NeomorphicButton>

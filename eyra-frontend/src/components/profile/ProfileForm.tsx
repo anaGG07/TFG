@@ -133,36 +133,6 @@ const ProfileForm: React.FC<ProfileFormProps> = ({ form, error, loading, handleC
         {fieldErrors.birthDate && <span className="text-red-600 text-xs">{fieldErrors.birthDate}</span>}
       </div>
       
-      {/* ! 08/06/2025 - Sección de configuración de privacidad */}
-      <div className="col-span-2 w-full max-w-md mx-auto">
-        <div className="bg-white/30 rounded-xl p-4 border border-white/20">
-          <h3 className="font-semibold text-[#7a2323] mb-3 text-center">Configuración de Privacidad</h3>
-          <div className="flex items-center justify-between">
-            <div className="flex-1">
-              <label htmlFor="allowSearchable" className="text-sm text-[#7a2323] font-medium">
-                Permitir que otros usuarios me encuentren
-              </label>
-              <p className="text-xs text-[#7a2323]/60 mt-1">
-                Los usuarios podrán buscarte por tu nombre de usuario para enviarte invitaciones
-              </p>
-            </div>
-            <div className="ml-4">
-              <label className="relative inline-flex items-center cursor-pointer">
-                <input
-                  type="checkbox"
-                  id="allowSearchable"
-                  name="allowSearchable"
-                  checked={form.allowSearchable ?? true}
-                  onChange={handleChange}
-                  className="sr-only peer"
-                />
-                <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-[#C62328]/25 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#C62328]"></div>
-              </label>
-            </div>
-          </div>
-        </div>
-      </div>
-      
       <div className="col-span-2 flex justify-center">
         {error && <div className="text-red-600 text-sm mb-4 text-center max-w-md">{error}</div>}
         <NeomorphicButton
