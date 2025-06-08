@@ -50,7 +50,7 @@ async function testAllEndpoints() {
     ? 'http://localhost:9000' 
     : (window.location.hostname === '54.227.159.169' 
         ? 'http://54.227.159.169:9000' 
-        : 'https://old.eyraclub.es');
+        : 'https://eyraclub.es');
         
   console.log(`🔍 Comenzando pruebas de API en ${baseUrl}`);
   
