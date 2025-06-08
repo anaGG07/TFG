@@ -20,6 +20,7 @@ import { useAuth } from '../../context/AuthContext';
 import { useViewport } from '../../hooks/useViewport';
 import { NeomorphicCard, NeomorphicButton } from '../ui/NeomorphicComponents';
 
+// control
 // Registrar componentes de Chart.js
 ChartJS.register(
   CategoryScale,
