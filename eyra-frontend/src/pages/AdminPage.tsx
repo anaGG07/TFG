@@ -300,7 +300,7 @@ const AdminPage = () => {
   return (
     <>
       {isMobile && <style>{scrollbarHideStyles}</style>}
-      <div className="w-full h-full min-h-0 flex flex-col overflow-hidden bg-transparent">
+      <div className={`w-full h-full min-h-0 flex flex-col overflow-hidden bg-transparent ${isMobile ? 'overflow-y-auto max-h-[100vh]' : ''}`}>
       <div className={`max-w-7xl mx-auto flex flex-col h-full min-h-0 ${
         isMobile ? "px-4 pt-4 pb-20" : isTablet ? "px-6 pt-5 pb-16" : "pl-8 pr-4 pt-6 pb-6"
       }`}>
@@ -316,51 +316,23 @@ const AdminPage = () => {
           </p>
         </div>
         {/* Navegación por pestañas */}
-        <div className={`flex items-center mb-2 ${
-          isMobile 
-            ? "overflow-x-auto gap-2 pb-2 scrollbar-hide" 
-            : "flex-row gap-3"
-        }`}>
-          {tabs.map((tab) => {
-            // Determinar el icono correspondiente
-            let IconComponent = null;
-            switch(tab.id) {
-              case "overview":
-                IconComponent = OverviewIcon;
-                break;
-              case "users":
-                IconComponent = UsersIcon;
-                break;
-              case "conditions":
-                IconComponent = ConditionsIcon;
-                break;
-              case "content":
-                IconComponent = ContentIcon;
-                break;
-            }
-
-            return (
-              <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
-                className={`rounded-xl font-semibold font-serif transition-all duration-200 focus:outline-none neo-shadow-sm flex-shrink-0 ${
-                  isMobile ? "flex flex-col items-center gap-1 px-2 py-2 text-xs min-w-[4rem]" : "flex items-center gap-2 px-5 py-2 text-base"
+        <div className="flex flex-row gap-3 items-center mb-2">
+          {tabs.map((tab) => (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              className={`rounded-xl px-5 py-2 font-semibold text-base font-serif transition-all duration-200 focus:outline-none neo-shadow-sm
+                ${
+                  activeTab === tab.id
+                    ? "bg-[#e7e0d5]/30 ring-2 ring-[#C62328] shadow-inner text-[#C62328]"
+                    : "bg-transparent hover:bg-[#f8b4b4]/30 text-[#7a2323]"
                 }
-                  ${
-                    activeTab === tab.id
-                      ? "bg-[#e7e0d5]/30 ring-2 ring-[#C62328] shadow-inner text-[#C62328]"
-                      : "bg-transparent hover:bg-[#f8b4b4]/30 text-[#7a2323]"
-                  }
-                `}
-                aria-label={tab.label}
-              >
-                {IconComponent && (
-                  <IconComponent active={activeTab === tab.id} />
-                )}
-                {isMobile && tab.id === "conditions" ? "Condic." : tab.label}
-              </button>
-            );
-          })}
+              `}
+              aria-label={tab.label}
+            >
+              {tab.label}
+            </button>
+          ))}
         </div>
         {/* Contenido por pestañas */}
         <div className="w-full flex-1 flex flex-col items-center">
