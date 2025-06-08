@@ -447,7 +447,6 @@ const ConditionsTable: React.FC<ConditionsTableProps> = ({ onRefresh }) => {
       ) : (
         // Vista de tabla para desktop/tablet
         <div className="overflow-x-auto">
-        <div className="overflow-x-auto">
           <table className="neo-table table-fixed w-full">
             <thead>
               <tr>
