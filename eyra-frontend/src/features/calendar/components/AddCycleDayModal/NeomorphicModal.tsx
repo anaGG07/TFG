@@ -253,7 +253,7 @@ export const NeomorphicModal: React.FC<NeomorphicModalProps> = ({
           exit={{ opacity: 0 }}
           className="fixed inset-0 z-50 flex items-center justify-center p-4"
           style={{
-            background: 'linear-gradient(145deg, rgba(231, 224, 213, 0.98), rgba(199, 191, 180, 0.95))'
+            background: 'linear-gradient(145deg, rgba(122, 35, 35, 0.95), rgba(199, 191, 180, 0.98))'
           }}
           onClick={onClose}
         >
@@ -264,9 +264,9 @@ export const NeomorphicModal: React.FC<NeomorphicModalProps> = ({
             transition={{ type: "spring", stiffness: 300, damping: 30 }}
             className="
               w-full max-w-2xl max-h-[90vh] overflow-hidden
-              bg-gradient-to-br from-[#f5f5f4] to-[#e7e5e4] 
+              bg-gradient-to-br from-[#e7e0d5] to-[#d7d0c4] 
               rounded-3xl
-              shadow-[15px_15px_30px_rgba(120,113,108,0.15),-15px_-15px_30px_rgba(255,255,255,0.8)]
+              shadow-[15px_15px_30px_rgba(120,113,108,0.2),-15px_-15px_30px_rgba(255,255,255,0.9)]
             "
             onClick={(e) => e.stopPropagation()}
           >

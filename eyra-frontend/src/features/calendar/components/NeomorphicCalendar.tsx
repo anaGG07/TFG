@@ -585,7 +585,7 @@ export const NeomorphicCalendar: React.FC<NeomorphicCalendarProps> = ({
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   // HOOKS CORRECTOS
-  const { data: calendarData, isLoading } = useCalendarData(
+  const { data: calendarData, isLoading, refetch } = useCalendarData(
     currentDate,
     viewType
   );
