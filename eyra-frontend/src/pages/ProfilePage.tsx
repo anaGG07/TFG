@@ -296,7 +296,7 @@ const ProfilePage: React.FC = () => {
               config={isEditingAvatar ? tempAvatar : getAvatarConfig()}
               className={
                 isEditingAvatar
-                  ? "w-[140px] h-[140px]"
+                  ? "w-[200px] h-[200px]"
                   : isMobile
                   ? "w-[180px] h-[180px]"
                   : "w-[260px] h-[260px]"
