@@ -250,6 +250,8 @@ const SymptomsView: React.FC<SymptomsViewProps> = ({ expanded = true }) => {
         boxShadow: 'none',
         alignItems: 'stretch',
         justifyContent: 'center',
+        maxWidth: 900,
+        margin: '0 auto',
       }}
     >
       {/* Columna izquierda/superior: Síntomas y análisis */}
@@ -257,16 +259,17 @@ const SymptomsView: React.FC<SymptomsViewProps> = ({ expanded = true }) => {
         flex: 1,
         display: 'flex',
         flexDirection: 'column',
-        gap: isMobile ? 20 : 28,
+        gap: isMobile ? 24 : 32,
         minWidth: 0,
         justifyContent: 'flex-start',
+        maxWidth: 420,
       }}>
         {/* Síntomas actuales */}
-        <NeomorphicCard compact className="mb-2">
+        <NeomorphicCard compact className="mb-4">
           <h3 className="font-bold text-lg mb-3 text-[#C62328]">
             Síntomas actuales
           </h3>
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-wrap gap-3 justify-center">
             {SYMPTOM_OPTIONS.map(symptom => {
               const todaySymptom = todaySymptoms.find(s => s.symptom === symptom);
               const isSelected = symptom === selectedSymptom;
@@ -274,14 +277,16 @@ const SymptomsView: React.FC<SymptomsViewProps> = ({ expanded = true }) => {
                 <NeomorphicButton
                   key={symptom}
                   variant={isSelected ? 'primary' : 'secondary'}
-                  className={`flex items-center gap-2 px-3 py-2 rounded-2xl text-xs font-medium transition-all duration-200 ${isSelected ? 'scale-105' : ''}`}
+                  className={`flex items-center gap-2 px-3 py-2 rounded-2xl text-xs font-medium transition-all duration-200 ${isSelected ? 'scale-105 shadow-lg' : 'hover:shadow-md'} ${isSelected ? 'ring-2 ring-[#C62328]/60' : ''}`}
                   onClick={(e: React.MouseEvent<HTMLButtonElement>) => { e.stopPropagation(); setSelectedSymptom(isSelected ? null : symptom); }}
-                  style={{
-                    minWidth: 0,
-                    boxShadow: isSelected ? 'inset 2px 2px 8px #c62328, inset -2px -2px 8px #fff' : undefined,
-                  }}
                 >
-                  {SymptomIcons[symptom]('#C62328')}
+                  <span style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    filter: isSelected ? 'drop-shadow(0 2px 6px #c62328aa)' : 'none',
+                  }}>
+                    {SymptomIcons[symptom](isSelected ? '#fff' : '#7a2323')}
+                  </span>
                   <span>{symptom}</span>
                   {todaySymptom && (
                     <span className="ml-1 bg-[#C62328] text-white rounded-xl px-2 py-0.5 text-[11px] font-semibold">
@@ -331,40 +336,53 @@ const SymptomsView: React.FC<SymptomsViewProps> = ({ expanded = true }) => {
         </NeomorphicCard>
       </div>
       {/* Columna derecha/inferior: Gráfica */}
-      <NeomorphicCard compact className="flex flex-col items-center justify-center w-full max-w-lg mx-auto">
-        <h3 className="font-bold text-lg mb-3 text-[#C62328] text-center">
-          {selectedSymptom ? `Evolución de ${selectedSymptom}` : 'Selecciona un síntoma para ver su evolución'}
-        </h3>
-        <div className="w-full" style={{ maxWidth: isMobile ? 320 : isTablet ? 380 : 420, height: isMobile ? 200 : isTablet ? 220 : 260 }}>
-          <Line
-            data={chartData}
-            options={{
-              ...chartOptions,
-              plugins: {
-                ...chartOptions.plugins,
-                legend: { display: false },
-                tooltip: { ...chartOptions.plugins.tooltip, backgroundColor: '#C62328', titleColor: '#fff', bodyColor: '#fff' },
-              },
-              elements: {
-                line: { borderWidth: 4, borderColor: '#C62328', tension: 0.5 },
-                point: { radius: 6, backgroundColor: '#C62328', borderColor: '#fff', borderWidth: 2 },
-              },
-              scales: {
-                x: {
-                  grid: { display: false },
-                  ticks: { color: '#C62328', font: { weight: 'bold' } },
+      <div style={{ minWidth: 0, maxWidth: 420, marginLeft: isMobile ? 0 : 24 }}>
+        <NeomorphicCard compact className="flex flex-col items-center justify-center w-full max-w-lg mx-auto">
+          <h3 className="font-bold text-lg mb-3 text-[#C62328] text-center">
+            {selectedSymptom ? `Evolución de ${selectedSymptom}` : 'Selecciona un síntoma para ver su evolución'}
+          </h3>
+          <div className="w-full" style={{
+            maxWidth: isMobile ? 320 : isTablet ? 380 : 400,
+            height: isMobile ? 200 : isTablet ? 220 : 240,
+            background: 'linear-gradient(135deg, #f8e7e7 0%, #f4f1ed 100%)',
+            borderRadius: 18,
+            boxShadow: '0 4px 24px 0 #e7e0d5, 0 -4px 24px 0 #fff',
+            padding: isMobile ? 10 : 16,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            border: '1.5px solid #e7e0d5',
+          }}>
+            <Line
+              data={chartData}
+              options={{
+                ...chartOptions,
+                plugins: {
+                  ...chartOptions.plugins,
+                  legend: { display: false },
+                  tooltip: { ...chartOptions.plugins.tooltip, backgroundColor: '#C62328', titleColor: '#fff', bodyColor: '#fff' },
                 },
-                y: {
-                  grid: { color: '#F8D9D6' },
-                  ticks: { color: '#C62328', font: { weight: 'bold' }, stepSize: 1 },
-                  min: 0,
-                  max: 5,
+                elements: {
+                  line: { borderWidth: 4, borderColor: '#C62328', tension: 0.5 },
+                  point: { radius: 7, backgroundColor: '#ff393f', borderColor: '#fff', borderWidth: 2 },
                 },
-              },
-            }}
-          />
-        </div>
-      </NeomorphicCard>
+                scales: {
+                  x: {
+                    grid: { display: false },
+                    ticks: { color: '#C62328', font: { weight: 'bold' } },
+                  },
+                  y: {
+                    grid: { color: '#F8D9D6' },
+                    ticks: { color: '#C62328', font: { weight: 'bold' }, stepSize: 1 },
+                    min: 0,
+                    max: 5,
+                  },
+                },
+              }}
+            />
+          </div>
+        </NeomorphicCard>
+      </div>
     </motion.div>
   );
 };

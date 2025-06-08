@@ -227,18 +227,22 @@ class CycleCalculatorService
                 $avgLength = $onboarding->getAverageCycleLength() ?? 28;
                 $avgDuration = $onboarding->getAveragePeriodLength() ?? 5;
 
-                // Registrar en log los valores usados desde onboarding
-                $this->logger->info('CycleCalculator: Usando valores del onboarding para nuevo ciclo', [
+                // ! 08/06/2025 - Logging mejorado para debug
+                $this->logger->info('CycleCalculator: Onboarding encontrado', [
                     'userId' => $user->getId(),
+                    'onboardingId' => $onboarding->getId(),
                     'averageCycleLength' => $avgLength,
-                    'averagePeriodLength' => $avgDuration
+                    'averagePeriodLength' => $avgDuration,
+                    'lastPeriodDate' => $onboarding->getLastPeriodDate() ? $onboarding->getLastPeriodDate()->format('Y-m-d') : null
                 ]);
             } else {
                 // Valores por defecto si no hay información disponible
                 $avgLength = 28;
                 $avgDuration = 5;
-                $this->logger->info('CycleCalculator: Usando valores por defecto (no hay onboarding)', [
-                    'userId' => $user->getId()
+                $this->logger->error('CycleCalculator: NO SE ENCONTRÓ ONBOARDING - Usando valores por defecto', [
+                    'userId' => $user->getId(),
+                    'defaultCycleLength' => $avgLength,
+                    'defaultPeriodLength' => $avgDuration
                 ]);
             }
         }
@@ -256,9 +260,26 @@ class CycleCalculatorService
         $ovulationDuration = 2; // Típicamente 1-2 días
         $lutealDuration = $avgLength - $menstrualDuration - $follicularDuration - $ovulationDuration;
 
+        // ! 08/06/2025 - Logging detallado de cálculos de fases
+        $this->logger->info('CycleCalculator: Calculando fases del ciclo', [
+            'userId' => $user->getId(),
+            'startDate' => $startDate->format('Y-m-d'),
+            'menstrualDuration' => $menstrualDuration,
+            'follicularDuration' => $follicularDuration,
+            'ovulationDuration' => $ovulationDuration,
+            'lutealDuration' => $lutealDuration,
+            'totalCycleLength' => $avgLength
+        ]);
+        
         // Calcular fechas de cada fase (CORREGIDO: cálculo inclusivo)
         $menstrualStart = new \DateTime($startDate->format('Y-m-d'));
         $menstrualEnd = (clone $menstrualStart)->modify("+" . ($menstrualDuration - 1) . " days");
+        
+        $this->logger->info('CycleCalculator: Fase menstrual calculada', [
+            'startDate' => $menstrualStart->format('Y-m-d'),
+            'endDate' => $menstrualEnd->format('Y-m-d'),
+            'durationDays' => $menstrualDuration
+        ]);
         $follicularStart = (clone $menstrualEnd)->modify("+1 day");
         $follicularEnd = (clone $follicularStart)->modify("+" . ($follicularDuration - 1) . " days");
         $ovulationStart = (clone $follicularEnd)->modify("+1 day");

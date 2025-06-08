@@ -109,25 +109,11 @@ export const useCalendarData = (
 
   /* ! 08/06/2025 - Función CORREGIDA para evitar días duplicados usando Map */
   const extractCalendarDays = (result: any): CycleDay[] => {
-    console.log('=== EXTRACTING CALENDAR DAYS ===');
-    console.log('Result from backend:', result);
-    
     const daysMap = new Map<string, CycleDay>(); // Usar Map para evitar duplicados por fecha
 
     // Extraer días de los ciclos del usuario (datos reales + predicciones)
     if (result.userCycles) {
-      console.log('User cycles found:', result.userCycles.length);
-      
       result.userCycles.forEach((cycle: any, index: number) => {
-        console.log(`Processing cycle ${index}:`, {
-          id: cycle.id,
-          phase: cycle.phase,
-          startDate: cycle.startDate,
-          endDate: cycle.endDate,
-          isPrediction: cycle.isPrediction,
-          confidence: cycle.confidence
-        });
-        
         const isPrediction = cycle.isPrediction || false;
         const confidence = cycle.confidence || 0;
 
@@ -136,8 +122,6 @@ export const useCalendarData = (
           let current = new Date(cycle.startDate);
           const end = new Date(cycle.endDate);
           let dayNumber = 1;
-
-          console.log(`Generating days from ${cycle.startDate} to ${cycle.endDate} for phase ${cycle.phase}`);
           
           while (current <= end) {
             const dateStr = format(current, "yyyy-MM-dd");
@@ -145,7 +129,6 @@ export const useCalendarData = (
             
             if (!existingDay) {
               // No existe día para esta fecha, crear nuevo
-              console.log(`Creating new day: ${dateStr} (${cycle.phase})`);
               daysMap.set(dateStr, {
                 id: `${cycle.id}_${cycle.phase}_${dateStr}`,
                 date: dateStr,
@@ -160,10 +143,9 @@ export const useCalendarData = (
               });
             } else if (!existingDay.isPrediction && isPrediction) {
               // Día real existe, no reemplazar con predicción
-              console.log(`Skipping prediction for ${dateStr} - real data exists`);
+              // Mantener el día real
             } else if (existingDay.isPrediction && !isPrediction) {
               // Reemplazar predicción con día real
-              console.log(`Replacing prediction with real data for ${dateStr}`);
               daysMap.set(dateStr, {
                 id: `${cycle.id}_${cycle.phase}_${dateStr}`,
                 date: dateStr,
@@ -179,7 +161,6 @@ export const useCalendarData = (
             } else if (existingDay.isPrediction && isPrediction) {
               // Ambos son predicciones, mantener el de mayor confianza
               if (confidence > (existingDay.confidence || 0)) {
-                console.log(`Replacing lower confidence prediction for ${dateStr}`);
                 daysMap.set(dateStr, {
                   id: `${cycle.id}_${cycle.phase}_${dateStr}`,
                   date: dateStr,
@@ -202,14 +183,12 @@ export const useCalendarData = (
 
         // PROCESAR filteredCycleDays si existen (datos registrados por el usuario)
         if (cycle.filteredCycleDays && Array.isArray(cycle.filteredCycleDays)) {
-          console.log(`Processing ${cycle.filteredCycleDays.length} filtered cycle days`);
           cycle.filteredCycleDays.forEach((day: any) => {
             const dateStr = day.date.slice(0, 10);
             const existingDay = daysMap.get(dateStr);
 
             if (existingDay) {
               // Actualizar el día existente con datos registrados (datos reales tienen prioridad)
-              console.log(`Updating day ${dateStr} with filtered data`);
               daysMap.set(dateStr, {
                 ...existingDay,
                 flowIntensity: day.flowIntensity || existingDay.flowIntensity,
@@ -226,14 +205,12 @@ export const useCalendarData = (
 
     // MERGEAR con datos del contexto local (cycleDays) - estos tienen prioridad máxima
     if (cycleDays && Array.isArray(cycleDays)) {
-      console.log(`Processing ${cycleDays.length} local cycle days`);
       cycleDays.forEach((localDay: CycleDay) => {
         const localDateStr = localDay.date.slice(0, 10);
         const existingDay = daysMap.get(localDateStr);
 
         if (existingDay) {
           // Actualizar día existente con datos locales más recientes
-          console.log(`Updating day ${localDateStr} with local data`);
           daysMap.set(localDateStr, {
             ...existingDay,
             flowIntensity: localDay.flowIntensity || existingDay.flowIntensity,
@@ -244,7 +221,6 @@ export const useCalendarData = (
           });
         } else {
           // Añadir nuevo día desde datos locales
-          console.log(`Adding new local day: ${localDateStr}`);
           daysMap.set(localDateStr, {
             ...localDay,
             isPrediction: false,
@@ -254,11 +230,7 @@ export const useCalendarData = (
     }
 
     // Convertir Map a Array
-    const finalDays = Array.from(daysMap.values());
-    console.log('Final calendar days:', finalDays.length, finalDays);
-    console.log('=== END EXTRACTING CALENDAR DAYS ===');
-    
-    return finalDays;
+    return Array.from(daysMap.values());
   };
 
   // Refetch con parámetros específicos

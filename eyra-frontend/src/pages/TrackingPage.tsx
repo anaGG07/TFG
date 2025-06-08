@@ -2,24 +2,21 @@ import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import LoadingSpinner from "../components/LoadingSpinner";
 import { PermissionsModal } from "../components/PermissionsManager";
-import InvitationWithEmailModal, {
-  InvitationModalData,
-} from "../components/InvitationWithEmailModal";
+import InvitationWithEmailModal, { InvitationModalData } from "../components/InvitationWithEmailModal";
 import UserSearchModal, { UserSearchData } from "../components/UserSearchModal";
-import RelationshipTypeModal, {
-  RelationshipTypeData,
-} from "../components/RelationshipTypeModal";
+import RelationshipTypeModal, { RelationshipTypeData } from "../components/RelationshipTypeModal";
 import { useTracking } from "../hooks/useTracking";
+import { usePrivacySettings } from "../hooks/usePrivacySettings";
 import { Companion, Following, Invitation } from "../services/trackingService";
 import { userSearchService } from "../services/userSearchService";
 
-// ! 08/06/2025 - Iconos SVG exactos de la web actual mejorados con responsive
+// Iconos SVG exactos de la web actual con estilo consistente
 const CompanionsIcon = ({ className }: { className?: string }) => (
   <svg
     className={className}
     viewBox="0 0 24 24"
     fill="none"
-    stroke="#C62328"
+    stroke="currentColor"
     strokeWidth="2"
     strokeLinecap="round"
     strokeLinejoin="round"
@@ -36,7 +33,7 @@ const FollowingIcon = ({ className }: { className?: string }) => (
     className={className}
     viewBox="0 0 24 24"
     fill="none"
-    stroke="#C62328"
+    stroke="currentColor"
     strokeWidth="2"
     strokeLinecap="round"
     strokeLinejoin="round"
@@ -53,13 +50,13 @@ const PrivacyIcon = ({ className }: { className?: string }) => (
     className={className}
     viewBox="0 0 24 24"
     fill="none"
-    stroke="#C62328"
+    stroke="currentColor"
     strokeWidth="2"
     strokeLinecap="round"
     strokeLinejoin="round"
   >
-    <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
-    <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+    <path d="m9 12 2 2 4-4" />
   </svg>
 );
 
@@ -68,12 +65,12 @@ const ActivityIcon = ({ className }: { className?: string }) => (
     className={className}
     viewBox="0 0 24 24"
     fill="none"
-    stroke="#C62328"
+    stroke="currentColor"
     strokeWidth="2"
     strokeLinecap="round"
     strokeLinejoin="round"
   >
-    <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
+    <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
   </svg>
 );
 
@@ -82,7 +79,7 @@ const InvitationsIcon = ({ className }: { className?: string }) => (
     className={className}
     viewBox="0 0 24 24"
     fill="none"
-    stroke="#C62328"
+    stroke="currentColor"
     strokeWidth="2"
     strokeLinecap="round"
     strokeLinejoin="round"
@@ -97,12 +94,60 @@ const CommunicationIcon = ({ className }: { className?: string }) => (
     className={className}
     viewBox="0 0 24 24"
     fill="none"
-    stroke="#C62328"
+    stroke="currentColor"
     strokeWidth="2"
     strokeLinecap="round"
     strokeLinejoin="round"
   >
     <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+  </svg>
+);
+
+const SearchIcon = ({ className }: { className?: string }) => (
+  <svg
+    className={className}
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
+    <circle cx="11" cy="11" r="8" />
+    <path d="m21 21-4.35-4.35" />
+  </svg>
+);
+
+const VisibilityIcon = ({ className }: { className?: string }) => (
+  <svg
+    className={className}
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
+    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+    <circle cx="12" cy="12" r="3" />
+  </svg>
+);
+
+const ShareIcon = ({ className }: { className?: string }) => (
+  <svg
+    className={className}
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
+    <circle cx="18" cy="5" r="3" />
+    <circle cx="6" cy="12" r="3" />
+    <circle cx="18" cy="19" r="3" />
+    <line x1="8.59" y1="13.51" x2="15.42" y2="17.49" />
+    <line x1="15.41" y1="6.51" x2="8.59" y2="10.49" />
   </svg>
 );
 
@@ -155,6 +200,14 @@ const TrackingPage: React.FC = () => {
     refresh,
   } = useTracking();
 
+  // Hook para configuración de privacidad
+  const {
+    settings: privacySettings,
+    loading: privacyLoading,
+    error: privacyError,
+    updatePrivacySetting,
+  } = usePrivacySettings();
+
   // Estados locales para la UI
   const [activeTab, setActiveTab] = useState<
     "connections" | "privacy" | "activity"
@@ -164,14 +217,11 @@ const TrackingPage: React.FC = () => {
   const [isRedeeming, setIsRedeeming] = useState(false);
   const [copiedCode, setCopiedCode] = useState<string | null>(null);
   const [creatingInvitation, setCreatingInvitation] = useState(false);
-  const [creatingInvitationWithEmail, setCreatingInvitationWithEmail] =
-    useState(false);
+  const [creatingInvitationWithEmail, setCreatingInvitationWithEmail] = useState(false);
   const [showInvitationModal, setShowInvitationModal] = useState(false);
-  const [showInviteWithEmailDialog, setShowInviteWithEmailDialog] =
-    useState(false);
+  const [showInviteWithEmailDialog, setShowInviteWithEmailDialog] = useState(false);
   const [showUserSearchDialog, setShowUserSearchDialog] = useState(false);
-  const [showRelationshipTypeDialog, setShowRelationshipTypeDialog] =
-    useState(false);
+  const [showRelationshipTypeDialog, setShowRelationshipTypeDialog] = useState(false);
 
   // Estado para el modal de permisos
   const [permissionsModal, setPermissionsModal] = useState<{
@@ -305,7 +355,6 @@ const TrackingPage: React.FC = () => {
     }
   };
 
-  // ! 08/06/2025 - Componente de tarjeta de persona mejorado con responsive
   const renderPersonCard = (
     person: Companion | Following,
     isOwner: boolean = false
@@ -317,21 +366,21 @@ const TrackingPage: React.FC = () => {
       style={neomorphicInsetStyle}
     >
       <div
-        className="p-3 sm:p-4 cursor-pointer hover:bg-white/20 transition-colors"
+        className="p-4 cursor-pointer hover:bg-white/20 transition-colors"
         onClick={() =>
           setExpandedPerson(expandedPerson === person.id ? null : person.id)
         }
       >
         <div className="flex items-center justify-between">
-          <div className="flex-1 min-w-0">
-            <p className="font-semibold text-[#5b0108] text-sm truncate">
+          <div className="flex-1">
+            <p className="font-semibold text-[#5b0108] text-sm">
               @{"username" in person ? person.username : person.ownerUsername}
             </p>
             <p className="text-xs text-[#a62c2c]">
               {getRoleInSpanish(person.role)}
             </p>
           </div>
-          <div className="flex items-center space-x-2 flex-shrink-0">
+          <div className="flex items-center space-x-2">
             <div
               className={`w-2 h-2 rounded-full ${
                 "status" in person && person.status === "active"
@@ -353,14 +402,14 @@ const TrackingPage: React.FC = () => {
             animate={{ height: "auto", opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
             transition={{ duration: 0.2 }}
-            className="px-3 sm:px-4 pb-3 sm:pb-4 border-t border-[#C62328]/10"
+            className="px-4 pb-4 border-t border-[#C62328]/10"
           >
             <div className="pt-3 space-y-2">
               <div className="text-xs">
                 <p className="text-[#5b0108] font-medium">
                   {isOwner ? "Nombre completo:" : "Propietario:"}
                 </p>
-                <p className="text-[#a62c2c] break-words">
+                <p className="text-[#a62c2c]">
                   {"name" in person
                     ? person.name
                     : person.ownerName || "Sin nombre"}
@@ -370,7 +419,7 @@ const TrackingPage: React.FC = () => {
                 <p className="text-[#5b0108] font-medium">
                   {isOwner ? "Permisos concedidos:" : "Permisos que tengo:"}
                 </p>
-                <p className="text-[#a62c2c] break-words">
+                <p className="text-[#a62c2c]">
                   {person.permissions?.length > 0
                     ? person.permissions.join(", ")
                     : "Sin permisos definidos"}
@@ -427,37 +476,41 @@ const TrackingPage: React.FC = () => {
     );
   }
 
+  // Handler para actualizar configuración de privacidad con mejor sincronización
+  const handlePrivacyToggle = async (key: keyof typeof privacySettings, value: boolean) => {
+    try {
+      await updatePrivacySetting(key, value);
+      console.log(`Privacy toggle updated: ${key} = ${value}`);
+    } catch (err) {
+      console.error(`Error updating ${key}:`, err);
+      // El error ya se maneja en el hook, pero aquí podríamos agregar más manejo si es necesario
+    }
+  };
+
   return (
     <>
-      <div
-        className="w-full h-full bg-[#e7e0d5] 
-                md:overflow-hidden md:p-6 
-                overflow-y-auto p-4"
-      >
-        <div
-          className="max-w-7xl mx-auto 
-                  md:h-full md:flex md:flex-col 
-                  space-y-4 md:space-y-6"
-        >
+      <div className="w-full h-full bg-[#e7e0d5] p-6">
+        <div className="max-w-4xl mx-auto space-y-6">
           {/* Header */}
           <motion.div
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="text-center md:flex-shrink-0"
+            className="text-center"
           >
-            <h1 className="text-xl md:text-2xl font-serif font-bold text-[#7a2323] mb-1 md:mb-2">
+            <h1 className="text-2xl font-serif font-bold text-[#7a2323] mb-2">
               Centro de Seguimiento
             </h1>
-            <p className="text-[#5b0108] text-xs md:text-sm">
+            <p className="text-[#5b0108] text-sm">
               Gestiona tus conexiones y privacidad
             </p>
           </motion.div>
+
           {/* Navigation Tabs */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
-            className="rounded-xl p-1 md:flex-shrink-0"
+            className="rounded-xl p-1"
             style={neomorphicCardStyle}
           >
             <div className="flex space-x-1">
@@ -473,415 +526,475 @@ const TrackingPage: React.FC = () => {
                 <button
                   key={key}
                   onClick={() => setActiveTab(key as any)}
-                  className={`flex-1 flex items-center justify-center space-x-1 md:space-x-2 py-2 md:py-3 px-2 md:px-4 rounded-lg text-xs md:text-sm font-medium transition-all duration-200 ${
+                  className={`flex-1 flex items-center justify-center space-x-2 py-3 px-4 rounded-lg text-sm font-medium transition-all duration-200 ${
                     activeTab === key
                       ? "bg-[#C62328] text-white shadow-lg"
                       : "text-[#5b0108] hover:bg-white/30"
                   }`}
                 >
-                  <Icon className="w-3 h-3 md:w-4 md:h-4 flex-shrink-0" />
-                  <span className="hidden sm:inline">{label}</span>
-                  <span className="sm:hidden">
-                    {getRoleInSpanish(key) === "Mis Vínculos"
-                      ? "Vínculos"
-                      : key === "privacy"
-                      ? "Privacidad"
-                      : "Actividad"}
-                  </span>
+                  <Icon className="w-4 h-4" />
+                  <span>{label}</span>
                 </button>
               ))}
             </div>
           </motion.div>
+
           {/* Content Area */}
-          <div className="md:flex-1 md:overflow-hidden">
-            <AnimatePresence mode="wait">
-              {activeTab === "connections" && (
-                <motion.div
-                  key="connections"
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: 20 }}
-                  className="md:h-full md:overflow-y-auto 
-                   grid grid-cols-1 xl:grid-cols-2 gap-4 md:gap-6
-                   md:pr-2"
-                >
-                  {/* ! 08/06/2025 - Mis Vínculos - Card totalmente responsive */}
-                  <div
-                    className="rounded-xl p-4 md:p-6 h-fit"
-                    style={neomorphicCardStyle}
-                  >
-                    <div className="flex items-center space-x-3 mb-4">
-                      <div className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-[#C62328] flex items-center justify-center flex-shrink-0">
-                        <CompanionsIcon className="w-5 h-5 md:w-6 md:h-6 text-white" />
-                      </div>
-                      <div className="min-w-0 flex-1">
-                        <h3 className="text-base md:text-lg font-semibold text-[#7a2323] truncate">
-                          Mis Acompañantes
-                        </h3>
-                        <p className="text-xs text-[#5b0108]">
-                          {companions.length} personas conectadas
-                        </p>
-                      </div>
+          <AnimatePresence mode="wait">
+            {activeTab === "connections" && (
+              <motion.div
+                key="connections"
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: 20 }}
+                className="grid grid-cols-1 lg:grid-cols-2 gap-6"
+              >
+                {/* Mis Vínculos */}
+                <div className="rounded-xl p-6" style={neomorphicCardStyle}>
+                  <div className="flex items-center space-x-3 mb-4">
+                    <div className="w-12 h-12 rounded-full bg-[#C62328] flex items-center justify-center">
+                      <CompanionsIcon className="w-6 h-6 text-white" />
                     </div>
-
-                    {/* ! 08/06/2025 - Lista de companions con altura máxima responsive */}
-                    <div className="space-y-2 md:space-y-3 mb-4 max-h-60 md:max-h-80 overflow-y-auto">
-                      {companions.length > 0 ? (
-                        companions.map((companion) =>
-                          renderPersonCard(companion, true)
-                        )
-                      ) : (
-                        <div className="text-center py-6 md:py-8">
-                          <p className="text-[#C62328] text-sm font-medium">
-                            🔴 Ningún acompañante aún
-                          </p>
-                        </div>
-                      )}
-                    </div>
-
-                    {/* ! 08/06/2025 - Botones de acción responsive */}
-                    <div className="space-y-2">
-                      <button
-                        onClick={handleInviteButtonClick}
-                        className="w-full py-2 md:py-3 bg-[#C62328] text-white rounded-xl 
-                                   text-sm md:text-base font-medium hover:bg-[#9d0d0b] transition-colors"
-                      >
-                        🔍 Buscar Usuario
-                      </button>
-                      <button
-                        onClick={handleDirectEmailInvite}
-                        className="w-full py-2 bg-transparent border border-[#C62328] text-[#C62328] 
-                                   rounded-xl text-sm font-medium hover:bg-[#C62328] hover:text-white transition-colors"
-                      >
-                        📧 Invitar por Email
-                      </button>
-                      <button
-                        onClick={handleCreateInvitation}
-                        disabled={creatingInvitation}
-                        className="w-full py-2 bg-transparent border border-gray-400 text-gray-600 
-                                   rounded-xl text-sm font-medium hover:bg-gray-100 hover:text-gray-800 
-                                   transition-colors disabled:opacity-50"
-                      >
-                        {creatingInvitation ? "Generando..." : "📋 Solo Código"}
-                      </button>
+                    <div>
+                      <h3 className="text-lg font-semibold text-[#7a2323]">
+                        Mis Acompañantes
+                      </h3>
+                      <p className="text-xs text-[#5b0108]">
+                        {companions.length} personas conectadas
+                      </p>
                     </div>
                   </div>
 
-                  {/* ! 08/06/2025 - Conectar con Alguien - Card responsive */}
-                  <div
-                    className="rounded-xl p-4 md:p-6 h-fit"
-                    style={neomorphicCardStyle}
-                  >
-                    <div className="flex items-center space-x-3 mb-4">
-                      <div className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-[#C62328] flex items-center justify-center flex-shrink-0">
-                        <FollowingIcon className="w-5 h-5 md:w-6 md:h-6 text-white" />
-                      </div>
-                      <div className="min-w-0 flex-1">
-                        <h3 className="text-base md:text-lg font-semibold text-[#7a2323] truncate">
-                          Conectar con Alguien
-                        </h3>
-                        <p className="text-xs text-[#5b0108]">
-                          Canjea códigos y gestiona invitaciones
+                  <div className="space-y-3 mb-4">
+                    {companions.length > 0 ? (
+                      companions.map((companion) =>
+                        renderPersonCard(companion, true)
+                      )
+                    ) : (
+                      <div className="text-center py-8">
+                        <p className="text-[#C62328] text-sm font-medium">
+                          🔴 Ningún acompañante aún
                         </p>
                       </div>
-                    </div>
-
-                    {/* Input de código */}
-                    <div className="space-y-3 mb-4">
-                      <div className="rounded-xl" style={neomorphicInsetStyle}>
-                        <input
-                          type="text"
-                          value={inputCode}
-                          onChange={(e) =>
-                            setInputCode(e.target.value.toUpperCase())
-                          }
-                          placeholder="Introduce código de vinculación"
-                          className="w-full bg-transparent border-none rounded-xl 
-                                     py-2 md:py-3 px-3 md:px-4 text-sm md:text-base 
-                                     text-[#5b0108] focus:outline-none placeholder:text-sm"
-                          maxLength={10}
-                          disabled={isRedeeming}
-                        />
-                      </div>
-                      <button
-                        onClick={handleRedeemCode}
-                        disabled={!inputCode.trim() || isRedeeming}
-                        className="w-full py-2 md:py-3 bg-[#C62328] text-white rounded-xl 
-                                   text-sm md:text-base font-medium hover:bg-[#9d0d0b] 
-                                   transition-colors disabled:opacity-50"
-                      >
-                        {isRedeeming ? "Conectando..." : "Conectar"}
-                      </button>
-                    </div>
-
-                    {/* ! 08/06/2025 - Personas que sigo - responsive con scroll */}
-                    {following.length > 0 && (
-                      <>
-                        <div className="flex items-center space-x-2 mb-3">
-                          <div className="w-5 h-5 md:w-6 md:h-6 rounded-full bg-[#5b0108] flex items-center justify-center">
-                            <CompanionsIcon className="w-2 h-2 md:w-3 md:h-3 text-white" />
-                          </div>
-                          <h4 className="text-sm font-medium text-[#7a2323]">
-                            Personas que Sigo
-                          </h4>
-                        </div>
-                        <div className="space-y-2 max-h-40 overflow-y-auto">
-                          {following.map((person) =>
-                            renderPersonCard(person, false)
-                          )}
-                        </div>
-                      </>
                     )}
+                  </div>
 
-                    {/* ! 08/06/2025 - Invitaciones activas - responsive con scroll */}
-                    {invitations.length > 0 && (
-                      <>
-                        <div className="flex items-center space-x-2 mb-3 mt-4">
-                          <div className="w-5 h-5 md:w-6 md:h-6 rounded-full bg-[#C62328] flex items-center justify-center">
-                            <InvitationsIcon className="w-2 h-2 md:w-3 md:h-3 text-white" />
-                          </div>
-                          <h4 className="text-sm font-medium text-[#7a2323]">
-                            Mis Invitaciones
-                          </h4>
+                  <div className="space-y-2">
+                    <button
+                      onClick={handleInviteButtonClick}
+                      className="w-full py-3 bg-[#C62328] text-white rounded-xl font-medium hover:bg-[#9d0d0b] transition-colors"
+                    >
+                      🔍 Buscar Usuario
+                    </button>
+                    <button
+                      onClick={handleDirectEmailInvite}
+                      className="w-full py-2 bg-transparent border border-[#C62328] text-[#C62328] rounded-xl font-medium hover:bg-[#C62328] hover:text-white transition-colors"
+                    >
+                      📧 Invitar por Email
+                    </button>
+                    <button
+                      onClick={handleCreateInvitation}
+                      disabled={creatingInvitation}
+                      className="w-full py-2 bg-transparent border border-gray-400 text-gray-600 rounded-xl font-medium hover:bg-gray-100 hover:text-gray-800 transition-colors disabled:opacity-50 text-sm"
+                    >
+                      {creatingInvitation
+                        ? "Generando..."
+                        : "📋 Solo Código"}
+                    </button>
+                  </div>
+                </div>
+
+                {/* Conectar con Alguien */}
+                <div className="rounded-xl p-6" style={neomorphicCardStyle}>
+                  <div className="flex items-center space-x-3 mb-4">
+                    <div className="w-12 h-12 rounded-full bg-[#C62328] flex items-center justify-center">
+                      <FollowingIcon className="w-6 h-6 text-white" />
+                    </div>
+                    <div>
+                      <h3 className="text-lg font-semibold text-[#7a2323]">
+                        Conectar con Alguien
+                      </h3>
+                      <p className="text-xs text-[#5b0108]">
+                        Canjea códigos y gestiona invitaciones
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Input de código */}
+                  <div className="space-y-3 mb-4">
+                    <div className="rounded-xl" style={neomorphicInsetStyle}>
+                      <input
+                        type="text"
+                        value={inputCode}
+                        onChange={(e) =>
+                          setInputCode(e.target.value.toUpperCase())
+                        }
+                        placeholder="Introduce código de vinculación"
+                        className="w-full bg-transparent border-none rounded-xl py-3 px-4 text-[#5b0108] focus:outline-none"
+                        maxLength={10}
+                        disabled={isRedeeming}
+                      />
+                    </div>
+                    <button
+                      onClick={handleRedeemCode}
+                      disabled={!inputCode.trim() || isRedeeming}
+                      className="w-full py-3 bg-[#C62328] text-white rounded-xl font-medium hover:bg-[#9d0d0b] transition-colors disabled:opacity-50"
+                    >
+                      {isRedeeming ? "Conectando..." : "Conectar"}
+                    </button>
+                  </div>
+
+                  {/* Personas que sigo */}
+                  {following.length > 0 && (
+                    <>
+                      <div className="flex items-center space-x-2 mb-3">
+                        <div className="w-6 h-6 rounded-full bg-[#5b0108] flex items-center justify-center">
+                          <CompanionsIcon className="w-3 h-3 text-white" />
                         </div>
-                        <div className="space-y-2 max-h-32 overflow-y-auto">
-                          {invitations.slice(0, 3).map((invitation) => (
-                            <div
-                              key={invitation.id}
-                              className="p-3 rounded-lg cursor-pointer hover:bg-white/20 transition-colors"
-                              style={neomorphicInsetStyle}
-                              onClick={() => copyToClipboard(invitation.code)}
-                            >
-                              <div className="flex items-center justify-between">
-                                <div className="min-w-0 flex-1">
-                                  <p className="font-mono text-sm font-bold text-[#5b0108] truncate">
-                                    📋 {invitation.code}
-                                  </p>
-                                  <p className="text-xs text-[#a62c2c]">
-                                    {getRoleInSpanish(invitation.type)}
-                                  </p>
-                                </div>
-                                <div className="text-right flex-shrink-0 ml-2">
-                                  <p className="text-xs text-blue-600 font-medium">
-                                    {copiedCode === invitation.code
-                                      ? "✅ Copiado!"
-                                      : "Copiar"}
-                                  </p>
-                                </div>
+                        <h4 className="text-sm font-medium text-[#7a2323]">
+                          Personas que Sigo
+                        </h4>
+                      </div>
+                      <div className="space-y-2">
+                        {following.map((person) =>
+                          renderPersonCard(person, false)
+                        )}
+                      </div>
+                    </>
+                  )}
+
+                  {/* Invitaciones activas */}
+                  {invitations.length > 0 && (
+                    <>
+                      <div className="flex items-center space-x-2 mb-3 mt-4">
+                        <div className="w-6 h-6 rounded-full bg-[#C62328] flex items-center justify-center">
+                          <InvitationsIcon className="w-3 h-3 text-white" />
+                        </div>
+                        <h4 className="text-sm font-medium text-[#7a2323]">
+                          Mis Invitaciones
+                        </h4>
+                      </div>
+                      <div className="space-y-2">
+                        {invitations.slice(0, 3).map((invitation) => (
+                          <div
+                            key={invitation.id}
+                            className="p-3 rounded-lg cursor-pointer hover:bg-white/20 transition-colors"
+                            style={neomorphicInsetStyle}
+                            onClick={() => copyToClipboard(invitation.code)}
+                          >
+                            <div className="flex items-center justify-between">
+                              <div>
+                                <p className="font-mono text-sm font-bold text-[#5b0108]">
+                                  📋 {invitation.code}
+                                </p>
+                                <p className="text-xs text-[#a62c2c]">
+                                  {getRoleInSpanish(invitation.type)}
+                                </p>
+                              </div>
+                              <div className="text-right">
+                                <p className="text-xs text-blue-600 font-medium">
+                                  {copiedCode === invitation.code
+                                    ? "✅ Copiado!"
+                                    : "Copiar"}
+                                </p>
                               </div>
                             </div>
-                          ))}
-                        </div>
-                      </>
-                    )}
-                  </div>
-                </motion.div>
-              )}
+                          </div>
+                        ))}
+                      </div>
+                    </>
+                  )}
+                </div>
+              </motion.div>
+            )}
 
-              {activeTab === "privacy" && (
-                <motion.div
-                  key="privacy"
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: 20 }}
-                  className="md:h-full md:overflow-y-auto md:pr-2"
-                >
-                  <div
-                    className="rounded-xl p-4 md:p-6"
-                    style={neomorphicCardStyle}
-                  >
-                    <div className="flex items-center space-x-3 mb-6">
-                      <div className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-[#C62328] flex items-center justify-center">
-                        <PrivacyIcon className="w-5 h-5 md:w-6 md:h-6 text-white" />
+            {activeTab === "privacy" && (
+              <motion.div
+                key="privacy"
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: 20 }}
+                className="space-y-4"
+              >
+                {/* Header de privacidad */}
+                <div className="rounded-xl p-3 sm:p-4" style={neomorphicCardStyle}>
+                  <div className="flex items-center space-x-3 mb-2">
+                    <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-[#C62328] flex items-center justify-center">
+                      <PrivacyIcon className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
+                    </div>
+                    <div>
+                      <h3 className="text-base sm:text-lg font-semibold text-[#7a2323]">
+                        Configuración de Privacidad
+                      </h3>
+                      <p className="text-xs text-[#5b0108]">
+                        Controla qué información compartes y tu visibilidad
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Sección Unificada de Configuración */}
+                <div className="rounded-xl p-3 sm:p-4" style={neomorphicCardStyle}>
+                  {/* Descubrimiento y Visibilidad */}
+                  <div className="mb-4 sm:mb-6">
+                    <div className="flex items-center space-x-3 mb-3 sm:mb-4">
+                      <div className="w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-blue-500 flex items-center justify-center">
+                        <SearchIcon className="w-3 h-3 sm:w-4 sm:h-4 text-white" />
                       </div>
                       <div>
-                        <h3 className="text-lg md:text-xl font-semibold text-[#7a2323]">
-                          Configuración de Privacidad
-                        </h3>
-                        <p className="text-xs md:text-sm text-[#5b0108]">
-                          Controla qué información compartes
+                        <h4 className="text-sm sm:text-base font-semibold text-[#7a2323]">
+                          Descubrimiento y Visibilidad
+                        </h4>
+                        <p className="text-xs text-[#5b0108]">
+                          Controla si otros usuarios pueden encontrarte
                         </p>
                       </div>
                     </div>
 
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                    {/* Toggle unificado para búsqueda */}
+                    <div 
+                      className="flex items-center justify-between p-3 rounded-xl mb-2"
+                      style={neomorphicInsetStyle}
+                    >
+                      <div className="flex-1 mr-3">
+                        <h5 className="font-medium text-[#5b0108] text-sm mb-1">
+                          Permitir ser encontrado
+                        </h5>
+                        <p className="text-xs text-[#a62c2c]">
+                          Otros usuarios pueden buscarte por email o username
+                        </p>
+                      </div>
+                      <div className="flex items-center">
+                        <label className="relative inline-flex items-center cursor-pointer">
+                          <input
+                            type="checkbox"
+                            className="sr-only peer"
+                            checked={privacySettings.allowSearchable}
+                            onChange={(e) => handlePrivacyToggle('allowSearchable', e.target.checked)}
+                            disabled={privacyLoading}
+                          />
+                          <div className="w-11 h-6 bg-gray-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#C62328]"></div>
+                        </label>
+                      </div>
+                    </div>
+
+                    {/* Estado visual compacto */}
+                    <div className="text-center">
+                      <span className={`text-xs font-medium px-2 py-1 rounded-full ${
+                        privacySettings.allowSearchable 
+                          ? 'bg-green-100 text-green-700' 
+                          : 'bg-orange-100 text-orange-700'
+                      }`}>
+                        {privacySettings.allowSearchable 
+                          ? '✅ Visible para búsquedas' 
+                          : '🔒 Oculto en búsquedas'
+                        }
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Información Compartida */}
+                  <div>
+                    <div className="flex items-center space-x-3 mb-3 sm:mb-4">
+                      <div className="w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-[#C62328] flex items-center justify-center">
+                        <ShareIcon className="w-3 h-3 sm:w-4 sm:h-4 text-white" />
+                      </div>
+                      <div>
+                        <h4 className="text-sm sm:text-base font-semibold text-[#7a2323]">
+                          Información Compartida
+                        </h4>
+                        <p className="text-xs text-[#5b0108]">
+                          Controla qué datos compartes con tus acompañantes
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3">
                       {[
                         {
+                          key: 'cycleInfoSharing' as const,
                           title: "Información del ciclo",
-                          desc: "Fechas y predicciones",
-                          icon: CompanionsIcon,
-                        },
-                        {
-                          title: "Síntomas y estado",
-                          desc: "Registro de bienestar",
+                          desc: "Fechas y predicciones del ciclo menstrual",
                           icon: ActivityIcon,
                         },
                         {
+                          key: 'symptomsSharing' as const,
+                          title: "Síntomas y estado",
+                          desc: "Registro de bienestar y síntomas",
+                          icon: ActivityIcon,
+                        },
+                        {
+                          key: 'alertsSharing' as const,
                           title: "Alertas y recordatorios",
                           desc: "Notificaciones compartidas",
                           icon: CommunicationIcon,
                         },
                         {
+                          key: 'medicalDataSharing' as const,
                           title: "Datos médicos",
-                          desc: "Información clínica",
+                          desc: "Información clínica sensible",
                           icon: PrivacyIcon,
                         },
-                      ].map((item, index) => (
+                      ].map((item) => (
                         <div
-                          key={index}
-                          className="p-4 rounded-xl"
+                          key={item.key}
+                          className="flex items-center justify-between p-3 rounded-xl"
                           style={neomorphicInsetStyle}
                         >
-                          <div className="flex items-start space-x-3">
-                            <item.icon className="w-5 h-5 md:w-6 md:h-6 text-[#C62328] mt-1 flex-shrink-0" />
-                            <div className="min-w-0 flex-1">
-                              <h4 className="font-medium text-[#5b0108] mb-1 text-sm md:text-base">
+                          <div className="flex items-center space-x-2 flex-1 mr-3">
+                            <item.icon className="w-4 h-4 text-[#C62328] flex-shrink-0" />
+                            <div className="min-w-0">
+                              <h5 className="font-medium text-[#5b0108] text-xs sm:text-sm leading-tight">
                                 {item.title}
-                              </h4>
-                              <p className="text-xs text-[#a62c2c] mb-3">
+                              </h5>
+                              <p className="text-xs text-[#a62c2c] leading-tight">
                                 {item.desc}
                               </p>
-                              <div className="flex items-center space-x-2">
-                                <input
-                                  type="checkbox"
-                                  className="accent-[#C62328]"
-                                  defaultChecked
-                                />
-                                <span className="text-xs text-[#5b0108]">
-                                  Compartir
-                                </span>
-                              </div>
                             </div>
+                          </div>
+                          <div className="flex items-center">
+                            <label className="relative inline-flex items-center cursor-pointer">
+                              <input
+                                type="checkbox"
+                                className="sr-only peer"
+                                checked={privacySettings[item.key]}
+                                onChange={(e) => handlePrivacyToggle(item.key, e.target.checked)}
+                                disabled={privacyLoading}
+                              />
+                              <div className="w-11 h-6 bg-gray-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#C62328]"></div>
+                            </label>
                           </div>
                         </div>
                       ))}
                     </div>
+                  </div>
 
-                    <div className="mt-6 p-4 rounded-xl bg-[#C62328]/10">
-                      <p className="text-sm text-[#C62328] font-medium">
-                        🔴 En desarrollo - Configuración avanzada próximamente
+                  {/* Estado de carga/error */}
+                  {privacyLoading && (
+                    <div className="mt-3 text-center">
+                      <p className="text-sm text-[#C62328]">
+                        Actualizando configuración...
                       </p>
                     </div>
-                  </div>
-                </motion.div>
-              )}
+                  )}
 
-              {activeTab === "activity" && (
-                <motion.div
-                  key="activity"
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: 20 }}
-                  className="md:h-full md:overflow-y-auto md:pr-2"
-                >
+                  {privacyError && (
+                    <div className="mt-3 p-2 rounded-xl bg-red-50 border border-red-200">
+                      <p className="text-sm text-red-700">
+                        {privacyError}
+                      </p>
+                    </div>
+                  )}
+                </div>
+              </motion.div>
+            )}
+
+            {activeTab === "activity" && (
+              <motion.div
+                key="activity"
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: 20 }}
+                className="rounded-xl p-6"
+                style={neomorphicCardStyle}
+              >
+                <div className="flex items-center space-x-3 mb-6">
+                  <div className="w-12 h-12 rounded-full bg-[#C62328] flex items-center justify-center">
+                    <ActivityIcon className="w-6 h-6 text-white" />
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-semibold text-[#7a2323]">
+                      Actividad y Comunicación
+                    </h3>
+                    <p className="text-sm text-[#5b0108]">
+                      Timeline de interacciones y mensajes
+                    </p>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
                   <div
-                    className="rounded-xl p-4 md:p-6"
-                    style={neomorphicCardStyle}
+                    className="text-center p-4 rounded-xl"
+                    style={neomorphicInsetStyle}
                   >
-                    <div className="flex items-center space-x-3 mb-6">
-                      <div className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-[#C62328] flex items-center justify-center">
-                        <ActivityIcon className="w-5 h-5 md:w-6 md:h-6 text-white" />
-                      </div>
-                      <div>
-                        <h3 className="text-lg md:text-xl font-semibold text-[#7a2323]">
-                          Actividad y Comunicación
-                        </h3>
-                        <p className="text-xs md:text-sm text-[#5b0108]">
-                          Timeline de interacciones y mensajes
-                        </p>
-                      </div>
-                    </div>
-
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
-                      <div
-                        className="text-center p-4 rounded-xl"
-                        style={neomorphicInsetStyle}
-                      >
-                        <CommunicationIcon className="w-6 h-6 md:w-8 md:h-8 mx-auto mb-2 text-[#C62328]" />
-                        <p className="text-lg font-bold text-[#C62328]">
-                          {unreadNotifications}
-                        </p>
-                        <p className="text-xs text-[#5b0108]">
-                          Mensajes nuevos
-                        </p>
-                      </div>
-                      <div
-                        className="text-center p-4 rounded-xl"
-                        style={neomorphicInsetStyle}
-                      >
-                        <CompanionsIcon className="w-6 h-6 md:w-8 md:h-8 mx-auto mb-2 text-[#C62328]" />
-                        <p className="text-lg font-bold text-[#C62328]">
-                          {companions.length + following.length}
-                        </p>
-                        <p className="text-xs text-[#5b0108]">
-                          Conexiones activas
-                        </p>
-                      </div>
-                      <div
-                        className="text-center p-4 rounded-xl"
-                        style={neomorphicInsetStyle}
-                      >
-                        <ActivityIcon className="w-6 h-6 md:w-8 md:h-8 mx-auto mb-2 text-[#C62328]" />
-                        <p className="text-lg font-bold text-[#C62328]">
-                          {invitations.length}
-                        </p>
-                        <p className="text-xs text-[#5b0108]">
-                          Invitaciones activas
-                        </p>
-                      </div>
-                    </div>
-
-                    <div className="space-y-3">
-                      <h4 className="font-medium text-[#7a2323] mb-3">
-                        Actividad Reciente
-                      </h4>
-                      {companions.length > 0 || following.length > 0 ? (
-                        [...companions, ...following]
-                          .slice(0, 3)
-                          .map((person, index) => (
-                            <div
-                              key={`${
-                                "username" in person
-                                  ? person.username
-                                  : person.ownerUsername
-                              }-${index}`}
-                              className="flex items-center space-x-3 p-3 rounded-lg"
-                              style={neomorphicInsetStyle}
-                            >
-                              <CompanionsIcon className="w-4 h-4 md:w-5 md:h-5 text-[#C62328] flex-shrink-0" />
-                              <div className="flex-1 min-w-0">
-                                <p className="text-sm text-[#5b0108] truncate">
-                                  <span className="font-medium">
-                                    {"username" in person
-                                      ? `@${person.username}`
-                                      : `@${person.ownerUsername}`}
-                                  </span>{" "}
-                                  está conectado
-                                </p>
-                                <p className="text-xs text-[#a62c2c]">
-                                  {person.lastActivity
-                                    ? new Date(
-                                        person.lastActivity
-                                      ).toLocaleDateString()
-                                    : "Recientemente"}
-                                </p>
-                              </div>
-                            </div>
-                          ))
-                      ) : (
-                        <div className="text-center py-6 md:py-8">
-                          <p className="text-[#C62328] text-sm font-medium">
-                            🔴 Sin actividad reciente
-                          </p>
-                        </div>
-                      )}
-                    </div>
+                    <CommunicationIcon className="w-8 h-8 mx-auto mb-2 text-[#C62328]" />
+                    <p className="text-lg font-bold text-[#C62328]">
+                      {unreadNotifications}
+                    </p>
+                    <p className="text-xs text-[#5b0108]">Mensajes nuevos</p>
                   </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </div>
-          {/* ! 08/06/2025 - Cierre del contenedor de overflow */}
+                  <div
+                    className="text-center p-4 rounded-xl"
+                    style={neomorphicInsetStyle}
+                  >
+                    <CompanionsIcon className="w-8 h-8 mx-auto mb-2 text-[#C62328]" />
+                    <p className="text-lg font-bold text-[#C62328]">
+                      {companions.length + following.length}
+                    </p>
+                    <p className="text-xs text-[#5b0108]">Conexiones activas</p>
+                  </div>
+                  <div
+                    className="text-center p-4 rounded-xl"
+                    style={neomorphicInsetStyle}
+                  >
+                    <ActivityIcon className="w-8 h-8 mx-auto mb-2 text-[#C62328]" />
+                    <p className="text-lg font-bold text-[#C62328]">
+                      {invitations.length}
+                    </p>
+                    <p className="text-xs text-[#5b0108]">
+                      Invitaciones activas
+                    </p>
+                  </div>
+                </div>
+
+                <div className="space-y-3">
+                  <h4 className="font-medium text-[#7a2323] mb-3">
+                    Actividad Reciente
+                  </h4>
+                  {companions.length > 0 || following.length > 0 ? (
+                    [...companions, ...following]
+                      .slice(0, 3)
+                      .map((person, index) => (
+                        <div
+                          key={`${
+                            "username" in person
+                              ? person.username
+                              : person.ownerUsername
+                          }-${index}`}
+                          className="flex items-center space-x-3 p-3 rounded-lg"
+                          style={neomorphicInsetStyle}
+                        >
+                          <CompanionsIcon className="w-5 h-5 text-[#C62328]" />
+                          <div className="flex-1">
+                            <p className="text-sm text-[#5b0108]">
+                              <span className="font-medium">
+                                {"username" in person
+                                  ? `@${person.username}`
+                                  : `@${person.ownerUsername}`}
+                              </span>{" "}
+                              está conectado
+                            </p>
+                            <p className="text-xs text-[#a62c2c]">
+                              {person.lastActivity
+                                ? new Date(
+                                    person.lastActivity
+                                  ).toLocaleDateString()
+                                : "Recientemente"}
+                            </p>
+                          </div>
+                        </div>
+                      ))
+                  ) : (
+                    <div className="text-center py-8">
+                      <p className="text-[#C62328] text-sm font-medium">
+                        🔴 Sin actividad reciente
+                      </p>
+                    </div>
+                  )}
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
       </div>
 
