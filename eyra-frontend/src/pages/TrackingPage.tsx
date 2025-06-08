@@ -10,13 +10,13 @@ import { usePrivacySettings } from "../hooks/usePrivacySettings";
 import { Companion, Following, Invitation } from "../services/trackingService";
 import { userSearchService } from "../services/userSearchService";
 
-// Iconos SVG exactos de la web actual
+// Iconos SVG exactos de la web actual con estilo consistente
 const CompanionsIcon = ({ className }: { className?: string }) => (
   <svg
     className={className}
     viewBox="0 0 24 24"
     fill="none"
-    stroke="#C62328"
+    stroke="currentColor"
     strokeWidth="2"
     strokeLinecap="round"
     strokeLinejoin="round"
@@ -33,7 +33,7 @@ const FollowingIcon = ({ className }: { className?: string }) => (
     className={className}
     viewBox="0 0 24 24"
     fill="none"
-    stroke="#C62328"
+    stroke="currentColor"
     strokeWidth="2"
     strokeLinecap="round"
     strokeLinejoin="round"
@@ -50,13 +50,13 @@ const PrivacyIcon = ({ className }: { className?: string }) => (
     className={className}
     viewBox="0 0 24 24"
     fill="none"
-    stroke="#C62328"
+    stroke="currentColor"
     strokeWidth="2"
     strokeLinecap="round"
     strokeLinejoin="round"
   >
-    <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
-    <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+    <path d="m9 12 2 2 4-4" />
   </svg>
 );
 
@@ -65,12 +65,12 @@ const ActivityIcon = ({ className }: { className?: string }) => (
     className={className}
     viewBox="0 0 24 24"
     fill="none"
-    stroke="#C62328"
+    stroke="currentColor"
     strokeWidth="2"
     strokeLinecap="round"
     strokeLinejoin="round"
   >
-    <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
+    <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
   </svg>
 );
 
@@ -79,7 +79,7 @@ const InvitationsIcon = ({ className }: { className?: string }) => (
     className={className}
     viewBox="0 0 24 24"
     fill="none"
-    stroke="#C62328"
+    stroke="currentColor"
     strokeWidth="2"
     strokeLinecap="round"
     strokeLinejoin="round"
@@ -94,12 +94,60 @@ const CommunicationIcon = ({ className }: { className?: string }) => (
     className={className}
     viewBox="0 0 24 24"
     fill="none"
-    stroke="#C62328"
+    stroke="currentColor"
     strokeWidth="2"
     strokeLinecap="round"
     strokeLinejoin="round"
   >
     <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+  </svg>
+);
+
+const SearchIcon = ({ className }: { className?: string }) => (
+  <svg
+    className={className}
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
+    <circle cx="11" cy="11" r="8" />
+    <path d="m21 21-4.35-4.35" />
+  </svg>
+);
+
+const VisibilityIcon = ({ className }: { className?: string }) => (
+  <svg
+    className={className}
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
+    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+    <circle cx="12" cy="12" r="3" />
+  </svg>
+);
+
+const ShareIcon = ({ className }: { className?: string }) => (
+  <svg
+    className={className}
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
+    <circle cx="18" cy="5" r="3" />
+    <circle cx="6" cy="12" r="3" />
+    <circle cx="18" cy="19" r="3" />
+    <line x1="8.59" y1="13.51" x2="15.42" y2="17.49" />
+    <line x1="15.41" y1="6.51" x2="8.59" y2="10.49" />
   </svg>
 );
 
@@ -688,7 +736,7 @@ const TrackingPage: React.FC = () => {
                 <div className="rounded-xl p-4 sm:p-6" style={neomorphicCardStyle}>
                   <div className="flex items-center space-x-3 mb-4 sm:mb-6">
                     <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-blue-500 flex items-center justify-center">
-                      <CompanionsIcon className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
+                      <SearchIcon className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
                     </div>
                     <div>
                       <h4 className="text-base sm:text-lg font-semibold text-[#7a2323]">
@@ -768,7 +816,7 @@ const TrackingPage: React.FC = () => {
                 <div className="rounded-xl p-4 sm:p-6" style={neomorphicCardStyle}>
                   <div className="flex items-center space-x-3 mb-4 sm:mb-6">
                     <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-[#C62328] flex items-center justify-center">
-                      <PrivacyIcon className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
+                      <ShareIcon className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
                     </div>
                     <div>
                       <h4 className="text-base sm:text-lg font-semibold text-[#7a2323]">
@@ -786,7 +834,7 @@ const TrackingPage: React.FC = () => {
                         key: 'cycleInfoSharing' as const,
                         title: "Información del ciclo",
                         desc: "Fechas y predicciones del ciclo menstrual",
-                        icon: CompanionsIcon,
+                        icon: ActivityIcon,
                       },
                       {
                         key: 'symptomsSharing' as const,

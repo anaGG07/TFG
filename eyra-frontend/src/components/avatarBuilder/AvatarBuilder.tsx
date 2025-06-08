@@ -22,7 +22,7 @@ import {
   Zap,
   Settings,
 } from "lucide-react";
-import { IconCancel, IconSave, IconRandom } from '../icons/AvatarBuilderIcons';
+import { IconCancel, IconTick, IconRandom } from '../icons/AvatarBuilderIcons';
 
 interface AvatarBuilderProps {
   onChange?: (config: AvatarConfig) => void;
@@ -422,7 +422,7 @@ const AvatarBuilder: React.FC<AvatarBuilderProps> = ({
           <IconCancel />
         </button>
         <button type="button" onClick={onSave} title="Guardar avatar" className="hover:bg-[#f5ede6] rounded-full p-2 transition-colors">
-          <IconSave />
+          <IconTick />
         </button>
         <button type="button" onClick={onRandom} title="Aleatorio" className="hover:bg-[#f5ede6] rounded-full p-2 transition-colors">
           <IconRandom />

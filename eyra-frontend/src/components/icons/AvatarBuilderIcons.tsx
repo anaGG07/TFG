@@ -25,4 +25,11 @@ export const IconRandom = ({ color = '#C62328', size = 28 }) => (
     <circle cx="19" cy="19" r="1.5" fill={color} />
     <circle cx="14" cy="14" r="1.5" fill={color} />
   </svg>
+);
+
+export const IconTick = ({ color = '#C62328', size = 28 }) => (
+  <svg width={size} height={size} viewBox="0 0 28 28" fill="none" stroke={color} strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="14" cy="14" r="12" />
+    <polyline points="9 15 13 19 19 11" />
+  </svg>
 ); 

@@ -1,6 +1,114 @@
 import React, { useState, useEffect } from "react";
 import { userSearchService } from "../services/userSearchService";
 
+// Iconos SVG consistentes con el estilo de la aplicación
+const EmailIcon = ({ className }: { className?: string }) => (
+  <svg
+    className={className}
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
+    <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
+    <polyline points="22,6 12,13 2,6" />
+  </svg>
+);
+
+const UserIcon = ({ className }: { className?: string }) => (
+  <svg
+    className={className}
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
+    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+    <circle cx="12" cy="7" r="4" />
+  </svg>
+);
+
+const SearchIcon = ({ className }: { className?: string }) => (
+  <svg
+    className={className}
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
+    <circle cx="11" cy="11" r="8" />
+    <path d="m21 21-4.35-4.35" />
+  </svg>
+);
+
+const CheckIcon = ({ className }: { className?: string }) => (
+  <svg
+    className={className}
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
+    <polyline points="20,6 9,17 4,12" />
+  </svg>
+);
+
+const AlertIcon = ({ className }: { className?: string }) => (
+  <svg
+    className={className}
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
+    <path d="m21 16-4-4-4 4" />
+    <path d="M21 21H3" />
+    <path d="M7 21V7" />
+    <path d="M17 21V7" />
+    <circle cx="12" cy="3" r="1" />
+  </svg>
+);
+
+const XIcon = ({ className }: { className?: string }) => (
+  <svg
+    className={className}
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
+    <path d="M18 6 6 18" />
+    <path d="m6 6 12 12" />
+  </svg>
+);
+
+const LockIcon = ({ className }: { className?: string }) => (
+  <svg
+    className={className}
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
+    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+    <path d="m9 12 2 2 4-4" />
+  </svg>
+);
+
 export interface UserSearchData {
   searchType: "email" | "username";
   searchQuery: string;
@@ -65,6 +173,14 @@ const UserSearchModal: React.FC<UserSearchModalProps> = ({
       resetForm();
     }
   }, [isOpen]);
+
+  // Nuevo useEffect para limpiar cuando cambia el tipo de búsqueda
+  useEffect(() => {
+    // Limpiar solo el query, resultado y error cuando cambia el tipo de búsqueda
+    setSearchQuery("");
+    setSearchResult(null);
+    setError(null);
+  }, [searchType]);
 
   const resetForm = () => {
     setSearchQuery("");
@@ -211,26 +327,28 @@ const UserSearchModal: React.FC<UserSearchModalProps> = ({
               <button
                 type="button"
                 onClick={() => setSearchType("email")}
-                className={`flex-1 py-2 px-4 rounded-lg text-sm font-medium transition-colors ${
+                className={`flex-1 py-2 px-4 rounded-lg text-sm font-medium transition-colors flex items-center justify-center space-x-2 ${
                   searchType === "email"
                     ? "bg-[#E7E0D5] text-[#C62328]"
                     : "bg-transparent border border-[#E7E0D5]/20 text-[#E7E0D5]"
                 }`}
                 disabled={isLoading || searching}
               >
-                📧 Email
+                <EmailIcon className="w-4 h-4" />
+                <span>Email</span>
               </button>
               <button
                 type="button"
                 onClick={() => setSearchType("username")}
-                className={`flex-1 py-2 px-4 rounded-lg text-sm font-medium transition-colors ${
+                className={`flex-1 py-2 px-4 rounded-lg text-sm font-medium transition-colors flex items-center justify-center space-x-2 ${
                   searchType === "username"
                     ? "bg-[#E7E0D5] text-[#C62328]"
                     : "bg-transparent border border-[#E7E0D5]/20 text-[#E7E0D5]"
                 }`}
                 disabled={isLoading || searching}
               >
-                👤 Usuario
+                <UserIcon className="w-4 h-4" />
+                <span>Usuario</span>
               </button>
             </div>
           </div>
@@ -254,9 +372,13 @@ const UserSearchModal: React.FC<UserSearchModalProps> = ({
                 type="button"
                 onClick={handleSearch}
                 disabled={!searchQuery.trim() || searching || isLoading}
-                className="px-4 py-3 bg-[#E7E0D5] text-[#C62328] font-semibold rounded-2xl hover:bg-white disabled:opacity-60 disabled:cursor-not-allowed transition-colors pointer-events-auto"
+                className="px-4 py-3 bg-[#E7E0D5] text-[#C62328] font-semibold rounded-2xl hover:bg-white disabled:opacity-60 disabled:cursor-not-allowed transition-colors pointer-events-auto flex items-center justify-center"
               >
-                {searching ? "🔍" : "Buscar"}
+                {searching ? (
+                  <SearchIcon className="w-4 h-4 animate-pulse" />
+                ) : (
+                  <SearchIcon className="w-4 h-4" />
+                )}
               </button>
             </div>
           </div>
@@ -267,7 +389,7 @@ const UserSearchModal: React.FC<UserSearchModalProps> = ({
               {searchResult.found && searchResult.canInvite ? (
                 <div>
                   <div className="flex items-center space-x-2 mb-3">
-                    <span className="text-green-400 text-lg">✅</span>
+                    <CheckIcon className="w-5 h-5 text-green-400" />
                     <span className="text-[#E7E0D5] font-medium">Usuario encontrado</span>
                   </div>
                   {searchResult.displayName && (
@@ -306,7 +428,7 @@ const UserSearchModal: React.FC<UserSearchModalProps> = ({
               ) : searchResult.exists === false && searchType === "email" ? (
                 <div>
                   <div className="flex items-center space-x-2 mb-3">
-                    <span className="text-yellow-400 text-lg">⚠️</span>
+                    <AlertIcon className="w-5 h-5 text-yellow-400" />
                     <span className="text-[#E7E0D5] font-medium">Usuario no registrado</span>
                   </div>
                   <p className="text-[#E7E0D5] text-sm mb-4">
@@ -343,7 +465,7 @@ const UserSearchModal: React.FC<UserSearchModalProps> = ({
               ) : (
                 <div>
                   <div className="flex items-center space-x-2 mb-2">
-                    <span className="text-red-400 text-lg">❌</span>
+                    <XIcon className="w-5 h-5 text-red-400" />
                     <span className="text-[#E7E0D5] font-medium">
                       {searchResult.message || "No se puede invitar"}
                     </span>
@@ -364,8 +486,9 @@ const UserSearchModal: React.FC<UserSearchModalProps> = ({
           )}
 
           {/* Información de privacidad */}
-          <div className="bg-[#E7E0D5]/10 rounded-lg p-3 text-xs text-[#E7E0D5]">
-            <p className="mb-1">🔒 Solo puedes buscar usuarios que permiten ser encontrados</p>
+          <div className="bg-[#E7E0D5]/10 rounded-lg p-3 text-xs text-[#E7E0D5] flex items-start space-x-2">
+            <LockIcon className="w-4 h-4 text-[#E7E0D5] mt-0.5 flex-shrink-0" />
+            <p>Solo puedes buscar usuarios que permiten ser encontrados</p>
           </div>
 
           {/* Botón cancelar */}

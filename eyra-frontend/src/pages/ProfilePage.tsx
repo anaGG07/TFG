@@ -232,7 +232,7 @@ const ProfilePage: React.FC = () => {
   return (
     <div className="flex flex-col lg:flex-row w-full min-h-screen" style={{ background: '#e7e0d5' }}>
       {/* Columna izquierda: Avatar */}
-      <div className="flex flex-col items-center lg:items-start justify-start w-full lg:w-[420px] lg:min-w-[340px] pt-6 lg:pt-10 px-2 gap-4 lg:gap-6 relative h-auto lg:h-screen max-h-screen overflow-visible" style={{ minHeight: 'unset' }}>
+      <div className="flex flex-col items-center justify-center w-full lg:w-[420px] lg:min-w-[340px] h-full pt-6 lg:pt-10 px-2 gap-6 relative max-h-screen overflow-visible" style={{ minHeight: 'unset' }}>
         {/* Línea de separación neumórfica - solo desktop */}
         <div className="hidden lg:block absolute top-0 right-0 h-full w-[2.5rem] flex items-center justify-center z-10">
           <div style={{
@@ -246,7 +246,7 @@ const ProfilePage: React.FC = () => {
           }} />
         </div>
         {/* Avatar neumórfico circular con pulso de luz + botón alineado */}
-        <div className="relative flex flex-col items-center w-full">
+        <div className="relative flex flex-col items-center w-full justify-center">
           <span className="absolute z-0 animate-avatar-pulse" style={{
             width: isEditingAvatar ? 200 : (isMobile ? 250 : 340),
             height: isEditingAvatar ? 200 : (isMobile ? 250 : 340),
@@ -278,7 +278,7 @@ const ProfilePage: React.FC = () => {
               setTempAvatar(form.avatar);
               setIsEditingAvatar(true);
             }}
-            className="mt-4 px-4 lg:px-8 py-2 lg:py-3 text-base lg:text-lg"
+            className="mt-6 px-4 lg:px-8 py-2 lg:py-3 text-base lg:text-lg"
           >
             Editar avatar
           </NeomorphicButton>
@@ -302,50 +302,26 @@ const ProfilePage: React.FC = () => {
               initialConfig={tempAvatar}
               onChange={setTempAvatar}
               showPreview={false}
+              onCancel={() => setIsEditingAvatar(false)}
+              onSave={async () => {
+                setLoading(true);
+                try {
+                  await userService.updateAvatar(tempAvatar);
+                  await checkAuth();
+                  setForm((prev) => ({ ...prev, avatar: tempAvatar }));
+                  setIsEditingAvatar(false);
+                  showCustomToast("¡Avatar actualizado con éxito!", "success");
+                } catch (error: any) {
+                  showCustomToast("Error al guardar el avatar", "error");
+                } finally {
+                  setLoading(false);
+                }
+              }}
+              onRandom={() => {
+                const random = getRandomAvatarConfig();
+                setTempAvatar(random);
+              }}
             />
-            <div className="flex flex-col sm:flex-row flex-wrap gap-4 justify-center mt-4">
-              <NeomorphicButton
-                type="button"
-                variant="secondary"
-                onClick={() => setIsEditingAvatar(false)}
-                className="w-full sm:min-w-[160px] px-6 lg:px-8 py-2 lg:py-3 text-base lg:text-lg bg-[#7a2323] text-white shadow-neomorphic font-semibold border border-[#a88] hover:bg-[#a23] hover:text-white transition-colors"
-              >
-                Cancelar
-              </NeomorphicButton>
-              <NeomorphicButton
-                type="button"
-                variant="primary"
-                className="w-full sm:min-w-[160px] px-6 lg:px-8 py-2 lg:py-3 text-base lg:text-lg"
-                onClick={async () => {
-                  setLoading(true);
-                  try {
-                    await userService.updateAvatar(tempAvatar);
-                    await checkAuth();
-                    setForm((prev) => ({ ...prev, avatar: tempAvatar }));
-                    setIsEditingAvatar(false);
-                    showCustomToast("¡Avatar actualizado con éxito!", "success");
-                  } catch (error: any) {
-                    showCustomToast("Error al guardar el avatar", "error");
-                  } finally {
-                    setLoading(false);
-                  }
-                }}
-                disabled={loading}
-              >
-                {loading ? "Guardando..." : "Guardar avatar"}
-              </NeomorphicButton>
-              <NeomorphicButton
-                type="button"
-                variant="primary"
-                className="w-full sm:min-w-[160px] px-6 lg:px-8 py-2 lg:py-3 text-base lg:text-lg bg-[#C62328] text-white"
-                onClick={() => {
-                  const random = getRandomAvatarConfig();
-                  setTempAvatar(random);
-                }}
-              >
-                Aleatorio
-              </NeomorphicButton>
-            </div>
           </div>
         ) : (
           <>
