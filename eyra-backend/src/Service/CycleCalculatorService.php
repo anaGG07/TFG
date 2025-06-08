@@ -11,8 +11,6 @@ use App\Repository\OnboardingRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 
-// ! 09/06/2025 - CORRECCIÓN CRÍTICA: Solucionado problema de días extra de menstruación
-
 class CycleCalculatorService
 {
     // Parámetro para regularidad - ajusta la importancia de la regularidad en las predicciones
@@ -39,14 +37,13 @@ class CycleCalculatorService
 
     /**
      * Predecir el próximo ciclo basado en datos históricos
-     * ! 09/06/2025 - CORREGIDO: Mejor manejo cuando no hay suficientes datos históricos
      */
     public function predictNextCycle(User $user): array
     {
         // Obtener ciclos históricos (hasta 12 para un mejor análisis)
         $cycles = $this->cycleRepository->findRecentByUser($user->getId(), self::MAX_CYCLES_FOR_PREDICTION);
 
-        // ! 09/06/2025 - CORREGIDO: Si hay menos de 2 ciclos, usar onboarding si está disponible
+        // Si hay menos de 2 ciclos, usar onboarding si está disponible
         if (count($cycles) < 2) {
             $onboarding = $this->onboardingRepository->findOneBy(['user' => $user]);
 
@@ -87,7 +84,7 @@ class CycleCalculatorService
         $cycleLengths = [];
         $periodDurations = [];
 
-        foreach ($cycles as $index => $cycle) {
+        foreach ($cycles as $cycle) {
             $cycleLengths[] = $cycle->getAverageCycleLength();
             $periodDurations[] = $cycle->getAverageDuration();
         }
@@ -122,14 +119,14 @@ class CycleCalculatorService
                 break;
         }
 
-        // Calcular fechas esperadas (CORREGIDO: cálculo inclusivo)
-        $nextStartDate = (new \DateTime($lastCycle->getStartDate()->format('Y-m-d')))->modify("+{$predictedLength} days");
-        $nextEndDate = (new \DateTime($nextStartDate->format('Y-m-d')))->modify("+" . ($predictedDuration - 1) . " days");
+        // Calcular fechas esperadas
+        $nextStartDate = (clone $lastCycle->getStartDate())->modify("+{$predictedLength} days");
+        $nextEndDate = (clone $nextStartDate)->modify("+" . ($predictedDuration - 1) . " days");
 
         // Generar array de días predichos de menstruación
         $predictedPeriodDays = [];
         for ($i = 0; $i < $predictedDuration; $i++) {
-            $predictedPeriodDays[] = (new \DateTime($nextStartDate->format('Y-m-d')))->modify("+{$i} days")->format('Y-m-d');
+            $predictedPeriodDays[] = (clone $nextStartDate)->modify("+{$i} days")->format('Y-m-d');
         }
 
         // Ajustar confianza basado en regularidad y cantidad de datos
@@ -160,7 +157,6 @@ class CycleCalculatorService
 
     /**
      * Generar predicciones para un rango de fechas
-     * ! 09/06/2025 - CORRECCIÓN CRÍTICA: Soluciona el problema de días extra
      */
     public function generatePredictionsForRange(User $user, \DateTimeInterface $endDate, int $cyclesCount = 3): array
     {
@@ -196,16 +192,16 @@ class CycleCalculatorService
             }
         }
 
-        // 4. Obtener datos de predicción - CORREGIDO AQUÍ EL PROBLEMA PRINCIPAL
+        // 4. Obtener datos de predicción
         $prediction = $this->predictNextCycle($user);
 
-        // ! 09/06/2025 - CORRECCIÓN CRÍTICA: Usar valores correctos del onboarding
+        // CORRECCIÓN: Usar valores correctos del onboarding
         if (!$prediction['success']) {
             $onboarding = $this->onboardingRepository->findOneBy(['user' => $user]);
             if ($onboarding) {
                 $cycleLength = $onboarding->getAverageCycleLength() ?? 28;
-                $periodDuration = $onboarding->getAveragePeriodLength() ?? 5; // CORREGIDO: Era AveragePeriodLength
-                $confidence = 75; // Buena confianza para datos de onboarding
+                $periodDuration = $onboarding->getAveragePeriodLength() ?? 5; // CORREGIDO
+                $confidence = 75;
 
                 $this->logger->info('CycleCalculator: Predicciones usando onboarding directo', [
                     'userId' => $user->getId(),
@@ -222,13 +218,6 @@ class CycleCalculatorService
             $cycleLength = $prediction['cycleLength'];
             $periodDuration = $prediction['periodDuration'];
             $confidence = $prediction['confidence'];
-
-            $this->logger->info('CycleCalculator: Predicciones usando algoritmo', [
-                'userId' => $user->getId(),
-                'cycleLength' => $cycleLength,
-                'periodDuration' => $periodDuration,
-                'algorithm' => $prediction['algorithm'] ?? 'unknown'
-            ]);
         }
 
         // 5. Generar predicciones comenzando DESPUÉS de la última fecha real
@@ -274,23 +263,13 @@ class CycleCalculatorService
 
             $cycleId = $this->generateUuid();
 
-            // ! 09/06/2025 - CORRECCIÓN CRÍTICA: Usar la duración exacta del período
-            $menstrualDuration = $periodDuration; // Ya no hay conversión errónea aquí
+            // CORRECCIÓN: Usar la duración exacta del período
+            $menstrualDuration = $periodDuration;
             $follicularDuration = max(1, floor(($cycleLength / 2) - $menstrualDuration));
             $ovulationDuration = 2;
             $lutealDuration = max(1, $cycleLength - $menstrualDuration - $follicularDuration - $ovulationDuration);
 
-            // ! 09/06/2025 - LOGGING DETALLADO para verificar valores
-            $this->logger->info('CycleCalculator: Generando predicción ciclo ' . $cycleNum, [
-                'menstrualDuration' => $menstrualDuration,
-                'follicularDuration' => $follicularDuration,
-                'ovulationDuration' => $ovulationDuration,
-                'lutealDuration' => $lutealDuration,
-                'totalLength' => $cycleLength,
-                'startDate' => $nextCycleStart->format('Y-m-d')
-            ]);
-
-            // Fechas de cada fase (CORREGIDO: cálculo inclusivo de duración)
+            // Fechas de cada fase
             $menstrualStart = clone $nextCycleStart;
             $menstrualEnd = (clone $menstrualStart)->modify("+" . ($menstrualDuration - 1) . " days");
             $follicularStart = (clone $menstrualEnd)->modify("+1 day");
@@ -298,7 +277,7 @@ class CycleCalculatorService
             $ovulationStart = (clone $follicularEnd)->modify("+1 day");
             $ovulationEnd = (clone $ovulationStart)->modify("+" . ($ovulationDuration - 1) . " days");
             $lutealStart = (clone $ovulationEnd)->modify("+1 day");
-            $nextCycleEnd = (clone $nextCycleStart)->modify("+{$cycleLength} days");
+            $nextCycleEnd = (clone $nextCycleStart)->modify("+" . ($cycleLength - 1) . " days");
 
             // Solo generar predicciones que estén completamente en el futuro
             $today = new \DateTime();
@@ -360,8 +339,8 @@ class CycleCalculatorService
                 ];
             }
 
-            // Preparar para el siguiente ciclo
-            $nextCycleStart = $nextCycleEnd;
+            // Preparar para el siguiente ciclo - CORRECCIÓN: usar +$cycleLength días
+            $nextCycleStart = (clone $nextCycleStart)->modify("+{$cycleLength} days");
         }
 
         $this->logger->info('CycleCalculator: Predicciones generadas', [
@@ -373,7 +352,6 @@ class CycleCalculatorService
         return $predictions;
     }
 
-    // Resto de métodos permanecen igual...
     public function startNewCycle(User $user, \DateTimeInterface $startDate): array
     {
         // Verificar si existe un ciclo activo
@@ -398,7 +376,7 @@ class CycleCalculatorService
 
             if ($onboarding) {
                 $avgLength = $onboarding->getAverageCycleLength() ?? 28;
-                $avgDuration = $onboarding->getAveragePeriodLength() ?? 5;
+                $avgDuration = $onboarding->getAveragePeriodLength() ?? 5; // CORREGIDO
 
                 $this->logger->info('CycleCalculator: Onboarding encontrado', [
                     'userId' => $user->getId(),
@@ -410,7 +388,7 @@ class CycleCalculatorService
             } else {
                 $avgLength = 28;
                 $avgDuration = 5;
-                $this->logger->error('CycleCalculator: NO SE ENCONTRÓ ONBOARDING - Usando valores por defecto', [
+                $this->logger->warning('CycleCalculator: NO SE ENCONTRÓ ONBOARDING - Usando valores por defecto', [
                     'userId' => $user->getId(),
                     'defaultCycleLength' => $avgLength,
                     'defaultPeriodLength' => $avgDuration
@@ -427,9 +405,9 @@ class CycleCalculatorService
 
         // Calcular duración de cada fase
         $menstrualDuration = $avgDuration;
-        $follicularDuration = floor(($avgLength / 2) - $menstrualDuration);
+        $follicularDuration = max(1, floor(($avgLength / 2) - $menstrualDuration));
         $ovulationDuration = 2;
-        $lutealDuration = $avgLength - $menstrualDuration - $follicularDuration - $ovulationDuration;
+        $lutealDuration = max(1, $avgLength - $menstrualDuration - $follicularDuration - $ovulationDuration);
 
         $this->logger->info('CycleCalculator: Calculando fases del ciclo', [
             'userId' => $user->getId(),
@@ -441,22 +419,16 @@ class CycleCalculatorService
             'totalCycleLength' => $avgLength
         ]);
 
-        // Calcular fechas de cada fase (CORREGIDO: cálculo inclusivo)
+        // Calcular fechas de cada fase
         $menstrualStart = new \DateTime($startDate->format('Y-m-d'));
         $menstrualEnd = (clone $menstrualStart)->modify("+" . ($menstrualDuration - 1) . " days");
-
-        $this->logger->info('CycleCalculator: Fase menstrual calculada', [
-            'startDate' => $menstrualStart->format('Y-m-d'),
-            'endDate' => $menstrualEnd->format('Y-m-d'),
-            'durationDays' => $menstrualDuration
-        ]);
 
         $follicularStart = (clone $menstrualEnd)->modify("+1 day");
         $follicularEnd = (clone $follicularStart)->modify("+" . ($follicularDuration - 1) . " days");
         $ovulationStart = (clone $follicularEnd)->modify("+1 day");
         $ovulationEnd = (clone $ovulationStart)->modify("+" . ($ovulationDuration - 1) . " days");
         $lutealStart = (clone $ovulationEnd)->modify("+1 day");
-        $nextCycleStart = (new \DateTime($startDate->format('Y-m-d')))->modify("+{$avgLength} days");
+        $nextCycleStart = (clone $startDate)->modify("+{$avgLength} days");
 
         // Crear las 4 fases
         $menstrualPhase = new MenstrualCycle();
@@ -517,7 +489,130 @@ class CycleCalculatorService
         ];
     }
 
-    // Métodos auxiliares...
+    /**
+     * Analizar patrones en los datos históricos de ciclos
+     */
+    private function analyzePattern(array $cycleLengths, array $periodDurations): array
+    {
+        if (empty($cycleLengths) || empty($periodDurations)) {
+            return [
+                'algorithm' => 'simple_average',
+                'predictedCycleLength' => 28,
+                'predictedPeriodDuration' => 5,
+                'regularity' => 0.5,
+                'trend' => 'stable'
+            ];
+        }
+
+        // Calcular estadísticas básicas
+        $avgCycleLength = array_sum($cycleLengths) / count($cycleLengths);
+        $avgPeriodDuration = array_sum($periodDurations) / count($periodDurations);
+
+        // Calcular regularidad (basada en desviación estándar)
+        $cycleStdDev = $this->calculateStandardDeviation($cycleLengths);
+        $periodStdDev = $this->calculateStandardDeviation($periodDurations);
+
+        // Regularidad normalizada (0-1, donde 1 es muy regular)
+        $cycleRegularity = max(0, 1 - ($cycleStdDev / 10)); // 10 días como referencia
+        $periodRegularity = max(0, 1 - ($periodStdDev / 3)); // 3 días como referencia
+        $overallRegularity = ($cycleRegularity + $periodRegularity) / 2;
+
+        // Detectar tendencia
+        $trend = $this->detectTrend($cycleLengths);
+
+        // Seleccionar algoritmo basado en regularidad y cantidad de datos
+        $algorithm = 'simple_average';
+        if (count($cycleLengths) >= 6 && $overallRegularity > 0.7) {
+            $algorithm = 'weighted_average';
+        } elseif (count($cycleLengths) >= 4 && $trend !== 'stable') {
+            $algorithm = 'trend_based';
+        }
+
+        return [
+            'algorithm' => $algorithm,
+            'predictedCycleLength' => round($avgCycleLength),
+            'predictedPeriodDuration' => round($avgPeriodDuration),
+            'regularity' => $overallRegularity,
+            'trend' => $trend
+        ];
+    }
+
+    private function calculateStandardDeviation(array $values): float
+    {
+        $mean = array_sum($values) / count($values);
+        $variance = array_sum(array_map(fn($x) => pow($x - $mean, 2), $values)) / count($values);
+        return sqrt($variance);
+    }
+
+    private function detectTrend(array $values): string
+    {
+        if (count($values) < 3) return 'stable';
+
+        $increases = 0;
+        $decreases = 0;
+
+        for ($i = 1; $i < count($values); $i++) {
+            if ($values[$i] > $values[$i - 1]) $increases++;
+            elseif ($values[$i] < $values[$i - 1]) $decreases++;
+        }
+
+        if ($increases > $decreases * 1.5) return 'increasing';
+        if ($decreases > $increases * 1.5) return 'decreasing';
+        return 'stable';
+    }
+
+    private function calculateAverageStats(array $cycles): array
+    {
+        $totalCycleLength = 0;
+        $totalPeriodDuration = 0;
+        $count = count($cycles);
+
+        foreach ($cycles as $cycle) {
+            $totalCycleLength += $cycle->getAverageCycleLength();
+            $totalPeriodDuration += $cycle->getAverageDuration();
+        }
+
+        return [
+            'cycleLength' => round($totalCycleLength / $count),
+            'periodDuration' => round($totalPeriodDuration / $count)
+        ];
+    }
+
+    private function calculateConfidenceLevel(float $regularity, int $cycleCount, string $algorithm): int
+    {
+        // Confianza base según cantidad de ciclos
+        $baseConfidence = 50;
+        foreach (self::CONFIDENCE_FACTORS as $cycles => $confidence) {
+            if ($cycleCount >= $cycles) {
+                $baseConfidence = $confidence;
+            }
+        }
+
+        // Ajustar por regularidad
+        $regularityBonus = $regularity * 20; // Hasta 20 puntos adicionales
+
+        // Ajustar por algoritmo
+        $algorithmBonus = match ($algorithm) {
+            'weighted_average' => 10,
+            'trend_based' => 5,
+            'seasonal' => 15,
+            default => 0
+        };
+
+        return min(95, $baseConfidence + $regularityBonus + $algorithmBonus);
+    }
+
+    private function calculateMarginOfError(float $regularity, int $confidence): int
+    {
+        // Margen base inversamente proporcional a la confianza
+        $baseMargin = max(1, 7 - floor($confidence / 15));
+
+        // Ajustar por regularidad (menos regular = más margen)
+        $regularityPenalty = (1 - $regularity) * 3;
+
+        return min(7, $baseMargin + $regularityPenalty);
+    }
+
     private function generateUuid(): string
     {
         $data = random_bytes(16);
@@ -533,7 +628,4 @@ class CycleCalculatorService
             bin2hex(substr($data, 10, 6))
         );
     }
-
-    // Resto de métodos privados permanecen iguales...
-    // [Métodos como analyzePattern, calculateStandardDeviation, etc.]
 }

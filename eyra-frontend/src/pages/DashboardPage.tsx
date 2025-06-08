@@ -7,6 +7,8 @@ import DraggableGrid from "../components/DraggableGrid";
 import { CycleVisual } from "../components/cycle";
 import SymptomsView from "../components/cycle/SymptomsView";
 import RitualsView from "../components/cycle/RitualsView";
+import RemindersExpanded from "../components/cycle/RemindersExpanded";
+import { notificationService } from "../services/notificationService";
 
 const DashboardPage: React.FC = () => {
   const { user } = useAuth();
@@ -75,84 +77,20 @@ const DashboardPage: React.FC = () => {
         id: "reminders",
         title: "Recordatorios",
         isExpanded: expandedId === "reminders",
-        component: (
-          <div className="h-full flex flex-col">
-            <div className="flex items-center justify-center mb-6">
-              <div
-                className={`rounded-full flex items-center justify-center relative ${
-                  isMobile ? 'w-12 h-12' : 'w-16 h-16'
-                }`}
-                style={{
-                  background: "bg-secondary",
-                  boxShadow: `
-                  inset 4px 4px 8px rgba(91, 1, 8, 0.3),
-                  inset -4px -4px 8px rgba(181, 65, 58, 0.2)
-                `,
-                }}
-              >
-                <span className={isMobile ? 'text-xl' : 'text-2xl'}>🔔</span>
-                {notifications.unread > 0 && (
-                  <div className={`absolute -top-1 -right-1 bg-red-500 rounded-full flex items-center justify-center ${
-                    isMobile ? 'w-3 h-3' : 'w-4 h-4'
-                  }`}>
-                    <span className={`text-white font-bold ${
-                      isMobile ? 'text-xs' : 'text-xs'
-                    }`}>
-                      {notifications.unread > 9 ? "9+" : notifications.unread}
-                    </span>
-                  </div>
-                )}
-              </div>
-            </div>
-            <div className="flex-1 space-y-4">
-              <p className={`text-primary-dark text-center leading-relaxed font-medium ${
-                isMobile ? 'text-xs' : 'text-sm'
-              }`}>
-                Notificaciones y recordatorios
-              </p>
-              <div
-                className={`rounded-xl border ${
-                  isMobile ? 'p-3' : 'p-4'
-                }`}
-                style={{
-                  background: "bg-gradient-to-br from-primary to-primary-dark",
-                  border: "1px solid rgba(181, 65, 58, 0.15)",
-                  boxShadow: `
-                  inset 2px 2px 4px rgba(181, 65, 58, 0.05),
-                  inset -2px -2px 4px rgba(255, 255, 255, 0.8)
-                `,
-                }}
-              >
-                <div className="space-y-2">
-                  <div className="flex items-center space-x-3">
-                    <div
-                      className="w-3 h-3 rounded-full"
-                      style={{
-                        background: "bg-secondary",
-                      }}
-                    ></div>
-                    <p className={`text-primary-dark font-semibold ${
-                      isMobile ? 'text-xs' : 'text-xs'
-                    }`}>
-                      {notifications.unread > 0
-                        ? `${notifications.unread} pendientes`
-                        : "No hay recordatorios pendientes"}
-                    </p>
-                  </div>
-                  {insights &&
-                    insights.recommendations &&
-                    insights.recommendations.length > 0 && (
-                      <div className="mt-2">
-                        <p className="text-xs text-primary-dark mb-1">
-                          Recomendación:
-                        </p>
-                        <p className="text-xs text-primary font-semibold">
-                          {insights.recommendations[0]}
-                        </p>
-                      </div>
-                    )}
-                </div>
-              </div>
+        component: expandedId === "reminders" ? (
+          // Vista EXPANDIDA
+          <RemindersExpanded
+            notifications={notifications}
+            insights={insights}
+            markAllAsRead={notificationService.markAllAsRead}
+            markAsRead={notificationService.markAsRead}
+            isMobile={isMobile}
+          />
+        ) : (
+          // Vista NO EXPANDIDA
+          <div className="flex flex-col items-center justify-center h-full">
+            <div className="rounded-full bg-[#f8f4f1] shadow-inner flex items-center justify-center w-16 h-16">
+              <img src="/img/31.svg" alt="Recordatorios" className="w-10 h-10" />
             </div>
           </div>
         ),
@@ -308,7 +246,7 @@ const DashboardPage: React.FC = () => {
         ),
       },
     ],
-    [expandedId, cycleMoodColor, isMobile, notifications, insights]
+    [expandedId, cycleMoodColor, isMobile, notifications, insights, notificationService]
   );
 
   return (
