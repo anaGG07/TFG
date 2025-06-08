@@ -301,9 +301,9 @@ const AdminPage = () => {
     <>
       {isMobile && <style>{scrollbarHideStyles}</style>}
       <div className="w-full h-full min-h-0 flex flex-col overflow-hidden bg-transparent">
-        <div className="max-w-7xl mx-auto pl-8 pr-4 pt-6 pb-6 flex flex-col h-full min-h-0">
+        <div className="max-w-7xl mx-auto pl-8 pr-4 pt-4 pb-2 flex flex-col h-full min-h-0">
           {/* Header */}
-          <div className={isMobile ? "mb-2" : "mb-6"}>
+          <div className={isMobile ? "mb-2" : "mb-4"}>
             <h1 className={`font-bold text-[#7a2323] font-serif ${
               isMobile ? "text-xl mb-1" : isTablet ? "text-2xl mb-1" : "text-4xl mb-2"
             }`}>
@@ -314,7 +314,7 @@ const AdminPage = () => {
             </p>
           </div>
           {/* Navegación por pestañas */}
-          <div className="flex flex-row gap-3 items-center mb-2">
+          <div className="flex flex-row gap-3 items-center mb-1">
             {tabs.map((tab) => (
               <button
                 key={tab.id}
@@ -602,9 +602,6 @@ const AdminPage = () => {
                     className="w-full"
                     style={{ minWidth: 0 }}
                   >
-                    <h2 className="text-2xl font-semibold mb-6">
-                      Gestión de Usuarios
-                    </h2>
                     <UsersTable onRefresh={() => loadData()} />
                   </motion.div>
                 )}
@@ -618,9 +615,6 @@ const AdminPage = () => {
                     className="w-full"
                     style={{ minWidth: 0 }}
                   >
-                    <h2 className="text-2xl font-semibold mb-6">
-                      Gestión de Condiciones
-                    </h2>
                     <ConditionsTable onRefresh={() => loadData()} />
                   </motion.div>
                 )}
@@ -634,9 +628,6 @@ const AdminPage = () => {
                     className="w-full"
                     style={{ minWidth: 0 }}
                   >
-                    <h2 className="text-2xl font-semibold mb-6">
-                      Gestión de Contenido
-                    </h2>
                     <ContentTable onRefresh={() => loadData()} />
                   </motion.div>
                 )}
