@@ -333,10 +333,10 @@ const AdminPage = () => {
           ))}
         </div>
         {/* Contenido por pestañas */}
-        <div className="w-full flex-1 flex flex-col items-center">
+        <div className="w-full flex-1 flex flex-col items-stretch">
           <div className={`w-full flex-1 flex flex-col justify-start bg-transparent rounded-lg shadow-none p-0 ${
-            isMobile ? "min-h-[200px]" : "min-h-[320px] max-w-full md:max-w-3xl lg:max-w-5xl"
-          }`}>
+            isMobile ? "min-h-[200px] px-0" : isTablet ? "min-h-[320px] px-2" : "min-h-[360px] px-4"
+          } max-w-full`}>
             <AnimatePresence mode="wait">
               {activeTab === "overview" && (
                 <motion.div
