@@ -232,7 +232,7 @@ const ProfilePage: React.FC = () => {
   return (
     <div className="flex flex-col lg:flex-row w-full min-h-screen" style={{ background: '#e7e0d5' }}>
       {/* Columna izquierda: Avatar */}
-      <div className="flex flex-col items-center justify-center w-full lg:w-[420px] lg:min-w-[340px] h-full pt-6 lg:pt-10 px-2 gap-6 relative max-h-screen overflow-visible" style={{ minHeight: 'unset' }}>
+      <div className="flex flex-col items-center justify-center w-full lg:w-[420px] lg:min-w-[340px] h-screen px-2 gap-6 relative max-h-screen overflow-visible" style={{ minHeight: 'unset' }}>
         {/* Línea de separación neumórfica - solo desktop */}
         <div className="hidden lg:block absolute top-0 right-0 h-full w-[2.5rem] flex items-center justify-center z-10">
           <div style={{
@@ -285,7 +285,7 @@ const ProfilePage: React.FC = () => {
               setTempAvatar(form.avatar);
               setIsEditingAvatar(true);
             }}
-            className="mt-8 px-4 lg:px-8 py-2 lg:py-3 text-base lg:text-lg"
+            className="mt-44 px-4 lg:px-8 py-2 lg:py-3 text-base lg:text-lg"
           >
             Editar avatar
           </NeomorphicButton>

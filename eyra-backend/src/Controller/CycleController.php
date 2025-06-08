@@ -195,6 +195,7 @@ class CycleController extends AbstractController
 
     // ! 25/05/2025 - Modificado para devolver los ciclos y sus días asociados en el rango de fechas
     // ! 31/05/2025 - Actualizado para incluir datos de anfitriones en calendario compartido
+    // ! 08/06/2025 - ACTUALIZADO para incluir predicciones automáticas en runtime
     #[Route('/calendar', name: 'api_cycles_calendar', methods: ['GET'])]
     public function getCalendar(Request $request): JsonResponse
     {
@@ -208,7 +209,7 @@ class CycleController extends AbstractController
         $startDate = new \DateTime($request->query->get('start', 'first day of this month'));
         $endDate = new \DateTime($request->query->get('end', 'last day of this month'));
 
-        // 1. Obtener los ciclos propios del usuario (funcionalidad actual)
+        // 1. Obtener los ciclos propios del usuario (datos reales)
         $userCycles = $this->cycleRepository->findByDateRange($user, $startDate, $endDate);
 
         // Para cada ciclo, cargar los días que estén dentro del rango de fechas
@@ -224,13 +225,24 @@ class CycleController extends AbstractController
             $cycle->setFilteredCycleDays($cycleDays);
         }
 
-        // 2. Obtener datos de anfitriones (NUEVA funcionalidad)
+        // 2. Generar predicciones para el rango solicitado
+        $predictions = $this->cycleCalculator->generatePredictionsForRange($user, $endDate, 6);
+
+        // 3. Combinar datos reales con predicciones
+        $allCycles = array_merge($userCycles, $predictions);
+
+        // 4. Obtener datos de anfitriones (calendario compartido)
         $hostCycles = $this->calendarAccessService->getAccessibleHostData($user, $startDate, $endDate);
 
-        // 3. Estructura de respuesta actualizada
+        // 5. Estructura de respuesta actualizada con predicciones
         return $this->json([
-            'userCycles' => $userCycles,  // Datos propios (funcionalidad actual)
-            'hostCycles' => $hostCycles   // NUEVO: Datos de anfitriones filtrados
+            'userCycles' => $allCycles,     // Datos reales + predicciones
+            'hostCycles' => $hostCycles,    // Datos de anfitriones
+            'predictionInfo' => [           // Metadatos sobre predicciones
+                'predictionsGenerated' => count($predictions),
+                'rangeStart' => $startDate->format('Y-m-d'),
+                'rangeEnd' => $endDate->format('Y-m-d')
+            ]
         ], 200, [], ['groups' => 'calendar:read']);
     }
 
