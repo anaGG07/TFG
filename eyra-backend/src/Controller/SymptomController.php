@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Entity\User;
 use App\Repository\CycleDayRepository;
+use App\Repository\SymptomLogRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -18,7 +19,8 @@ class SymptomController extends AbstractController
     public function __construct(
         private CycleDayRepository $cycleDayRepository,
         private EntityManagerInterface $entityManager,
-        private LoggerInterface $logger
+        private LoggerInterface $logger,
+        private SymptomLogRepository $symptomLogRepository
     ) {
     }
 
@@ -47,28 +49,23 @@ class SymptomController extends AbstractController
             return $this->json(['error' => 'Invalid date format'], 400);
         }
 
-        // Obtener días del ciclo con síntomas en el rango de fechas
-        $cycleDays = $this->cycleDayRepository->findByUserAndDateRange(
+        // Consultar symptom_log directamente
+        $symptomLogs = $this->symptomLogRepository->findByUserAndDateRange(
             $user,
             $startDateTime,
             $endDateTime
         );
 
         $symptomHistory = [];
-        foreach ($cycleDays as $cycleDay) {
-            $symptoms = $cycleDay->getSymptoms();
-            if (!empty($symptoms)) {
-                foreach ($symptoms as $symptomType => $intensity) {
-                    $symptomHistory[] = [
-                        'id' => $cycleDay->getId() . '_' . $symptomType,
-                        'date' => $cycleDay->getDate()->format('Y-m-d'),
-                        'symptom' => $symptomType,
-                        'intensity' => $intensity,
-                        'notes' => $cycleDay->getNotes(),
-                        'entity' => 'menstrual_cycle'
-                    ];
-                }
-            }
+        foreach ($symptomLogs as $log) {
+            $symptomHistory[] = [
+                'id' => $log->getId(),
+                'date' => $log->getDate()->format('Y-m-d'),
+                'symptom' => $log->getSymptom(),
+                'intensity' => $log->getIntensity(),
+                'notes' => $log->getNotes(),
+                'entity' => 'symptom_log'
+            ];
         }
 
         return $this->json($symptomHistory);

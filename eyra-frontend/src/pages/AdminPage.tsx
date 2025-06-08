@@ -444,30 +444,30 @@ const AdminPage = () => {
                             transition={{ duration: 0.4, ease: "easeInOut" }}
                             className={`grid w-full justify-center mt-2 mb-2 ${
                               isMobile 
-                                ? "grid-cols-3 gap-2" 
+                                ? "grid-cols-3 gap-3" 
                                 : isTablet 
-                                ? "grid-cols-3 gap-4" 
-                                : "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6"
+                                ? "grid-cols-3 gap-5" 
+                                : "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8"
                             }`}
                           >
                             <div className="flex flex-col items-center">
                               <div className={`rounded-full shadow-[0_2px_8px_rgba(91,1,8,0.10),0_-2px_8px_rgba(255,255,255,0.25)] flex items-center justify-center z-10 bg-[#e7e0d5] ${
-                                isMobile ? "w-8 h-8 -mb-2" : "w-14 h-14 -mb-4"
+                                isMobile ? "w-12 h-12 -mb-3" : "w-20 h-20 -mb-6"
                               }`}>
-                                <UsersSummaryIcon className={isMobile ? "w-5 h-5" : "w-10 h-10"} />
+                                <UsersSummaryIcon className={isMobile ? "w-8 h-8" : "w-16 h-16"} />
                               </div>
                               <NeomorphicCard className={`flex flex-col items-center justify-center gap-1 bg-[#f8b4b4]/30 p-0 z-0 ${
                                 isMobile 
-                                  ? "w-16 h-16 min-w-[3.5rem] min-h-[3.5rem] max-w-[4.5rem] max-h-[4.5rem]" 
-                                  : "w-24 h-24 min-w-[6rem] min-h-[6rem] max-w-[7rem] max-h-[7rem]"
+                                  ? "w-20 h-20 min-w-[4.5rem] min-h-[4.5rem] max-w-[5.5rem] max-h-[5.5rem]" 
+                                  : "w-32 h-32 min-w-[7.5rem] min-h-[7.5rem] max-w-[8.5rem] max-h-[8.5rem]"
                               }`}>
                                 <h3 className={`font-semibold text-[#C62328] font-serif ${
-                                  isMobile ? "text-[10px] mt-2" : "text-xs mt-4"
+                                  isMobile ? "text-xs mt-3" : "text-sm mt-6"
                                 }`}>
                                   Usuarios
                                 </h3>
                                 <p className={`font-bold text-[#991b1b] ${
-                                  isMobile ? "text-base" : "text-xl"
+                                  isMobile ? "text-lg" : "text-2xl"
                                 }`}>
                                   {stats?.totalUsers?.toLocaleString() || "0"}
                                 </p>
@@ -475,22 +475,22 @@ const AdminPage = () => {
                             </div>
                             <div className="flex flex-col items-center">
                               <div className={`rounded-full shadow-[0_2px_8px_rgba(21,128,61,0.10),0_-2px_8px_rgba(255,255,255,0.25)] flex items-center justify-center z-10 bg-[#e7e0d5] ${
-                                isMobile ? "w-8 h-8 -mb-2" : "w-14 h-14 -mb-4"
+                                isMobile ? "w-12 h-12 -mb-3" : "w-20 h-20 -mb-6"
                               }`}>
-                                <ActiveSummaryIcon className={isMobile ? "w-5 h-5" : "w-10 h-10"} />
+                                <ActiveSummaryIcon className={isMobile ? "w-8 h-8" : "w-16 h-16"} />
                               </div>
                               <NeomorphicCard className={`flex flex-col items-center justify-center gap-1 bg-[#a7f3d0]/30 p-0 z-0 ${
                                 isMobile 
-                                  ? "w-16 h-16 min-w-[3.5rem] min-h-[3.5rem] max-w-[4.5rem] max-h-[4.5rem]" 
-                                  : "w-24 h-24 min-w-[6rem] min-h-[6rem] max-w-[7rem] max-h-[7rem]"
+                                  ? "w-20 h-20 min-w-[4.5rem] min-h-[4.5rem] max-w-[5.5rem] max-h-[5.5rem]" 
+                                  : "w-32 h-32 min-w-[7.5rem] min-h-[7.5rem] max-w-[8.5rem] max-h-[8.5rem]"
                               }`}>
                                 <h3 className={`font-semibold text-[#15803d] font-serif ${
-                                  isMobile ? "text-[10px] mt-2" : "text-xs mt-4"
+                                  isMobile ? "text-xs mt-3" : "text-sm mt-6"
                                 }`}>
                                   Activos
                                 </h3>
                                 <p className={`font-bold text-[#15803d] ${
-                                  isMobile ? "text-base" : "text-xl"
+                                  isMobile ? "text-lg" : "text-2xl"
                                 }`}>
                                   {stats?.activeUsers?.toLocaleString() || "0"}
                                 </p>
@@ -498,22 +498,22 @@ const AdminPage = () => {
                             </div>
                             <div className="flex flex-col items-center">
                               <div className={`rounded-full shadow-[0_2px_8px_rgba(124,45,18,0.10),0_-2px_8px_rgba(255,255,255,0.25)] flex items-center justify-center z-10 bg-[#e7e0d5] ${
-                                isMobile ? "w-8 h-8 -mb-2" : "w-14 h-14 -mb-4"
+                                isMobile ? "w-12 h-12 -mb-3" : "w-20 h-20 -mb-6"
                               }`}>
-                                <AdminSummaryIcon className={isMobile ? "w-5 h-5" : "w-10 h-10"} />
+                                <AdminSummaryIcon className={isMobile ? "w-8 h-8" : "w-16 h-16"} />
                               </div>
                               <NeomorphicCard className={`flex flex-col items-center justify-center gap-1 bg-[#ddd6fe]/30 p-0 z-0 ${
                                 isMobile 
-                                  ? "w-16 h-16 min-w-[3.5rem] min-h-[3.5rem] max-w-[4.5rem] max-h-[4.5rem]" 
-                                  : "w-24 h-24 min-w-[6rem] min-h-[6rem] max-w-[7rem] max-h-[7rem]"
+                                  ? "w-20 h-20 min-w-[4.5rem] min-h-[4.5rem] max-w-[5.5rem] max-h-[5.5rem]" 
+                                  : "w-32 h-32 min-w-[7.5rem] min-h-[7.5rem] max-w-[8.5rem] max-h-[8.5rem]"
                               }`}>
                                 <h3 className={`font-semibold text-[#7c2d12] font-serif ${
-                                  isMobile ? "text-[10px] mt-2" : "text-xs mt-4"
+                                  isMobile ? "text-xs mt-3" : "text-sm mt-6"
                                 }`}>
                                   Admins
                                 </h3>
                                 <p className={`font-bold text-[#7c2d12] ${
-                                  isMobile ? "text-base" : "text-xl"
+                                  isMobile ? "text-lg" : "text-2xl"
                                 }`}>
                                   {stats?.adminUsers?.toLocaleString() || "0"}
                                 </p>

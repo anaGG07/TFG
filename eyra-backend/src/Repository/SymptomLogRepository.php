@@ -40,5 +40,22 @@ class SymptomLogRepository extends ServiceEntityRepository
         }
     }
 
+    /**
+     * Encuentra registros de síntomas por usuario y rango de fechas
+     */
+    public function findByUserAndDateRange($user, \DateTimeInterface $startDate, \DateTimeInterface $endDate): array
+    {
+        return $this->createQueryBuilder('s')
+            ->andWhere('s.user = :user')
+            ->andWhere('s.date >= :startDate')
+            ->andWhere('s.date <= :endDate')
+            ->setParameter('user', $user)
+            ->setParameter('startDate', $startDate)
+            ->setParameter('endDate', $endDate)
+            ->orderBy('s.date', 'ASC')
+            ->getQuery()
+            ->getResult();
+    }
+
     // Add custom query methods below if needed
 }
