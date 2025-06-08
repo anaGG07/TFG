@@ -230,81 +230,116 @@ const ProfilePage: React.FC = () => {
 
   // Renderizado
   return (
-    <div className="flex flex-col lg:flex-row w-full min-h-screen" style={{ background: '#e7e0d5' }}>
+    <div
+      className="flex flex-col lg:flex-row w-full min-h-screen"
+      style={{ background: "#e7e0d5" }}
+    >
       {/* Columna izquierda: Avatar */}
-      <div className="flex flex-col items-center justify-center w-full lg:w-[420px] lg:min-w-[340px] h-screen px-2 gap-6 relative max-h-screen overflow-visible" style={{ minHeight: 'unset' }}>
+      <div
+        className="flex flex-col items-center justify-center w-full lg:w-[420px] lg:min-w-[340px] h-screen px-2 gap-6 relative max-h-screen overflow-visible"
+        style={{ minHeight: "unset" }}
+      >
         {/* Línea de separación neumórfica - solo desktop */}
         <div className="hidden lg:block absolute top-0 right-0 h-full w-[2.5rem] flex items-center justify-center z-10">
-          <div style={{
-            width: '2px',
-            height: '80%',
-            background: 'linear-gradient(180deg, #e0d6c8 0%, #d4c7bb 100%)',
-            boxShadow: '2px 0 8px #c6232822, -2px 0 8px #fff8',
-            borderRadius: '2px',
-            marginLeft: 'auto',
-            marginRight: 'auto',
-          }} />
+          <div
+            style={{
+              width: "2px",
+              height: "80%",
+              background: "linear-gradient(180deg, #e0d6c8 0%, #d4c7bb 100%)",
+              boxShadow: "2px 0 8px #c6232822, -2px 0 8px #fff8",
+              borderRadius: "2px",
+              marginLeft: "auto",
+              marginRight: "auto",
+            }}
+          />
         </div>
         {/* Avatar neumórfico circular con pulso de luz + botón alineado */}
-        <div className="relative flex flex-col items-center w-full justify-center" style={{minHeight: (isMobile ? 320 : 400)}}>
-          <span className="absolute z-0 animate-avatar-pulse" style={{
-            width: isEditingAvatar ? 220 : (isMobile ? 250 : 340),
-            height: isEditingAvatar ? 220 : (isMobile ? 250 : 340),
-            borderRadius: '50%',
-            boxShadow: '0 0 0 0 #fff0, 0 0 32px 8px #fff6',
-            background: 'radial-gradient(circle, #fff8 0%, #fff0 70%)',
-            pointerEvents: 'none',
-            left: '50%',
-            top: '50%',
-            transform: 'translate(-50%, -50%)',
-          }} />
+        <div
+          className="relative flex flex-col items-center w-full justify-center"
+          style={{ minHeight: isMobile ? 320 : 400 }}
+        >
+          <span
+            className="absolute z-0 animate-avatar-pulse"
+            style={{
+              width: isEditingAvatar ? 220 : isMobile ? 250 : 340,
+              height: isEditingAvatar ? 220 : isMobile ? 250 : 340,
+              borderRadius: "50%",
+              boxShadow: "0 0 0 0 #fff0, 0 0 32px 8px #fff6",
+              background: "radial-gradient(circle, #fff8 0%, #fff0 70%)",
+              pointerEvents: "none",
+              left: "50%",
+              top: "50%",
+              transform: "translate(-50%, -50%)",
+            }}
+          />
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.5 }}
             className="flex items-center justify-center rounded-full shadow-lg absolute z-10"
             style={{
-              width: isEditingAvatar ? 200 : (isMobile ? 220 : 320),
-              height: isEditingAvatar ? 200 : (isMobile ? 220 : 320),
-              background: (isEditingAvatar ? tempAvatar.backgroundColor : form.avatar.backgroundColor) || '#f5ede6',
-              boxShadow: '0 8px 32px #c6232822, 8px 8px 24px #e7e0d5, -8px -8px 24px #fff8',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              transform: 'translate(-50%, -50%)',
+              width: isEditingAvatar ? 200 : isMobile ? 220 : 320,
+              height: isEditingAvatar ? 200 : isMobile ? 220 : 320,
+              background:
+                (isEditingAvatar
+                  ? tempAvatar.backgroundColor
+                  : form.avatar.backgroundColor) || "#f5ede6",
+              boxShadow:
+                "0 8px 32px #c6232822, 8px 8px 24px #e7e0d5, -8px -8px 24px #fff8",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              transform: "translate(-50%, -50%)",
             }}
           >
-            <AvatarPreview 
-              config={isEditingAvatar ? tempAvatar : getAvatarConfig()} 
-              className={isEditingAvatar ? "w-[140px] h-[140px]" : (isMobile ? "w-[180px] h-[180px]" : "w-[260px] h-[260px]")}
+            <AvatarPreview
+              config={isEditingAvatar ? tempAvatar : getAvatarConfig()}
+              className={
+                isEditingAvatar
+                  ? "w-[140px] h-[140px]"
+                  : isMobile
+                  ? "w-[180px] h-[180px]"
+                  : "w-[260px] h-[260px]"
+              }
             />
           </motion.div>
-          <NeomorphicButton
-            variant="primary"
-            onClick={() => {
-              setTempAvatar(form.avatar);
-              setIsEditingAvatar(true);
-            }}
-            className="mt-44 px-4 lg:px-8 py-2 lg:py-3 text-base lg:text-lg"
-          >
-            Editar avatar
-          </NeomorphicButton>
         </div>
+        <NeomorphicButton
+          variant="primary"
+          onClick={() => {
+            setTempAvatar(form.avatar);
+            setIsEditingAvatar(true);
+          }}
+          className="mt-44 px-4 lg:px-8 py-2 lg:py-3 text-base lg:text-lg"
+        >
+          Editar avatar
+        </NeomorphicButton>
       </div>
       {/* Columna derecha: Contenido sobre fondo */}
-      <div className="flex-1 flex flex-col justify-start items-center min-h-screen py-4 lg:py-10 px-2 md:px-8 overflow-visible" style={{ maxHeight: '100vh', overflowY: 'auto' }}>
+      <div
+        className="flex-1 flex flex-col justify-start items-center min-h-screen py-4 lg:py-10 px-2 md:px-8 overflow-visible"
+        style={{ maxHeight: "100vh", overflowY: "auto" }}
+      >
         {/* Cabecera: nombre, email, frase */}
         {!isEditingAvatar && (
           <div className="flex flex-col items-center gap-1 mb-4 lg:mb-6">
-            <h1 className="text-2xl lg:text-3xl font-serif font-bold text-[#7a2323] text-center">{user.name} {user.lastName}</h1>
-            <p className="text-sm lg:text-base text-[#7a2323]/80 text-center">{user.email}</p>
-            <p className="text-base lg:text-lg text-[#C62328] font-serif mt-2 text-center">Hoy es un gran día para cuidar de ti ✨</p>
+            <h1 className="text-2xl lg:text-3xl font-serif font-bold text-[#7a2323] text-center">
+              {user.name} {user.lastName}
+            </h1>
+            <p className="text-sm lg:text-base text-[#7a2323]/80 text-center">
+              {user.email}
+            </p>
+            <p className="text-base lg:text-lg text-[#C62328] font-serif mt-2 text-center">
+              Hoy es un gran día para cuidar de ti ✨
+            </p>
           </div>
         )}
         {/* Tabs de iconos mejorados o editor de avatar */}
         {isEditingAvatar ? (
           <div className="w-full max-w-4xl animate-fade-in">
-            <h2 className="font-serif text-xl lg:text-2xl font-bold text-[#7a2323] mb-2 text-center">Personaliza tu avatar</h2>
+            <h2 className="font-serif text-xl lg:text-2xl font-bold text-[#7a2323] mb-2 text-center">
+              Personaliza tu avatar
+            </h2>
             <AvatarBuilder
               initialConfig={tempAvatar}
               onChange={setTempAvatar}
@@ -337,9 +372,11 @@ const ProfilePage: React.FC = () => {
                 <button
                   key={tab.key}
                   className={`flex items-center justify-center w-12 h-12 lg:w-14 lg:h-14 rounded-full transition-all duration-200 bg-transparent border-none shadow-none p-0 ${
-                    activeTab === tab.key ? "scale-110" : "opacity-60 hover:opacity-100"
+                    activeTab === tab.key
+                      ? "scale-110"
+                      : "opacity-60 hover:opacity-100"
                   } text-[#C62328]`}
-                  style={{ boxSizing: "border-box", background: 'none' }}
+                  style={{ boxSizing: "border-box", background: "none" }}
                   onClick={() => setActiveTab(tab.key as any)}
                   type="button"
                   aria-label={tab.alt}
