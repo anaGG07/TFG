@@ -419,40 +419,6 @@ export const CycleProvider: React.FC<{ children: ReactNode }> = ({
     startDate: string,
     endDate: string
   ): CycleDay[] => {
-    console.log("CycleContext: Generando datos simulados para fallback");
-
-    const start = new Date(startDate);
-    const end = new Date(endDate);
-    const days: CycleDay[] = [];
-
-    let currentDate = new Date(start);
-    let cycleDay = 1;
-
-    while (currentDate <= end) {
-      let phase: CyclePhase;
-      let flowIntensity: number | undefined;
-
-      if (cycleDay <= 5) {
-        phase = CyclePhase.MENSTRUAL;
-        flowIntensity = Math.max(1, 6 - cycleDay);
-      } else if (cycleDay <= 13) {
-        phase = CyclePhase.FOLICULAR;
-        flowIntensity = undefined;
-      } else if (cycleDay <= 15) {
-        phase = CyclePhase.OVULACION;
-        flowIntensity = undefined;
-      } else {
-        phase = CyclePhase.LUTEA;
-        flowIntensity = undefined;
-      }
-
-      if (Math.random() > 0.3) {
-        const dateString = currentDate.toISOString().split("T")[0];
-
-  const generateSimulatedCalendarDays = (
-    startDate: string,
-    endDate: string
-  ): CycleDay[] => {
     const start = new Date(startDate);
     const end = new Date(endDate);
     const days: CycleDay[] = [];
