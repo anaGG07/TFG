@@ -89,9 +89,7 @@ const DashboardPage: React.FC = () => {
         ) : (
           // Vista NO EXPANDIDA
           <div className="flex flex-col items-center justify-center h-full">
-            <div className="rounded-full bg-[#f8f4f1] shadow-inner flex items-center justify-center w-16 h-16">
-              <img src="/img/31.svg" alt="Recordatorios" className="w-10 h-10" />
-            </div>
+            <img src="/img/31.svg" alt="Recordatorios" className={isMobile ? "w-24 h-24" : "w-32 h-32"} />
           </div>
         ),
       },

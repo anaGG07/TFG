@@ -46,9 +46,9 @@ const RemindersExpanded: React.FC<RemindersExpandedProps> = ({
   };
 
   return (
-    <div className="h-full flex flex-col">
-      <h3 className="text-center text-lg font-bold text-[#C62328] mb-1">Tus recordatorios</h3>
-      <div className="flex-1 space-y-2">
+    <div className="h-full flex flex-col px-6 py-8">
+      <h3 className="text-center text-lg font-bold text-[#C62328] mb-4">Tus recordatorios</h3>
+      <div className="flex-1 space-y-4">
         {/* Lista de recordatorios pendientes */}
         {pendingReminders.length > 0 ? (
           <ul>
@@ -62,8 +62,16 @@ const RemindersExpanded: React.FC<RemindersExpandedProps> = ({
             ))}
           </ul>
         ) : (
-          <div className="text-center text-[#7a2323] text-sm py-4">
-            ¡No tienes recordatorios pendientes!
+          <div className="flex flex-col items-center justify-center py-8">
+            <div className="text-center text-[#7a2323] text-sm mb-4">
+              ¡No tienes recordatorios pendientes!
+            </div>
+            <button
+              onClick={markAllAsRead}
+              className="bg-[#C62328] text-white rounded-xl px-4 py-2 text-xs font-semibold shadow hover:bg-[#a81d22] transition mt-2"
+            >
+              Marcar todos como leídos
+            </button>
           </div>
         )}
 
@@ -87,12 +95,14 @@ const RemindersExpanded: React.FC<RemindersExpandedProps> = ({
         )}
 
         {/* Botón marcar todos como leídos */}
-        <button
-          onClick={markAllAsRead}
-          className="mt-4 bg-[#C62328] text-white rounded-xl px-4 py-2 text-xs font-semibold shadow hover:bg-[#a81d22] transition"
-        >
-          Marcar todos como leídos
-        </button>
+        {pendingReminders.length > 0 && (
+          <button
+            onClick={markAllAsRead}
+            className="mt-4 bg-[#C62328] text-white rounded-xl px-4 py-2 text-xs font-semibold shadow hover:bg-[#a81d22] transition"
+          >
+            Marcar todos como leídos
+          </button>
+        )}
       </div>
     </div>
   );
