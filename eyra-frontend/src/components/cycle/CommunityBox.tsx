@@ -113,7 +113,7 @@ const CommunityBox: React.FC<{ expanded: boolean }> = ({ expanded }) => {
             </motion.button>
           ))
         ) :
-          <div className="flex flex-col items-center justify-center py-8 w-full h-full">
+          <div className="flex flex-1 flex-col items-center justify-center py-8 w-full h-full min-h-[180px]">
             <div className="text-center text-[#7a2323] text-sm mb-2">
               ¡Todavía no sigues a nadie! <br />
               Empieza a construir tu comunidad.

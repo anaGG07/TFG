@@ -414,6 +414,52 @@ const UsersTable: React.FC<UsersTableProps> = ({ onRefresh }) => {
         </button>
       </div>
 
+      {/* Contenido principal: Tabla en desktop/tablet, Cards en móvil */}
+      {isMobile ? (
+        // Vista de cards para móvil
+        <div className="space-y-3">
+          {paginatedUsers.map((user) => (
+            <div key={user.id} className="neo-card p-4">
+              {/* Header de la card */}
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center gap-3">
+                  <UserAvatar user={user} size="sm" />
+                  <div>
+                    <h3 className="text-sm font-medium text-gray-900">{user.name}</h3>
+                    <p className="text-xs text-gray-500 truncate max-w-[120px]">{user.email}</p>
+                  </div>
+                </div>
+                <span className={`neo-badge text-xs ${user.state ? 'neo-badge-green' : 'neo-badge-red'}`}>
+                  {user.state ? 'Activo' : 'Inactivo'}
+                </span>
+              </div>
+              
+              {/* Información adicional */}
+              <div className="grid grid-cols-2 gap-2 mb-3 text-xs">
+                <div>
+                  <span className="text-gray-500">Roles:</span>
+                  <div className="flex flex-wrap gap-1 mt-1">
+                    {user.roles.map((role) => (
+                      <span key={role} className={`neo-badge text-xs ${
+                        role === 'ROLE_ADMIN' ? 'neo-badge-purple' : 
+                        role === 'ROLE_GUEST' ? 'neo-badge-gray' : 'neo-badge-blue'
+                      }`}>
+                        {RoleLabels[role] || role}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+                <div>
+                  <span className="text-gray-500">Creado:</span>
+                  <p className="text-gray-900 mt-1">{formatDate(user.createdAt)}</p>
+                </div>
+              </div>
+              
+              {/* Acciones */}
+              <div className="flex justify-center space-x-3 pt-2 border-t border-gray-100">
+                <button
+                  onClick={() => handleViewUser(user)}
+                  className="neo-button text-blue-600 hover:text-blue-900 p-2"
                   aria-label="Ver detalles del usuario"
                 >
                   <ViewIcon />
