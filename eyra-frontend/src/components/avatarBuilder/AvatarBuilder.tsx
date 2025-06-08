@@ -420,13 +420,13 @@ const AvatarBuilder: React.FC<AvatarBuilderProps> = ({
 
       {/* Botones de acción como iconos */}
       <div className="flex flex-row justify-center gap-4 mt-6 mb-6">
-        <button type="button" onClick={onCancel} title="Cancelar" className="hover:bg-[#f5ede6] rounded-full p-3 transition-colors shadow-neomorphic bg-white">
+        <button type="button" onClick={onCancel} title="Cancelar" className="hover:bg-[#f5ede6] rounded-full p-3 transition-colors">
           <IconCancel />
         </button>
-        <button type="button" onClick={onSave} title="Guardar avatar" className="hover:bg-[#f5ede6] rounded-full p-3 transition-colors shadow-neomorphic bg-white">
+        <button type="button" onClick={onSave} title="Guardar avatar" className="hover:bg-[#f5ede6] rounded-full p-3 transition-colors">
           <IconTick />
         </button>
-        <button type="button" onClick={onRandom} title="Aleatorio" className="hover:bg-[#f5ede6] rounded-full p-3 transition-colors shadow-neomorphic bg-white">
+        <button type="button" onClick={onRandom} title="Aleatorio" className="hover:bg-[#f5ede6] rounded-full p-3 transition-colors">
           <IconRandom />
         </button>
       </div>

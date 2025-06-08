@@ -232,7 +232,7 @@ const ProfilePage: React.FC = () => {
   // Renderizado
   return (
     <div
-      className="flex flex-col lg:flex-row w-full min-h-screen"
+      className={`flex flex-col lg:flex-row w-full ${isMobile ? 'min-h-screen' : 'h-screen'}`}
       style={{ background: "#e7e0d5" }}
     >
       {/* Columna izquierda: Avatar */}
@@ -317,7 +317,9 @@ const ProfilePage: React.FC = () => {
         </NeomorphicButton>
       </div>
       {/* Columna derecha: Contenido sobre fondo */}
-      <div className="flex-1 flex flex-col justify-start items-center py-4 lg:py-10 px-2 md:px-8 lg:max-h-screen lg:overflow-y-auto">
+      <div className={`flex-1 flex flex-col justify-start items-center py-4 lg:py-10 px-2 md:px-8 ${
+        isMobile ? 'overflow-y-auto' : 'lg:max-h-screen lg:overflow-y-auto'
+      }`}>
         {/* Cabecera: nombre, email, frase */}
         {!isEditingAvatar && (
           <div className="flex flex-col items-center gap-1 mb-4 lg:mb-6">
