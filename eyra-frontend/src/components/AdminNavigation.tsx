@@ -32,8 +32,8 @@ const AdminNavigation: React.FC = () => {
   const isAdmin = useIsAdmin();
   const { isDesktop, isTablet, isMobile } = useViewport();
 
-  // Solo mostrar si es admin
-  if (!isAdmin) {
+  // Solo mostrar si es admin y NO es móvil
+  if (!isAdmin || isMobile) {
     return null;
   }
 
