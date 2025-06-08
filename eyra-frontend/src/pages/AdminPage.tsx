@@ -303,23 +303,23 @@ const AdminPage = () => {
       <div className={`w-full h-full min-h-0 flex flex-col overflow-hidden bg-transparent ${isMobile ? 'overflow-y-auto max-h-[100vh] px-0' : ''}`}>
       <div className={`max-w-7xl mx-auto flex flex-col h-full min-h-0 w-full max-w-full ${isMobile ? "px-2 pt-4 pb-20" : isTablet ? "px-6 pt-5 pb-16" : "pl-8 pr-4 pt-6 pb-6"}`}>
         {/* Header */}
-        <div className={isMobile ? "mb-4" : "mb-6"}>
+        <div className={isMobile ? "mb-2" : "mb-4"}>
           <h1 className={`font-bold text-[#7a2323] font-serif ${
-            isMobile ? "text-2xl mb-1" : isTablet ? "text-3xl mb-2" : "text-4xl mb-2"
+            isMobile ? "text-xl mb-1" : isTablet ? "text-2xl mb-1" : "text-3xl mb-1"
           }`}>
             {isMobile ? "Admin" : "Panel de Administración"}
           </h1>
-          <p className={`text-[#7a2323]/70 ${isMobile ? "text-sm" : ""}`}>
+          <p className={`text-[#7a2323]/70 ${isMobile ? "text-xs" : "text-sm"}`}>
             {isMobile ? `Hola, ${user.name?.split(' ')[0] || user.name}` : `Bienvenido/a, ${user.name}. Aquí puedes gestionar el sistema EYRA.`}
           </p>
         </div>
         {/* Navegación por pestañas */}
-        <div className={`flex items-center mb-2 w-full max-w-full overflow-x-auto gap-2 pb-2 scrollbar-hide`}>
+        <div className={`flex items-center mb-1 w-full max-w-full overflow-x-auto gap-1 pb-1 scrollbar-hide`}>
           {tabs.map((tab) => (
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`rounded-xl px-4 py-2 font-semibold text-base font-serif transition-all duration-200 focus:outline-none neo-shadow-sm flex-shrink-0 whitespace-nowrap
+              className={`rounded-xl px-3 py-1 font-semibold text-sm font-serif transition-all duration-200 focus:outline-none neo-shadow-sm flex-shrink-0 whitespace-nowrap
                 ${
                   activeTab === tab.id
                     ? "bg-[#e7e0d5]/30 ring-2 ring-[#C62328] shadow-inner text-[#C62328]"
@@ -335,7 +335,7 @@ const AdminPage = () => {
         {/* Contenido por pestañas */}
         <div className="w-full flex-1 flex flex-col items-center">
           <div className={`w-full flex-1 flex flex-col justify-start bg-transparent rounded-lg shadow-none p-0 ${
-            isMobile ? "min-h-[300px]" : "min-h-[420px] max-w-full md:max-w-3xl lg:max-w-5xl"
+            isMobile ? "min-h-[200px]" : "min-h-[320px] max-w-full md:max-w-3xl lg:max-w-5xl"
           }`}>
             <AnimatePresence mode="wait">
               {activeTab === "overview" && (
@@ -346,19 +346,19 @@ const AdminPage = () => {
                   exit={{ opacity: 0, y: -30 }}
                   className={`items-start ${
                     isMobile 
-                      ? "flex flex-col gap-6 mt-4 min-h-[300px]"
+                      ? "flex flex-col gap-3 mt-2 min-h-[200px]"
                       : isTablet
-                      ? "grid grid-cols-1 gap-8 mt-6 min-h-[400px]"
-                      : "grid grid-cols-1 lg:grid-cols-[1fr_370px] gap-8 md:gap-12 mt-4 md:mt-8 min-h-[420px]"
+                      ? "grid grid-cols-1 gap-4 mt-4 min-h-[300px]"
+                      : "grid grid-cols-1 lg:grid-cols-[1fr_370px] gap-6 md:gap-8 mt-4 md:mt-8 min-h-[320px]"
                   }`}
                   style={{ minWidth: 0 }}
                 >
                   {/* Columna 1: Resumen o gráfica con toggle */}
-                  <div className="flex flex-col items-center gap-4 w-full">
+                  <div className="flex flex-col items-center gap-2 w-full">
                     {!isMobile && (
-                      <div className="flex gap-2 mb-2">
+                      <div className="flex gap-1 mb-1">
                         <button
-                          className={`rounded-full p-2 transition-all duration-200 ${
+                          className={`rounded-full p-1 transition-all duration-200 ${
                             !showChart
                               ? "ring-2 ring-[#a7f3d0] bg-white"
                               : "bg-transparent"
@@ -369,7 +369,7 @@ const AdminPage = () => {
                           <TableToggleIcon active={!showChart} />
                         </button>
                         <button
-                          className={`rounded-full p-2 transition-all duration-200 ${
+                          className={`rounded-full p-1 transition-all duration-200 ${
                             showChart
                               ? "ring-2 ring-[#f8b4b4] bg-white"
                               : "bg-transparent"
@@ -399,94 +399,94 @@ const AdminPage = () => {
                           />
                           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col items-center justify-center">
                             <span className={`font-bold text-[#C62328] font-serif drop-shadow ${
-                              isTablet ? "text-3xl" : "text-4xl"
+                              isTablet ? "text-xl" : "text-2xl"
                             }`}>
                               {stats?.totalUsers?.toLocaleString() || "0"}
                             </span>
-                            <span className="text-base text-[#7a2323]/70 font-serif">
+                            <span className="text-xs text-[#7a2323]/70 font-serif">
                               Usuarios
                             </span>
                           </div>
                         </motion.div>
-                      ) : (
+                      ) :
                         <motion.div
                           key="resumen"
                           initial={{ opacity: 0, scale: 0.95 }}
                           animate={{ opacity: 1, scale: 1 }}
                           exit={{ opacity: 0, scale: 0.95 }}
                           transition={{ duration: 0.4, ease: "easeInOut" }}
-                          className={`grid w-full justify-center mt-4 mb-4 ${
+                          className={`grid w-full justify-center mt-2 mb-2 ${
                             isMobile 
-                              ? "grid-cols-3 gap-4" 
+                              ? "grid-cols-3 gap-2" 
                               : isTablet 
-                              ? "grid-cols-3 gap-6" 
-                              : "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8"
+                              ? "grid-cols-3 gap-4" 
+                              : "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6"
                           }`}
                         >
                           <div className="flex flex-col items-center">
-                            <div className={`rounded-full shadow-[0_2px_12px_rgba(91,1,8,0.10),0_-2px_12px_rgba(255,255,255,0.25)] flex items-center justify-center z-10 bg-[#e7e0d5] ${
-                              isMobile ? "w-12 h-12 -mb-4" : "w-20 h-20 -mb-8"
+                            <div className={`rounded-full shadow-[0_2px_8px_rgba(91,1,8,0.10),0_-2px_8px_rgba(255,255,255,0.25)] flex items-center justify-center z-10 bg-[#e7e0d5] ${
+                              isMobile ? "w-8 h-8 -mb-2" : "w-14 h-14 -mb-4"
                             }`}>
-                              <UsersSummaryIcon className={isMobile ? "w-8 h-8" : "w-16 h-16"} />
+                              <UsersSummaryIcon className={isMobile ? "w-5 h-5" : "w-10 h-10"} />
                             </div>
-                            <NeomorphicCard className={`flex flex-col items-center justify-center gap-3 bg-[#f8b4b4]/30 p-0 z-0 ${
+                            <NeomorphicCard className={`flex flex-col items-center justify-center gap-1 bg-[#f8b4b4]/30 p-0 z-0 ${
                               isMobile 
-                                ? "w-24 h-24 min-w-[5rem] min-h-[5rem] max-w-[6rem] max-h-[6rem]" 
-                                : "w-36 h-36 min-w-[8rem] min-h-[8rem] max-w-[9rem] max-h-[9rem]"
+                                ? "w-16 h-16 min-w-[3.5rem] min-h-[3.5rem] max-w-[4.5rem] max-h-[4.5rem]" 
+                                : "w-24 h-24 min-w-[6rem] min-h-[6rem] max-w-[7rem] max-h-[7rem]"
                             }`}>
                               <h3 className={`font-semibold text-[#C62328] font-serif ${
-                                isMobile ? "text-xs mt-4" : "text-base mt-8"
+                                isMobile ? "text-[10px] mt-2" : "text-xs mt-4"
                               }`}>
                                 Usuarios
                               </h3>
                               <p className={`font-bold text-[#991b1b] ${
-                                isMobile ? "text-lg" : "text-3xl"
+                                isMobile ? "text-base" : "text-xl"
                               }`}>
                                 {stats?.totalUsers?.toLocaleString() || "0"}
                               </p>
                             </NeomorphicCard>
                           </div>
                           <div className="flex flex-col items-center">
-                            <div className={`rounded-full shadow-[0_2px_12px_rgba(21,128,61,0.10),0_-2px_12px_rgba(255,255,255,0.25)] flex items-center justify-center z-10 bg-[#e7e0d5] ${
-                              isMobile ? "w-12 h-12 -mb-4" : "w-20 h-20 -mb-8"
+                            <div className={`rounded-full shadow-[0_2px_8px_rgba(21,128,61,0.10),0_-2px_8px_rgba(255,255,255,0.25)] flex items-center justify-center z-10 bg-[#e7e0d5] ${
+                              isMobile ? "w-8 h-8 -mb-2" : "w-14 h-14 -mb-4"
                             }`}>
-                              <ActiveSummaryIcon className={isMobile ? "w-8 h-8" : "w-16 h-16"} />
+                              <ActiveSummaryIcon className={isMobile ? "w-5 h-5" : "w-10 h-10"} />
                             </div>
-                            <NeomorphicCard className={`flex flex-col items-center justify-center gap-3 bg-[#a7f3d0]/30 p-0 z-0 ${
+                            <NeomorphicCard className={`flex flex-col items-center justify-center gap-1 bg-[#a7f3d0]/30 p-0 z-0 ${
                               isMobile 
-                                ? "w-24 h-24 min-w-[5rem] min-h-[5rem] max-w-[6rem] max-h-[6rem]" 
-                                : "w-36 h-36 min-w-[8rem] min-h-[8rem] max-w-[9rem] max-h-[9rem]"
+                                ? "w-16 h-16 min-w-[3.5rem] min-h-[3.5rem] max-w-[4.5rem] max-h-[4.5rem]" 
+                                : "w-24 h-24 min-w-[6rem] min-h-[6rem] max-w-[7rem] max-h-[7rem]"
                             }`}>
                               <h3 className={`font-semibold text-[#15803d] font-serif ${
-                                isMobile ? "text-xs mt-4" : "text-base mt-8"
+                                isMobile ? "text-[10px] mt-2" : "text-xs mt-4"
                               }`}>
                                 Activos
                               </h3>
                               <p className={`font-bold text-[#15803d] ${
-                                isMobile ? "text-lg" : "text-3xl"
+                                isMobile ? "text-base" : "text-xl"
                               }`}>
                                 {stats?.activeUsers?.toLocaleString() || "0"}
                               </p>
                             </NeomorphicCard>
                           </div>
                           <div className="flex flex-col items-center">
-                            <div className={`rounded-full shadow-[0_2px_12px_rgba(124,45,18,0.10),0_-2px_12px_rgba(255,255,255,0.25)] flex items-center justify-center z-10 bg-[#e7e0d5] ${
-                              isMobile ? "w-12 h-12 -mb-4" : "w-20 h-20 -mb-8"
+                            <div className={`rounded-full shadow-[0_2px_8px_rgba(124,45,18,0.10),0_-2px_8px_rgba(255,255,255,0.25)] flex items-center justify-center z-10 bg-[#e7e0d5] ${
+                              isMobile ? "w-8 h-8 -mb-2" : "w-14 h-14 -mb-4"
                             }`}>
-                              <AdminSummaryIcon className={isMobile ? "w-8 h-8" : "w-16 h-16"} />
+                              <AdminSummaryIcon className={isMobile ? "w-5 h-5" : "w-10 h-10"} />
                             </div>
-                            <NeomorphicCard className={`flex flex-col items-center justify-center gap-3 bg-[#ddd6fe]/30 p-0 z-0 ${
+                            <NeomorphicCard className={`flex flex-col items-center justify-center gap-1 bg-[#ddd6fe]/30 p-0 z-0 ${
                               isMobile 
-                                ? "w-24 h-24 min-w-[5rem] min-h-[5rem] max-w-[6rem] max-h-[6rem]" 
-                                : "w-36 h-36 min-w-[8rem] min-h-[8rem] max-w-[9rem] max-h-[9rem]"
+                                ? "w-16 h-16 min-w-[3.5rem] min-h-[3.5rem] max-w-[4.5rem] max-h-[4.5rem]" 
+                                : "w-24 h-24 min-w-[6rem] min-h-[6rem] max-w-[7rem] max-h-[7rem]"
                             }`}>
                               <h3 className={`font-semibold text-[#7c2d12] font-serif ${
-                                isMobile ? "text-xs mt-4" : "text-base mt-8"
+                                isMobile ? "text-[10px] mt-2" : "text-xs mt-4"
                               }`}>
                                 Admins
                               </h3>
                               <p className={`font-bold text-[#7c2d12] ${
-                                isMobile ? "text-lg" : "text-3xl"
+                                isMobile ? "text-base" : "text-xl"
                               }`}>
                                 {stats?.adminUsers?.toLocaleString() || "0"}
                               </p>
@@ -497,16 +497,14 @@ const AdminPage = () => {
                     </AnimatePresence>
                   </div>
                   {/* Columna 2: Actividad reciente */}
-                  <div className={`flex flex-col gap-4 w-full max-w-full ${
-                    isMobile ? "mt-4" : ""
-                  }`}>
-                    <h3 className={`font-semibold text-[#7a2323] font-serif mb-2 ${
-                      isMobile ? "text-lg" : "text-xl"
+                  <div className={isMobile ? "mt-2" : ""}>
+                    <h3 className={`font-semibold text-[#7a2323] font-serif mb-1 ${
+                      isMobile ? "text-base" : "text-lg"
                     }`}>
                       {isMobile ? "Act. Reciente" : "Actividad Reciente"}
                     </h3>
-                    <div className={`space-y-3 ${
-                      isMobile ? "max-h-64 overflow-y-auto" : ""
+                    <div className={`space-y-2 ${
+                      isMobile ? "max-h-48 overflow-y-auto" : ""
                     }`}>
                       {isLoadingStats ? (
                         <div className={`animate-pulse flex items-center space-x-3 p-3 bg-gray-50 rounded-lg ${

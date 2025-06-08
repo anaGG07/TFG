@@ -1419,76 +1419,46 @@ const LibraryPage: React.FC = () => {
       <AnimatePresence>
         {!hasExpandedItem && (
           <motion.div
-            className="absolute top-0 left-0 right-0 z-10 p-4"
+            className="absolute top-0 left-0 right-0 z-10 p-2"
             initial={{ y: -20, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
-            exit={{ y: -30, opacity: 0 }}
-            transition={{
-              duration: 0.4,
-              ease: [0.25, 0.1, 0.25, 1.0],
-            }}
+            transition={{ delay: 0.2, duration: 0.6 }}
           >
-            <div className="flex flex-col sm:flex sm:justify-center sm:items-center lg:grid lg:grid-cols-5 gap-4 md:gap-6 px-4 md:px-8">
-              <div className="hidden lg:block"></div>
-              <div className="hidden lg:block"></div>
-
-              <div className="flex justify-center lg:col-span-2 lg:justify-start">
+            <div className="grid grid-cols-4 gap-4 px-4">
+              <div></div>
+              <div className="col-span-2 flex justify-center">
                 <motion.div
-                  className="bg-white/35 backdrop-blur-sm rounded-2xl px-4 py-4 md:px-8 md:py-5 flex items-center gap-3 max-w-xl w-full"
+                  className="bg-white/30 backdrop-blur-sm rounded-2xl px-4 py-2 flex items-center gap-2 max-w-md"
                   style={{
-                    border: "1px solid rgba(198, 35, 40, 0.25)",
-                    boxShadow: `
-                      8px 8px 16px rgba(91, 1, 8, 0.12),
-                      -8px -8px 16px rgba(255, 255, 255, 0.7)
-                    `,
+                    border: "1px solid rgba(198, 35, 40, 0.2)",
+                    boxShadow: `4px 4px 8px rgba(91, 1, 8, 0.1), -4px -4px 8px rgba(255, 255, 255, 0.6)`
                   }}
-                  whileHover={{
-                    scale: 1.03,
-                    boxShadow: `
-                    12px 12px 24px rgba(91, 1, 8, 0.15),
-                    -12px -12px 24px rgba(255, 255, 255, 0.8)
-                  `,
-                  }}
-                  transition={{ duration: 0.3 }}
+                  whileHover={{ scale: 1.01 }}
+                  transition={{ duration: 0.2 }}
                 >
-                  <div className="text-center w-full flex flex-col justify-center items-center">
-                    <h1 className="text-xl md:text-2xl font-serif font-bold text-[#7a2323] leading-none mb-2 md:mb-3 tracking-wide">
+                  <div className="text-center">
+                    <h1 className="text-lg font-serif font-bold text-[#7a2323] leading-none mb-1">
                       RED TENT
                     </h1>
-                    <p className="text-xs md:text-sm text-[#5b0108] leading-relaxed font-medium text-center">
-                      🏛️ <strong>Descubre tu herencia ancestral.</strong> Tu
-                      historia comienza aquí.
+                    <p className="text-xs text-[#5b0108] leading-relaxed">
+                      Espacios sagrados donde las mujeres compartían relatos y sabiduría ancestral durante sus ciclos, creando vínculos que enriquecían la cultura femenina a través de generaciones.
                     </p>
                   </div>
                 </motion.div>
               </div>
-
-              <div className="hidden lg:block"></div>
+              <div></div>
             </div>
           </motion.div>
         )}
       </AnimatePresence>
 
       <motion.div
-        className="w-full h-full"
-        style={{
-          paddingTop: hasExpandedItem ? "0" : "6rem",
-        }}
-        animate={{
-          paddingTop: hasExpandedItem ? "0" : "6rem",
-        }}
-        transition={{
-          duration: 0.4,
-          ease: [0.25, 0.1, 0.25, 1.0],
-        }}
+        className="w-full h-full pt-8"
         initial={{ y: 20, opacity: 0 }}
-        whileInView={{ y: 0, opacity: 1 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ delay: 0.4, duration: 0.6 }}
       >
-        <DraggableGrid
-          items={libraryItems}
-          onItemsChange={handleItemsChange}
-          isLibrary={true}
-        />
+        <DraggableGrid items={libraryItems} onItemsChange={handleItemsChange} isLibrary={true} />
       </motion.div>
     </motion.div>
   );
