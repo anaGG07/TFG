@@ -15,6 +15,7 @@ import {
 } from "../types/domain";
 import { API_ROUTES } from "../config/apiRoutes";
 import { startOfMonth, endOfMonth } from 'date-fns';
+import { useAuth } from "../context/AuthContext";
 
 export interface CycleDayInput {
   date: string;
@@ -75,6 +76,7 @@ export const CycleProvider: React.FC<{ children: ReactNode }> = ({
   );
   const [isLoading, setIsLoading] = useState(false);
   const [currentPhase, setCurrentPhase] = useState<CyclePhase>(CyclePhase.MENSTRUAL);
+  const { isAuthenticated } = useAuth();
 
   // Cargar días del calendario - API REAL ACTIVADA
   const loadCalendarDays = useCallback(
@@ -149,12 +151,12 @@ export const CycleProvider: React.FC<{ children: ReactNode }> = ({
   // Efecto para cargar automáticamente los días del ciclo al montar y al cambiar de día
   const lastLoadedDate = React.useRef<string>("");
   useEffect(() => {
+    if (!isAuthenticated) return;
     const loadForToday = () => {
       const today = new Date();
       const todayStr = today.toISOString().split("T")[0];
       const monthStart = startOfMonth(today);
       const monthEnd = endOfMonth(today);
-      // Solo recargar si la fecha cambió
       if (lastLoadedDate.current !== todayStr) {
         lastLoadedDate.current = todayStr;
         loadCalendarDays(
@@ -163,12 +165,10 @@ export const CycleProvider: React.FC<{ children: ReactNode }> = ({
         );
       }
     };
-    // Cargar al montar
     loadForToday();
-    // Revisar cada minuto si cambió el día
     const interval = setInterval(loadForToday, 60 * 1000);
     return () => clearInterval(interval);
-  }, [loadCalendarDays]);
+  }, [loadCalendarDays, isAuthenticated]);
 
   // Añadir información a un día del ciclo - API REAL ACTIVADA
   const addCycleDay = useCallback(
