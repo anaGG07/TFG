@@ -262,14 +262,14 @@ const SymptomsView: React.FC<SymptomsViewProps> = ({ expanded = true }) => {
         gap: isMobile ? 24 : 32,
         minWidth: 0,
         justifyContent: 'flex-start',
-        maxWidth: 420,
+        maxWidth: 600,
       }}>
         {/* Síntomas actuales */}
-        <NeomorphicCard compact className="mb-4">
+        <NeomorphicCard compact className="mb-6">
           <h3 className="font-bold text-lg mb-3 text-[#C62328]">
             Síntomas actuales
           </h3>
-          <div className="flex flex-wrap gap-3 justify-center">
+          <div className="flex flex-wrap gap-4 justify-center">
             {SYMPTOM_OPTIONS.map(symptom => {
               const todaySymptom = todaySymptoms.find(s => s.symptom === symptom);
               const isSelected = symptom === selectedSymptom;
@@ -336,15 +336,20 @@ const SymptomsView: React.FC<SymptomsViewProps> = ({ expanded = true }) => {
         </NeomorphicCard>
       </div>
       {/* Columna derecha/inferior: Gráfica */}
-      <div style={{ minWidth: 0, maxWidth: 420, marginLeft: isMobile ? 0 : 24 }}>
+      <div style={{ minWidth: 0, maxWidth: 480, marginLeft: isMobile ? 0 : 24 }}>
         <NeomorphicCard compact className="flex flex-col items-center justify-center w-full max-w-lg mx-auto">
-          <h3 className="font-bold text-lg mb-3 text-[#C62328] text-center">
+          <h3 className="font-bold text-lg mb-2 text-[#C62328] text-center">
             {selectedSymptom ? `Evolución de ${selectedSymptom}` : 'Selecciona un síntoma para ver su evolución'}
           </h3>
+          <p className="text-xs text-[#7a2323] mb-2 text-center">
+            {selectedSymptom
+              ? 'Evolución de la intensidad del síntoma seleccionado en los últimos 90 días.'
+              : 'Selecciona un síntoma para ver su evolución temporal.'}
+          </p>
           <div className="w-full" style={{
-            maxWidth: isMobile ? 320 : isTablet ? 380 : 400,
+            maxWidth: isMobile ? 320 : isTablet ? 380 : 440,
             height: isMobile ? 200 : isTablet ? 220 : 240,
-            background: 'linear-gradient(135deg, #f8e7e7 0%, #f4f1ed 100%)',
+            background: '#fff',
             borderRadius: 18,
             boxShadow: '0 4px 24px 0 #e7e0d5, 0 -4px 24px 0 #fff',
             padding: isMobile ? 10 : 16,
@@ -353,33 +358,43 @@ const SymptomsView: React.FC<SymptomsViewProps> = ({ expanded = true }) => {
             justifyContent: 'center',
             border: '1.5px solid #e7e0d5',
           }}>
-            <Line
-              data={chartData}
-              options={{
-                ...chartOptions,
-                plugins: {
-                  ...chartOptions.plugins,
-                  legend: { display: false },
-                  tooltip: { ...chartOptions.plugins.tooltip, backgroundColor: '#C62328', titleColor: '#fff', bodyColor: '#fff' },
-                },
-                elements: {
-                  line: { borderWidth: 4, borderColor: '#C62328', tension: 0.5 },
-                  point: { radius: 7, backgroundColor: '#ff393f', borderColor: '#fff', borderWidth: 2 },
-                },
-                scales: {
-                  x: {
-                    grid: { display: false },
-                    ticks: { color: '#C62328', font: { weight: 'bold' } },
+            {selectedSymptom && chartData.datasets[0]?.data.some((v) => v > 0) ? (
+              <Line
+                data={chartData}
+                options={{
+                  ...chartOptions,
+                  plugins: {
+                    ...chartOptions.plugins,
+                    legend: { display: false },
+                    tooltip: { ...chartOptions.plugins.tooltip, backgroundColor: '#C62328', titleColor: '#fff', bodyColor: '#fff' },
                   },
-                  y: {
-                    grid: { color: '#F8D9D6' },
-                    ticks: { color: '#C62328', font: { weight: 'bold' }, stepSize: 1 },
-                    min: 0,
-                    max: 5,
+                  elements: {
+                    line: { borderWidth: 4, borderColor: '#C62328', tension: 0.5 },
+                    point: { radius: 7, backgroundColor: '#ff393f', borderColor: '#fff', borderWidth: 2 },
                   },
-                },
-              }}
-            />
+                  scales: {
+                    x: {
+                      title: { display: true, text: 'Fecha', color: '#7a2323', font: { weight: 'bold', size: 12 } },
+                      grid: { display: false },
+                      ticks: { color: '#C62328', font: { weight: 'bold' } },
+                    },
+                    y: {
+                      title: { display: true, text: 'Intensidad (0-5)', color: '#7a2323', font: { weight: 'bold', size: 12 } },
+                      grid: { color: '#F8D9D6' },
+                      ticks: { color: '#C62328', font: { weight: 'bold' }, stepSize: 1 },
+                      min: 0,
+                      max: 5,
+                    },
+                  },
+                }}
+              />
+            ) : (
+              <div className="flex items-center justify-center w-full h-full">
+                <span className="text-[#C62328] text-sm font-medium opacity-70 text-center">
+                  No hay datos suficientes para mostrar la evolución de este síntoma.
+                </span>
+              </div>
+            )}
           </div>
         </NeomorphicCard>
       </div>
