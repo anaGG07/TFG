@@ -57,7 +57,7 @@ const RemindersExpanded: React.FC<RemindersExpandedProps> = ({
                 <span className="text-[#C62328]">🔔</span>
                 <span className="text-sm text-[#7a2323] flex-1">{r.title}</span>
                 <span className="text-xs text-[#C62328] font-semibold">{formatDate((r as any).scheduledFor || r.createdAt)}</span>
-                <button onClick={() => markAsRead(r.id)} className="ml-2 text-xs text-green-600 font-bold">✓</button>
+                <button onClick={(e) => { e.stopPropagation(); markAsRead(r.id); }} className="ml-2 text-xs text-green-600 font-bold">✓</button>
               </li>
             ))}
           </ul>
@@ -67,7 +67,7 @@ const RemindersExpanded: React.FC<RemindersExpandedProps> = ({
               ¡No tienes recordatorios pendientes!
             </div>
             <button
-              onClick={markAllAsRead}
+              onClick={(e) => { e.stopPropagation(); markAllAsRead(); }}
               className="bg-[#C62328] text-white rounded-xl px-4 py-2 text-xs font-semibold shadow hover:bg-[#a81d22] transition mt-2"
             >
               Marcar todos como leídos
@@ -97,7 +97,7 @@ const RemindersExpanded: React.FC<RemindersExpandedProps> = ({
         {/* Botón marcar todos como leídos */}
         {pendingReminders.length > 0 && (
           <button
-            onClick={markAllAsRead}
+            onClick={(e) => { e.stopPropagation(); markAllAsRead(); }}
             className="mt-4 bg-[#C62328] text-white rounded-xl px-4 py-2 text-xs font-semibold shadow hover:bg-[#a81d22] transition"
           >
             Marcar todos como leídos

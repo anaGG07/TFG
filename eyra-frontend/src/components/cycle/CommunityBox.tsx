@@ -5,7 +5,7 @@ import { useViewport } from "../../hooks/useViewport";
 import { NeomorphicCalendar } from "../../features/calendar/components/NeomorphicCalendar";
 import { apiFetch } from "../../utils/httpClient";
 import { API_ROUTES } from "../../config/apiRoutes";
-import AvatarPreview from '../avatarBuilder/AvatarPreview';
+import AvatarPreview from "../avatarBuilder/AvatarPreview";
 
 // Implementación real de obtención de calendario compartido
 const fetchUserCalendar = async (userId: string) => {
@@ -15,7 +15,9 @@ const fetchUserCalendar = async (userId: string) => {
     const endOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0);
 
     const response = await apiFetch<any>(
-      `${API_ROUTES.CYCLES.CALENDAR}?start=${startOfMonth.toISOString().split('T')[0]}&end=${endOfMonth.toISOString().split('T')[0]}`
+      `${API_ROUTES.CYCLES.CALENDAR}?start=${
+        startOfMonth.toISOString().split("T")[0]
+      }&end=${endOfMonth.toISOString().split("T")[0]}`
     );
 
     if (response && response.hostCycles) {
@@ -27,7 +29,7 @@ const fetchUserCalendar = async (userId: string) => {
     }
     return null;
   } catch (error) {
-    console.error('Error fetching shared calendar:', error);
+    console.error("Error fetching shared calendar:", error);
     return null;
   }
 };
@@ -77,7 +79,7 @@ const CommunityBox: React.FC<{ expanded: boolean }> = ({ expanded }) => {
             width: svgSize.width,
             height: svgSize.height,
             opacity: 0.97,
-            objectFit: 'contain',
+            objectFit: "contain",
           }}
         />
       </div>
@@ -86,10 +88,18 @@ const CommunityBox: React.FC<{ expanded: boolean }> = ({ expanded }) => {
 
   // Vista expandida
   return (
-    <div className={`h-full flex ${isMobile || isTablet ? "flex-col" : "flex-row"} px-6 py-8 w-full`}> 
+    <div
+      className={`h-full flex ${
+        isMobile || isTablet ? "flex-col" : "flex-row"
+      } px-6 py-8 w-full`}
+    >
       {/* Carrusel vertical/horizontal de avatares */}
       <motion.div
-        className={`flex ${isMobile || isTablet ? "flex-row overflow-x-auto gap-4 mb-6" : "flex-col gap-4 mr-8"} items-center justify-center`}
+        className={`flex ${
+          isMobile || isTablet
+            ? "flex-row overflow-x-auto gap-4 mb-6"
+            : "flex-col gap-4 mr-8"
+        } items-center justify-center`}
         initial={{ opacity: 0, x: -20 }}
         animate={{ opacity: 1, x: 0 }}
         transition={{ duration: 0.5 }}
@@ -99,20 +109,34 @@ const CommunityBox: React.FC<{ expanded: boolean }> = ({ expanded }) => {
           community.map((user) => {
             const avatarUrl = (user as any).avatarUrl;
             const avatarConfig = (user as any).avatar;
-            const hasAvatarConfig = avatarConfig && typeof avatarConfig === 'object' && Object.keys(avatarConfig).length > 0;
+            const hasAvatarConfig =
+              avatarConfig &&
+              typeof avatarConfig === "object" &&
+              Object.keys(avatarConfig).length > 0;
             return (
               <motion.button
                 key={user.id}
-                className={`rounded-full border-2 ${selectedId === user.id ? 'border-[#C62328] scale-110 shadow-lg' : 'border-[#f8f4f1]'} transition-all bg-white flex flex-col items-center`}
+                className={`rounded-full border-2 ${
+                  selectedId === user.id
+                    ? "border-[#C62328] scale-110 shadow-lg"
+                    : "border-[#f8f4f1]"
+                } transition-all bg-white flex flex-col items-center`}
                 onClick={() => setSelectedId(user.id)}
                 whileHover={{ scale: 1.1 }}
               >
                 {hasAvatarConfig ? (
-                  <AvatarPreview config={avatarConfig} className="w-14 h-14 rounded-full" />
+                  <AvatarPreview
+                    config={avatarConfig}
+                    className="w-14 h-14 rounded-full"
+                  />
                 ) : avatarUrl ? (
                   <img
                     src={avatarUrl}
-                    alt={(user as any).name || (user as any).username || (user as any).ownerName}
+                    alt={
+                      (user as any).name ||
+                      (user as any).username ||
+                      (user as any).ownerName
+                    }
                     className="w-14 h-14 rounded-full object-cover"
                   />
                 ) : (
@@ -123,12 +147,14 @@ const CommunityBox: React.FC<{ expanded: boolean }> = ({ expanded }) => {
                   />
                 )}
                 <span className="block text-xs text-[#7a2323] mt-1 max-w-[70px] truncate">
-                  {(user as any).name || (user as any).username || (user as any).ownerName}
+                  {(user as any).name ||
+                    (user as any).username ||
+                    (user as any).ownerName}
                 </span>
               </motion.button>
             );
           })
-        ) :
+        ) : (
           <div className="flex flex-1 flex-col items-center justify-center py-8 w-full h-full min-h-[180px]">
             <div className="text-center text-[#7a2323] text-sm mb-2">
               ¡Todavía no sigues a nadie! <br />
@@ -138,10 +164,14 @@ const CommunityBox: React.FC<{ expanded: boolean }> = ({ expanded }) => {
               Explorar comunidad
             </button>
           </div>
-        }
+        )}
       </motion.div>
       {/* Mini calendario o resumen a la derecha/abajo */}
-      <div className={`flex-1 flex flex-col items-center justify-center ${isMobile || isTablet ? "mt-4" : "ml-8"}`}>
+      <div
+        className={`flex-1 flex flex-col items-center justify-center ${
+          isMobile || isTablet ? "mt-4" : "ml-8"
+        }`}
+      >
         <AnimatePresence>
           {selectedId && !calendarLoading ? (
             <motion.div
@@ -153,13 +183,19 @@ const CommunityBox: React.FC<{ expanded: boolean }> = ({ expanded }) => {
               className="w-full max-w-xs bg-[#f8f4f1] rounded-2xl shadow-inner p-4"
             >
               <h4 className="text-center text-[#C62328] font-bold mb-2">
-                {(community.find(u => u.id === selectedId) as any)?.name || (community.find(u => u.id === selectedId) as any)?.username || (community.find(u => u.id === selectedId) as any)?.ownerName}
+                {(community.find((u) => u.id === selectedId) as any)?.name ||
+                  (community.find((u) => u.id === selectedId) as any)
+                    ?.username ||
+                  (community.find((u) => u.id === selectedId) as any)
+                    ?.ownerName}
               </h4>
               {isDesktop ? (
                 calendarData ? (
                   <NeomorphicCalendar />
                 ) : (
-                  <div className="text-center text-[#7a2323] text-sm opacity-70">No hay datos de ciclo para esta persona.</div>
+                  <div className="text-center text-[#7a2323] text-sm opacity-70">
+                    No hay datos de ciclo para esta persona.
+                  </div>
                 )
               ) : (
                 <div className="text-center text-[#7a2323] text-sm opacity-70">
@@ -186,4 +222,4 @@ const CommunityBox: React.FC<{ expanded: boolean }> = ({ expanded }) => {
   );
 };
 
-export default CommunityBox; 
+export default CommunityBox;
