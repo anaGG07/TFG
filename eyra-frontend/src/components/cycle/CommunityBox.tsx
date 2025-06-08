@@ -5,6 +5,7 @@ import { useViewport } from "../../hooks/useViewport";
 import { NeomorphicCalendar } from "../../features/calendar/components/NeomorphicCalendar";
 import { apiFetch } from "../../utils/httpClient";
 import { API_ROUTES } from "../../config/apiRoutes";
+import AvatarPreview from '../avatarBuilder/AvatarPreview';
 
 // Implementación real de obtención de calendario compartido
 const fetchUserCalendar = async (userId: string) => {
@@ -95,23 +96,38 @@ const CommunityBox: React.FC<{ expanded: boolean }> = ({ expanded }) => {
         style={{ minWidth: isMobile || isTablet ? undefined : 80 }}
       >
         {community.length > 0 ? (
-          community.map((user) => (
-            <motion.button
-              key={user.id}
-              className={`rounded-full border-2 ${selectedId === user.id ? 'border-[#C62328] scale-110 shadow-lg' : 'border-[#f8f4f1]'} transition-all bg-white`}
-              onClick={() => setSelectedId(user.id)}
-              whileHover={{ scale: 1.1 }}
-            >
-              <img
-                src={(user as any).avatarUrl || "/img/avatar-default.png"}
-                alt={(user as any).name || (user as any).username || (user as any).ownerName}
-                className="w-14 h-14 rounded-full object-cover"
-              />
-              <span className="block text-xs text-[#7a2323] mt-1 max-w-[70px] truncate">
-                {(user as any).name || (user as any).username || (user as any).ownerName}
-              </span>
-            </motion.button>
-          ))
+          community.map((user) => {
+            const avatarUrl = (user as any).avatarUrl;
+            const avatarConfig = (user as any).avatar;
+            const hasAvatarConfig = avatarConfig && typeof avatarConfig === 'object' && Object.keys(avatarConfig).length > 0;
+            return (
+              <motion.button
+                key={user.id}
+                className={`rounded-full border-2 ${selectedId === user.id ? 'border-[#C62328] scale-110 shadow-lg' : 'border-[#f8f4f1]'} transition-all bg-white flex flex-col items-center`}
+                onClick={() => setSelectedId(user.id)}
+                whileHover={{ scale: 1.1 }}
+              >
+                {hasAvatarConfig ? (
+                  <AvatarPreview config={avatarConfig} className="w-14 h-14 rounded-full" />
+                ) : avatarUrl ? (
+                  <img
+                    src={avatarUrl}
+                    alt={(user as any).name || (user as any).username || (user as any).ownerName}
+                    className="w-14 h-14 rounded-full object-cover"
+                  />
+                ) : (
+                  <img
+                    src="/img/avatar-default.png"
+                    alt="Avatar por defecto"
+                    className="w-14 h-14 rounded-full object-cover"
+                  />
+                )}
+                <span className="block text-xs text-[#7a2323] mt-1 max-w-[70px] truncate">
+                  {(user as any).name || (user as any).username || (user as any).ownerName}
+                </span>
+              </motion.button>
+            );
+          })
         ) :
           <div className="flex flex-1 flex-col items-center justify-center py-8 w-full h-full min-h-[180px]">
             <div className="text-center text-[#7a2323] text-sm mb-2">

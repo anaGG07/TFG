@@ -301,7 +301,7 @@ const AdminPage = () => {
     <>
       {isMobile && <style>{scrollbarHideStyles}</style>}
       <div className={`w-full h-full min-h-0 flex flex-col overflow-hidden bg-transparent ${isMobile ? 'overflow-y-auto max-h-[100vh] px-0' : ''}`}>
-      <div className={`max-w-7xl mx-auto flex flex-col h-full min-h-0 w-full max-w-full ${isMobile ? "px-2 pt-4 pb-20" : isTablet ? "px-6 pt-5 pb-16" : "pl-8 pr-4 pt-6 pb-6"}`}>
+      <div className={`w-full flex flex-col h-full min-h-0 ${isMobile ? "px-2 pt-4 pb-20" : isTablet ? "px-6 pt-5 pb-16" : "pl-8 pr-4 pt-6 pb-6"}`}>
         {/* Header */}
         <div className={isMobile ? "mb-2" : "mb-4"}>
           <h1 className={`font-bold text-[#7a2323] font-serif ${
@@ -314,12 +314,12 @@ const AdminPage = () => {
           </p>
         </div>
         {/* Navegación por pestañas */}
-        <div className={`flex items-center mb-1 w-full max-w-full overflow-x-auto gap-1 pb-1 scrollbar-hide`}>
+        <div className="flex items-center mb-1 w-full overflow-x-auto gap-1 pb-1 scrollbar-hide">
           {tabs.map((tab) => (
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`rounded-xl px-3 py-1 font-semibold text-sm font-serif transition-all duration-200 focus:outline-none neo-shadow-sm flex-shrink-0 whitespace-nowrap
+              className={`flex-1 rounded-xl px-3 py-1 font-semibold text-sm font-serif transition-all duration-200 focus:outline-none neo-shadow-sm whitespace-nowrap
                 ${
                   activeTab === tab.id
                     ? "bg-[#e7e0d5]/30 ring-2 ring-[#C62328] shadow-inner text-[#C62328]"
