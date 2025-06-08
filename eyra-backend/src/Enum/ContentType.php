@@ -9,4 +9,5 @@ enum ContentType: string
     case ARTICLE = 'article';        // Artículo informativo
     case SELFCARE = 'selfcare';      // Autocuidado
     case RECOMMENDATION = 'recommendation'; // Recomendación general
+    case RITUAL = 'ritual';      // Ritual
 }

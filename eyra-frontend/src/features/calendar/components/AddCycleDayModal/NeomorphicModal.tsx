@@ -251,9 +251,9 @@ export const NeomorphicModal: React.FC<NeomorphicModalProps> = ({
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="fixed inset-0 z-50 flex items-center justify-center p-4"
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 backdrop-blur-sm"
           style={{
-            background: 'linear-gradient(145deg, rgba(122, 35, 35, 0.95), rgba(199, 191, 180, 0.98))'
+            background: 'rgba(122, 35, 35, 0.6)'
           }}
           onClick={onClose}
         >

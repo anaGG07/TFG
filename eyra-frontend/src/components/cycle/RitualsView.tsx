@@ -1,10 +1,11 @@
 import * as React from 'react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useCycle } from '../../context/CycleContext';
 import { RitualIcons } from '../icons/CycleIcons';
-import { CyclePhase } from '../../types/domain';
+import { CyclePhase, ContentType, Content } from '../../types/domain';
 import { useViewport } from '../../hooks/useViewport';
+import { adminContentService } from '../../services/adminContentService';
 
 type Ritual = {
   title: string;
@@ -48,107 +49,25 @@ interface RitualsViewProps {
 const RitualsView: React.FC<RitualsViewProps> = ({ expanded = true }) => {
   const { currentPhase } = useCycle();
   const { isMobile, isTablet, isDesktop } = useViewport();
-  const [selectedCategory, setSelectedCategory] = useState<'phase' | 'moon' | 'recipes'>('phase');
+  const [rituals, setRituals] = useState<Content[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [selectedCategory, setSelectedCategory] = useState<'phase' | 'moon'>('phase');
 
-  // Datos de ejemplo - Después se moverán a un servicio
-  const ritualData: RitualData = {
-    phaseRituals: {
-      [CyclePhase.MENSTRUAL]: {
-        title: "Rituales de Renacimiento",
-        description: "Momento de introspección y renovación",
-        rituals: [
-          {
-            title: "Baño de Sales",
-            description: "Prepara un baño con sales de Epsom y aceites esenciales de lavanda",
-            duration: "20 min",
-            benefits: ["Relajación", "Alivio de cólicos", "Renovación"]
-          },
-          {
-            title: "Meditación Lunar",
-            description: "Meditación guiada para conectar con tu energía interior",
-            duration: "15 min",
-            benefits: ["Paz mental", "Autoconocimiento", "Equilibrio"]
-          }
-        ]
-      },
-      [CyclePhase.FOLICULAR]: {
-        title: "Rituales de Energía",
-        description: "Momento de crecimiento y expansión",
-        rituals: [
-          {
-            title: "Ejercicio Matutino",
-            description: "Rutina suave de yoga o estiramientos",
-            duration: "30 min",
-            benefits: ["Energía", "Flexibilidad", "Vitalidad"]
-          }
-        ]
-      },
-      [CyclePhase.OVULACION]: {
-        title: "Rituales de Fertilidad",
-        description: "Momento de máxima energía y creatividad",
-        rituals: [
-          {
-            title: "Danza del Vientre",
-            description: "Movimientos suaves para conectar con tu energía femenina",
-            duration: "20 min",
-            benefits: ["Fertilidad", "Energía", "Creatividad"]
-          }
-        ]
-      },
-      [CyclePhase.LUTEA]: {
-        title: "Rituales de Nutrición",
-        description: "Momento de preparación y cuidado",
-        rituals: [
-          {
-            title: "Té de Hierbas",
-            description: "Infusión de manzanilla y menta para el equilibrio hormonal",
-            duration: "10 min",
-            benefits: ["Equilibrio", "Nutrición", "Bienestar"]
-          }
-        ]
+  useEffect(() => {
+    const fetchRituals = async () => {
+      setLoading(true);
+      try {
+        const allContent = await adminContentService.listContent();
+        const ritualContent = allContent.filter(c => c.type === ContentType.RITUAL);
+        setRituals(ritualContent);
+      } catch (e) {
+        setRituals([]);
+      } finally {
+        setLoading(false);
       }
-    },
-    moonRituals: {
-      newMoon: {
-        title: "Ritual de Luna Nueva",
-        description: "Momento de intención y nuevos comienzos",
-        rituals: [
-          {
-            title: "Establecer Intenciones",
-            description: "Escribe tus intenciones para el nuevo ciclo",
-            duration: "10 min",
-            benefits: ["Claridad", "Propósito", "Manifestación"]
-          }
-        ]
-      },
-      fullMoon: {
-        title: "Ritual de Luna Llena",
-        description: "Momento de celebración y gratitud",
-        rituals: [
-          {
-            title: "Meditación de Gratitud",
-            description: "Reflexiona sobre tus logros y bendiciones",
-            duration: "15 min",
-            benefits: ["Gratitud", "Celebración", "Abundancia"]
-          }
-        ]
-      }
-    },
-    wellbeingRecipes: [
-      {
-        title: "Té de Manzanilla y Jengibre",
-        description: "Infusión calmante para momentos de tensión",
-        ingredients: ["Manzanilla", "Jengibre", "Miel"],
-        benefits: ["Calma", "Digestión", "Relajación"]
-      },
-      {
-        title: "Smoothie de Frutos Rojos",
-        description: "Bebida energética rica en antioxidantes",
-        ingredients: ["Frambuesas", "Arándanos", "Plátano", "Leche de Almendras"],
-        benefits: ["Energía", "Antioxidantes", "Vitalidad"]
-      }
-    ]
-  };
+    };
+    fetchRituals();
+  }, []);
 
   // --- VISTA NO EXPANDIDA ---
   if (!expanded) {
@@ -191,6 +110,22 @@ const RitualsView: React.FC<RitualsViewProps> = ({ expanded = true }) => {
   }
 
   // --- VISTA EXPANDIDA ---
+  if (loading) {
+    return (
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: 360, width: '100%' }}
+      >
+        <div className="loading-spinner" />
+      </motion.div>
+    );
+  }
+
+  // Filtrar rituales por fase si se desea
+  const phaseRituals = rituals.filter(r => r.targetPhase === currentPhase);
+  const moonRituals = rituals.filter(r => r.tags && r.tags.includes('moon'));
+
   return (
     <motion.div
       initial={{ opacity: 0, scale: 0.98 }}
@@ -220,10 +155,9 @@ const RitualsView: React.FC<RitualsViewProps> = ({ expanded = true }) => {
         marginBottom: 8,
         flexWrap: isMobile ? 'wrap' : 'nowrap',
       }}>
-        {[ 
+        {[
           { id: 'phase', label: 'Por Fase', icon: RitualIcons.sun("#4A9D7B") },
           { id: 'moon', label: 'Luna', icon: RitualIcons.moon("#4A9D7B") },
-          { id: 'recipes', label: 'Recetas', icon: RitualIcons.heart("#4A9D7B") }
         ].map(category => (
           <motion.button
             key={category.id}
@@ -269,79 +203,30 @@ const RitualsView: React.FC<RitualsViewProps> = ({ expanded = true }) => {
                 color: '#4A9D7B', 
                 marginBottom: 16 
               }}>
-                {ritualData.phaseRituals[currentPhase]?.title || "Rituales para tu fase"}
+                Rituales para tu fase
               </h3>
-              <p style={{ 
-                color: '#666', 
-                marginBottom: 24, 
-                fontSize: isMobile ? 14 : isTablet ? 16 : 17 
-              }}>
-                {ritualData.phaseRituals[currentPhase]?.description || "Descubre rituales especiales para esta fase de tu ciclo"}
+              <p style={{ color: '#666', marginBottom: 24, fontSize: isMobile ? 14 : isTablet ? 16 : 17 }}>
+                Descubre rituales especiales para esta fase de tu ciclo
               </p>
             </div>
-            <div style={{ 
-              flex: isMobile ? 'none' : 2, 
-              minWidth: isMobile ? '100%' : 320, 
-              display: 'flex', 
-              flexDirection: 'column', 
-              gap: 16 
-            }}>
-              {ritualData.phaseRituals[currentPhase]?.rituals.map((ritual: Ritual, index: number) => (
+            <div style={{ flex: isMobile ? 'none' : 2, minWidth: isMobile ? '100%' : 320, display: 'flex', flexDirection: 'column', gap: 16 }}>
+              {phaseRituals.length > 0 ? phaseRituals.map((ritual, index) => (
                 <motion.div
-                  key={index}
+                  key={ritual.id}
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: index * 0.1 }}
-                  style={{
-                    background: 'transparent',
-                    padding: isMobile ? 16 : 20,
-                    borderRadius: 12,
-                    boxShadow: 'none',
-                  }}
+                  style={{ background: 'transparent', padding: isMobile ? 16 : 20, borderRadius: 12, boxShadow: 'none' }}
                 >
-                  <h4 style={{ 
-                    fontSize: isMobile ? 16 : 18, 
-                    color: '#4A9D7B', 
-                    marginBottom: 8 
-                  }}>
-                    {ritual.title}
-                  </h4>
-                  <p style={{ 
-                    color: '#666', 
-                    marginBottom: 12, 
-                    fontSize: isMobile ? 13 : 15 
-                  }}>
-                    {ritual.description}
-                  </p>
-                  <div style={{
-                    display: 'flex',
-                    gap: 8,
-                    flexWrap: 'wrap',
-                    marginBottom: 12,
-                  }}>
-                    {ritual.benefits.map((benefit: string, idx: number) => (
-                      <span key={idx} style={{
-                        background: '#4A9D7B',
-                        color: '#fff',
-                        padding: '4px 8px',
-                        borderRadius: 12,
-                        fontSize: 12,
-                      }}>
-                        {benefit}
-                      </span>
-                    ))}
-                  </div>
-                  <div style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: 8,
-                    color: '#666',
-                    fontSize: 13,
-                  }}>
-                    <span>⏱️ {ritual.duration}</span>
+                  <h4 style={{ fontSize: isMobile ? 16 : 18, color: '#4A9D7B', marginBottom: 8 }}>{ritual.title}</h4>
+                  <p style={{ color: '#666', marginBottom: 12, fontSize: isMobile ? 13 : 15 }}>{ritual.summary}</p>
+                  <div style={{ color: '#666', fontSize: 13, marginBottom: 8 }}>
+                    {ritual.body}
                   </div>
                 </motion.div>
-              ))}
+              )) : (
+                <div style={{ color: '#C62328', fontWeight: 500, fontSize: 15 }}>No hay rituales para esta fase.</div>
+              )}
             </div>
           </>
         )}
@@ -356,64 +241,21 @@ const RitualsView: React.FC<RitualsViewProps> = ({ expanded = true }) => {
               </p>
             </div>
             <div style={{ flex: 2, minWidth: 320, display: 'flex', flexDirection: 'column', gap: 16 }}>
-              {Object.entries(ritualData.moonRituals).map(([phase, data]: [string, MoonRitual], index: number) => (
+              {moonRituals.length > 0 ? moonRituals.map((ritual, index) => (
                 <motion.div
-                  key={phase}
+                  key={ritual.id}
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: index * 0.1 }}
-                  style={{
-                    background: 'transparent',
-                    padding: 20,
-                    borderRadius: 12,
-                    boxShadow: 'none',
-                  }}
+                  style={{ background: 'transparent', padding: 20, borderRadius: 12, boxShadow: 'none' }}
                 >
-                  <h4 style={{ fontSize: 18, color: '#4A9D7B', marginBottom: 8 }}>
-                    {data.title}
-                  </h4>
-                  <p style={{ color: '#666', marginBottom: 12, fontSize: 15 }}>
-                    {data.description}
-                  </p>
-                  {data.rituals.map((ritual: Ritual, idx: number) => (
-                    <div key={idx} style={{ marginTop: 12 }}>
-                      <h5 style={{ fontSize: 15, color: '#4A9D7B', marginBottom: 8 }}>
-                        {ritual.title}
-                      </h5>
-                      <p style={{ color: '#666', marginBottom: 8, fontSize: 14 }}>
-                        {ritual.description}
-                      </p>
-                      <div style={{
-                        display: 'flex',
-                        gap: 8,
-                        flexWrap: 'wrap',
-                        marginBottom: 8,
-                      }}>
-                        {ritual.benefits.map((benefit: string, bIdx: number) => (
-                          <span key={bIdx} style={{
-                            background: '#4A9D7B',
-                            color: '#fff',
-                            padding: '4px 8px',
-                            borderRadius: 12,
-                            fontSize: 12,
-                          }}>
-                            {benefit}
-                          </span>
-                        ))}
-                      </div>
-                      <div style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: 8,
-                        color: '#666',
-                        fontSize: 13,
-                      }}>
-                        <span>⏱️ {ritual.duration}</span>
-                      </div>
-                    </div>
-                  ))}
+                  <h4 style={{ fontSize: 18, color: '#4A9D7B', marginBottom: 8 }}>{ritual.title}</h4>
+                  <p style={{ color: '#666', marginBottom: 12, fontSize: 15 }}>{ritual.summary}</p>
+                  <div style={{ color: '#666', fontSize: 13, marginBottom: 8 }}>{ritual.body}</div>
                 </motion.div>
-              ))}
+              )) : (
+                <div style={{ color: '#C62328', fontWeight: 500, fontSize: 15 }}>No hay rituales de luna.</div>
+              )}
             </div>
           </>
         )}

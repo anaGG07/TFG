@@ -63,8 +63,8 @@ const IntrospectionBox: React.FC = () => {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.7, ease: "easeOut" }}
-        className="bg-[#f8f4f1] rounded-2xl shadow-inner p-6 max-w-xl w-full"
-        style={{ boxShadow: "0 4px 24px 0 #e7e0d5, 0 -4px 24px 0 #fff" }}
+        className="rounded-2xl shadow-inner p-6 max-w-xl w-full"
+        style={{ boxShadow: "0 4px 24px 0 #e7e0d5, 0 -4px 24px 0 #fff", background: 'transparent' }}
       >
         {loading ? (
           <div className="text-center text-[#C62328] text-lg font-serif italic animate-pulse">Cargando...</div>
@@ -78,7 +78,9 @@ const IntrospectionBox: React.FC = () => {
             </div>
           </>
         ) : (
-          <div className="text-center text-[#C62328] text-lg font-serif italic">No hay contenido disponible</div>
+          <div className="text-center text-[#C62328] text-lg font-serif italic">
+            "La introspección es el primer paso hacia el bienestar."
+          </div>
         )}
       </motion.div>
     </div>

@@ -20,6 +20,7 @@ export enum ContentType {
   ARTICLE = 'article',
   SELFCARE = 'selfcare',
   RECOMMENDATION = 'recommendation',
+  RITUAL = 'ritual',
 }
 
 export interface User {

@@ -61,18 +61,34 @@ const CommunityBox: React.FC<{ expanded: boolean }> = ({ expanded }) => {
 
   // Vista NO expandida: solo SVG portada
   if (!expanded) {
+    // Ajustar tamaño igual que otras cajas
+    const svgSize = isMobile
+      ? { width: 240, height: 165 }
+      : isTablet
+      ? { width: 280, height: 192 }
+      : { width: 320, height: 220 };
     return (
-      <div className="flex flex-col items-center justify-center h-full">
-        <img src="/img/32.svg" alt="Comunidad" className={isMobile ? "w-24 h-24" : "w-32 h-32"} />
+      <div className="flex flex-col items-center justify-center h-full w-full">
+        <img
+          src="/img/32.svg"
+          alt="Comunidad"
+          style={{
+            width: svgSize.width,
+            height: svgSize.height,
+            opacity: 0.97,
+            objectFit: 'contain',
+          }}
+        />
       </div>
     );
   }
 
+  // Vista expandida
   return (
-    <div className={`h-full flex ${isMobile || isTablet ? "flex-col" : "flex-row"} px-6 py-8`}>
+    <div className={`h-full flex ${isMobile || isTablet ? "flex-col" : "flex-row"} px-6 py-8 w-full`}> 
       {/* Carrusel vertical/horizontal de avatares */}
       <motion.div
-        className={`flex ${isMobile || isTablet ? "flex-row overflow-x-auto gap-4 mb-6" : "flex-col gap-4 mr-8"} items-center`}
+        className={`flex ${isMobile || isTablet ? "flex-row overflow-x-auto gap-4 mb-6" : "flex-col gap-4 mr-8"} items-center justify-center`}
         initial={{ opacity: 0, x: -20 }}
         animate={{ opacity: 1, x: 0 }}
         transition={{ duration: 0.5 }}
@@ -96,9 +112,8 @@ const CommunityBox: React.FC<{ expanded: boolean }> = ({ expanded }) => {
               </span>
             </motion.button>
           ))
-        ) : (
-          <div className="flex flex-col items-center justify-center py-8">
-            <img src="/img/32.svg" alt="Comunidad" className="w-16 h-16 mb-4 opacity-60" />
+        ) :
+          <div className="flex flex-col items-center justify-center py-8 w-full h-full">
             <div className="text-center text-[#7a2323] text-sm mb-2">
               ¡Todavía no sigues a nadie! <br />
               Empieza a construir tu comunidad.
@@ -107,11 +122,11 @@ const CommunityBox: React.FC<{ expanded: boolean }> = ({ expanded }) => {
               Explorar comunidad
             </button>
           </div>
-        )}
+        }
       </motion.div>
       {/* Mini calendario o resumen a la derecha/abajo */}
       <div className={`flex-1 flex flex-col items-center justify-center ${isMobile || isTablet ? "mt-4" : "ml-8"}`}>
-        <AnimatePresence mode="wait">
+        <AnimatePresence>
           {selectedId && !calendarLoading ? (
             <motion.div
               key={selectedId}
