@@ -166,22 +166,7 @@ const NeomorphicDayCell: React.FC<{
         </motion.div>
       )}
       
-      {/* INDICADOR DE PREDICCIÓN EN ESQUINA SUPERIOR IZQUIERDA */}
-      {isPredicted && (
-        <motion.div 
-          className={`absolute top-1 left-1 bg-blue-400 rounded-full ${
-            isMobile ? 'w-2 h-2' : 'w-2.5 h-2.5'
-          }`}
-          initial={{ scale: 0 }}
-          animate={{ scale: 1 }}
-          transition={{ 
-            delay: 0.1,
-            type: "spring",
-            stiffness: 500,
-            damping: 25
-          }}
-        />
-      )}
+      {/* INDICADOR DE PREDICCIÓN ELIMINADO PARA MEJORAR UX */}
 
       {/* INDICADORES DE FLUJO CON ESTILO PREDICCIÓN */}
       {dayData?.flowIntensity && dayData.flowIntensity > 0 && (
@@ -565,7 +550,7 @@ export const NeomorphicCalendar: React.FC<NeomorphicCalendarProps> = ({
           />
         </div>
 
-        {/* LEYENDA COMPACTA CON INDICADOR DE PREDICCIONES */}
+        {/* LEYENDA COMPACTA MEJORADA */}
         <motion.div className={`flex flex-wrap gap-1 ${
           isMobile ? 'mt-1 justify-center' : 'mt-2 gap-2'
         }`}>
@@ -573,29 +558,15 @@ export const NeomorphicCalendar: React.FC<NeomorphicCalendarProps> = ({
             <div key={phase} className={`flex items-center gap-1 ${
               isMobile ? 'text-xs' : 'text-xs'
             }`}>
-              <div className={`relative bg-[#e7e0d5] rounded-sm border border-gray-200 flex items-center justify-center overflow-hidden ${
+              <div className={`relative rounded-sm border border-gray-200 flex items-center justify-center overflow-hidden ${
                 isMobile ? 'w-6 h-5' : 'w-8 h-6'
-              }`}>
-                {phase === "menstrual" ? (
-                  <div className="w-full h-full bg-[#fef2f2] rounded-sm flex items-center justify-center">
-                    <div className="scale-[0.7]">
-                      {config.icon("#ef4444")}
-                    </div>
-                  </div>
-                ) : phase === "ovulacion" ? (
-                  <div className="w-full h-full bg-purple-50 rounded-sm flex items-center justify-center">
-                    <div className="scale-[0.7]">
-                      {config.icon("#8b5cf6")}
-                    </div>
-                  </div>
-                ) : (
-                  <>
-                    <div className={`absolute top-0.5 ${config.leftBorder}`} />
-                    <div className="scale-[0.7]">
-                      {phase === "folicular" ? config.icon("#10b981") : config.icon("#f59e0b")}
-                    </div>
-                  </>
-                )}
+              } ${config.fullBackground}`}>
+                <div className="scale-[0.7]">
+                  {phase === "menstrual" ? config.icon("#ef4444") :
+                   phase === "folicular" ? config.icon("#10b981") :
+                   phase === "ovulacion" ? config.icon("#8b5cf6") :
+                   config.icon("#f59e0b")}
+                </div>
               </div>
               {!isMobile && (
                 <span className="text-[#7a2323] capitalize font-medium">
@@ -604,17 +575,6 @@ export const NeomorphicCalendar: React.FC<NeomorphicCalendarProps> = ({
               )}
             </div>
           ))}
-          {/* Indicador de predicciones */}
-          <div className={`flex items-center gap-1 border-l pl-1 ml-1 ${
-            isMobile ? 'text-xs' : 'text-xs pl-2 ml-1'
-          }`}>
-            <div className={`rounded-full bg-blue-400 opacity-70 ${
-              isMobile ? 'w-2 h-2' : 'w-2.5 h-2.5'
-            }`} />
-            {!isMobile && (
-              <span className="text-[#7a2323] font-medium">Predicción</span>
-            )}
-          </div>
         </motion.div>
       </motion.div>
 
