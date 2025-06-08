@@ -10,7 +10,7 @@ import ProfileForm from "../components/profile/ProfileForm";
 import SecurityForm from "../components/profile/SecurityForm";
 import NotificationsForm from "../components/profile/NotificationsForm";
 import AvatarBuilder from "../components/avatarBuilder/AvatarBuilder";
-import { User as UserIcon, Lock, Bell } from "lucide-react";
+import { User as UserIcon, Lock, Bell, LogOut } from "lucide-react";
 import { getRandomAvatarConfig } from "../components/avatarBuilder/randomAvatar";
 import NeomorphicToast from "../components/ui/NeomorphicToast";
 
@@ -24,10 +24,11 @@ const iconMap: Record<string, React.ReactNode> = {
   user: <UserIcon size={28} stroke="#C62328" strokeWidth={2.2} />,
   lock: <Lock size={28} stroke="#C62328" strokeWidth={2.2} />,
   bell: <Bell size={28} stroke="#C62328" strokeWidth={2.2} />,
+  logout: <LogOut size={28} stroke="#C62328" strokeWidth={2.2} />,
 };
 
 const ProfilePage: React.FC = () => {
-  const { user, checkAuth } = useAuth();
+  const { user, checkAuth, logout } = useAuth();
   const [activeTab, setActiveTab] = useState<"privacy" | "security" | "notifications">("privacy");
   
   // Hook para detectar tamaño de pantalla
@@ -236,8 +237,11 @@ const ProfilePage: React.FC = () => {
     >
       {/* Columna izquierda: Avatar */}
       <div
-        className="flex flex-col items-center justify-center w-full lg:w-[420px] lg:min-w-[340px] h-screen px-2 gap-6 relative max-h-screen overflow-visible"
-        style={{ minHeight: "unset" }}
+        className={
+          `flex flex-col items-center justify-center w-full lg:w-[420px] lg:min-w-[340px] px-2 gap-6 relative max-h-screen overflow-visible` +
+          (isMobile ? '' : ' h-screen')
+        }
+        style={{ minHeight: isMobile ? undefined : "unset" }}
       >
         {/* Línea de separación neumórfica - solo desktop */}
         <div className="hidden lg:block absolute right-0 h-full w-[2.5rem] flex items-center justify-center z-10">
@@ -386,6 +390,20 @@ const ProfilePage: React.FC = () => {
                   </div>
                 </button>
               ))}
+              {/* Botón de logout solo en móvil */}
+              {isMobile && (
+                <button
+                  className="flex items-center justify-center w-12 h-12 lg:w-14 lg:h-14 rounded-full transition-all duration-200 bg-transparent border-none shadow-none p-0 opacity-60 hover:opacity-100 text-[#C62328]"
+                  style={{ boxSizing: "border-box", background: "none" }}
+                  onClick={async () => await logout()}
+                  type="button"
+                  aria-label="Cerrar sesión"
+                >
+                  <div className="scale-90 lg:scale-100">
+                    {iconMap.logout}
+                  </div>
+                </button>
+              )}
             </div>
             <div className="w-full max-w-2xl min-h-[320px]">
               <AnimatePresence mode="wait">

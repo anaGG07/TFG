@@ -103,6 +103,8 @@ export interface CycleDay {
   // Propiedades para predicciones
   isPrediction?: boolean;
   confidence?: number;
+  // Control de cambios locales
+  isLocalChange?: boolean;
 }
 
 export interface HormoneLevel {

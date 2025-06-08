@@ -739,20 +739,23 @@ export const NeomorphicCalendar: React.FC<NeomorphicCalendarProps> = ({
       
       console.log('=== DATOS GUARDADOS EXITOSAMENTE ===');
       
-      // IMPORTANTE: Esperar un momento y luego refrescar los datos
-      setTimeout(async () => {
-        try {
-          const { start, end } = getDateRange(currentDate, viewType);
-          console.log('=== REFRESCANDO CALENDARIO ===');
-          console.log('Rango:', format(start, 'yyyy-MM-dd'), 'a', format(end, 'yyyy-MM-dd'));
-          
-          await refetch(start, end);
-          
-          console.log('=== CALENDARIO REFRESCADO ===');
-        } catch (error) {
-          console.error('Error al refrescar calendario:', error);
-        }
-      }, 1000); // Esperar 1 segundo para que el backend procese
+      // DESACTIVADO TEMPORALMENTE: No refrescar automáticamente para probar persistencia local
+      console.log('⚠️ Refetch automático desactivado para debugging. Los datos deberían persistir localmente.');
+      
+      // TODO: Reactivar una vez solucionado el problema de endpoints
+      // setTimeout(async () => {
+      //   try {
+      //     const { start, end } = getDateRange(currentDate, viewType);
+      //     console.log('=== REFRESCANDO CALENDARIO ===');
+      //     console.log('Rango:', format(start, 'yyyy-MM-dd'), 'a', format(end, 'yyyy-MM-dd'));
+      //     
+      //     await refetch(start, end);
+      //     
+      //     console.log('=== CALENDARIO REFRESCADO ===');
+      //   } catch (error) {
+      //     console.error('Error al refrescar calendario:', error);
+      //   }
+      // }, 1000);
       
     } catch (error) {
       console.error("=== ERROR AL GUARDAR ===:", error);

@@ -1,6 +1,7 @@
 import React, { useMemo, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import DraggableGrid from "../components/DraggableGrid";
+import { useViewport } from "../hooks/useViewport";
 
 // =============================================================================
 // TYPES & INTERFACES
@@ -10,7 +11,13 @@ interface LibraryContent {
   id: string;
   title: string;
   summary: string;
-  type: "historical" | "research" | "phases" | "inclusivity" | "maternity" | "wisdom";
+  type:
+    | "historical"
+    | "research"
+    | "phases"
+    | "inclusivity"
+    | "maternity"
+    | "wisdom";
   readTime: string;
   tags: string[];
   isNew?: boolean;
@@ -40,15 +47,14 @@ interface GridItem {
 // DATA & CONSTANTS
 // =============================================================================
 
-const ITEMS_PER_PAGE = 8;
-
 const libraryData: Record<string, CategoryData> = {
   history: {
     articles: [
       {
         id: "h1",
         title: "Las Campañas Rojas: Reclamando el Poder Menstrual",
-        summary: "Historia del movimiento que transformó la percepción social de la menstruación",
+        summary:
+          "Historia del movimiento que transformó la percepción social de la menstruación",
         type: "historical",
         readTime: "8 min",
         tags: ["historia", "activismo", "sociedad"],
@@ -57,7 +63,8 @@ const libraryData: Record<string, CategoryData> = {
       {
         id: "h2",
         title: "Rituales Ancestrales: La Menstruación en Culturas Antiguas",
-        summary: "Explorando cómo las civilizaciones honraban los ciclos femeninos",
+        summary:
+          "Explorando cómo las civilizaciones honraban los ciclos femeninos",
         type: "historical",
         readTime: "12 min",
         tags: ["cultura", "rituales", "ancestral"],
@@ -65,7 +72,8 @@ const libraryData: Record<string, CategoryData> = {
       {
         id: "h3",
         title: "Diosas Menstruales en la Mitología Griega",
-        summary: "El papel sagrado de la menstruación en las creencias helénicas",
+        summary:
+          "El papel sagrado de la menstruación en las creencias helénicas",
         type: "historical",
         readTime: "15 min",
         tags: ["mitología", "grecia", "diosas"],
@@ -107,7 +115,8 @@ const libraryData: Record<string, CategoryData> = {
       {
         id: "h8",
         title: "Arte y Menstruación: Expresiones Culturales",
-        summary: "Representaciones artísticas del ciclo a través de la historia",
+        summary:
+          "Representaciones artísticas del ciclo a través de la historia",
         type: "historical",
         readTime: "13 min",
         tags: ["arte", "cultura", "expresión"],
@@ -139,7 +148,8 @@ const libraryData: Record<string, CategoryData> = {
       {
         id: "h12",
         title: "Influencia Religiosa en la Percepción Menstrual",
-        summary: "Cómo las religiones moldearon actitudes hacia la menstruación",
+        summary:
+          "Cómo las religiones moldearon actitudes hacia la menstruación",
         type: "historical",
         readTime: "20 min",
         tags: ["religión", "percepción", "actitudes"],
@@ -308,7 +318,8 @@ const libraryData: Record<string, CategoryData> = {
 const categoryConfig: Record<string, CategoryInfo> = {
   history: {
     name: "Mnemósine",
-    description: "Historias reales de la menstruación en civilizaciones antiguas",
+    description:
+      "Historias reales de la menstruación en civilizaciones antiguas",
     unitLabel: "artículos",
   },
   science: {
@@ -343,24 +354,24 @@ const getShortTitle = (title: string): string => {
   const keyWords: Record<string, string> = {
     "Campañas Rojas": "Campañas",
     "Rituales Ancestrales": "Rituales",
-    "Nuevos Hallazgos": "Hallazgos", 
-    "Endometriosis": "Endometriosis",
+    "Nuevos Hallazgos": "Hallazgos",
+    Endometriosis: "Endometriosis",
     "Fase Folicular": "Folicular",
     "Apoyo Durante la Transición": "Transición",
     "Fertilidad y Planificación": "Fertilidad",
-    "Menopausia": "Menopausia"
+    Menopausia: "Menopausia",
   };
-  
+
   // Buscar coincidencia exacta primero
   for (const [fullTitle, shortTitle] of Object.entries(keyWords)) {
     if (title.includes(fullTitle)) {
       return shortTitle;
     }
   }
-  
+
   // Si no hay coincidencia, tomar las primeras 2 palabras
-  const words = title.split(' ');
-  return words.length > 2 ? words.slice(0, 2).join(' ') : title;
+  const words = title.split(" ");
+  return words.length > 2 ? words.slice(0, 2).join(" ") : title;
 };
 
 // =============================================================================
@@ -369,53 +380,69 @@ const getShortTitle = (title: string): string => {
 
 const getTypeColor = (type: LibraryContent["type"]): string => {
   const colors = {
-    historical: "linear-gradient(135deg, #C62328, #9d0d0b)",    // Rojo - Mnemósine
-    research: "linear-gradient(135deg, #2563eb, #1d4ed8)",     // Azul - Atenea  
-    phases: "linear-gradient(135deg, #7c3aed, #5b21b6)",       // Púrpura - Selene
-    inclusivity: "linear-gradient(135deg, #059669, #047857)",  // Verde - Artemisa
-    maternity: "linear-gradient(135deg, #dc2626, #b91c1c)",    // Rosa/Rojo - Deméter
-    wisdom: "linear-gradient(135deg, #f59e0b, #d97706)",       // Dorado - Hestia
+    historical: "linear-gradient(135deg, #C62328, #9d0d0b)", // Rojo - Mnemósine
+    research: "linear-gradient(135deg, #2563eb, #1d4ed8)", // Azul - Atenea
+    phases: "linear-gradient(135deg, #7c3aed, #5b21b6)", // Púrpura - Selene
+    inclusivity: "linear-gradient(135deg, #059669, #047857)", // Verde - Artemisa
+    maternity: "linear-gradient(135deg, #dc2626, #b91c1c)", // Rosa/Rojo - Deméter
+    wisdom: "linear-gradient(135deg, #f59e0b, #d97706)", // Dorado - Hestia
   };
   return colors[type] || colors.historical;
 };
 
 const getTypeIcon = (type: LibraryContent["type"]): React.ReactElement => {
   const iconStyle = { width: "12px", height: "12px", color: "white" };
-  
+
   const icons = {
     historical: (
       <svg style={iconStyle} fill="currentColor" viewBox="0 0 20 20">
-        <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+        <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
       </svg>
     ),
     research: (
       <svg style={iconStyle} fill="currentColor" viewBox="0 0 20 20">
-        <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"/>
-        <path fillRule="evenodd" d="M4 5a2 2 0 012-2v1a1 1 0 001 1h6a1 1 0 001-1V3a2 2 0 012 2v6a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 2a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z" clipRule="evenodd"/>
+        <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z" />
+        <path
+          fillRule="evenodd"
+          d="M4 5a2 2 0 012-2v1a1 1 0 001 1h6a1 1 0 001-1V3a2 2 0 012 2v6a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 2a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z"
+          clipRule="evenodd"
+        />
       </svg>
     ),
     phases: (
       <svg style={iconStyle} fill="currentColor" viewBox="0 0 20 20">
-        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM4.332 8.027a6.012 6.012 0 011.912-2.706C6.512 5.73 6.974 6 7.5 6A1.5 1.5 0 019 7.5V8a2 2 0 004 0 2 2 0 011.523-1.943A5.977 5.977 0 0116 10c0 .34-.028.675-.083 1H15a2 2 0 00-2 2v2.197A5.973 5.973 0 0110 16v-2a2 2 0 00-2-2 2 2 0 01-2-2 2 2 0 00-1.668-1.973z" clipRule="evenodd"/>
+        <path
+          fillRule="evenodd"
+          d="M10 18a8 8 0 100-16 8 8 0 000 16zM4.332 8.027a6.012 6.012 0 011.912-2.706C6.512 5.73 6.974 6 7.5 6A1.5 1.5 0 019 7.5V8a2 2 0 004 0 2 2 0 011.523-1.943A5.977 5.977 0 0116 10c0 .34-.028.675-.083 1H15a2 2 0 00-2 2v2.197A5.973 5.973 0 0110 16v-2a2 2 0 00-2-2 2 2 0 01-2-2 2 2 0 00-1.668-1.973z"
+          clipRule="evenodd"
+        />
       </svg>
     ),
     inclusivity: (
       <svg style={iconStyle} fill="currentColor" viewBox="0 0 20 20">
-        <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+        <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
       </svg>
     ),
     maternity: (
       <svg style={iconStyle} fill="currentColor" viewBox="0 0 20 20">
-        <path fillRule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clipRule="evenodd"/>
+        <path
+          fillRule="evenodd"
+          d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z"
+          clipRule="evenodd"
+        />
       </svg>
     ),
     wisdom: (
       <svg style={iconStyle} fill="currentColor" viewBox="0 0 20 20">
-        <path fillRule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z" clipRule="evenodd"/>
+        <path
+          fillRule="evenodd"
+          d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z"
+          clipRule="evenodd"
+        />
       </svg>
     ),
   };
-  
+
   return icons[type] || icons.historical;
 };
 
@@ -426,41 +453,44 @@ const getTypeIcon = (type: LibraryContent["type"]): React.ReactElement => {
 const useSearch = (articles: LibraryContent[], searchTerm: string) => {
   return useMemo(() => {
     if (!searchTerm.trim()) return articles;
-    
-    return articles.filter(article =>
-      article.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      article.tags.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase()))
+
+    return articles.filter(
+      (article) =>
+        article.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        article.tags.some((tag) =>
+          tag.toLowerCase().includes(searchTerm.toLowerCase())
+        )
     );
   }, [articles, searchTerm]);
 };
 
-const usePagination = (items: LibraryContent[], itemsPerPage: number = ITEMS_PER_PAGE) => {
+const usePagination = (items: LibraryContent[], itemsPerPage: number) => {
   const [currentPage, setCurrentPage] = useState(0);
-  
+
   const totalPages = Math.ceil(items.length / itemsPerPage);
   const currentItems = items.slice(
     currentPage * itemsPerPage,
     (currentPage + 1) * itemsPerPage
   );
-  
+
   const nextPage = () => {
     if (currentPage < totalPages - 1) {
       setCurrentPage(currentPage + 1);
     }
   };
-  
+
   const prevPage = () => {
     if (currentPage > 0) {
       setCurrentPage(currentPage - 1);
     }
   };
-  
+
   const goToPage = (page: number) => {
     if (page >= 0 && page < totalPages) {
       setCurrentPage(page);
     }
   };
-  
+
   return {
     currentPage,
     totalPages,
@@ -482,7 +512,7 @@ const ArticleWidget: React.FC<{
   onClick: () => void;
 }> = ({ article, index, onClick }) => (
   <motion.div
-    className="aspect-square cursor-pointer group relative overflow-hidden w-full max-w-[120px] mx-auto"
+    className="aspect-square cursor-pointer group relative overflow-hidden w-full"
     style={{
       background: "linear-gradient(145deg, #f4f1ed, #e7e0d5)",
       borderRadius: "12px",
@@ -513,7 +543,7 @@ const ArticleWidget: React.FC<{
     {/* Badge nuevo - estilo neomorphic */}
     {article.isNew && (
       <div className="absolute top-1 right-1 z-10">
-        <div 
+        <div
           className="text-white text-xs px-1.5 py-0.5 rounded-full font-medium text-[10px] leading-tight"
           style={{
             background: "linear-gradient(135deg, #C62328, #9d0d0b)",
@@ -532,16 +562,14 @@ const ArticleWidget: React.FC<{
     <div className="p-2 h-full flex flex-col justify-between">
       {/* Icono del tipo - más pequeño */}
       <div className="flex-shrink-0 mb-2">
-        <div 
+        <div
           className="w-6 h-6 rounded-lg flex items-center justify-center"
           style={{
             background: getTypeColor(article.type),
-            boxShadow: "inset 1px 1px 2px rgba(0,0,0,0.1)"
+            boxShadow: "inset 1px 1px 2px rgba(0,0,0,0.1)",
           }}
         >
-          <div className="w-3 h-3">
-            {getTypeIcon(article.type)}
-          </div>
+          <div className="w-3 h-3">{getTypeIcon(article.type)}</div>
         </div>
       </div>
 
@@ -554,8 +582,8 @@ const ArticleWidget: React.FC<{
 
       {/* Footer con tiempo de lectura */}
       <div className="flex-shrink-0 text-center">
-        <span 
-          className="text-[10px] text-[#7a2323] font-semibold px-2 py-1 rounded-lg" 
+        <span
+          className="text-[10px] text-[#7a2323] font-semibold px-2 py-1 rounded-lg"
           title="Tiempo estimado de lectura"
           style={{
             background: "linear-gradient(145deg, #e7e0d5, #d5cdc0)",
@@ -623,19 +651,29 @@ const ArticleModal: React.FC<{
             }}
             className="absolute top-4 sm:top-6 right-4 sm:right-6 text-[#C62328] hover:text-[#7a2323] transition-colors z-10"
           >
-            <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            <svg
+              className="w-5 h-5 sm:w-6 sm:h-6"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M6 18L18 6M6 6l12 12"
+              />
             </svg>
           </button>
 
           <div className="pr-4 sm:pr-6 md:pr-8">
             <div className="mb-4 sm:mb-6">
               <div className="flex items-center gap-2 sm:gap-3 mb-3 sm:mb-4">
-                <div 
+                <div
                   className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center"
                   style={{
                     background: getTypeColor(article.type),
-                    boxShadow: "inset 2px 2px 4px rgba(0,0,0,0.1)"
+                    boxShadow: "inset 2px 2px 4px rgba(0,0,0,0.1)",
                   }}
                 >
                   {getTypeIcon(article.type)}
@@ -646,15 +684,15 @@ const ArticleModal: React.FC<{
                   </span>
                 )}
               </div>
-              
+
               <h2 className="text-lg sm:text-xl md:text-2xl font-serif font-bold text-[#5b0108] mb-2 sm:mb-3 leading-tight">
                 {article.title}
               </h2>
-              
+
               <p className="text-sm sm:text-base text-[#7a2323] mb-3 sm:mb-4 leading-relaxed">
                 {article.summary}
               </p>
-              
+
               <div className="flex items-center justify-between">
                 <div className="flex flex-wrap gap-2">
                   {article.tags.map((tag) => (
@@ -662,7 +700,7 @@ const ArticleModal: React.FC<{
                       key={tag}
                       className="text-sm bg-[#e7e0d5] text-[#5b0108] px-3 py-1 rounded-xl font-medium"
                       style={{
-                        boxShadow: "2px 2px 4px rgba(91, 1, 8, 0.08)"
+                        boxShadow: "2px 2px 4px rgba(91, 1, 8, 0.08)",
                       }}
                     >
                       {tag}
@@ -674,21 +712,24 @@ const ArticleModal: React.FC<{
                 </span>
               </div>
             </div>
-            
+
             <div className="prose prose-sm max-w-none">
               <div className="text-[#5b0108] leading-relaxed space-y-4">
                 <p>
-                  Este es el contenido completo del artículo. En una implementación real, 
-                  aquí se cargaría el contenido desde el backend.
+                  Este es el contenido completo del artículo. En una
+                  implementación real, aquí se cargaría el contenido desde el
+                  backend.
                 </p>
                 <p>
-                  Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod 
-                  tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, 
-                  quis nostrud exercitation ullamco laboris.
+                  Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed
+                  do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+                  Ut enim ad minim veniam, quis nostrud exercitation ullamco
+                  laboris.
                 </p>
                 <p>
-                  Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore 
-                  eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident.
+                  Duis aute irure dolor in reprehenderit in voluptate velit esse
+                  cillum dolore eu fugiat nulla pariatur. Excepteur sint
+                  occaecat cupidatat non proident.
                 </p>
               </div>
             </div>
@@ -704,7 +745,7 @@ const SearchBar: React.FC<{
   onSearchChange: (term: string) => void;
 }> = ({ searchTerm, onSearchChange }) => (
   <motion.div
-    className="relative flex-1 max-w-xs mr-16"
+    className="relative flex-1"
     initial={{ opacity: 0, scale: 0.95 }}
     animate={{ opacity: 1, scale: 1 }}
     transition={{ delay: 0.2, duration: 0.3 }}
@@ -724,8 +765,18 @@ const SearchBar: React.FC<{
       }}
     />
     <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
-      <svg className="w-4 h-4 text-[#a62c2c]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+      <svg
+        className="w-4 h-4 text-[#a62c2c]"
+        fill="none"
+        stroke="currentColor"
+        viewBox="0 0 24 24"
+      >
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth="2"
+          d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+        />
       </svg>
     </div>
   </motion.div>
@@ -760,8 +811,14 @@ const Pagination: React.FC<{
             : "hover:bg-[#C62328]/10 cursor-pointer"
         } transition-all duration-200`}
         style={{
-          background: currentPage === 0 ? "transparent" : "linear-gradient(145deg, #fafaf9, #e7e5e4)",
-          boxShadow: currentPage === 0 ? "none" : `
+          background:
+            currentPage === 0
+              ? "transparent"
+              : "linear-gradient(145deg, #fafaf9, #e7e5e4)",
+          boxShadow:
+            currentPage === 0
+              ? "none"
+              : `
             3px 3px 6px rgba(91, 1, 8, 0.06),
             -3px -3px 6px rgba(255, 255, 255, 0.4)
           `,
@@ -769,8 +826,18 @@ const Pagination: React.FC<{
         whileHover={currentPage > 0 ? { scale: 1.05 } : {}}
         whileTap={currentPage > 0 ? { scale: 0.95 } : {}}
       >
-        <svg className="w-4 h-4 text-[#C62328]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7"/>
+        <svg
+          className="w-4 h-4 text-[#C62328]"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth="2"
+            d="M15 19l-7-7 7-7"
+          />
         </svg>
       </motion.button>
 
@@ -788,24 +855,27 @@ const Pagination: React.FC<{
                 : "text-[#C62328] hover:text-white"
             }`}
             style={{
-              background: i === currentPage 
-                ? "linear-gradient(135deg, #C62328, #9d0d0b)"
-                : "linear-gradient(145deg, #fafaf9, #e7e5e4)",
-              boxShadow: i === currentPage
-                ? `
+              background:
+                i === currentPage
+                  ? "linear-gradient(135deg, #C62328, #9d0d0b)"
+                  : "linear-gradient(145deg, #fafaf9, #e7e5e4)",
+              boxShadow:
+                i === currentPage
+                  ? `
                   inset 2px 2px 4px rgba(91, 1, 8, 0.3),
                   inset -2px -2px 4px rgba(255, 108, 92, 0.2)
                 `
-                : `
+                  : `
                   3px 3px 6px rgba(91, 1, 8, 0.06),
                   -3px -3px 6px rgba(255, 255, 255, 0.4)
                 `,
             }}
-            whileHover={{ 
+            whileHover={{
               scale: 1.05,
-              background: i === currentPage 
-                ? "linear-gradient(135deg, #C62328, #9d0d0b)"
-                : "linear-gradient(135deg, #C62328, #9d0d0b)"
+              background:
+                i === currentPage
+                  ? "linear-gradient(135deg, #C62328, #9d0d0b)"
+                  : "linear-gradient(135deg, #C62328, #9d0d0b)",
             }}
             whileTap={{ scale: 0.95 }}
           >
@@ -826,8 +896,14 @@ const Pagination: React.FC<{
             : "hover:bg-[#C62328]/10 cursor-pointer"
         } transition-all duration-200`}
         style={{
-          background: currentPage === totalPages - 1 ? "transparent" : "linear-gradient(145deg, #fafaf9, #e7e5e4)",
-          boxShadow: currentPage === totalPages - 1 ? "none" : `
+          background:
+            currentPage === totalPages - 1
+              ? "transparent"
+              : "linear-gradient(145deg, #fafaf9, #e7e5e4)",
+          boxShadow:
+            currentPage === totalPages - 1
+              ? "none"
+              : `
             3px 3px 6px rgba(91, 1, 8, 0.06),
             -3px -3px 6px rgba(255, 255, 255, 0.4)
           `,
@@ -835,32 +911,51 @@ const Pagination: React.FC<{
         whileHover={currentPage < totalPages - 1 ? { scale: 1.05 } : {}}
         whileTap={currentPage < totalPages - 1 ? { scale: 0.95 } : {}}
       >
-        <svg className="w-4 h-4 text-[#C62328]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7"/>
+        <svg
+          className="w-4 h-4 text-[#C62328]"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth="2"
+            d="M9 5l7 7-7 7"
+          />
         </svg>
       </motion.button>
     </motion.div>
   );
 };
 
-const ExpandedContent: React.FC<{ 
-  categoryId: string; 
-  onClose?: () => void; 
+const ExpandedContent: React.FC<{
+  categoryId: string;
+  onClose?: () => void;
 }> = ({ categoryId, onClose }) => {
   const data = libraryData[categoryId];
   const config = categoryConfig[categoryId];
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedArticle, setSelectedArticle] = useState<LibraryContent | null>(null);
+  const [selectedArticle, setSelectedArticle] = useState<LibraryContent | null>(
+    null
+  );
   const [isModalOpen, setIsModalOpen] = useState(false);
-  
+  const { isMobile, isTablet } = useViewport();
+
+  const itemsPerPage = useMemo(() => {
+    if (isMobile) return 2;
+    if (isTablet) return 4;
+    return 6; // Adjust for slightly smaller cards on desktop
+  }, [isMobile, isTablet]);
+
   const filteredArticles = useSearch(data.articles, searchTerm);
-  const pagination = usePagination(filteredArticles);
-  
+  const pagination = usePagination(filteredArticles, itemsPerPage);
+
   const handleArticleClick = (article: LibraryContent) => {
     setSelectedArticle(article);
     setIsModalOpen(true);
   };
-  
+
   const handleCloseModal = () => {
     setIsModalOpen(false);
     setSelectedArticle(null);
@@ -868,10 +963,10 @@ const ExpandedContent: React.FC<{
 
   return (
     <>
-      <div className="h-full flex flex-col p-8">
-        <div className="flex-shrink-0 mb-8 pr-20">
+      <div className="h-full flex flex-col p-1 sm:p-6 md:p-8">
+        <div className="flex-shrink-0 mb-6 pr-0 sm:mb-8 sm:pr-8 md:pr-20">
           <motion.div
-            className="flex items-start justify-between gap-8"
+            className="flex items-start justify-between gap-2 sm:gap-8"
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
@@ -885,13 +980,11 @@ const ExpandedContent: React.FC<{
               </p>
             </div>
 
-            <div className="flex items-center gap-4">
-              <SearchBar 
+            <div className="flex items-center gap-2 sm:gap-4">
+              <SearchBar
                 searchTerm={searchTerm}
                 onSearchChange={setSearchTerm}
               />
-              
-              {/* Botón de cierre elegante */}
               <motion.button
                 onClick={(e) => {
                   e.stopPropagation();
@@ -904,91 +997,88 @@ const ExpandedContent: React.FC<{
                     -4px -4px 8px rgba(255, 255, 255, 0.6)
                   `,
                 }}
-                whileHover={{ 
+                whileHover={{
                   scale: 1.05,
                   boxShadow: `
                     6px 6px 12px rgba(91, 1, 8, 0.12),
                     -6px -6px 12px rgba(255, 255, 255, 0.8)
-                  `
+                  `,
                 }}
                 whileTap={{ scale: 0.95 }}
                 aria-label="Cerrar vista expandida"
               >
-                <svg 
-                  className="w-5 h-5 text-[#C62328] group-hover:text-[#7a2323] transition-colors duration-200" 
-                  fill="none" 
-                  stroke="currentColor" 
+                <svg
+                  className="w-5 h-5 text-[#C62328] group-hover:text-[#7a2323] transition-colors duration-200"
+                  fill="none"
+                  stroke="currentColor"
                   viewBox="0 0 24 24"
                   strokeWidth="2.5"
                 >
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12"/>
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M6 18L18 6M6 6l12 12"
+                  />
                 </svg>
               </motion.button>
             </div>
           </motion.div>
         </div>
 
-        {/* Leyenda de categorías */}
+        {/* Category Legend */}
         <motion.div
-          className="flex-shrink-0 mb-8"
+          className="flex-shrink-0 mb-6"
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3, duration: 0.4 }}
         >
-          <div className="flex items-center justify-center gap-6 px-6 py-4 rounded-2xl mx-auto max-w-5xl" 
-            style={{
-              background: "linear-gradient(145deg, #f4f1ed, #e7e0d5)",
-              border: "1px solid rgba(91, 1, 8, 0.08)",
-              boxShadow: `
-                inset 2px 2px 4px rgba(91, 1, 8, 0.06),
-                inset -2px -2px 4px rgba(255, 255, 255, 0.7)
-              `,
-            }}
-          >
-            <span className="text-xs font-medium text-[#5b0108] opacity-75">Categorías:</span>
-            
+          <div className="flex items-center justify-start gap-x-2 gap-y-1 px-2 py-1 rounded-2xl flex-wrap sm:gap-x-4 sm:px-4 sm:py-2 md:gap-x-6 md:px-6 md:py-3">
+            <span className="text-xs font-medium text-[#5b0108] opacity-75">
+              Categorías:
+            </span>
+
             <div className="flex items-center gap-1">
-              <div 
+              <div
                 className="w-3 h-3 rounded-sm"
                 style={{ background: getTypeColor("historical") }}
               />
               <span className="text-xs text-[#5b0108]">Historia</span>
             </div>
-            
+
             <div className="flex items-center gap-1">
-              <div 
+              <div
                 className="w-3 h-3 rounded-sm"
                 style={{ background: getTypeColor("research") }}
               />
               <span className="text-xs text-[#5b0108]">Ciencia</span>
             </div>
-            
+
             <div className="flex items-center gap-1">
-              <div 
+              <div
                 className="w-3 h-3 rounded-sm"
                 style={{ background: getTypeColor("phases") }}
               />
               <span className="text-xs text-[#5b0108]">Fases</span>
             </div>
-            
+
             <div className="flex items-center gap-1">
-              <div 
+              <div
                 className="w-3 h-3 rounded-sm"
                 style={{ background: getTypeColor("inclusivity") }}
               />
               <span className="text-xs text-[#5b0108]">Inclusividad</span>
             </div>
-            
+
             <div className="flex items-center gap-1">
-              <div 
+              <div
                 className="w-3 h-3 rounded-sm"
                 style={{ background: getTypeColor("maternity") }}
               />
               <span className="text-xs text-[#5b0108]">Maternidad</span>
             </div>
-            
+
             <div className="flex items-center gap-1">
-              <div 
+              <div
                 className="w-3 h-3 rounded-sm"
                 style={{ background: getTypeColor("wisdom") }}
               />
@@ -997,14 +1087,14 @@ const ExpandedContent: React.FC<{
           </div>
         </motion.div>
 
-        <div 
-          className="flex-1 overflow-hidden px-12"
+        <div
+          className="flex-1 overflow-hidden h-full"
           onClick={(e) => e.stopPropagation()}
         >
           <AnimatePresence mode="wait">
             <motion.div
               key={pagination.currentPage}
-              className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-4 md:gap-6 h-full content-center py-4 md:py-8 mx-auto max-w-5xl"
+              className={`grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-3 sm:gap-4 md:gap-6 h-full content-center py-4 md:py-8`}
               initial={{ opacity: 0, x: 50 }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -50 }}
@@ -1012,10 +1102,10 @@ const ExpandedContent: React.FC<{
               onClick={(e) => e.stopPropagation()}
             >
               {pagination.currentItems.map((article, index) => (
-                <ArticleWidget 
-                  key={article.id} 
-                  article={article} 
-                  index={index} 
+                <ArticleWidget
+                  key={article.id}
+                  article={article}
+                  index={index}
                   onClick={() => handleArticleClick(article)}
                 />
               ))}
@@ -1032,7 +1122,7 @@ const ExpandedContent: React.FC<{
         />
       </div>
 
-      <ArticleModal 
+      <ArticleModal
         article={selectedArticle}
         isOpen={isModalOpen}
         onClose={handleCloseModal}
@@ -1044,8 +1134,8 @@ const ExpandedContent: React.FC<{
 const TentButton: React.FC<{
   categoryId: string;
   onClick: () => void;
-  isSmall?: boolean;
-}> = ({ categoryId, onClick, isSmall = false }) => {
+  isSmall: boolean;
+}> = ({ categoryId, onClick, isSmall }) => {
   const [isHovered, setIsHovered] = useState(false);
   const [isClicked, setIsClicked] = useState(false);
   const config = categoryConfig[categoryId];
@@ -1101,7 +1191,7 @@ const TentButton: React.FC<{
             viewBox="0 0 300 180"
             className={`transition-all duration-500 ${
               isClicked ? "scale-95" : "scale-100"
-            } w-full h-auto max-w-[200px] sm:max-w-[250px] md:max-w-[300px]`}
+            } w-full h-auto`}
           >
             <path
               d={
@@ -1109,10 +1199,14 @@ const TentButton: React.FC<{
                   ? "M 148 15 L 30 150 L 110 150 Z"
                   : "M 148 15 L 50 150 L 148 150 Z"
               }
-              fill={isHovered ? "rgba(198, 35, 40, 0.12)" : "rgba(198, 35, 40, 0.06)"}
+              fill={
+                isHovered
+                  ? "rgba(198, 35, 40, 0.12)"
+                  : "rgba(198, 35, 40, 0.06)"
+              }
               stroke="#C62328"
               strokeWidth="4"
-              strokeLinejoin="miter" 
+              strokeLinejoin="miter"
               strokeLinecap="round"
               className="transition-all duration-500 ease-in-out drop-shadow-sm"
             />
@@ -1123,7 +1217,11 @@ const TentButton: React.FC<{
                   ? "M 152 15 L 190 150 L 270 150 Z"
                   : "M 152 15 L 152 150 L 250 150 Z"
               }
-              fill={isHovered ? "rgba(198, 35, 40, 0.18)" : "rgba(198, 35, 40, 0.09)"}
+              fill={
+                isHovered
+                  ? "rgba(198, 35, 40, 0.18)"
+                  : "rgba(198, 35, 40, 0.09)"
+              }
               stroke="#C62328"
               strokeWidth="4"
               strokeLinejoin="miter"
@@ -1137,7 +1235,12 @@ const TentButton: React.FC<{
                   <clipPath id={`tent-clip-${categoryId}`}>
                     <path d="M 150 25 L 110 160 L 190 160 Z" />
                   </clipPath>
-                  <radialGradient id={`glow-${categoryId}`} cx="50%" cy="50%" r="70%">
+                  <radialGradient
+                    id={`glow-${categoryId}`}
+                    cx="50%"
+                    cy="50%"
+                    r="70%"
+                  >
                     <stop offset="0%" stopColor="#C62328" stopOpacity="0.4" />
                     <stop offset="20%" stopColor="#C62328" stopOpacity="0.25" />
                     <stop offset="40%" stopColor="#C62328" stopOpacity="0.15" />
@@ -1146,7 +1249,7 @@ const TentButton: React.FC<{
                     <stop offset="100%" stopColor="#C62328" stopOpacity="0" />
                   </radialGradient>
                 </defs>
-                
+
                 <g clipPath={`url(#tent-clip-${categoryId})`}>
                   <ellipse
                     cx="150"
@@ -1155,9 +1258,9 @@ const TentButton: React.FC<{
                     ry="40"
                     fill={`url(#glow-${categoryId})`}
                     className="animate-pulse"
-                    style={{ 
+                    style={{
                       filter: "blur(15px)",
-                      animationDuration: "3s"
+                      animationDuration: "3s",
                     }}
                   />
                   <ellipse
@@ -1168,10 +1271,10 @@ const TentButton: React.FC<{
                     fill="#C62328"
                     opacity="0.15"
                     className="animate-pulse"
-                    style={{ 
+                    style={{
                       filter: "blur(8px)",
                       animationDelay: "0.8s",
-                      animationDuration: "2.5s"
+                      animationDuration: "2.5s",
                     }}
                   />
                   <ellipse
@@ -1182,10 +1285,10 @@ const TentButton: React.FC<{
                     fill="#C62328"
                     opacity="0.1"
                     className="animate-pulse"
-                    style={{ 
+                    style={{
                       filter: "blur(4px)",
                       animationDelay: "1.5s",
-                      animationDuration: "2s"
+                      animationDuration: "2s",
                     }}
                   />
                 </g>
@@ -1204,7 +1307,7 @@ const TentButton: React.FC<{
           <p className="text-base sm:text-lg md:text-xl font-serif font-bold text-[#7a2323] whitespace-nowrap mb-1">
             {config.name}
           </p>
-          <p className="text-xs sm:text-sm font-sans text-[#5b0108] leading-tight line-clamp-2 px-1">
+          <p className="text-xs sm:text-sm font-sans text-[#5b0108] leading-tight line-clamp-1">
             {config.description}
           </p>
         </div>
@@ -1216,14 +1319,14 @@ const TentButton: React.FC<{
 const CategoryCard: React.FC<{
   categoryId: string;
   isExpanded: boolean;
-  onToggle?: () => void;
-  isSmall?: boolean;
-}> = ({ categoryId, isExpanded, onToggle, isSmall = false }) => {
+  onToggle: () => void;
+  isSmall: boolean;
+}> = ({ categoryId, isExpanded, onToggle, isSmall }) => {
   return (
-    <div className={`flex flex-col h-full ${!isExpanded ? '' : 'p-4'}`}>
-      <TentButton 
-        categoryId={categoryId} 
-        onClick={onToggle || (() => {})} 
+    <div className={`flex flex-col h-full ${!isExpanded ? "" : "p-4"}`}>
+      <TentButton
+        categoryId={categoryId}
+        onClick={onToggle}
         isSmall={isSmall}
       />
     </div>
@@ -1238,39 +1341,64 @@ const LibraryPage: React.FC = () => {
   console.log("LibraryPage: Renderizando RED TENT - Salud Femenina");
 
   const [hasExpandedItem, setHasExpandedItem] = useState(false);
+  const { isMobile, isTablet } = useViewport();
+
+  // Calculate itemsPerPage dynamically based on viewport
+  const itemsPerPage = useMemo(() => {
+    if (isMobile) return 2;
+    if (isTablet) return 4;
+    return 6; // Adjust for slightly smaller cards on desktop
+  }, [isMobile, isTablet]);
 
   const libraryItems = useMemo(
-    () => Object.keys(categoryConfig).map(categoryId => ({
-      id: categoryId,
-      title: categoryConfig[categoryId].name,
-      component: <CategoryCard categoryId={categoryId} isExpanded={false} />,
-      expandedComponent: <ExpandedContent categoryId={categoryId} />,
-      isExpanded: false,
-    })),
+    () =>
+      Object.keys(categoryConfig).map((categoryId) => {
+        const isExpanded = false;
+        const isSmall = false;
+        const onToggle = () => {
+          /* no-op function for initial render */
+        };
+
+        return {
+          id: categoryId,
+          title: categoryConfig[categoryId].name,
+          component: (
+            <CategoryCard
+              categoryId={categoryId}
+              isExpanded={isExpanded}
+              onToggle={onToggle}
+              isSmall={isSmall}
+            />
+          ),
+          expandedComponent: <ExpandedContent categoryId={categoryId} />,
+          isExpanded: isExpanded,
+        };
+      }),
     []
   );
 
   const handleItemsChange = (newItems: GridItem[]) => {
     const hasExpanded = newItems.some((item) => item.isExpanded);
     setHasExpandedItem(hasExpanded);
-    
+
     const updatedItems = newItems.map((item) => {
-      const isExpanded = item.isExpanded || false;
+      const currentItem = item;
+      const isExpanded = currentItem.isExpanded || false;
       const isSmall = hasExpanded && !isExpanded;
-      
+
       const component = (
         <CategoryCard
-          categoryId={item.id}
+          categoryId={currentItem.id}
           isExpanded={isExpanded}
           isSmall={isSmall}
           onToggle={() => {
-            console.log(`Toggle ${item.id}`);
+            console.log(`Toggle ${currentItem.id}`);
           }}
         />
       );
 
       return {
-        ...item,
+        ...currentItem,
         component,
       };
     });
@@ -1295,15 +1423,15 @@ const LibraryPage: React.FC = () => {
             initial={{ y: -20, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             exit={{ y: -30, opacity: 0 }}
-            transition={{ 
+            transition={{
               duration: 0.4,
-              ease: [0.25, 0.1, 0.25, 1.0]
+              ease: [0.25, 0.1, 0.25, 1.0],
             }}
           >
             <div className="flex flex-col sm:flex sm:justify-center sm:items-center lg:grid lg:grid-cols-5 gap-4 md:gap-6 px-4 md:px-8">
               <div className="hidden lg:block"></div>
               <div className="hidden lg:block"></div>
-              
+
               <div className="flex justify-center lg:col-span-2 lg:justify-start">
                 <motion.div
                   className="bg-white/35 backdrop-blur-sm rounded-2xl px-4 py-4 md:px-8 md:py-5 flex items-center gap-3 max-w-xl w-full"
@@ -1314,10 +1442,13 @@ const LibraryPage: React.FC = () => {
                       -8px -8px 16px rgba(255, 255, 255, 0.7)
                     `,
                   }}
-                  whileHover={{ scale: 1.03, boxShadow: `
+                  whileHover={{
+                    scale: 1.03,
+                    boxShadow: `
                     12px 12px 24px rgba(91, 1, 8, 0.15),
                     -12px -12px 24px rgba(255, 255, 255, 0.8)
-                  ` }}
+                  `,
+                  }}
                   transition={{ duration: 0.3 }}
                 >
                   <div className="text-center w-full flex flex-col justify-center items-center">
@@ -1325,12 +1456,13 @@ const LibraryPage: React.FC = () => {
                       RED TENT
                     </h1>
                     <p className="text-xs md:text-sm text-[#5b0108] leading-relaxed font-medium text-center">
-                      🏛️ <strong>Descubre tu herencia ancestral.</strong> Tu historia comienza aquí.
+                      🏛️ <strong>Descubre tu herencia ancestral.</strong> Tu
+                      historia comienza aquí.
                     </p>
                   </div>
                 </motion.div>
               </div>
-              
+
               <div className="hidden lg:block"></div>
             </div>
           </motion.div>
@@ -1339,20 +1471,24 @@ const LibraryPage: React.FC = () => {
 
       <motion.div
         className="w-full h-full"
-        style={{ 
-          paddingTop: hasExpandedItem ? "0" : "6rem"
+        style={{
+          paddingTop: hasExpandedItem ? "0" : "6rem",
         }}
-        animate={{ 
-          paddingTop: hasExpandedItem ? "0" : "6rem"
+        animate={{
+          paddingTop: hasExpandedItem ? "0" : "6rem",
         }}
-        transition={{ 
+        transition={{
           duration: 0.4,
-          ease: [0.25, 0.1, 0.25, 1.0]
+          ease: [0.25, 0.1, 0.25, 1.0],
         }}
         initial={{ y: 20, opacity: 0 }}
         whileInView={{ y: 0, opacity: 1 }}
       >
-        <DraggableGrid items={libraryItems} onItemsChange={handleItemsChange} isLibrary={true} />
+        <DraggableGrid
+          items={libraryItems}
+          onItemsChange={handleItemsChange}
+          isLibrary={true}
+        />
       </motion.div>
     </motion.div>
   );

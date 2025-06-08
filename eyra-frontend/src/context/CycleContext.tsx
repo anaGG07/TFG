@@ -177,14 +177,38 @@ export const CycleProvider: React.FC<{ children: ReactNode }> = ({
       try {
         console.log("CycleContext: Guardando día de ciclo en API real", data);
 
-        // ACTIVADO: Usar API real con tipos correctos
-        const response = await apiFetch<any>(API_ROUTES.CYCLES.ALL, {
-          method: "POST",
-          body: data,
-        });
+        // SISTEMA DE RETRY CON MÚLTIPLES ENDPOINTS
+        let response;
+        let saveSuccessful = false;
+        const endpoints = [
+          { method: "POST", url: `${API_ROUTES.CYCLES.ALL}/day`, name: "POST /cycles/day" },
+          { method: "PUT", url: `${API_ROUTES.CYCLES.ALL}/${data.date}`, name: "PUT /cycles/{date}" },
+          { method: "PATCH", url: `${API_ROUTES.CYCLES.ALL}/${data.date}`, name: "PATCH /cycles/{date}" },
+          { method: "POST", url: API_ROUTES.CYCLES.CREATE, name: "POST /cycles (create)" }
+        ];
 
-        console.log("CycleContext: Respuesta del backend:", response);
-        console.log("CycleContext: Día de ciclo guardado exitosamente");
+        for (const endpoint of endpoints) {
+          try {
+            console.log(`Intentando ${endpoint.name}...`);
+            response = await apiFetch<any>(endpoint.url, {
+              method: endpoint.method,
+              body: data,
+            });
+            console.log(`✅ ${endpoint.name} exitoso:`, response);
+            saveSuccessful = true;
+            break;
+          } catch (error: any) {
+            console.log(`❌ ${endpoint.name} falló:`, error.message);
+            if (endpoints.indexOf(endpoint) === endpoints.length - 1) {
+              // Último intento falló
+              throw error;
+            }
+          }
+        }
+
+        if (saveSuccessful) {
+          console.log("CycleContext: Día de ciclo guardado exitosamente en backend");
+        }
 
         // Recargar datos del calendario después del guardado
         const today = new Date();

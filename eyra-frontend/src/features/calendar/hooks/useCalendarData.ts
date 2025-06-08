@@ -216,24 +216,44 @@ export const useCalendarData = (
       });
     }
 
-    // MERGEAR con datos del contexto local (cycleDays) - estos tienen prioridad máxima
+    // MERGEAR con datos del contexto local (cycleDays) - PRIORIDAD ABSOLUTA
+    console.log('🔍 Mergeando datos locales. Total días locales:', cycleDays?.length || 0);
     if (cycleDays && Array.isArray(cycleDays)) {
       cycleDays.forEach((localDay: CycleDay) => {
         const localDateStr = localDay.date.slice(0, 10);
         const existingDay = daysMap.get(localDateStr);
 
         if (existingDay) {
-          // Actualizar día existente con datos locales más recientes
-          daysMap.set(localDateStr, {
-            ...existingDay,
-            flowIntensity: localDay.flowIntensity || existingDay.flowIntensity,
-            symptoms: localDay.symptoms || existingDay.symptoms,
-            mood: localDay.mood || existingDay.mood,
-            notes: localDay.notes || existingDay.notes,
-            isPrediction: false, // Datos locales no son predicciones
-          });
+          // Verificar si hay cambios locales no guardados
+          const hasLocalChanges = localDay.flowIntensity !== undefined || 
+                                (localDay.symptoms && localDay.symptoms.length > 0) ||
+                                (localDay.mood && localDay.mood.length > 0) ||
+                                (localDay.notes && localDay.notes.length > 0);
+          
+          if (hasLocalChanges) {
+            console.log(`🔄 MANTENIENDO CAMBIOS LOCALES para ${localDateStr}:`, {
+              flujoExistente: existingDay.flowIntensity,
+              flujoLocal: localDay.flowIntensity,
+              síntomasExistentes: existingDay.symptoms,
+              síntomasLocales: localDay.symptoms
+            });
+            
+            // Los datos locales SIEMPRE tienen prioridad absoluta
+            daysMap.set(localDateStr, {
+              ...existingDay,
+              flowIntensity: localDay.flowIntensity !== undefined ? localDay.flowIntensity : existingDay.flowIntensity,
+              symptoms: localDay.symptoms || existingDay.symptoms,
+              mood: localDay.mood || existingDay.mood,
+              notes: localDay.notes || existingDay.notes,
+              isPrediction: false,
+              isLocalChange: true, // Marcar como cambio local pendiente
+            });
+          } else {
+            console.log(`ℹ️ Sin cambios locales para ${localDateStr}, manteniendo datos del backend`);
+          }
         } else {
           // Añadir nuevo día desde datos locales
+          console.log(`Añadiendo nuevo día ${localDateStr} desde datos locales:`, localDay);
           daysMap.set(localDateStr, {
             ...localDay,
             isPrediction: false,
