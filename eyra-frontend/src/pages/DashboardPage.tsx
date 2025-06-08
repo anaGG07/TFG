@@ -7,7 +7,7 @@ import DraggableGrid from "../components/DraggableGrid";
 import { CycleVisual } from "../components/cycle";
 import SymptomsView from "../components/cycle/SymptomsView";
 import RitualsView from "../components/cycle/RitualsView";
-import RemindersExpanded from "../components/cycle/RemindersExpanded";
+import RemindersView from "../components/cycle/RemindersView";
 import IntrospectionBox from "../components/cycle/IntrospectionBox";
 import { notificationService } from "../services/notificationService";
 
@@ -78,20 +78,14 @@ const DashboardPage: React.FC = () => {
         id: "reminders",
         title: "Recordatorios",
         isExpanded: expandedId === "reminders",
-        component: expandedId === "reminders" ? (
-          // Vista EXPANDIDA
-          <RemindersExpanded
+        component: (
+          <RemindersView
+            expanded={expandedId === "reminders"}
             notifications={notifications}
             insights={insights}
             markAllAsRead={notificationService.markAllAsRead}
             markAsRead={notificationService.markAsRead}
-            isMobile={isMobile}
           />
-        ) : (
-          // Vista NO EXPANDIDA
-          <div className="flex flex-col items-center justify-center h-full">
-            <img src="/img/31.svg" alt="Recordatorios" className={isMobile ? "w-24 h-24" : "w-32 h-32"} />
-          </div>
         ),
       },
       {

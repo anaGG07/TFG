@@ -44,7 +44,7 @@ interface SymptomsViewProps {
 
 const SymptomsView: React.FC<SymptomsViewProps> = ({ expanded = true }) => {
   const { user } = useAuth();
-  const { isMobile, isTablet, isDesktop } = useViewport();
+  const { isMobile, isTablet } = useViewport();
   const [symptomHistory, setSymptomHistory] = useState<SymptomLog[]>([]);
   const [symptomPatterns, setSymptomPatterns] = useState<SymptomPattern[]>([]);
   const [selectedSymptom, setSelectedSymptom] = useState<string | null>(null);
