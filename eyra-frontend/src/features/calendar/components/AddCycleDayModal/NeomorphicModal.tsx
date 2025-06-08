@@ -205,6 +205,11 @@ export const NeomorphicModal: React.FC<NeomorphicModalProps> = ({
         notes: initialData.notes || '',
         phase: initialData.phase || currentPhase
       });
+      console.log('Modal abierto con datos:', {
+        initialData,
+        currentPhase,
+        date: format(date, 'yyyy-MM-dd')
+      });
     }
   }, [isOpen, initialData, date, currentPhase]);
 
@@ -227,6 +232,7 @@ export const NeomorphicModal: React.FC<NeomorphicModalProps> = ({
   };
 
   const handleSubmit = () => {
+    console.log('Enviando datos del modal:', formData);
     onSave(formData);
     onClose();
   };
@@ -247,7 +253,7 @@ export const NeomorphicModal: React.FC<NeomorphicModalProps> = ({
           exit={{ opacity: 0 }}
           className="fixed inset-0 z-50 flex items-center justify-center p-4"
           style={{
-            background: 'linear-gradient(145deg, rgba(231, 224, 213, 0.95), rgba(245, 245, 244, 0.95))'
+            background: 'linear-gradient(145deg, rgba(231, 224, 213, 0.98), rgba(199, 191, 180, 0.95))'
           }}
           onClick={onClose}
         >
@@ -258,9 +264,9 @@ export const NeomorphicModal: React.FC<NeomorphicModalProps> = ({
             transition={{ type: "spring", stiffness: 300, damping: 30 }}
             className="
               w-full max-w-2xl max-h-[90vh] overflow-hidden
-              bg-gradient-to-br from-[#fafaf9] to-[#e7e5e4] 
+              bg-gradient-to-br from-[#f5f5f4] to-[#e7e5e4] 
               rounded-3xl
-              shadow-[15px_15px_30px_rgba(120,113,108,0.12),-15px_-15px_30px_rgba(255,255,255,0.7)]
+              shadow-[15px_15px_30px_rgba(120,113,108,0.15),-15px_-15px_30px_rgba(255,255,255,0.8)]
             "
             onClick={(e) => e.stopPropagation()}
           >

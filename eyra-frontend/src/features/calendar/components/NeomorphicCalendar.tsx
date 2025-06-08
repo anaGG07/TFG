@@ -593,6 +593,25 @@ export const NeomorphicCalendar: React.FC<NeomorphicCalendarProps> = ({
 
   const calendarDays = calendarData?.calendarDays || [];
 
+  // CALCULAR RANGO DE FECHAS - necesario para refetch
+  const getDateRange = (date: Date, view: "month" | "week") => {
+    switch (view) {
+      case "week":
+        return {
+          start: startOfWeek(date, { weekStartsOn: 1 }),
+          end: endOfWeek(date, { weekStartsOn: 1 }),
+        };
+      case "month":
+      default:
+        const monthStart = startOfMonth(date);
+        const monthEnd = endOfMonth(date);
+        return {
+          start: startOfWeek(monthStart, { weekStartsOn: 1 }),
+          end: endOfWeek(monthEnd, { weekStartsOn: 1 }),
+        };
+    }
+  };
+
   // ! 03/06/2025 - Función para convertir datos del día del ciclo a formato del modal
   const convertCycleDayToModalData = (dayData: CycleDay | null) => {
     if (!dayData) return {};
@@ -699,6 +718,7 @@ export const NeomorphicCalendar: React.FC<NeomorphicCalendarProps> = ({
         symptoms: modalData.symptoms || [],
         mood: modalData.mood || [],
         notes: modalData.notes || "",
+        phase: modalData.phase || currentPhase,
         // Solo incluir flowIntensity si hay período
         ...(modalData.hasPeriod &&
           modalData.flowIntensity && {
@@ -706,9 +726,17 @@ export const NeomorphicCalendar: React.FC<NeomorphicCalendarProps> = ({
           }),
       };
 
+      console.log('Guardando datos del ciclo:', cycleDayData);
       await addCycleDay(cycleDayData);
+      
+      // Forzar refetch de datos del calendario
+      const { start, end } = getDateRange(currentDate, viewType);
+      await refetch(start, end);
+      
       setIsModalOpen(false);
       setSelectedDayData(null); // Limpiar datos después de guardar
+      
+      console.log('Datos guardados exitosamente');
     } catch (error) {
       console.error("Error al guardar el día del ciclo:", error);
     }

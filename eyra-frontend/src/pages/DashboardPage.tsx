@@ -10,6 +10,7 @@ import RitualsView from "../components/cycle/RitualsView";
 import RemindersView from "../components/cycle/RemindersView";
 import IntrospectionBox from "../components/cycle/IntrospectionBox";
 import { notificationService } from "../services/notificationService";
+import CommunityBox from "../components/cycle/CommunityBox";
 
 const DashboardPage: React.FC = () => {
   const { user } = useAuth();
@@ -100,67 +101,7 @@ const DashboardPage: React.FC = () => {
         isExpanded: expandedId === "community",
         component: (
           <div className="h-full flex flex-col">
-            <div className="flex items-center justify-center mb-6">
-              <div
-                className={`rounded-full flex items-center justify-center ${
-                  isMobile ? 'w-12 h-12' : 'w-16 h-16'
-                }`}
-                style={{
-                  background: "bg-secondary",
-                  boxShadow: `
-                  inset 4px 4px 8px rgba(91, 1, 8, 0.3),
-                  inset -4px -4px 8px rgba(255, 108, 92, 0.3)
-                `,
-                }}
-              >
-                <span className={isMobile ? 'text-xl' : 'text-2xl'}>👥</span>
-              </div>
-            </div>
-            <div className="flex-1 space-y-4">
-              <p className={`text-primary-dark text-center leading-relaxed font-medium ${
-                isMobile ? 'text-xs' : 'text-sm'
-              }`}>
-                Conecta con otras usuarias
-              </p>
-              <div
-                className="rounded-xl p-4 border"
-                style={{
-                  background: "bg-gradient-to-br from-primary to-primary-dark",
-                  border: "1px solid rgba(198, 35, 40, 0.15)",
-                  boxShadow: `
-                  inset 2px 2px 4px rgba(198, 35, 40, 0.05),
-                  inset -2px -2px 4px rgba(255, 255, 255, 0.8)
-                `,
-                }}
-              >
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-3">
-                    <div
-                      className="w-3 h-3 rounded-full"
-                      style={{
-                        background: "bg-secondary",
-                      }}
-                    ></div>
-                    <p className="text-xs text-primary-dark font-semibold">
-                      Estado:
-                    </p>
-                  </div>
-                  <span className="text-xs text-primary font-bold">
-                    Próximamente disponible
-                  </span>
-                </div>
-                {error && (
-                  <div className="mt-2">
-                    <button
-                      onClick={refreshData}
-                      className="text-xs text-primary font-semibold underline"
-                    >
-                      Reintentar carga de datos
-                    </button>
-                  </div>
-                )}
-              </div>
-            </div>
+            <CommunityBox expanded={expandedId === "community"} />
           </div>
         ),
       },
