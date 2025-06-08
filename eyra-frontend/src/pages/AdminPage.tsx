@@ -671,8 +671,8 @@ const AdminPage = () => {
           </div>
         </div>
       </div>
+    </div>
     </>
   );
-};
 //comentario de control
 export default AdminPage;
