@@ -3,6 +3,7 @@
 
 import { useState, useEffect } from "react";
 import { useAuth } from "../context/AuthContext";
+import { useViewport } from "../hooks/useViewport";
 import {
   adminStatsService,
   AdminStats,
@@ -186,9 +187,10 @@ const AdminSummaryIcon = ({ className }: { className?: string }) => (
 
 const AdminPage = () => {
   const { user, isLoading: authLoading } = useAuth();
+  const { isMobile, isTablet, isDesktop } = useViewport();
   const [activeTab, setActiveTab] = useState<
     "overview" | "users" | "conditions" | "content" | "settings"
-  >("overview"); // ! 01/06/2025 - Añadida pestaña conditions
+  >("overview");
 
   // Estados para datos reales
   const [stats, setStats] = useState<AdminStats | null>(null);
@@ -196,6 +198,17 @@ const AdminPage = () => {
   const [isLoadingStats, setIsLoadingStats] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [showChart, setShowChart] = useState(false);
+
+  // CSS adicional para scroll horizontal en móvil
+  const scrollbarHideStyles = `
+    .scrollbar-hide {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+    .scrollbar-hide::-webkit-scrollbar {
+      display: none;
+    }
+  `;
 
   // Cargar datos cuando el componente se monta
   const loadData = async () => {
@@ -285,24 +298,35 @@ const AdminPage = () => {
   };
 
   return (
-    <div className="w-full h-full min-h-0 flex flex-col overflow-hidden bg-transparent">
-      <div className="max-w-7xl mx-auto pl-8 pr-4 pt-6 pb-6 flex flex-col h-full min-h-0">
+    <>
+      {isMobile && <style>{scrollbarHideStyles}</style>}
+      <div className="w-full h-full min-h-0 flex flex-col overflow-hidden bg-transparent">
+      <div className={`max-w-7xl mx-auto flex flex-col h-full min-h-0 ${
+        isMobile ? "px-4 pt-4 pb-20" : isTablet ? "px-6 pt-5 pb-16" : "pl-8 pr-4 pt-6 pb-6"
+      }`}>
         {/* Header */}
-        <div className="mb-6">
-          <h1 className="text-4xl font-bold text-[#7a2323] mb-2 font-serif">
-            Panel de Administración
+        <div className={isMobile ? "mb-4" : "mb-6"}>
+          <h1 className={`font-bold text-[#7a2323] font-serif ${
+            isMobile ? "text-2xl mb-1" : isTablet ? "text-3xl mb-2" : "text-4xl mb-2"
+          }`}>
+            {isMobile ? "Admin" : "Panel de Administración"}
           </h1>
-          <p className="text-[#7a2323]/70">
-            Bienvenido/a, {user.name}. Aquí puedes gestionar el sistema EYRA.
+          <p className={`text-[#7a2323]/70 ${isMobile ? "text-sm" : ""}`}>
+            {isMobile ? `Hola, ${user.name?.split(' ')[0] || user.name}` : `Bienvenido/a, ${user.name}. Aquí puedes gestionar el sistema EYRA.`}
           </p>
         </div>
         {/* Navegación por pestañas */}
-        <div className="flex flex-row gap-3 items-center mb-2">
+        <div className={`flex items-center mb-2 ${
+          isMobile 
+            ? "overflow-x-auto gap-2 pb-2 scrollbar-hide" 
+            : "flex-row gap-3"
+        }`}>
           {tabs.map((tab) => (
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`rounded-xl px-5 py-2 font-semibold text-base font-serif transition-all duration-200 focus:outline-none neo-shadow-sm
+              className={`rounded-xl font-semibold font-serif transition-all duration-200 focus:outline-none neo-shadow-sm flex-shrink-0
+                ${isMobile ? "px-3 py-1.5 text-sm" : "px-5 py-2 text-base"}
                 ${
                   activeTab === tab.id
                     ? "bg-[#e7e0d5]/30 ring-2 ring-[#C62328] shadow-inner text-[#C62328]"
@@ -311,13 +335,15 @@ const AdminPage = () => {
               `}
               aria-label={tab.label}
             >
-              {tab.label}
+              {isMobile && tab.id === "conditions" ? "Condic." : tab.label}
             </button>
           ))}
         </div>
         {/* Contenido por pestañas */}
         <div className="w-full flex-1 flex flex-col items-center">
-          <div className="w-full max-w-full md:max-w-3xl lg:max-w-5xl min-h-[420px] bg-transparent rounded-lg shadow-none p-0 flex-1 flex flex-col justify-start">
+          <div className={`w-full flex-1 flex flex-col justify-start bg-transparent rounded-lg shadow-none p-0 ${
+            isMobile ? "min-h-[300px]" : "min-h-[420px] max-w-full md:max-w-3xl lg:max-w-5xl"
+          }`}>
             <AnimatePresence mode="wait">
               {activeTab === "overview" && (
                 <motion.div
@@ -325,52 +351,63 @@ const AdminPage = () => {
                   initial={{ opacity: 0, y: 30 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -30 }}
-                  className="grid grid-cols-1 lg:grid-cols-[1fr_370px] gap-8 md:gap-12 items-start mt-4 md:mt-8 min-h-[420px]"
+                  className={`items-start ${
+                    isMobile 
+                      ? "flex flex-col gap-6 mt-4 min-h-[300px]"
+                      : isTablet
+                      ? "grid grid-cols-1 gap-8 mt-6 min-h-[400px]"
+                      : "grid grid-cols-1 lg:grid-cols-[1fr_370px] gap-8 md:gap-12 mt-4 md:mt-8 min-h-[420px]"
+                  }`}
                   style={{ minWidth: 0 }}
                 >
                   {/* Columna 1: Resumen o gráfica con toggle */}
                   <div className="flex flex-col items-center gap-4 w-full">
-                    <div className="flex gap-2 mb-2">
-                      <button
-                        className={`rounded-full p-2 transition-all duration-200 ${
-                          !showChart
-                            ? "ring-2 ring-[#a7f3d0] bg-white"
-                            : "bg-transparent"
-                        }`}
-                        onClick={() => setShowChart(false)}
-                        aria-label="Ver resumen"
-                      >
-                        <TableToggleIcon active={!showChart} />
-                      </button>
-                      <button
-                        className={`rounded-full p-2 transition-all duration-200 ${
-                          showChart
-                            ? "ring-2 ring-[#f8b4b4] bg-white"
-                            : "bg-transparent"
-                        }`}
-                        onClick={() => setShowChart(true)}
-                        aria-label="Ver gráfica"
-                      >
-                        <ChartToggleIcon active={showChart} />
-                      </button>
-                    </div>
+                    {!isMobile && (
+                      <div className="flex gap-2 mb-2">
+                        <button
+                          className={`rounded-full p-2 transition-all duration-200 ${
+                            !showChart
+                              ? "ring-2 ring-[#a7f3d0] bg-white"
+                              : "bg-transparent"
+                          }`}
+                          onClick={() => setShowChart(false)}
+                          aria-label="Ver resumen"
+                        >
+                          <TableToggleIcon active={!showChart} />
+                        </button>
+                        <button
+                          className={`rounded-full p-2 transition-all duration-200 ${
+                            showChart
+                              ? "ring-2 ring-[#f8b4b4] bg-white"
+                              : "bg-transparent"
+                          }`}
+                          onClick={() => setShowChart(true)}
+                          aria-label="Ver gráfica"
+                        >
+                          <ChartToggleIcon active={showChart} />
+                        </button>
+                      </div>
+                    )}
                     <AnimatePresence mode="wait">
-                      {showChart ? (
+                      {showChart && !isMobile ? (
                         <motion.div
                           key="doughnut"
                           initial={{ opacity: 0, scale: 0.95 }}
                           animate={{ opacity: 1, scale: 1 }}
                           exit={{ opacity: 0, scale: 0.95 }}
                           transition={{ duration: 0.4, ease: "easeInOut" }}
-                          className="w-full max-w-xs mx-auto rounded-full p-0 flex items-center justify-center relative"
+                          className={`mx-auto rounded-full p-0 flex items-center justify-center relative ${
+                            isTablet ? "w-full max-w-xs" : "w-full max-w-xs"
+                          }`}
                         >
                           <Doughnut
                             data={doughnutData}
                             options={doughnutOptions}
                           />
-                          {/* Círculo central con total de usuarios */}
                           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col items-center justify-center">
-                            <span className="text-4xl font-bold text-[#C62328] font-serif drop-shadow">
+                            <span className={`font-bold text-[#C62328] font-serif drop-shadow ${
+                              isTablet ? "text-3xl" : "text-4xl"
+                            }`}>
                               {stats?.totalUsers?.toLocaleString() || "0"}
                             </span>
                             <span className="text-base text-[#7a2323]/70 font-serif">
@@ -385,43 +422,79 @@ const AdminPage = () => {
                           animate={{ opacity: 1, scale: 1 }}
                           exit={{ opacity: 0, scale: 0.95 }}
                           transition={{ duration: 0.4, ease: "easeInOut" }}
-                          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8 w-full justify-center mt-4 mb-4"
+                          className={`grid w-full justify-center mt-4 mb-4 ${
+                            isMobile 
+                              ? "grid-cols-3 gap-4" 
+                              : isTablet 
+                              ? "grid-cols-3 gap-6" 
+                              : "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8"
+                          }`}
                         >
                           <div className="flex flex-col items-center">
-                            <div className="w-20 h-20 rounded-full shadow-[0_2px_12px_rgba(91,1,8,0.10),0_-2px_12px_rgba(255,255,255,0.25)] flex items-center justify-center -mb-8 z-10 bg-[#e7e0d5]">
-                              <UsersSummaryIcon className="w-16 h-16" />
+                            <div className={`rounded-full shadow-[0_2px_12px_rgba(91,1,8,0.10),0_-2px_12px_rgba(255,255,255,0.25)] flex items-center justify-center z-10 bg-[#e7e0d5] ${
+                              isMobile ? "w-12 h-12 -mb-4" : "w-20 h-20 -mb-8"
+                            }`}>
+                              <UsersSummaryIcon className={isMobile ? "w-8 h-8" : "w-16 h-16"} />
                             </div>
-                            <NeomorphicCard className="flex flex-col items-center justify-center gap-3 bg-[#f8b4b4]/30 w-36 h-36 min-w-[8rem] min-h-[8rem] max-w-[9rem] max-h-[9rem] p-0 z-0">
-                              <h3 className="text-base font-semibold text-[#C62328] font-serif mt-8">
+                            <NeomorphicCard className={`flex flex-col items-center justify-center gap-3 bg-[#f8b4b4]/30 p-0 z-0 ${
+                              isMobile 
+                                ? "w-24 h-24 min-w-[5rem] min-h-[5rem] max-w-[6rem] max-h-[6rem]" 
+                                : "w-36 h-36 min-w-[8rem] min-h-[8rem] max-w-[9rem] max-h-[9rem]"
+                            }`}>
+                              <h3 className={`font-semibold text-[#C62328] font-serif ${
+                                isMobile ? "text-xs mt-4" : "text-base mt-8"
+                              }`}>
                                 Usuarios
                               </h3>
-                              <p className="text-3xl font-bold text-[#991b1b]">
+                              <p className={`font-bold text-[#991b1b] ${
+                                isMobile ? "text-lg" : "text-3xl"
+                              }`}>
                                 {stats?.totalUsers?.toLocaleString() || "0"}
                               </p>
                             </NeomorphicCard>
                           </div>
                           <div className="flex flex-col items-center">
-                            <div className="w-20 h-20 rounded-full shadow-[0_2px_12px_rgba(21,128,61,0.10),0_-2px_12px_rgba(255,255,255,0.25)] flex items-center justify-center -mb-8 z-10 bg-[#e7e0d5]">
-                              <ActiveSummaryIcon className="w-16 h-16" />
+                            <div className={`rounded-full shadow-[0_2px_12px_rgba(21,128,61,0.10),0_-2px_12px_rgba(255,255,255,0.25)] flex items-center justify-center z-10 bg-[#e7e0d5] ${
+                              isMobile ? "w-12 h-12 -mb-4" : "w-20 h-20 -mb-8"
+                            }`}>
+                              <ActiveSummaryIcon className={isMobile ? "w-8 h-8" : "w-16 h-16"} />
                             </div>
-                            <NeomorphicCard className="flex flex-col items-center justify-center gap-3 bg-[#a7f3d0]/30 w-36 h-36 min-w-[8rem] min-h-[8rem] max-w-[9rem] max-h-[9rem] p-0 z-0">
-                              <h3 className="text-base font-semibold text-[#15803d] font-serif mt-8">
+                            <NeomorphicCard className={`flex flex-col items-center justify-center gap-3 bg-[#a7f3d0]/30 p-0 z-0 ${
+                              isMobile 
+                                ? "w-24 h-24 min-w-[5rem] min-h-[5rem] max-w-[6rem] max-h-[6rem]" 
+                                : "w-36 h-36 min-w-[8rem] min-h-[8rem] max-w-[9rem] max-h-[9rem]"
+                            }`}>
+                              <h3 className={`font-semibold text-[#15803d] font-serif ${
+                                isMobile ? "text-xs mt-4" : "text-base mt-8"
+                              }`}>
                                 Activos
                               </h3>
-                              <p className="text-3xl font-bold text-[#15803d]">
+                              <p className={`font-bold text-[#15803d] ${
+                                isMobile ? "text-lg" : "text-3xl"
+                              }`}>
                                 {stats?.activeUsers?.toLocaleString() || "0"}
                               </p>
                             </NeomorphicCard>
                           </div>
                           <div className="flex flex-col items-center">
-                            <div className="w-20 h-20 rounded-full shadow-[0_2px_12px_rgba(124,45,18,0.10),0_-2px_12px_rgba(255,255,255,0.25)] flex items-center justify-center -mb-8 z-10 bg-[#e7e0d5]">
-                              <AdminSummaryIcon className="w-16 h-16" />
+                            <div className={`rounded-full shadow-[0_2px_12px_rgba(124,45,18,0.10),0_-2px_12px_rgba(255,255,255,0.25)] flex items-center justify-center z-10 bg-[#e7e0d5] ${
+                              isMobile ? "w-12 h-12 -mb-4" : "w-20 h-20 -mb-8"
+                            }`}>
+                              <AdminSummaryIcon className={isMobile ? "w-8 h-8" : "w-16 h-16"} />
                             </div>
-                            <NeomorphicCard className="flex flex-col items-center justify-center gap-3 bg-[#ddd6fe]/30 w-36 h-36 min-w-[8rem] min-h-[8rem] max-w-[9rem] max-h-[9rem] p-0 z-0">
-                              <h3 className="text-base font-semibold text-[#7c2d12] font-serif mt-8">
+                            <NeomorphicCard className={`flex flex-col items-center justify-center gap-3 bg-[#ddd6fe]/30 p-0 z-0 ${
+                              isMobile 
+                                ? "w-24 h-24 min-w-[5rem] min-h-[5rem] max-w-[6rem] max-h-[6rem]" 
+                                : "w-36 h-36 min-w-[8rem] min-h-[8rem] max-w-[9rem] max-h-[9rem]"
+                            }`}>
+                              <h3 className={`font-semibold text-[#7c2d12] font-serif ${
+                                isMobile ? "text-xs mt-4" : "text-base mt-8"
+                              }`}>
                                 Admins
                               </h3>
-                              <p className="text-3xl font-bold text-[#7c2d12]">
+                              <p className={`font-bold text-[#7c2d12] ${
+                                isMobile ? "text-lg" : "text-3xl"
+                              }`}>
                                 {stats?.adminUsers?.toLocaleString() || "0"}
                               </p>
                             </NeomorphicCard>
@@ -431,21 +504,35 @@ const AdminPage = () => {
                     </AnimatePresence>
                   </div>
                   {/* Columna 2: Actividad reciente */}
-                  <div className="flex flex-col gap-4 w-full max-w-full">
-                    <h3 className="text-xl font-semibold text-[#7a2323] font-serif mb-2">
-                      Actividad Reciente
+                  <div className={`flex flex-col gap-4 w-full max-w-full ${
+                    isMobile ? "mt-4" : ""
+                  }`}>
+                    <h3 className={`font-semibold text-[#7a2323] font-serif mb-2 ${
+                      isMobile ? "text-lg" : "text-xl"
+                    }`}>
+                      {isMobile ? "Act. Reciente" : "Actividad Reciente"}
                     </h3>
-                    <div className="space-y-3">
+                    <div className={`space-y-3 ${
+                      isMobile ? "max-h-64 overflow-y-auto" : ""
+                    }`}>
                       {isLoadingStats ? (
-                        <div className="animate-pulse flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
-                          <div className="w-6 h-6 bg-gray-200 rounded"></div>
+                        <div className={`animate-pulse flex items-center space-x-3 p-3 bg-gray-50 rounded-lg ${
+                          isMobile ? "p-2" : ""
+                        }`}>
+                          <div className={`bg-gray-200 rounded ${
+                            isMobile ? "w-5 h-5" : "w-6 h-6"
+                          }`}></div>
                           <div className="flex-1">
-                            <div className="h-4 bg-gray-200 rounded mb-2"></div>
-                            <div className="h-3 bg-gray-200 rounded w-1/2"></div>
+                            <div className={`h-4 bg-gray-200 rounded mb-2 ${
+                              isMobile ? "h-3" : ""
+                            }`}></div>
+                            <div className={`bg-gray-200 rounded w-1/2 ${
+                              isMobile ? "h-2" : "h-3"
+                            }`}></div>
                           </div>
                         </div>
                       ) : (
-                        recentActivity.slice(0, 5).map((activity) => {
+                        recentActivity.slice(0, isMobile ? 3 : 5).map((activity) => {
                           const bgColor =
                             activity.color === "green"
                               ? "bg-[#a7f3d0]/30 border-[#bbf7d0]"
@@ -476,24 +563,26 @@ const AdminPage = () => {
                           return (
                             <div
                               key={activity.id}
-                              className={`flex items-center space-x-3 p-3 ${bgColor} rounded-lg border`}
+                              className={`flex items-center space-x-3 rounded-lg border ${bgColor} ${
+                                isMobile ? "p-2" : "p-3"
+                              }`}
                             >
                               <span
-                                className="flex items-center justify-center neo-shadow-sm rounded-full bg-white/80 border border-white"
-                                style={{
-                                  width: 38,
-                                  height: 38,
-                                  minWidth: 38,
-                                  minHeight: 38,
-                                }}
+                                className={`flex items-center justify-center neo-shadow-sm rounded-full bg-white/80 border border-white ${
+                                  isMobile ? "w-8 h-8 min-w-8 min-h-8" : "w-10 h-10 min-w-10 min-h-10"
+                                }`}
                               >
-                                <Icon className="w-7 h-7" />
+                                <Icon className={isMobile ? "w-5 h-5" : "w-7 h-7"} />
                               </span>
                               <div className="flex-1">
-                                <div className="text-sm font-medium text-[#7a2323]">
-                                  {title}
+                                <div className={`font-medium text-[#7a2323] ${
+                                  isMobile ? "text-xs" : "text-sm"
+                                }`}>
+                                  {isMobile && title.length > 25 ? `${title.substring(0, 25)}...` : title}
                                 </div>
-                                <div className="text-xs text-[#7a2323]/60">
+                                <div className={`text-[#7a2323]/60 ${
+                                  isMobile ? "text-xs" : "text-xs"
+                                }`}>
                                   {adminStatsService.formatRelativeTime(
                                     activity.timestamp
                                   )}
@@ -582,7 +671,7 @@ const AdminPage = () => {
           </div>
         </div>
       </div>
-    </div>
+    </>
   );
 };
 //comentario de control

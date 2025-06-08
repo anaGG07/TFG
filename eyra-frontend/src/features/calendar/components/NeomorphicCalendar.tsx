@@ -489,9 +489,9 @@ const WeeklyDayCell: React.FC<{
           <p className={`${
             isMobile ? 'text-[10px]' : 'text-xs'
           } text-gray-700 mt-1 line-clamp-2`}>
-            {Array.isArray(dayData.notes) 
-              ? dayData.notes.join(', ').slice(0, 50) + '...'
-              : dayData.notes.slice(0, 50) + (dayData.notes.length > 50 ? '...' : '')
+            {Array.isArray(dayData.notes)
+              ? (() => { const str = dayData.notes.join(', '); return typeof str === 'string' ? str.slice(0, 50) + (str.length > 50 ? '...' : '') : ''; })()
+              : (typeof dayData.notes === 'string' ? dayData.notes.slice(0, 50) + (dayData.notes.length > 50 ? '...' : '') : '')
             }
           </p>
         </motion.div>
@@ -802,7 +802,7 @@ export const NeomorphicCalendar: React.FC<NeomorphicCalendarProps> = ({
   }
 
   return (
-    <div className={`h-full flex flex-col ${className}`}>
+    <div className={`h-full flex flex-col ${className} ${isMobile ? 'overflow-y-auto max-h-[90vh]' : ''}`}>
       {/* HEADER COMPACTO */}
       <motion.div
         className={`flex-shrink-0 ${
@@ -897,7 +897,7 @@ export const NeomorphicCalendar: React.FC<NeomorphicCalendarProps> = ({
 
       {/* CONTENIDO DEL CALENDARIO COMPACTO */}
       <div className={`flex-1 min-h-0 overflow-hidden flex flex-col items-center justify-center w-full ${
-        isMobile ? 'px-1' : isTablet ? 'px-2' : 'px-4'
+        isMobile ? 'px-0 py-1' : isTablet ? 'px-2' : 'px-4'
       }`}>
         <AnimatePresence mode="wait">
           {viewType === "month" && (
@@ -926,7 +926,7 @@ export const NeomorphicCalendar: React.FC<NeomorphicCalendarProps> = ({
 
               {/* GRID DE DIAS AMPLIO Y CUADRADO */}
               <div className={`grid grid-cols-7 grid-rows-6 flex-1 h-full w-full ${
-                isMobile ? 'gap-x-1 gap-y-1' : isTablet ? 'gap-x-1.5 gap-y-1.5' : 'gap-x-2 gap-y-2'
+                isMobile ? 'gap-x-0.5 gap-y-0.5 min-h-[320px]' : isTablet ? 'gap-x-1.5 gap-y-1.5' : 'gap-x-2 gap-y-2'
               }`}>
                 {viewDates.map((date, index) => {
                   const formattedDate = format(date, "yyyy-MM-dd");
@@ -1001,8 +1001,8 @@ export const NeomorphicCalendar: React.FC<NeomorphicCalendarProps> = ({
               </div>
               
               {/* GRID DE DIAS MEJORADO CON MÁS ALTURA */}
-              <div className={`grid grid-cols-7 flex-1 h-full w-full min-h-[300px] ${
-                isMobile ? 'gap-x-1 gap-y-1' : isTablet ? 'gap-x-1.5 gap-y-1.5' : 'gap-x-2 gap-y-2'
+              <div className={`grid grid-cols-7 flex-1 h-full w-full min-h-[220px] ${
+                isMobile ? 'gap-x-0.5 gap-y-0.5' : isTablet ? 'gap-x-1.5 gap-y-1.5' : 'gap-x-2 gap-y-2'
               }`}>
                 {viewDates.map((date, index) => {
                   const formattedDate = format(date, "yyyy-MM-dd");

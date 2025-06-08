@@ -422,7 +422,7 @@ const AvatarBuilder: React.FC<AvatarBuilderProps> = ({
       <div
         className={
           isMobile
-            ? "fixed bottom-0 left-0 w-full flex flex-row justify-center gap-8 py-4 bg-[#f5ede6]/90 shadow-lg z-50"
+            ? "fixed bottom-0 left-0 w-full flex flex-row justify-center gap-8 py-4 bg-[#f5ede6]/90 shadow-lg z-50 mb-20"
             : "flex flex-row justify-center gap-4 mt-6 mb-2"
         }
         style={isMobile ? {backdropFilter: 'blur(6px)'} : {}}

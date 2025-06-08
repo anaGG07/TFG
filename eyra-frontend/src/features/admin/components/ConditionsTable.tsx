@@ -4,6 +4,7 @@
 import React, { useState, useEffect } from 'react';
 import { Condition } from '../../../types/condition';
 import { adminConditionService } from '../../../services/adminConditionService';
+import { useViewport } from '../../../hooks/useViewport';
 import ConditionEditModal from './ConditionEditModal';
 import ConditionViewModal from './ConditionViewModal';
 import ConditionCreateModal from './ConditionCreateModal';
@@ -29,16 +30,20 @@ function useAutoRowsPerPage(min = 1, max = 50) {
 }
 
 const ConditionsTable: React.FC<ConditionsTableProps> = ({ onRefresh }) => {
+  const { isMobile, isTablet } = useViewport();
   const [conditions, setConditions] = useState<Condition[]>([]);
   const [allConditions, setAllConditions] = useState<Condition[]>([]);
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   
-  // Filtros locales (ya que no tenemos paginación en el backend para este endpoint)
+  // Filtros locales
   const [searchTerm, setSearchTerm] = useState('');
-  const [stateFilter, setStateFilter] = useState('all'); // 'all', 'active', 'inactive'
-  const [chronicFilter, setChronicFilter] = useState('all'); // 'all', 'chronic', 'non-chronic'
+  const [stateFilter, setStateFilter] = useState('all');
+  const [chronicFilter, setChronicFilter] = useState('all');
+  
+  // Estado para filtros colapsables en móvil
+  const [filtersExpanded, setFiltersExpanded] = useState(false);
   
   // Modales
   const [selectedCondition, setSelectedCondition] = useState<Condition | null>(null);
@@ -220,9 +225,12 @@ const ConditionsTable: React.FC<ConditionsTableProps> = ({ onRefresh }) => {
   return (
     <div className="neo-container">
       {/* Filtros */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+      <div className={`${isMobile ? "mb-4" : "mb-6"}`}>
+        {/* Búsqueda principal */}
+        <div className={`${isMobile ? "mb-3" : "mb-4"}`}>
+          <label className={`block font-medium text-gray-700 mb-2 ${
+            isMobile ? "text-sm" : "text-sm"
+          }`}>
             Buscar
           </label>
           <input
@@ -234,46 +242,103 @@ const ConditionsTable: React.FC<ConditionsTableProps> = ({ onRefresh }) => {
           />
         </div>
 
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Tipo
-          </label>
-          <select
-            value={chronicFilter}
-            onChange={(e) => setChronicFilter(e.target.value as 'all' | 'chronic' | 'non-chronic')}
-            className="neo-select w-full"
-          >
-            <option value="all">Todos los tipos</option>
-            <option value="chronic">Crónicas</option>
-            <option value="non-chronic">Agudas</option>
-          </select>
-        </div>
-
-        <div className="flex flex-col justify-end">
-          <label className="block text-sm font-medium text-gray-700 mb-2 invisible">
-            Estado
-          </label>
-          <select
-            value={stateFilter}
-            onChange={(e) => setStateFilter(e.target.value as 'all' | 'active' | 'inactive')}
-            className="neo-select w-full mb-2"
-          >
-            <option value="all">Todos los estados</option>
-            <option value="active">Activas</option>
-            <option value="inactive">Inactivas</option>
-          </select>
-          <button
-            onClick={handleReset}
-            className="neo-button w-full mt-2"
-          >
-            Reset
-          </button>
-        </div>
+        {/* Filtros adicionales */}
+        {isMobile ? (
+          <div>
+            <button
+              onClick={() => setFiltersExpanded(!filtersExpanded)}
+              className="neo-button w-full flex items-center justify-between mb-3"
+            >
+              <span>Filtros avanzados</span>
+              <svg
+                className={`w-5 h-5 transform transition-transform ${
+                  filtersExpanded ? "rotate-180" : ""
+                }`}
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+              </svg>
+            </button>
+            {filtersExpanded && (
+              <div className="grid grid-cols-1 gap-3 mb-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Tipo</label>
+                  <select
+                    value={chronicFilter}
+                    onChange={(e) => setChronicFilter(e.target.value as 'all' | 'chronic' | 'non-chronic')}
+                    className="neo-select w-full"
+                  >
+                    <option value="all">Todos los tipos</option>
+                    <option value="chronic">Crónicas</option>
+                    <option value="non-chronic">Agudas</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Estado</label>
+                  <select
+                    value={stateFilter}
+                    onChange={(e) => setStateFilter(e.target.value as 'all' | 'active' | 'inactive')}
+                    className="neo-select w-full"
+                  >
+                    <option value="all">Todos los estados</option>
+                    <option value="active">Activas</option>
+                    <option value="inactive">Inactivas</option>
+                  </select>
+                </div>
+                <button
+                  onClick={handleReset}
+                  className="neo-button w-full"
+                >
+                  Reset
+                </button>
+              </div>
+            )}
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Tipo</label>
+              <select
+                value={chronicFilter}
+                onChange={(e) => setChronicFilter(e.target.value as 'all' | 'chronic' | 'non-chronic')}
+                className="neo-select w-full"
+              >
+                <option value="all">Todos los tipos</option>
+                <option value="chronic">Crónicas</option>
+                <option value="non-chronic">Agudas</option>
+              </select>
+            </div>
+            <div className="flex flex-col justify-end">
+              <label className="block text-sm font-medium text-gray-700 mb-2 invisible">Estado</label>
+              <select
+                value={stateFilter}
+                onChange={(e) => setStateFilter(e.target.value as 'all' | 'active' | 'inactive')}
+                className="neo-select w-full mb-2"
+              >
+                <option value="all">Todos los estados</option>
+                <option value="active">Activas</option>
+                <option value="inactive">Inactivas</option>
+              </select>
+              <button
+                onClick={handleReset}
+                className="neo-button w-full mt-2"
+              >
+                Reset
+              </button>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Información de resultados y botón crear */}
-      <div className="flex justify-between items-center mb-4">
-        <div className="text-sm text-gray-600">
+      <div className={`flex items-center mb-4 ${
+        isMobile ? "flex-col gap-2" : "justify-between"
+      }`}>
+        <div className={`text-gray-600 ${
+          isMobile ? "text-sm text-center" : "text-sm"
+        }`}>
           Mostrando {conditions.length} condiciones
           {searchTerm || chronicFilter !== 'all' || stateFilter !== 'all' 
             ? ` de ${allConditions.length} total` 
@@ -282,116 +347,209 @@ const ConditionsTable: React.FC<ConditionsTableProps> = ({ onRefresh }) => {
         </div>
         <button
           onClick={() => setIsCreateModalOpen(true)}
-          className="neo-button neo-button-primary flex items-center gap-2"
+          className={`neo-button neo-button-primary flex items-center gap-2 ${
+            isMobile ? "w-full justify-center" : ""
+          }`}
         >
           <span>+</span>
           Nueva Condición
         </button>
       </div>
 
-      {/* Tabla */}
-      <div className="overflow-x-auto">
-        <table className="neo-table table-fixed w-full">
-          <thead>
-            <tr>
-              <th className="px-4 text-center">Nombre</th>
-              <th className="px-4 text-center">Descripción</th>
-              <th className="px-4 text-center">Tipo</th>
-              <th className="px-4 text-center">Estado</th>
-              <th className="px-4 text-center">Fecha de Creación</th>
-              <th className="px-4 text-center">Acciones</th>
-            </tr>
-          </thead>
-          <tbody>
-            {paginatedConditions.map((condition, idx) => (
-              <>
-                <tr key={condition.id}>
-                  <td className="px-4 text-center">
-                    <div className="flex items-center">
-                      <div className="flex-shrink-0 h-10 w-10">
-                        <div className="neo-avatar h-10 w-10 bg-[#b91c1c] text-white flex items-center justify-center font-semibold">
-                          {condition.name.charAt(0).toUpperCase()}
-                        </div>
-                      </div>
-                      <div className="ml-4">
-                        <div className="text-sm font-medium text-gray-900">
-                          {condition.name}
-                        </div>
-                        <div className="text-sm text-gray-500">
-                          ID: {condition.id}
-                        </div>
-                      </div>
-                    </div>
-                  </td>
-                  <td className="px-4 text-center">
-                    <span className="text-sm text-gray-900" title={condition.description}>
-                      {truncateDescription(condition.description)}
-                    </span>
-                  </td>
-                  <td className="px-4 text-center">
-                    <span className={`neo-badge ${
-                      condition.isChronic 
-                        ? 'neo-badge-orange' 
-                        : 'neo-badge-blue'
+      {/* Contenido principal: Tabla en desktop/tablet, Cards en móvil */}
+      {isMobile ? (
+        // Vista de cards para móvil
+        <div className="space-y-3">
+          {paginatedConditions.map((condition) => (
+            <div key={condition.id} className="neo-card p-4">
+              {/* Header de la card */}
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center gap-3">
+                  <div className="neo-avatar h-10 w-10 bg-[#b91c1c] text-white flex items-center justify-center font-semibold text-sm">
+                    {condition.name.charAt(0).toUpperCase()}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <h3 className="text-sm font-medium text-gray-900 truncate">{condition.name}</h3>
+                    <p className="text-xs text-gray-500">ID: {condition.id}</p>
+                  </div>
+                </div>
+                <span className={`neo-badge text-xs ${
+                  condition.state ? 'neo-badge-green' : 'neo-badge-red'
+                }`}>
+                  {condition.state ? 'Activa' : 'Inactiva'}
+                </span>
+              </div>
+              
+              {/* Descripción */}
+              <div className="mb-3">
+                <span className="text-xs text-gray-500">Descripción:</span>
+                <p className="text-xs text-gray-900 mt-1 line-clamp-2">
+                  {truncateDescription(condition.description, 80)}
+                </p>
+              </div>
+              
+              {/* Información adicional */}
+              <div className="grid grid-cols-2 gap-2 mb-3 text-xs">
+                <div>
+                  <span className="text-gray-500">Tipo:</span>
+                  <div className="mt-1">
+                    <span className={`neo-badge text-xs ${
+                      condition.isChronic ? 'neo-badge-orange' : 'neo-badge-blue'
                     }`}>
                       {condition.isChronic ? 'Crónica' : 'Aguda'}
                     </span>
-                  </td>
-                  <td className="px-4 text-center">
-                    <span className={`neo-badge ${
-                      condition.state 
-                        ? 'neo-badge-green' 
-                        : 'neo-badge-red'
-                    }`}>
-                      {condition.state ? 'Activa' : 'Inactiva'}
-                    </span>
-                  </td>
-                  <td className="px-4 text-center">
-                    {formatDate(condition.createdAt)}
-                  </td>
-                  <td className="px-4 text-center">
-                    <div className="flex justify-center space-x-2">
-                      <button
-                        onClick={() => handleViewCondition(condition)}
-                        className="neo-button text-blue-600 hover:text-blue-900"
-                      >
-                        <ViewIcon />
-                      </button>
-                      <button
-                        onClick={() => handleEditCondition(condition)}
-                        className="neo-button text-indigo-600 hover:text-indigo-900"
-                      >
-                        <EditIcon />
-                      </button>
-                      <button
-                        onClick={() => handleToggleState(condition)}
-                        className={`neo-button ${
-                          condition.state 
-                            ? 'text-orange-600 hover:text-orange-900'
-                            : 'text-green-600 hover:text-green-900'
-                        }`}
-                      >
-                        {condition.state ? 'Desactivar' : 'Activar'}
-                      </button>
-                      <button
-                        onClick={() => handleDeleteCondition(condition)}
-                        className="neo-button text-red-600 hover:text-red-900"
-                      >
-                        <DeleteIcon />
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-                {idx < paginatedConditions.length - 1 && (
-                  <tr className="neo-divider-row">
-                    <td colSpan={6} className="p-0"><div className="neo-divider mx-auto" /></td>
+                  </div>
+                </div>
+                <div>
+                  <span className="text-gray-500">Creada:</span>
+                  <p className="text-gray-900 mt-1">{formatDate(condition.createdAt)}</p>
+                </div>
+              </div>
+              
+              {/* Acciones */}
+              <div className="flex justify-center space-x-3 pt-2 border-t border-gray-100">
+                <button
+                  onClick={() => handleViewCondition(condition)}
+                  className="neo-button text-blue-600 hover:text-blue-900 p-2"
+                  aria-label="Ver detalles"
+                >
+                  <ViewIcon />
+                </button>
+                <button
+                  onClick={() => handleEditCondition(condition)}
+                  className="neo-button text-indigo-600 hover:text-indigo-900 p-2"
+                  aria-label="Editar condición"
+                >
+                  <EditIcon />
+                </button>
+                <button
+                  onClick={() => handleToggleState(condition)}
+                  className={`neo-button p-2 ${
+                    condition.state 
+                      ? 'text-orange-600 hover:text-orange-900'
+                      : 'text-green-600 hover:text-green-900'
+                  }`}
+                  aria-label={condition.state ? 'Desactivar' : 'Activar'}
+                >
+                  {condition.state ? 'Desact.' : 'Act.'}
+                </button>
+                <button
+                  onClick={() => handleDeleteCondition(condition)}
+                  className="neo-button text-red-600 hover:text-red-900 p-2"
+                  aria-label="Eliminar condición"
+                >
+                  <DeleteIcon />
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      ) : (
+        // Vista de tabla para desktop/tablet
+        <div className="overflow-x-auto">
+        <div className="overflow-x-auto">
+          <table className="neo-table table-fixed w-full">
+            <thead>
+              <tr>
+                <th className="px-4 text-center">Nombre</th>
+                <th className="px-4 text-center">Descripción</th>
+                <th className="px-4 text-center">Tipo</th>
+                <th className="px-4 text-center">Estado</th>
+                <th className="px-4 text-center">Fecha de Creación</th>
+                <th className="px-4 text-center">Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              {paginatedConditions.map((condition, idx) => (
+                <>
+                  <tr key={condition.id}>
+                    <td className="px-4 text-center">
+                      <div className="flex items-center">
+                        <div className="flex-shrink-0 h-10 w-10">
+                          <div className="neo-avatar h-10 w-10 bg-[#b91c1c] text-white flex items-center justify-center font-semibold">
+                            {condition.name.charAt(0).toUpperCase()}
+                          </div>
+                        </div>
+                        <div className="ml-4">
+                          <div className="text-sm font-medium text-gray-900">
+                            {condition.name}
+                          </div>
+                          <div className="text-sm text-gray-500">
+                            ID: {condition.id}
+                          </div>
+                        </div>
+                      </div>
+                    </td>
+                    <td className="px-4 text-center">
+                      <span className="text-sm text-gray-900" title={condition.description}>
+                        {truncateDescription(condition.description)}
+                      </span>
+                    </td>
+                    <td className="px-4 text-center">
+                      <span className={`neo-badge ${
+                        condition.isChronic 
+                          ? 'neo-badge-orange' 
+                          : 'neo-badge-blue'
+                      }`}>
+                        {condition.isChronic ? 'Crónica' : 'Aguda'}
+                      </span>
+                    </td>
+                    <td className="px-4 text-center">
+                      <span className={`neo-badge ${
+                        condition.state 
+                          ? 'neo-badge-green' 
+                          : 'neo-badge-red'
+                      }`}>
+                        {condition.state ? 'Activa' : 'Inactiva'}
+                      </span>
+                    </td>
+                    <td className="px-4 text-center">
+                      {formatDate(condition.createdAt)}
+                    </td>
+                    <td className="px-4 text-center">
+                      <div className="flex justify-center space-x-2">
+                        <button
+                          onClick={() => handleViewCondition(condition)}
+                          className="neo-button text-blue-600 hover:text-blue-900"
+                        >
+                          <ViewIcon />
+                        </button>
+                        <button
+                          onClick={() => handleEditCondition(condition)}
+                          className="neo-button text-indigo-600 hover:text-indigo-900"
+                        >
+                          <EditIcon />
+                        </button>
+                        <button
+                          onClick={() => handleToggleState(condition)}
+                          className={`neo-button ${
+                            condition.state 
+                              ? 'text-orange-600 hover:text-orange-900'
+                              : 'text-green-600 hover:text-green-900'
+                          }`}
+                        >
+                          {condition.state ? 'Desactivar' : 'Activar'}
+                        </button>
+                        <button
+                          onClick={() => handleDeleteCondition(condition)}
+                          className="neo-button text-red-600 hover:text-red-900"
+                        >
+                          <DeleteIcon />
+                        </button>
+                      </div>
+                    </td>
                   </tr>
-                )}
-              </>
-            ))}
-          </tbody>
-        </table>
-      </div>
+                  {idx < paginatedConditions.length - 1 && (
+                    <tr className="neo-divider-row">
+                      <td colSpan={6} className="p-0"><div className="neo-divider mx-auto" /></td>
+                    </tr>
+                  )}
+                </>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
 
       {/* Mensaje si no hay condiciones */}
       {conditions.length === 0 && (

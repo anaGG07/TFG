@@ -30,10 +30,10 @@ const AdminNavigation: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const isAdmin = useIsAdmin();
-  const { isDesktop } = useViewport();
+  const { isDesktop, isTablet, isMobile } = useViewport();
 
-  // Solo mostrar en desktop y si es admin
-  if (!isAdmin || !isDesktop) {
+  // Solo mostrar si es admin
+  if (!isAdmin) {
     return null;
   }
 
@@ -47,44 +47,66 @@ const AdminNavigation: React.FC = () => {
 
   return (
     <>
-      {/* Botón de administración prominente - solo en desktop */}
+      {/* Botón de administración - adaptado para todas las pantallas */}
       <div
-        className="fixed bottom-6 left-6 z-50 group"
+        className={`fixed z-50 group ${
+          isDesktop 
+            ? "bottom-6 left-6" 
+            : isTablet
+            ? "bottom-4 right-4"
+            : "bottom-3 right-3"
+        }`}
         title="Panel de Administración"
       >
           <div
-            className={`relative w-20 h-20 rounded-full flex items-center justify-center text-white font-bold cursor-pointer
-            shadow-2xl transition-all duration-300 transform hover:scale-115 hover:shadow-3xl
+            className={`relative rounded-full flex items-center justify-center text-white font-bold cursor-pointer
+            shadow-2xl transition-all duration-300 transform hover:scale-110 hover:shadow-3xl
+            ${isDesktop ? "w-20 h-20" : isTablet ? "w-16 h-16" : "w-14 h-14"}
             ${
               isInAdminPanel
                 ? "bg-gradient-to-br from-red-600 to-red-800 ring-4 ring-red-300 ring-opacity-60 scale-110 shadow-red-500/50"
                 : "bg-gradient-to-br from-red-700 to-red-900 hover:from-red-600 hover:to-red-800 shadow-red-600/40"
             }
-            animate-pulse hover:animate-none border-2 border-red-400/30`}
+            ${!isDesktop ? "animate-none" : "animate-pulse hover:animate-none"} border-2 border-red-400/30`}
             onClick={handleAdminClick}
           >
-            <AdminIcon className="w-12 h-12 text-white drop-shadow-lg" />
+            <AdminIcon className={`${
+              isDesktop ? "w-12 h-12" : isTablet ? "w-10 h-10" : "w-8 h-8"
+            } text-white drop-shadow-lg`} />
 
             {/* Efecto de brillo */}
             <div className="absolute inset-0 rounded-full bg-gradient-to-tr from-white/20 to-transparent"></div>
 
             {/* Indicador de estado activo */}
             {isInAdminPanel && (
-              <div className="absolute -top-1 -right-1 w-6 h-6 bg-green-400 rounded-full border-2 border-white shadow-lg flex items-center justify-center">
-                <div className="w-3 h-3 bg-green-600 rounded-full animate-pulse"></div>
+              <div className={`absolute -top-1 -right-1 bg-green-400 rounded-full border-2 border-white shadow-lg flex items-center justify-center ${
+                isDesktop ? "w-6 h-6" : isTablet ? "w-5 h-5" : "w-4 h-4"
+              }`}>
+                <div className={`bg-green-600 rounded-full animate-pulse ${
+                  isDesktop ? "w-3 h-3" : isTablet ? "w-2.5 h-2.5" : "w-2 h-2"
+                }`}></div>
               </div>
             )}
           </div>
 
-          {/* Etiqueta del botón mejorada */}
-          <div className="absolute -top-12 left-1/2 transform -translate-x-1/2 whitespace-nowrap opacity-0 group-hover:opacity-100 transition-all duration-300">
-            <div className="bg-gray-900 text-white text-sm px-3 py-2 rounded-lg shadow-xl border border-gray-700">
-              <span className="font-semibold">Panel de Administración</span>
-              <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 translate-y-full">
-                <div className="w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900"></div>
+          {/* Etiqueta del botón - solo en desktop y tablet */}
+          {!isMobile && (
+            <div className={`absolute whitespace-nowrap opacity-0 group-hover:opacity-100 transition-all duration-300 ${
+              isDesktop 
+                ? "-top-12 left-1/2 transform -translate-x-1/2"
+                : "-left-32 top-1/2 transform -translate-y-1/2"
+            }`}>
+              <div className="bg-gray-900 text-white text-sm px-3 py-2 rounded-lg shadow-xl border border-gray-700">
+                <span className="font-semibold">Panel Admin</span>
+                <div className={`absolute transform ${
+                  isDesktop 
+                    ? "bottom-0 left-1/2 -translate-x-1/2 translate-y-full border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900"
+                    : "top-1/2 right-0 -translate-y-1/2 translate-x-full border-t-4 border-b-4 border-l-4 border-transparent border-l-gray-900"
+                }`}>
+                </div>
               </div>
             </div>
-          </div>
+          )}
         </div>
     </>
   );

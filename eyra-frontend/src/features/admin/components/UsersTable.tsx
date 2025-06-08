@@ -5,6 +5,7 @@ import React, { useState, useEffect } from 'react';
 import { User } from '../../../types/user';
 import { ProfileType } from '../../../types/enums';
 import { adminService } from '../../../services/adminService';
+import { useViewport } from '../../../hooks/useViewport';
 import UserEditModal from './UserEditModal';
 import UserViewModal from './UserViewModal';
 import UserCreateModal from './UserCreateModal';
@@ -77,6 +78,7 @@ function useAutoRowsPerPage(min = 1, max = 50) {
 }
 
 const UsersTable: React.FC<UsersTableProps> = ({ onRefresh }) => {
+  const { isMobile, isTablet } = useViewport();
   const [users, setUsers] = useState<User[]>([]);
   const [allUsers, setAllUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
@@ -87,6 +89,9 @@ const UsersTable: React.FC<UsersTableProps> = ({ onRefresh }) => {
   const [roleFilter, setRoleFilter] = useState('');
   const [profileTypeFilter, setProfileTypeFilter] = useState('');
   const [stateFilter, setStateFilter] = useState('all');
+  
+  // Estado para filtros colapsables en móvil
+  const [filtersExpanded, setFiltersExpanded] = useState(false);
   
   // Modales
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
@@ -250,9 +255,12 @@ const UsersTable: React.FC<UsersTableProps> = ({ onRefresh }) => {
   return (
     <div className="neo-container">
       {/* Filtros */}
-      <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mb-6">
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+      <div className={`${isMobile ? "mb-4" : "mb-6"}`}>
+        {/* Búsqueda principal */}
+        <div className={`${isMobile ? "mb-3" : "mb-4"}`}>
+          <label className={`block font-medium text-gray-700 mb-2 ${
+            isMobile ? "text-sm" : "text-sm"
+          }`}>
             Buscar
           </label>
           <input
@@ -263,62 +271,132 @@ const UsersTable: React.FC<UsersTableProps> = ({ onRefresh }) => {
             className="neo-input w-full"
           />
         </div>
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Rol
-          </label>
-          <select
-            value={roleFilter}
-            onChange={(e) => setRoleFilter(e.target.value)}
-            className="neo-select w-full"
-          >
-            <option value="all">Todos los roles</option>
-            <option value="admin">Administrador</option>
-            <option value="user">Usuario</option>
-          </select>
-        </div>
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Tipo de Perfil
-          </label>
-          <select
-            value={profileTypeFilter}
-            onChange={(e) => setProfileTypeFilter(e.target.value)}
-            className="neo-select w-full"
-          >
-            <option value="">Todos los perfiles</option>
-            {Object.values(ProfileType).map((type) => (
-              <option key={type} value={type}>{ProfileTypeLabels[type]}</option>
-            ))}
-          </select>
-        </div>
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Estado
-          </label>
-          <select
-            value={stateFilter}
-            onChange={(e) => setStateFilter(e.target.value)}
-            className="neo-select w-full"
-          >
-            <option value="all">Todos los estados</option>
-            <option value="active">Activo</option>
-            <option value="inactive">Inactivo</option>
-          </select>
-        </div>
-        <div className="flex flex-col justify-end">
-          <button
-            onClick={handleReset}
-            className="neo-button w-full"
-          >
-            Reset
-          </button>
-        </div>
+
+        {/* Filtros adicionales */}
+        {isMobile ? (
+          <div>
+            <button
+              onClick={() => setFiltersExpanded(!filtersExpanded)}
+              className="neo-button w-full flex items-center justify-between mb-3"
+            >
+              <span>Filtros avanzados</span>
+              <svg
+                className={`w-5 h-5 transform transition-transform ${
+                  filtersExpanded ? "rotate-180" : ""
+                }`}
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+              </svg>
+            </button>
+            {filtersExpanded && (
+              <div className="grid grid-cols-1 gap-3 mb-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Rol</label>
+                  <select
+                    value={roleFilter}
+                    onChange={(e) => setRoleFilter(e.target.value)}
+                    className="neo-select w-full"
+                  >
+                    <option value="all">Todos los roles</option>
+                    <option value="admin">Administrador</option>
+                    <option value="user">Usuario</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Tipo de Perfil</label>
+                  <select
+                    value={profileTypeFilter}
+                    onChange={(e) => setProfileTypeFilter(e.target.value)}
+                    className="neo-select w-full"
+                  >
+                    <option value="">Todos los perfiles</option>
+                    {Object.values(ProfileType).map((type) => (
+                      <option key={type} value={type}>{ProfileTypeLabels[type]}</option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Estado</label>
+                  <select
+                    value={stateFilter}
+                    onChange={(e) => setStateFilter(e.target.value)}
+                    className="neo-select w-full"
+                  >
+                    <option value="all">Todos los estados</option>
+                    <option value="active">Activo</option>
+                    <option value="inactive">Inactivo</option>
+                  </select>
+                </div>
+                <button
+                  onClick={handleReset}
+                  className="neo-button w-full"
+                >
+                  Reset
+                </button>
+              </div>
+            )}
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Rol</label>
+              <select
+                value={roleFilter}
+                onChange={(e) => setRoleFilter(e.target.value)}
+                className="neo-select w-full"
+              >
+                <option value="all">Todos los roles</option>
+                <option value="admin">Administrador</option>
+                <option value="user">Usuario</option>
+              </select>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Tipo de Perfil</label>
+              <select
+                value={profileTypeFilter}
+                onChange={(e) => setProfileTypeFilter(e.target.value)}
+                className="neo-select w-full"
+              >
+                <option value="">Todos los perfiles</option>
+                {Object.values(ProfileType).map((type) => (
+                  <option key={type} value={type}>{ProfileTypeLabels[type]}</option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Estado</label>
+              <select
+                value={stateFilter}
+                onChange={(e) => setStateFilter(e.target.value)}
+                className="neo-select w-full"
+              >
+                <option value="all">Todos los estados</option>
+                <option value="active">Activo</option>
+                <option value="inactive">Inactivo</option>
+              </select>
+            </div>
+            <div className="flex flex-col justify-end">
+              <button
+                onClick={handleReset}
+                className="neo-button w-full"
+              >
+                Reset
+              </button>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Información de resultados y botón crear */}
-      <div className="flex justify-between items-center mb-4">
-        <div className="text-sm text-gray-600">
+      <div className={`flex items-center mb-4 ${
+        isMobile ? "flex-col gap-2" : "justify-between"
+      }`}>
+        <div className={`text-gray-600 ${
+          isMobile ? "text-sm text-center" : "text-sm"
+        }`}>
           Mostrando {users.length} usuarios
           {searchTerm || roleFilter !== 'all' || stateFilter !== 'all' 
             ? ` de ${allUsers.length} total` 
@@ -327,90 +405,116 @@ const UsersTable: React.FC<UsersTableProps> = ({ onRefresh }) => {
         </div>
         <button
           onClick={() => setIsCreateModalOpen(true)}
-          className="neo-button neo-button-primary flex items-center gap-2"
+          className={`neo-button neo-button-primary flex items-center gap-2 ${
+            isMobile ? "w-full justify-center" : ""
+          }`}
         >
           <span>+</span>
           Nuevo Usuario
         </button>
       </div>
 
-      {/* Tabla */}
-      <div className="overflow-x-auto">
-        <table className="neo-table table-fixed w-full">
-          <thead>
-            <tr>
-              <th className="px-4 text-center">Nombre</th>
-              <th className="px-4 text-center">Email</th>
-              <th className="px-4 text-center">Rol</th>
-              <th className="px-4 text-center">Estado</th>
-              <th className="px-4 text-center">Fecha de Creación</th>
-              <th className="px-4 text-center">Acciones</th>
-            </tr>
-          </thead>
-          <tbody>
-            {paginatedUsers.map((user, idx) => (
-              <>
-                <tr key={user.id}>
-                  <td className="px-4">
-                    <div className="flex items-center justify-start gap-4">
-                      <UserAvatar user={user} size="md" />
-                      <span className="text-sm font-medium text-gray-900">{user.name}</span>
-                    </div>
-                  </td>
-                  <td className="px-4 text-center">
-                    <span className="text-sm text-gray-900" title={user.email}>
-                      {user.email}
-                    </span>
-                  </td>
-                  <td className="px-4 text-center">
-                    <div className="flex flex-wrap gap-1 justify-center">
-                      {user.roles.map((role) => (
-                        <span key={role} className={`neo-badge ${role === 'ROLE_ADMIN' ? 'neo-badge-purple' : role === 'ROLE_GUEST' ? 'neo-badge-gray' : 'neo-badge-blue'}`}>{RoleLabels[role] || role}</span>
-                      ))}
-                    </div>
-                  </td>
-                  <td className="px-4 text-center">
-                    <span className={`neo-badge ${user.state ? 'neo-badge-green' : 'neo-badge-red'}`}> 
-                      {user.state ? 'Activo' : 'Inactivo'}
-                    </span>
-                  </td>
-                  <td className="px-4 text-center text-sm text-gray-900">{formatDate(user.createdAt)}</td>
-                  <td className="px-4 text-center">
-                    <div className="flex justify-center space-x-2">
-                      <button
-                        onClick={() => handleViewUser(user)}
-                        className="neo-button text-blue-600 hover:text-blue-900"
-                        aria-label="Ver detalles del usuario"
-                      >
-                        <ViewIcon />
-                      </button>
-                      <button
-                        onClick={() => handleEditUser(user)}
-                        className="neo-button text-purple-700 hover:text-purple-900"
-                        aria-label="Editar usuario"
-                      >
-                        <EditIcon />
-                      </button>
-                      <button
-                        onClick={() => handleToggleState(user)}
-                        className={`neo-button ${user.state ? 'text-red-600 hover:text-red-900' : 'text-green-600 hover:text-green-900'}`}
-                        aria-label={user.state ? 'Desactivar usuario' : 'Activar usuario'}
-                      >
-                        <ToggleActiveIcon active={user.state} />
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-                {idx < paginatedUsers.length - 1 && (
-                  <tr className="neo-divider-row">
-                    <td colSpan={6} className="p-0"><div className="neo-divider mx-auto" /></td>
+                  aria-label="Ver detalles del usuario"
+                >
+                  <ViewIcon />
+                </button>
+                <button
+                  onClick={() => handleEditUser(user)}
+                  className="neo-button text-purple-700 hover:text-purple-900 p-2"
+                  aria-label="Editar usuario"
+                >
+                  <EditIcon />
+                </button>
+                <button
+                  onClick={() => handleToggleState(user)}
+                  className={`neo-button p-2 ${user.state ? 'text-red-600 hover:text-red-900' : 'text-green-600 hover:text-green-900'}`}
+                  aria-label={user.state ? 'Desactivar usuario' : 'Activar usuario'}
+                >
+                  <ToggleActiveIcon active={user.state} />
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      ) : (
+        // Vista de tabla para desktop/tablet
+        <div className="overflow-x-auto">
+          <table className="neo-table table-fixed w-full">
+            <thead>
+              <tr>
+                <th className="px-4 text-center">Nombre</th>
+                <th className="px-4 text-center">Email</th>
+                <th className="px-4 text-center">Rol</th>
+                <th className="px-4 text-center">Estado</th>
+                <th className="px-4 text-center">Fecha de Creación</th>
+                <th className="px-4 text-center">Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              {paginatedUsers.map((user, idx) => (
+                <>
+                  <tr key={user.id}>
+                    <td className="px-4">
+                      <div className="flex items-center justify-start gap-4">
+                        <UserAvatar user={user} size="md" />
+                        <span className="text-sm font-medium text-gray-900">{user.name}</span>
+                      </div>
+                    </td>
+                    <td className="px-4 text-center">
+                      <span className="text-sm text-gray-900" title={user.email}>
+                        {user.email}
+                      </span>
+                    </td>
+                    <td className="px-4 text-center">
+                      <div className="flex flex-wrap gap-1 justify-center">
+                        {user.roles.map((role) => (
+                          <span key={role} className={`neo-badge ${role === 'ROLE_ADMIN' ? 'neo-badge-purple' : role === 'ROLE_GUEST' ? 'neo-badge-gray' : 'neo-badge-blue'}`}>{RoleLabels[role] || role}</span>
+                        ))}
+                      </div>
+                    </td>
+                    <td className="px-4 text-center">
+                      <span className={`neo-badge ${user.state ? 'neo-badge-green' : 'neo-badge-red'}`}> 
+                        {user.state ? 'Activo' : 'Inactivo'}
+                      </span>
+                    </td>
+                    <td className="px-4 text-center text-sm text-gray-900">{formatDate(user.createdAt)}</td>
+                    <td className="px-4 text-center">
+                      <div className="flex justify-center space-x-2">
+                        <button
+                          onClick={() => handleViewUser(user)}
+                          className="neo-button text-blue-600 hover:text-blue-900"
+                          aria-label="Ver detalles del usuario"
+                        >
+                          <ViewIcon />
+                        </button>
+                        <button
+                          onClick={() => handleEditUser(user)}
+                          className="neo-button text-purple-700 hover:text-purple-900"
+                          aria-label="Editar usuario"
+                        >
+                          <EditIcon />
+                        </button>
+                        <button
+                          onClick={() => handleToggleState(user)}
+                          className={`neo-button ${user.state ? 'text-red-600 hover:text-red-900' : 'text-green-600 hover:text-green-900'}`}
+                          aria-label={user.state ? 'Desactivar usuario' : 'Activar usuario'}
+                        >
+                          <ToggleActiveIcon active={user.state} />
+                        </button>
+                      </div>
+                    </td>
                   </tr>
-                )}
-              </>
-            ))}
-          </tbody>
-        </table>
-      </div>
+                  {idx < paginatedUsers.length - 1 && (
+                    <tr className="neo-divider-row">
+                      <td colSpan={6} className="p-0"><div className="neo-divider mx-auto" /></td>
+                    </tr>
+                  )}
+                </>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
 
       {/* Mensaje si no hay usuarios */}
       {users.length === 0 && (
