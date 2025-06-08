@@ -327,18 +327,54 @@ class CycleCalculatorService
     }
 
     /**
-     * Generar predicciones para un rango de fechas (NUEVO método para calendario)
-     * ! 08/06/2025 - Método agregado para generar predicciones en runtime para el calendario
+     * Generar predicciones para un rango de fechas (CORREGIDO)
+     * ! 08/06/2025 - Método corregido para evitar solapamientos y cálculos erróneos
      */
     public function generatePredictionsForRange(User $user, \DateTimeInterface $endDate, int $cyclesCount = 3): array
     {
-        // Obtener datos de predicción básica
+        // 1. Obtener todos los ciclos existentes del usuario (ordenados por fecha)
+        $existingCycles = $this->cycleRepository->findBy(
+            ['user' => $user], 
+            ['startDate' => 'DESC'], 
+            50 // Límite razonable
+        );
+
+        // 2. Encontrar la última fecha con datos reales
+        $lastRealDate = null;
+        if (!empty($existingCycles)) {
+            // Buscar el ciclo más reciente con fecha de fin definida
+            foreach ($existingCycles as $cycle) {
+                if ($cycle->getEndDate()) {
+                    $lastRealDate = $cycle->getEndDate();
+                    break;
+                } 
+                // Si no tiene fecha de fin, usar la fecha de inicio + duración estimada
+                elseif ($cycle->getStartDate()) {
+                    $estimatedDuration = $cycle->getAverageDuration() ?? 5;
+                    $lastRealDate = (clone $cycle->getStartDate())->modify("+{$estimatedDuration} days");
+                    break;
+                }
+            }
+        }
+
+        // 3. Si no hay datos reales, usar onboarding
+        if (!$lastRealDate) {
+            $onboarding = $this->onboardingRepository->findOneBy(['user' => $user]);
+            if ($onboarding && $onboarding->getLastPeriodDate()) {
+                $lastRealDate = $onboarding->getLastPeriodDate();
+            } else {
+                return []; // No hay datos suficientes
+            }
+        }
+
+        // 4. Obtener datos de predicción básica
         $prediction = $this->predictNextCycle($user);
         
-        // Si no hay predicción exitosa, usar valores por defecto
         if (!$prediction['success']) {
-            $cycleLength = 28;
-            $periodDuration = 5;
+            // Usar valores del onboarding o por defecto
+            $onboarding = $this->onboardingRepository->findOneBy(['user' => $user]);
+            $cycleLength = $onboarding?->getAverageCycleLength() ?? 28;
+            $periodDuration = $onboarding?->getAveragePeriodLength() ?? 5;
             $confidence = 50;
         } else {
             $cycleLength = $prediction['cycleLength'];
@@ -346,43 +382,54 @@ class CycleCalculatorService
             $confidence = $prediction['confidence'];
         }
 
-        // Obtener la fecha de inicio del último ciclo real
-        $lastCycle = $this->cycleRepository->findRecentByUser($user->getId(), 1)[0] ?? null;
+        // 5. Generar predicciones comenzando DESPUÉS de la última fecha real
+        $predictions = [];
+        $nextCycleStart = (clone $lastRealDate)->modify('+1 day');
         
-        if (!$lastCycle) {
-            // Si no hay ciclos, usar onboarding
-            $onboarding = $this->onboardingRepository->findOneBy(['user' => $user]);
-            if ($onboarding && $onboarding->getLastPeriodDate()) {
-                $lastCycleStart = $onboarding->getLastPeriodDate();
-                $cycleLength = $onboarding->getAverageCycleLength() ?? 28;
-                $periodDuration = $onboarding->getAveragePeriodLength() ?? 5;
-            } else {
-                return []; // No hay datos suficientes
+        // Ajustar al próximo inicio de ciclo esperado basado en el último ciclo real
+        if (!empty($existingCycles)) {
+            $lastCycle = $existingCycles[0];
+            $daysSinceLastStart = $lastRealDate->diff($lastCycle->getStartDate())->days;
+            $daysUntilNext = $cycleLength - $daysSinceLastStart;
+            
+            if ($daysUntilNext > 0) {
+                $nextCycleStart = (clone $lastRealDate)->modify("+{$daysUntilNext} days");
             }
-        } else {
-            $lastCycleStart = $lastCycle->getStartDate();
         }
 
-        $predictions = [];
-        $currentStart = clone $lastCycleStart;
-
-        // Generar predicciones hasta que alcancemos la fecha final o el número de ciclos
+        // 6. Generar ciclos futuros
         for ($cycleNum = 1; $cycleNum <= $cyclesCount; $cycleNum++) {
-            // Calcular inicio del siguiente ciclo
-            $nextCycleStart = (clone $currentStart)->modify("+{$cycleLength} days");
-            
-            // Si el ciclo va más allá de la fecha final, parar
+            // Verificar si este ciclo estaría dentro del rango solicitado
             if ($nextCycleStart > $endDate) {
                 break;
+            }
+
+            // Verificar que no haya solapamiento con ciclos existentes
+            $hasOverlap = false;
+            foreach ($existingCycles as $existingCycle) {
+                $existingStart = $existingCycle->getStartDate();
+                $existingEnd = $existingCycle->getEndDate() ?? 
+                    (clone $existingStart)->modify('+' . ($existingCycle->getAverageDuration() ?? 5) . ' days');
+                
+                if ($nextCycleStart >= $existingStart && $nextCycleStart <= $existingEnd) {
+                    $hasOverlap = true;
+                    break;
+                }
+            }
+            
+            if ($hasOverlap) {
+                // Saltar al siguiente ciclo posible
+                $nextCycleStart = (clone $nextCycleStart)->modify("+{$cycleLength} days");
+                continue;
             }
 
             $cycleId = $this->generateUuid();
             
             // Calcular duraciones de fases
             $menstrualDuration = $periodDuration;
-            $follicularDuration = floor(($cycleLength / 2) - $menstrualDuration);
+            $follicularDuration = max(1, floor(($cycleLength / 2) - $menstrualDuration));
             $ovulationDuration = 2;
-            $lutealDuration = $cycleLength - $menstrualDuration - $follicularDuration - $ovulationDuration;
+            $lutealDuration = max(1, $cycleLength - $menstrualDuration - $follicularDuration - $ovulationDuration);
 
             // Fechas de cada fase
             $menstrualStart = clone $nextCycleStart;
@@ -391,64 +438,68 @@ class CycleCalculatorService
             $lutealStart = (clone $ovulationStart)->modify("+{$ovulationDuration} days");
             $nextCycleEnd = (clone $nextCycleStart)->modify("+{$cycleLength} days");
 
-            // 1. Fase Menstrual
-            $predictions[] = [
-                'id' => "predicted-menstrual-{$cycleNum}-" . $menstrualStart->format('Y-m-d'),
-                'cycleId' => $cycleId,
-                'phase' => 'menstrual',
-                'startDate' => $menstrualStart->format('Y-m-d'),
-                'endDate' => $follicularStart->format('Y-m-d'),
-                'isPrediction' => true,
-                'confidence' => $confidence,
-                'averageCycleLength' => $cycleLength,
-                'averageDuration' => $menstrualDuration,
-                'filteredCycleDays' => []
-            ];
+            // Solo generar predicciones que estén completamente en el futuro
+            $today = new \DateTime();
+            if ($menstrualStart > $today) {
+                // 1. Fase Menstrual
+                $predictions[] = [
+                    'id' => "predicted-menstrual-{$cycleNum}-" . $menstrualStart->format('Y-m-d'),
+                    'cycleId' => $cycleId,
+                    'phase' => 'menstrual',
+                    'startDate' => $menstrualStart->format('Y-m-d'),
+                    'endDate' => $follicularStart->format('Y-m-d'),
+                    'isPrediction' => true,
+                    'confidence' => $confidence,
+                    'averageCycleLength' => $cycleLength,
+                    'averageDuration' => $menstrualDuration,
+                    'filteredCycleDays' => []
+                ];
 
-            // 2. Fase Folicular
-            $predictions[] = [
-                'id' => "predicted-folicular-{$cycleNum}-" . $follicularStart->format('Y-m-d'),
-                'cycleId' => $cycleId,
-                'phase' => 'folicular',
-                'startDate' => $follicularStart->format('Y-m-d'),
-                'endDate' => $ovulationStart->format('Y-m-d'),
-                'isPrediction' => true,
-                'confidence' => $confidence,
-                'averageCycleLength' => $cycleLength,
-                'averageDuration' => $follicularDuration,
-                'filteredCycleDays' => []
-            ];
+                // 2. Fase Folicular
+                $predictions[] = [
+                    'id' => "predicted-folicular-{$cycleNum}-" . $follicularStart->format('Y-m-d'),
+                    'cycleId' => $cycleId,
+                    'phase' => 'folicular',
+                    'startDate' => $follicularStart->format('Y-m-d'),
+                    'endDate' => $ovulationStart->format('Y-m-d'),
+                    'isPrediction' => true,
+                    'confidence' => $confidence,
+                    'averageCycleLength' => $cycleLength,
+                    'averageDuration' => $follicularDuration,
+                    'filteredCycleDays' => []
+                ];
 
-            // 3. Fase Ovulación
-            $predictions[] = [
-                'id' => "predicted-ovulacion-{$cycleNum}-" . $ovulationStart->format('Y-m-d'),
-                'cycleId' => $cycleId,
-                'phase' => 'ovulacion',
-                'startDate' => $ovulationStart->format('Y-m-d'),
-                'endDate' => $lutealStart->format('Y-m-d'),
-                'isPrediction' => true,
-                'confidence' => $confidence,
-                'averageCycleLength' => $cycleLength,
-                'averageDuration' => $ovulationDuration,
-                'filteredCycleDays' => []
-            ];
+                // 3. Fase Ovulación
+                $predictions[] = [
+                    'id' => "predicted-ovulacion-{$cycleNum}-" . $ovulationStart->format('Y-m-d'),
+                    'cycleId' => $cycleId,
+                    'phase' => 'ovulacion',
+                    'startDate' => $ovulationStart->format('Y-m-d'),
+                    'endDate' => $lutealStart->format('Y-m-d'),
+                    'isPrediction' => true,
+                    'confidence' => $confidence,
+                    'averageCycleLength' => $cycleLength,
+                    'averageDuration' => $ovulationDuration,
+                    'filteredCycleDays' => []
+                ];
 
-            // 4. Fase Lútea
-            $predictions[] = [
-                'id' => "predicted-lutea-{$cycleNum}-" . $lutealStart->format('Y-m-d'),
-                'cycleId' => $cycleId,
-                'phase' => 'lutea',
-                'startDate' => $lutealStart->format('Y-m-d'),
-                'endDate' => $nextCycleEnd->format('Y-m-d'),
-                'isPrediction' => true,
-                'confidence' => $confidence,
-                'averageCycleLength' => $cycleLength,
-                'averageDuration' => $lutealDuration,
-                'filteredCycleDays' => []
-            ];
+                // 4. Fase Lútea
+                $predictions[] = [
+                    'id' => "predicted-lutea-{$cycleNum}-" . $lutealStart->format('Y-m-d'),
+                    'cycleId' => $cycleId,
+                    'phase' => 'lutea',
+                    'startDate' => $lutealStart->format('Y-m-d'),
+                    'endDate' => $nextCycleEnd->format('Y-m-d'),
+                    'isPrediction' => true,
+                    'confidence' => $confidence,
+                    'averageCycleLength' => $cycleLength,
+                    'averageDuration' => $lutealDuration,
+                    'filteredCycleDays' => []
+                ];
+            }
 
             // Preparar para el siguiente ciclo
-            $currentStart = $nextCycleStart;
+            $nextCycleStart = $nextCycleEnd;
         }
 
         return $predictions;

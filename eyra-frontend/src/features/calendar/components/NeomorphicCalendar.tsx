@@ -115,10 +115,10 @@ const NeomorphicDayCell: React.FC<{
           ${isPredicted ? "text-gray-600 italic" : "text-gray-800"}
           ${
             isMobile 
-              ? isToday ? 'text-sm' : 'text-xs'
+              ? isToday ? 'text-base' : 'text-sm'
               : isTablet 
-                ? isToday ? 'text-sm' : 'text-xs'
-                : isToday ? 'text-sm' : 'text-xs'
+                ? isToday ? 'text-lg' : 'text-base'
+                : isToday ? 'text-lg' : 'text-base'
           }
         `}
         animate={isToday ? { scale: [1, 1.1, 1] } : {}}
@@ -155,6 +155,9 @@ const NeomorphicDayCell: React.FC<{
               repeat: Infinity,
               ease: "easeInOut"
             }}
+            className={`${
+              isMobile ? 'scale-[0.85]' : 'scale-[0.9]'
+            }`}
           >
             {phaseConfig[dayData.phase].icon(
               dayData.phase === CyclePhase.MENSTRUAL ? "#ef4444" :
