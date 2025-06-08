@@ -11,7 +11,7 @@ interface PrivacySettings {
 }
 
 export const usePrivacySettings = () => {
-  const { user, refreshSession } = useAuth();
+  const { user, updateUserData } = useAuth();
   const [settings, setSettings] = useState<PrivacySettings>({
     allowSearchable: true,
     cycleInfoSharing: true,
@@ -25,14 +25,10 @@ export const usePrivacySettings = () => {
   // Inicializar configuración desde el usuario autenticado
   useEffect(() => {
     if (user) {
-      setSettings({
+      setSettings(prev => ({
+        ...prev,
         allowSearchable: user.allowSearchable ?? true,
-        // Estas configuraciones por ahora son locales, se pueden expandir
-        cycleInfoSharing: true,
-        symptomsSharing: true,
-        alertsSharing: true,
-        medicalDataSharing: false,
-      });
+      }));
     }
   }, [user]);
 
@@ -44,22 +40,22 @@ export const usePrivacySettings = () => {
       setLoading(true);
       setError(null);
 
-      // Actualizar estado local inmediatamente para mejor UX
-      setSettings(prev => ({ ...prev, [key]: value }));
-
       // Solo sincronizar con backend los campos que existen en la entidad User
       if (key === 'allowSearchable') {
         await userService.updatePrivacySettings({ [key]: value });
-        // Refrescar datos del usuario para mantener consistencia
-        await refreshSession();
+        
+        // Actualizar el contexto de usuario local sin recargar toda la sesión
+        if (user) {
+          updateUserData({ ...user, [key]: value });
+        }
       }
       
-      // Para otros campos, solo mantenemos estado local por ahora
+      // Actualizar estado local
+      setSettings(prev => ({ ...prev, [key]: value }));
+      
       console.log(`Privacy setting updated: ${key} = ${value}`);
 
     } catch (err) {
-      // Revertir cambio local en caso de error
-      setSettings(prev => ({ ...prev, [key]: !value }));
       setError(`Error al actualizar configuración de ${key}`);
       console.error(`Error updating privacy setting ${key}:`, err);
       throw err;
@@ -80,14 +76,18 @@ export const usePrivacySettings = () => {
         backendUpdates.allowSearchable = newSettings.allowSearchable;
       }
 
-      // Actualizar estado local
-      setSettings(prev => ({ ...prev, ...newSettings }));
-
       // Sincronizar con backend solo campos existentes
       if (Object.keys(backendUpdates).length > 0) {
         await userService.updatePrivacySettings(backendUpdates);
-        await refreshSession();
+        
+        // Actualizar el contexto de usuario local
+        if (user) {
+          updateUserData({ ...user, ...backendUpdates });
+        }
       }
+
+      // Actualizar estado local
+      setSettings(prev => ({ ...prev, ...newSettings }));
 
       console.log('Privacy settings updated:', newSettings);
 

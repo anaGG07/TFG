@@ -476,13 +476,14 @@ const TrackingPage: React.FC = () => {
     );
   }
 
-  // Handler para actualizar configuración de privacidad
+  // Handler para actualizar configuración de privacidad con mejor sincronización
   const handlePrivacyToggle = async (key: keyof typeof privacySettings, value: boolean) => {
     try {
       await updatePrivacySetting(key, value);
+      console.log(`Privacy toggle updated: ${key} = ${value}`);
     } catch (err) {
       console.error(`Error updating ${key}:`, err);
-      // El error ya se maneja en el hook
+      // El error ya se maneja en el hook, pero aquí podríamos agregar más manejo si es necesario
     }
   };
 
@@ -884,36 +885,6 @@ const TrackingPage: React.FC = () => {
                       </p>
                     </div>
                   )}
-                </div>
-
-                {/* Información y avisos */}
-                <div className="space-y-3">
-                  {/* Información sobre descubrimiento */}
-                  <div className="p-3 rounded-xl bg-blue-50/50 border border-blue-200/30">
-                    <div className="flex items-start space-x-2">
-                      <div className="w-4 h-4 rounded-full bg-blue-500 flex items-center justify-center mt-0.5 flex-shrink-0">
-                        <span className="text-white text-xs">i</span>
-                      </div>
-                      <div className="text-xs text-blue-800">
-                        <p className="font-medium mb-1">Sobre la configuración de búsqueda:</p>
-                        <ul className="space-y-1 text-xs">
-                          <li>• Permite que otros usuarios te encuentren cuando busquen por tu email o username</li>
-                          <li>• No afecta a tus conexiones existentes</li>
-                          <li>• Puedes cambiar esta configuración en cualquier momento</li>
-                        </ul>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Nota sobre permisos específicos */}
-                  <div className="p-3 rounded-xl bg-[#C62328]/10">
-                    <div className="flex items-start space-x-2">
-                      <span className="text-[#C62328] text-sm flex-shrink-0">🔴</span>
-                      <p className="text-xs text-[#C62328] font-medium">
-                        Configuración de permisos específicos disponible al gestionar cada acompañante individual
-                      </p>
-                    </div>
-                  </div>
                 </div>
               </motion.div>
             )}

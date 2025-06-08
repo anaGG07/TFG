@@ -262,7 +262,7 @@ const ProfilePage: React.FC = () => {
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.5 }}
-            className="flex items-center justify-center rounded-full shadow-lg relative z-10"
+            className="flex items-center justify-center rounded-full shadow-lg absolute z-10"
             style={{
               width: isEditingAvatar ? 200 : (isMobile ? 220 : 320),
               height: isEditingAvatar ? 200 : (isMobile ? 220 : 320),
@@ -271,6 +271,9 @@ const ProfilePage: React.FC = () => {
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
+              left: '50%',
+              top: '50%',
+              transform: 'translate(-50%, -50%)',
             }}
           >
             <AvatarPreview 
