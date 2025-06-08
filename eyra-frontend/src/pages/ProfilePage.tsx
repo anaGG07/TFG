@@ -240,7 +240,7 @@ const ProfilePage: React.FC = () => {
         style={{ minHeight: "unset" }}
       >
         {/* Línea de separación neumórfica - solo desktop */}
-        <div className="hidden lg:block absolute top-0 right-0 h-full w-[2.5rem] flex items-center justify-center z-10">
+        <div className="hidden lg:block absolute right-0 h-full w-[2.5rem] flex items-center justify-center z-10">
           <div
             style={{
               width: "2px",
@@ -265,7 +265,7 @@ const ProfilePage: React.FC = () => {
               height: isEditingAvatar ? 220 : isMobile ? 250 : 340,
               borderRadius: "50%",
               boxShadow: "0 0 0 0 #fff0, 0 0 32px 8px #fff6",
-              background: "radial-gradient(circle, #fff8 0%, #fff0 70%)",
+              background: "radial-gradient(circle, #fff8 0%, #fff0 80%)",
               pointerEvents: "none",
               left: "50%",
               top: "50%",
@@ -310,7 +310,7 @@ const ProfilePage: React.FC = () => {
             setTempAvatar(form.avatar);
             setIsEditingAvatar(true);
           }}
-          className="mt-44 px-4 lg:px-8 py-2 lg:py-3 text-base lg:text-lg"
+          className="px-4 lg:px-8 py-2 lg:py-3 text-base lg:text-lg"
         >
           Editar avatar
         </NeomorphicButton>
