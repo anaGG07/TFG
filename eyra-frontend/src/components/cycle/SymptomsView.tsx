@@ -18,6 +18,7 @@ import { SymptomIcons } from '../icons/CycleIcons';
 import { getSymptomHistory, getSymptomPatterns, SymptomLog, SymptomPattern } from '../../services/symptomService';
 import { useAuth } from '../../context/AuthContext';
 import { useViewport } from '../../hooks/useViewport';
+import { NeomorphicCard, NeomorphicButton } from '../ui/NeomorphicComponents';
 
 // Registrar componentes de Chart.js
 ChartJS.register(
@@ -261,114 +262,59 @@ const SymptomsView: React.FC<SymptomsViewProps> = ({ expanded = true }) => {
         justifyContent: 'flex-start',
       }}>
         {/* Síntomas actuales */}
-        <div style={{
-          background: 'transparent',
-          borderRadius: 22,
-          boxShadow: 'none',
-          padding: isMobile ? 16 : 24,
-          marginBottom: 0,
-        }}>
-          <h3 style={{ 
-            fontSize: isMobile ? 16 : 18, 
-            fontWeight: 700, 
-            color: '#C62328', 
-            marginBottom: isMobile ? 14 : 18 
-          }}>
+        <NeomorphicCard compact className="mb-2">
+          <h3 className="font-bold text-lg mb-3 text-[#C62328]">
             Síntomas actuales
           </h3>
-          <div style={{ 
-            display: 'flex', 
-            flexWrap: 'wrap', 
-            gap: isMobile ? 12 : 16 
-          }}>
+          <div className="flex flex-wrap gap-2">
             {SYMPTOM_OPTIONS.map(symptom => {
               const todaySymptom = todaySymptoms.find(s => s.symptom === symptom);
+              const isSelected = symptom === selectedSymptom;
               return (
-                <motion.button
+                <NeomorphicButton
                   key={symptom}
-                  onClick={e => { e.stopPropagation(); setSelectedSymptom(symptom === selectedSymptom ? null : symptom); }}
+                  variant={isSelected ? 'primary' : 'secondary'}
+                  className={`flex items-center gap-2 px-3 py-2 rounded-2xl text-xs font-medium transition-all duration-200 ${isSelected ? 'scale-105' : ''}`}
+                  onClick={(e: React.MouseEvent<HTMLButtonElement>) => { e.stopPropagation(); setSelectedSymptom(isSelected ? null : symptom); }}
                   style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    background: todaySymptom ? '#F8B7B7' : '#F8D9D6',
-                    padding: isMobile ? '6px 12px' : '8px 16px',
-                    borderRadius: 20,
-                    border: 'none',
-                    cursor: 'pointer',
-                    gap: isMobile ? 6 : 8,
-                    transition: 'all 0.2s',
-                    boxShadow: todaySymptom ? '2px 2px 8px #e5bcbc' : 'none',
+                    minWidth: 0,
+                    boxShadow: isSelected ? 'inset 2px 2px 8px #c62328, inset -2px -2px 8px #fff' : undefined,
                   }}
-                  whileHover={{ scale: isMobile ? 1.02 : 1.05 }}
-                  whileTap={{ scale: 0.95 }}
                 >
                   {SymptomIcons[symptom]('#C62328')}
-                  <span style={{ 
-                    fontSize: isMobile ? 12 : 14, 
-                    color: '#222' 
-                  }}>{symptom}</span>
+                  <span>{symptom}</span>
                   {todaySymptom && (
-                    <div style={{
-                      background: '#C62328',
-                      color: '#fff',
-                      padding: '2px 8px',
-                      borderRadius: 12,
-                      fontSize: isMobile ? 11 : 12,
-                    }}>
+                    <span className="ml-1 bg-[#C62328] text-white rounded-xl px-2 py-0.5 text-[11px] font-semibold">
                       {todaySymptom.intensity}/5
-                    </div>
+                    </span>
                   )}
-                </motion.button>
+                </NeomorphicButton>
               );
             })}
           </div>
-        </div>
+        </NeomorphicCard>
         {/* Análisis de patrones */}
-        <div style={{
-          background: 'transparent',
-          borderRadius: 22,
-          boxShadow: 'none',
-          padding: isMobile ? 16 : 24,
-        }}>
-          <h3 style={{ 
-            fontSize: isMobile ? 16 : 18, 
-            fontWeight: 700, 
-            color: '#C62328', 
-            marginBottom: 16 
-          }}>
+        <NeomorphicCard compact>
+          <h3 className="font-bold text-lg mb-3 text-[#C62328]">
             Análisis de patrones
           </h3>
           {selectedSymptom ? (
-            <div style={{ background: '#F8D9D6', padding: isMobile ? 12 : 16, borderRadius: 12 }}>
+            <div className="rounded-xl p-3 bg-[#f8f4f1]/60 transition-all duration-200">
               {(() => {
                 const analysis = getSymptomAnalysis(selectedSymptom);
                 if (!analysis) {
                   return (
-                    <p style={{ 
-                      color: '#222', 
-                      fontSize: isMobile ? 12 : 14, 
-                      lineHeight: 1.5 
-                    }}>
+                    <p className="text-[#222] text-sm leading-relaxed">
                       No hay suficientes datos para analizar este síntoma. Continúa registrando para obtener insights.
                     </p>
                   );
                 }
-
                 return (
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-                    <p style={{ 
-                      color: '#222', 
-                      fontSize: isMobile ? 12 : 14, 
-                      lineHeight: 1.5 
-                    }}>
-                      Basado en tus registros, este síntoma aparece con una frecuencia del {analysis.frequency}%
-                      y una intensidad promedio de {analysis.averageIntensity.toFixed(1)}/5.
+                  <div className="flex flex-col gap-2">
+                    <p className="text-[#222] text-sm leading-relaxed">
+                      Basado en tus registros, este síntoma aparece con una frecuencia del {analysis.frequency}% y una intensidad promedio de {analysis.averageIntensity.toFixed(1)}/5.
                     </p>
-                    <p style={{ 
-                      color: '#222', 
-                      fontSize: isMobile ? 12 : 14, 
-                      lineHeight: 1.5 
-                    }}>
+                    <p className="text-[#222] text-sm leading-relaxed">
                       Suele aparecer alrededor del día {analysis.dayInCycle} de tu ciclo.
                     </p>
                   </div>
@@ -376,54 +322,20 @@ const SymptomsView: React.FC<SymptomsViewProps> = ({ expanded = true }) => {
               })()}
             </div>
           ) : (
-            <div style={{ background: '#F8D9D6', padding: isMobile ? 12 : 16, borderRadius: 12 }}>
-              <p style={{ 
-                color: '#222', 
-                fontSize: isMobile ? 12 : 14, 
-                lineHeight: 1.5 
-              }}>
+            <div className="rounded-xl p-3 bg-[#f8f4f1]/60 transition-all duration-200">
+              <p className="text-[#222] text-sm leading-relaxed">
                 Selecciona un síntoma para ver un análisis detallado de su patrón y recibir recomendaciones personalizadas.
               </p>
             </div>
           )}
-        </div>
+        </NeomorphicCard>
       </div>
       {/* Columna derecha/inferior: Gráfica */}
-      <div style={{
-        flex: isMobile ? 'none' : 1.1,
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center',
-        minWidth: 0,
-        background: 'transparent',
-        borderRadius: 22,
-        boxShadow: 'none',
-        padding: isMobile ? 20 : isTablet ? 28 : 32,
-        margin: 0,
-        height: isMobile ? 'auto' : '100%',
-      }}>
-        <h3 style={{ 
-          fontSize: isMobile ? 16 : 18, 
-          fontWeight: 700, 
-          color: '#C62328', 
-          marginBottom: isMobile ? 14 : 18, 
-          textAlign: 'center' 
-        }}>
+      <NeomorphicCard compact className="flex flex-col items-center justify-center w-full max-w-lg mx-auto">
+        <h3 className="font-bold text-lg mb-3 text-[#C62328] text-center">
           {selectedSymptom ? `Evolución de ${selectedSymptom}` : 'Selecciona un síntoma para ver su evolución'}
         </h3>
-        <div style={{ 
-          width: '100%', 
-          maxWidth: isMobile ? 320 : isTablet ? 380 : 420, 
-          height: isMobile ? 200 : isTablet ? 220 : 260, 
-          background: 'linear-gradient(135deg, #f8d9d6 0%, #fff 100%)', 
-          borderRadius: 18, 
-          boxShadow: '2px 2px 12px #e5d6d6', 
-          padding: isMobile ? 12 : 16, 
-          display: 'flex', 
-          alignItems: 'center', 
-          justifyContent: 'center' 
-        }}>
+        <div className="w-full" style={{ maxWidth: isMobile ? 320 : isTablet ? 380 : 420, height: isMobile ? 200 : isTablet ? 220 : 260 }}>
           <Line
             data={chartData}
             options={{
@@ -449,16 +361,10 @@ const SymptomsView: React.FC<SymptomsViewProps> = ({ expanded = true }) => {
                   max: 5,
                 },
               },
-              animation: {
-                duration: 1200,
-                easing: 'easeInOutQuart',
-              },
-              responsive: true,
-              maintainAspectRatio: false,
             }}
           />
         </div>
-      </div>
+      </NeomorphicCard>
     </motion.div>
   );
 };

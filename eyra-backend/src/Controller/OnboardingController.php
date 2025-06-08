@@ -390,6 +390,9 @@ class OnboardingController extends AbstractController
             // Persistir los cambios de onboarding y usuario
             $em->persist($onboarding);
             $em->persist($user);
+            
+            // ! 08/06/2025 - CRÍTICO: Hacer flush ANTES de crear el ciclo para que el onboarding esté disponible
+            $em->flush();
 
             // ! 19-05-2025 Insertar aquí el código para crear el ciclo menstrual y registrar condiciones médicas y síntomas comunes
 
@@ -399,6 +402,7 @@ class OnboardingController extends AbstractController
             if ($data['stageOfLife'] === 'menstrual') {
                 $lastPeriodDate = new \DateTime($data['lastPeriodDate']);
                 $this->logger->info('Onboarding: Iniciando nuevo ciclo menstrual para el usuario ' . $user->getId());
+                $this->logger->info('Onboarding: Usando duración de período: ' . $data['averagePeriodLength'] . ' días, ciclo: ' . $data['averageCycleLength'] . ' días');
 
                 try {
                     // Verificar si ya existe un ciclo para este usuario
@@ -501,7 +505,7 @@ class OnboardingController extends AbstractController
                 }
             }
 
-            // Guardar todos los cambios en una sola transacción
+            // Guardar las entidades restantes (condiciones, síntomas, etc.)
             $em->flush();
 
             // ! 19-05-2025 Insertar aquí el código para crear el ciclo menstrual y registrar condiciones médicas y síntomas comunes        

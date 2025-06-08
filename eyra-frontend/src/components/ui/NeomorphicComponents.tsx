@@ -54,7 +54,7 @@ interface NeomorphicSelectProps
 
 interface NeomorphicButtonProps {
   children: ReactNode;
-  onClick?: () => void;
+  onClick?: (e: React.MouseEvent<HTMLButtonElement>) => void;
   disabled?: boolean;
   variant?: "primary" | "secondary";
   type?: "button" | "submit";
