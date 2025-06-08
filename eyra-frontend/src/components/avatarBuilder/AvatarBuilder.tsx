@@ -22,26 +22,34 @@ import {
   Zap,
   Settings,
 } from "lucide-react";
+import { IconCancel, IconSave, IconRandom } from '../icons/AvatarBuilderIcons';
 
 interface AvatarBuilderProps {
   onChange?: (config: AvatarConfig) => void;
   initialConfig?: AvatarConfig;
   showPreview?: boolean;
+  onCancel: () => void;
+  onSave: () => void;
+  onRandom: () => void;
 }
 
 const TABS = [
-  { key: 'rostro', label: 'Rostro', icon: <User size={20} stroke="#C62328" /> },
-  { key: 'expresion', label: 'Expresión', icon: <Smile size={20} stroke="#C62328" /> },
-  { key: 'cabello', label: 'Cabello', icon: <Scissors size={20} stroke="#C62328" /> },
-  { key: 'vestimenta', label: 'Vestimenta', icon: <Shirt size={20} stroke="#C62328" /> },
-  { key: 'gafas', label: 'Gafas', icon: <Glasses size={20} stroke="#C62328" /> },
-  { key: 'extras', label: 'Extras', icon: <Gem size={20} stroke="#C62328" /> },
+  { key: 'rostro', label: 'Rostro', icon: <User size={22} stroke="#C62328" /> },
+  { key: 'expresion', label: 'Expresión', icon: <Smile size={22} stroke="#C62328" /> },
+  { key: 'cabello', label: 'Cabello', icon: <Scissors size={22} stroke="#C62328" /> },
+  { key: 'vestimenta', label: 'Vestimenta', icon: <Shirt size={22} stroke="#C62328" /> },
+  { key: 'gafas', label: 'Gafas', icon: <Glasses size={22} stroke="#C62328" /> },
+  { key: 'extras', label: 'Extras', icon: <Gem size={22} stroke="#C62328" /> },
+  { key: 'fondo', label: 'Fondo', icon: <PaintBucket size={22} stroke="#C62328" /> },
 ];
 
 const AvatarBuilder: React.FC<AvatarBuilderProps> = ({
   onChange,
   initialConfig,
   showPreview = true,
+  onCancel,
+  onSave,
+  onRandom,
 }) => {
   const [config, setConfig] = useState<AvatarConfig>(
     initialConfig || defaultAvatarConfig
@@ -82,17 +90,17 @@ const AvatarBuilder: React.FC<AvatarBuilderProps> = ({
         </div>
       )}
 
-      {/* Tabs de edición */}
+      {/* Tabs de edición solo iconos */}
       <div className="flex flex-row justify-center gap-2 mb-4 overflow-x-auto scrollbar-hide" style={{ WebkitOverflowScrolling: 'touch' }}>
         {TABS.map(tab => (
           <button
             key={tab.key}
-            className={`flex items-center gap-1 px-4 py-2 rounded-xl font-semibold shadow-neomorphic transition-all duration-200 text-[#7a2323] bg-[#f5ede6] border-2 ${activeTab === tab.key ? 'border-[#C62328] bg-[#fff]' : 'border-transparent hover:border-[#C62328]/40'}`}
+            className={`flex items-center justify-center px-2 py-2 rounded-xl shadow-neomorphic transition-all duration-200 text-[#7a2323] bg-[#f5ede6] border-2 ${activeTab === tab.key ? 'border-[#C62328] bg-[#fff]' : 'border-transparent hover:border-[#C62328]/40'}`}
             onClick={() => setActiveTab(tab.key)}
             type="button"
+            aria-label={tab.label}
           >
             {tab.icon}
-            <span>{tab.label}</span>
           </button>
         ))}
       </div>
@@ -100,32 +108,26 @@ const AvatarBuilder: React.FC<AvatarBuilderProps> = ({
       {/* Renderizado de la caja de edición según tab */}
       <div className="flex justify-center">
         {activeTab === 'rostro' && (
-          <div className="bg-[#f5ede6] rounded-2xl shadow-neomorphic p-6 min-w-[280px] max-w-md w-full">
-            <div className="flex items-center gap-2 mb-4">
+          <div className="bg-[#f5ede6] rounded-2xl shadow-neomorphic p-6 min-w-[240px] max-w-md w-full">
+            <div className="mb-4 flex items-center gap-2">
               <User size={22} stroke="#C62328" />
-              <span className="font-bold text-lg text-[#7a2323]">
-                Rostro básico
-              </span>
+              <span className="font-bold text-lg text-[#7a2323]">Rostro básico</span>
             </div>
             {/* Color de piel */}
-            <div className="mb-4">
-              <div className="flex items-center gap-2 mb-2">
-                <Palette size={18} stroke="#C62328" />
-                <label className="font-semibold text-[#7a2323]">
-                  Color de piel:
-                </label>
-              </div>
+            <div className="mb-2 flex items-center gap-2">
+              <Palette size={18} stroke="#C62328" />
+              <label className="font-semibold text-[#7a2323]">Color de piel:</label>
               <input
                 type="color"
                 value={config.skinColor}
                 onChange={e => handleChange("skinColor", e.target.value)}
-                className="w-12 h-12 rounded-full border-2 border-gray-200 shadow-neomorphic"
+                className="w-7 h-7 rounded-full border-2 border-gray-200 shadow-neomorphic ml-2"
                 title="Color de piel"
               />
             </div>
             {/* Ojos */}
-            <div className="mb-4">
-              <div className="flex items-center gap-2 mb-2">
+            <div className="mb-2">
+              <div className="flex items-center gap-2 mb-1">
                 <Eye size={18} stroke="#C62328" />
                 <label className="font-semibold text-[#7a2323]">Ojos:</label>
               </div>
@@ -143,7 +145,7 @@ const AvatarBuilder: React.FC<AvatarBuilderProps> = ({
             </div>
             {/* Cejas */}
             <div>
-              <div className="flex items-center gap-2 mb-2">
+              <div className="flex items-center gap-2 mb-1">
                 <Sparkles size={18} stroke="#C62328" />
                 <label className="font-semibold text-[#7a2323]">Cejas:</label>
               </div>
@@ -162,14 +164,14 @@ const AvatarBuilder: React.FC<AvatarBuilderProps> = ({
           </div>
         )}
         {activeTab === 'expresion' && (
-          <div className="bg-[#f5ede6] rounded-2xl shadow-neomorphic p-6 min-w-[280px] max-w-md w-full">
-            <div className="flex items-center gap-2 mb-4">
+          <div className="bg-[#f5ede6] rounded-2xl shadow-neomorphic p-6 min-w-[240px] max-w-md w-full">
+            <div className="mb-4 flex items-center gap-2">
               <Smile size={22} stroke="#C62328" />
               <span className="font-bold text-lg text-[#7a2323]">Expresión</span>
             </div>
             {/* Boca */}
-            <div className="mb-4">
-              <div className="flex items-center gap-2 mb-2">
+            <div className="mb-2">
+              <div className="flex items-center gap-2 mb-1">
                 <Smile size={18} stroke="#C62328" />
                 <label className="font-semibold text-[#7a2323]">Boca:</label>
               </div>
@@ -187,11 +189,9 @@ const AvatarBuilder: React.FC<AvatarBuilderProps> = ({
             </div>
             {/* Vello facial */}
             <div>
-              <div className="flex items-center gap-2 mb-2">
+              <div className="flex items-center gap-2 mb-1">
                 <Zap size={18} stroke="#C62328" />
-                <label className="font-semibold text-[#7a2323]">
-                  Vello facial:
-                </label>
+                <label className="font-semibold text-[#7a2323]">Vello facial:</label>
               </div>
               <select
                 value={config.facialHair}
@@ -208,14 +208,14 @@ const AvatarBuilder: React.FC<AvatarBuilderProps> = ({
           </div>
         )}
         {activeTab === 'cabello' && (
-          <div className="bg-[#f5ede6] rounded-2xl shadow-neomorphic p-6 min-w-[280px] max-w-md w-full">
-            <div className="flex items-center gap-2 mb-4">
+          <div className="bg-[#f5ede6] rounded-2xl shadow-neomorphic p-6 min-w-[240px] max-w-md w-full">
+            <div className="mb-4 flex items-center gap-2">
               <Scissors size={22} stroke="#C62328" />
               <span className="font-bold text-lg text-[#7a2323]">Cabello</span>
             </div>
             {/* Estilo de cabello */}
-            <div className="mb-4">
-              <div className="flex items-center gap-2 mb-2">
+            <div className="mb-2">
+              <div className="flex items-center gap-2 mb-1">
                 <Scissors size={18} stroke="#C62328" />
                 <label className="font-semibold text-[#7a2323]">Estilo:</label>
               </div>
@@ -232,30 +232,28 @@ const AvatarBuilder: React.FC<AvatarBuilderProps> = ({
               </select>
             </div>
             {/* Color de cabello */}
-            <div>
-              <div className="flex items-center gap-2 mb-2">
-                <Palette size={18} stroke="#C62328" />
-                <label className="font-semibold text-[#7a2323]">Color:</label>
-              </div>
+            <div className="flex items-center gap-2">
+              <Palette size={18} stroke="#C62328" />
+              <label className="font-semibold text-[#7a2323]">Color:</label>
               <input
                 type="color"
                 value={config.hairColor.split("_")[0]}
                 onChange={e => handleChange("hairColor", e.target.value)}
-                className="w-12 h-12 rounded-full border-2 border-gray-200 shadow-neomorphic"
+                className="w-7 h-7 rounded-full border-2 border-gray-200 shadow-neomorphic ml-2"
                 title="Color de cabello"
               />
             </div>
           </div>
         )}
         {activeTab === 'vestimenta' && (
-          <div className="bg-[#f5ede6] rounded-2xl shadow-neomorphic p-6 min-w-[280px] max-w-md w-full">
-            <div className="flex items-center gap-2 mb-4">
+          <div className="bg-[#f5ede6] rounded-2xl shadow-neomorphic p-6 min-w-[240px] max-w-md w-full">
+            <div className="mb-4 flex items-center gap-2">
               <Shirt size={22} stroke="#C62328" />
               <span className="font-bold text-lg text-[#7a2323]">Vestimenta</span>
             </div>
             {/* Tipo de ropa */}
-            <div className="mb-4">
-              <div className="flex items-center gap-2 mb-2">
+            <div className="mb-2">
+              <div className="flex items-center gap-2 mb-1">
                 <Shirt size={18} stroke="#C62328" />
                 <label className="font-semibold text-[#7a2323]">Tipo:</label>
               </div>
@@ -272,30 +270,28 @@ const AvatarBuilder: React.FC<AvatarBuilderProps> = ({
               </select>
             </div>
             {/* Color de tela */}
-            <div>
-              <div className="flex items-center gap-2 mb-2">
-                <PaintBucket size={18} stroke="#C62328" />
-                <label className="font-semibold text-[#7a2323]">Color:</label>
-              </div>
+            <div className="flex items-center gap-2">
+              <PaintBucket size={18} stroke="#C62328" />
+              <label className="font-semibold text-[#7a2323]">Color:</label>
               <input
                 type="color"
                 value={config.fabricColor}
                 onChange={e => handleChange("fabricColor", e.target.value)}
-                className="w-12 h-12 rounded-full border-2 border-gray-200 shadow-neomorphic"
+                className="w-7 h-7 rounded-full border-2 border-gray-200 shadow-neomorphic ml-2"
                 title="Color de ropa"
               />
             </div>
           </div>
         )}
         {activeTab === 'gafas' && (
-          <div className="bg-[#f5ede6] rounded-2xl shadow-neomorphic p-6 min-w-[280px] max-w-md w-full">
-            <div className="flex items-center gap-2 mb-4">
+          <div className="bg-[#f5ede6] rounded-2xl shadow-neomorphic p-6 min-w-[240px] max-w-md w-full">
+            <div className="mb-4 flex items-center gap-2">
               <Glasses size={22} stroke="#C62328" />
               <span className="font-bold text-lg text-[#7a2323]">Gafas</span>
             </div>
             {/* Tipo de gafas */}
-            <div className="mb-4">
-              <div className="flex items-center gap-2 mb-2">
+            <div className="mb-2">
+              <div className="flex items-center gap-2 mb-1">
                 <Glasses size={18} stroke="#C62328" />
                 <label className="font-semibold text-[#7a2323]">Tipo:</label>
               </div>
@@ -312,41 +308,35 @@ const AvatarBuilder: React.FC<AvatarBuilderProps> = ({
               </select>
             </div>
             {/* Opacidad de cristales */}
-            <div>
-              <div className="flex items-center gap-2 mb-2">
-                <Settings size={18} stroke="#C62328" />
-                <label className="font-semibold text-[#7a2323]">Opacidad:</label>
-              </div>
-              <div className="flex items-center gap-2">
-                <input
-                  type="range"
-                  min={0.1}
-                  max={1.0}
-                  step={0.05}
-                  value={parseFloat(config.glassOpacity) || 0.5}
-                  onChange={(e) => handleChange("glassOpacity", e.target.value)}
-                  className="flex-1"
-                />
-                <span className="text-sm text-[#7a2323] min-w-[3rem]">
-                  {Math.round((parseFloat(config.glassOpacity) || 0.5) * 100)}%
-                </span>
-              </div>
+            <div className="flex items-center gap-2">
+              <Settings size={18} stroke="#C62328" />
+              <label className="font-semibold text-[#7a2323]">Opacidad:</label>
+              <input
+                type="range"
+                min={0.1}
+                max={1.0}
+                step={0.05}
+                value={parseFloat(config.glassOpacity) || 0.5}
+                onChange={(e) => handleChange("glassOpacity", e.target.value)}
+                className="flex-1 ml-2"
+              />
+              <span className="text-sm text-[#7a2323] min-w-[3rem]">
+                {Math.round((parseFloat(config.glassOpacity) || 0.5) * 100)}%
+              </span>
             </div>
           </div>
         )}
         {activeTab === 'extras' && (
-          <div className="bg-[#f5ede6] rounded-2xl shadow-neomorphic p-6 min-w-[280px] max-w-md w-full">
-            <div className="flex items-center gap-2 mb-4">
+          <div className="bg-[#f5ede6] rounded-2xl shadow-neomorphic p-6 min-w-[240px] max-w-md w-full">
+            <div className="mb-4 flex items-center gap-2">
               <Gem size={22} stroke="#C62328" />
               <span className="font-bold text-lg text-[#7a2323]">Extras</span>
             </div>
             {/* Accesorios */}
-            <div className="mb-4">
-              <div className="flex items-center gap-2 mb-2">
+            <div className="mb-2">
+              <div className="flex items-center gap-2 mb-1">
                 <Gem size={18} stroke="#C62328" />
-                <label className="font-semibold text-[#7a2323]">
-                  Accesorios:
-                </label>
+                <label className="font-semibold text-[#7a2323]">Accesorios:</label>
               </div>
               <select
                 value={config.accessories}
@@ -361,22 +351,20 @@ const AvatarBuilder: React.FC<AvatarBuilderProps> = ({
               </select>
             </div>
             {/* Color de accesorios */}
-            <div className="mb-4">
-              <div className="flex items-center gap-2 mb-2">
-                <Gem size={18} stroke="#C62328" />
-                <label className="font-semibold text-[#7a2323]">Color de accesorio:</label>
-              </div>
+            <div className="flex items-center gap-2 mb-2">
+              <Gem size={18} stroke="#C62328" />
+              <label className="font-semibold text-[#7a2323]">Color:</label>
               <input
                 type="color"
                 value={config.accessoryColor}
                 onChange={e => handleChange("accessoryColor", e.target.value)}
-                className="w-12 h-12 rounded-full border-2 border-gray-200 shadow-neomorphic"
+                className="w-7 h-7 rounded-full border-2 border-gray-200 shadow-neomorphic ml-2"
                 title="Color de accesorio"
               />
             </div>
             {/* Tatuajes */}
-            <div className="mb-4">
-              <div className="flex items-center gap-2 mb-2">
+            <div className="mb-2">
+              <div className="flex items-center gap-2 mb-1">
                 <Star size={18} stroke="#C62328" />
                 <label className="font-semibold text-[#7a2323]">Tatuajes:</label>
               </div>
@@ -393,48 +381,52 @@ const AvatarBuilder: React.FC<AvatarBuilderProps> = ({
               </select>
             </div>
             {/* Color de tatuaje */}
-            <div>
-              <div className="flex items-center gap-2 mb-2">
-                <Star size={18} stroke="#C62328" />
-                <label className="font-semibold text-[#7a2323]">Color de tatuaje:</label>
-              </div>
+            <div className="flex items-center gap-2">
+              <Star size={18} stroke="#C62328" />
+              <label className="font-semibold text-[#7a2323]">Color:</label>
               <input
                 type="color"
                 value={config.tattooColor}
                 onChange={e => handleChange("tattooColor", e.target.value)}
-                className="w-12 h-12 rounded-full border-2 border-gray-200 shadow-neomorphic"
+                className="w-7 h-7 rounded-full border-2 border-gray-200 shadow-neomorphic ml-2"
                 title="Color de tatuaje"
+              />
+            </div>
+          </div>
+        )}
+        {activeTab === 'fondo' && (
+          <div className="bg-[#f5ede6] rounded-2xl shadow-neomorphic p-6 min-w-[240px] max-w-md w-full flex flex-col items-center justify-center">
+            <div className="mb-4 flex items-center gap-2">
+              <PaintBucket size={22} stroke="#C62328" />
+              <span className="font-bold text-lg text-[#7a2323]">Fondo</span>
+            </div>
+            {/* Color de fondo */}
+            <div className="flex items-center gap-2">
+              <PaintBucket size={18} stroke="#C62328" />
+              <label className="font-semibold text-[#7a2323]">Color:</label>
+              <input
+                type="color"
+                value={config.backgroundColor}
+                onChange={e => handleChange("backgroundColor", e.target.value)}
+                className="w-7 h-7 rounded-full border-2 border-gray-200 shadow-neomorphic ml-2"
+                title="Color de fondo"
               />
             </div>
           </div>
         )}
       </div>
 
-      {/* Sección 3: Fondo */}
-      <div className="flex justify-center">
-        <div className="bg-[#f5ede6] rounded-2xl shadow-neomorphic p-6 w-full max-w-md">
-          <div className="flex items-center gap-2 mb-4">
-            <PaintBucket size={22} stroke="#C62328" />
-            <span className="font-bold text-lg text-[#7a2323]">Fondo</span>
-          </div>
-
-          {/* Color de fondo */}
-          <div>
-            <div className="flex items-center gap-2 mb-2">
-              <PaintBucket size={18} stroke="#C62328" />
-              <label className="font-semibold text-[#7a2323]">
-                Color de fondo:
-              </label>
-            </div>
-            <input
-              type="color"
-              value={config.backgroundColor}
-              onChange={e => handleChange("backgroundColor", e.target.value)}
-              className="w-12 h-12 rounded-full border-2 border-gray-200 shadow-neomorphic"
-              title="Color de fondo"
-            />
-          </div>
-        </div>
+      {/* Botones de acción como iconos */}
+      <div className="flex flex-row justify-center gap-4 mt-6 mb-2">
+        <button type="button" onClick={onCancel} title="Cancelar" className="hover:bg-[#f5ede6] rounded-full p-2 transition-colors">
+          <IconCancel />
+        </button>
+        <button type="button" onClick={onSave} title="Guardar avatar" className="hover:bg-[#f5ede6] rounded-full p-2 transition-colors">
+          <IconSave />
+        </button>
+        <button type="button" onClick={onRandom} title="Aleatorio" className="hover:bg-[#f5ede6] rounded-full p-2 transition-colors">
+          <IconRandom />
+        </button>
       </div>
 
       {/* Ocultar barra de scroll en tabs para todos los navegadores */}

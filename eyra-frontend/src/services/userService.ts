@@ -51,4 +51,13 @@ export const userService = {
       body: data,
     });
   },
+
+  async updatePrivacySettings(settings: {
+    allowSearchable?: boolean;
+  }): Promise<User> {
+    return apiFetch(API_ROUTES.USER.UPDATE_PROFILE, {
+      method: "PUT",
+      body: settings,
+    });
+  },
 };

@@ -6,6 +6,7 @@ import InvitationWithEmailModal, { InvitationModalData } from "../components/Inv
 import UserSearchModal, { UserSearchData } from "../components/UserSearchModal";
 import RelationshipTypeModal, { RelationshipTypeData } from "../components/RelationshipTypeModal";
 import { useTracking } from "../hooks/useTracking";
+import { usePrivacySettings } from "../hooks/usePrivacySettings";
 import { Companion, Following, Invitation } from "../services/trackingService";
 import { userSearchService } from "../services/userSearchService";
 
@@ -150,6 +151,14 @@ const TrackingPage: React.FC = () => {
     revokeCompanion,
     refresh,
   } = useTracking();
+
+  // Hook para configuración de privacidad
+  const {
+    settings: privacySettings,
+    loading: privacyLoading,
+    error: privacyError,
+    updatePrivacySetting,
+  } = usePrivacySettings();
 
   // Estados locales para la UI
   const [activeTab, setActiveTab] = useState<
@@ -419,6 +428,16 @@ const TrackingPage: React.FC = () => {
     );
   }
 
+  // Handler para actualizar configuración de privacidad
+  const handlePrivacyToggle = async (key: keyof typeof privacySettings, value: boolean) => {
+    try {
+      await updatePrivacySetting(key, value);
+    } catch (err) {
+      console.error(`Error updating ${key}:`, err);
+      // El error ya se maneja en el hook
+    }
+  };
+
   return (
     <>
       <div className="w-full h-full bg-[#e7e0d5] p-6">
@@ -646,80 +665,206 @@ const TrackingPage: React.FC = () => {
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: 20 }}
-                className="rounded-xl p-6"
-                style={neomorphicCardStyle}
+                className="space-y-6"
               >
-                <div className="flex items-center space-x-3 mb-6">
-                  <div className="w-12 h-12 rounded-full bg-[#C62328] flex items-center justify-center">
-                    <PrivacyIcon className="w-6 h-6 text-white" />
-                  </div>
-                  <div>
-                    <h3 className="text-xl font-semibold text-[#7a2323]">
-                      Configuración de Privacidad
-                    </h3>
-                    <p className="text-sm text-[#5b0108]">
-                      Controla qué información compartes
-                    </p>
+                {/* Header de privacidad */}
+                <div className="rounded-xl p-4 sm:p-6" style={neomorphicCardStyle}>
+                  <div className="flex items-center space-x-3 mb-4">
+                    <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-[#C62328] flex items-center justify-center">
+                      <PrivacyIcon className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
+                    </div>
+                    <div>
+                      <h3 className="text-lg sm:text-xl font-semibold text-[#7a2323]">
+                        Configuración de Privacidad
+                      </h3>
+                      <p className="text-xs sm:text-sm text-[#5b0108]">
+                        Controla qué información compartes y tu visibilidad
+                      </p>
+                    </div>
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {[
-                    {
-                      title: "Información del ciclo",
-                      desc: "Fechas y predicciones",
-                      icon: CompanionsIcon,
-                    },
-                    {
-                      title: "Síntomas y estado",
-                      desc: "Registro de bienestar",
-                      icon: ActivityIcon,
-                    },
-                    {
-                      title: "Alertas y recordatorios",
-                      desc: "Notificaciones compartidas",
-                      icon: CommunicationIcon,
-                    },
-                    {
-                      title: "Datos médicos",
-                      desc: "Información clínica",
-                      icon: PrivacyIcon,
-                    },
-                  ].map((item, index) => (
-                    <div
-                      key={index}
-                      className="p-4 rounded-xl"
+                {/* Sección de Descubrimiento */}
+                <div className="rounded-xl p-4 sm:p-6" style={neomorphicCardStyle}>
+                  <div className="flex items-center space-x-3 mb-4 sm:mb-6">
+                    <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-blue-500 flex items-center justify-center">
+                      <CompanionsIcon className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
+                    </div>
+                    <div>
+                      <h4 className="text-base sm:text-lg font-semibold text-[#7a2323]">
+                        Descubrimiento y Visibilidad
+                      </h4>
+                      <p className="text-xs sm:text-sm text-[#5b0108]">
+                        Controla si otros usuarios pueden encontrarte
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="space-y-3 sm:space-y-4">
+                    {/* Toggle para búsqueda */}
+                    <div 
+                      className="flex items-center justify-between p-3 sm:p-4 rounded-xl"
                       style={neomorphicInsetStyle}
                     >
-                      <div className="flex items-start space-x-3">
-                        <item.icon className="w-6 h-6 text-[#C62328] mt-1" />
-                        <div>
-                          <h4 className="font-medium text-[#5b0108] mb-1">
-                            {item.title}
-                          </h4>
-                          <p className="text-xs text-[#a62c2c] mb-3">
-                            {item.desc}
-                          </p>
-                          <div className="flex items-center space-x-2">
-                            <input
-                              type="checkbox"
-                              className="accent-[#C62328]"
-                              defaultChecked
-                            />
-                            <span className="text-xs text-[#5b0108]">
-                              Compartir
-                            </span>
-                          </div>
+                      <div className="flex-1 mr-3">
+                        <h5 className="font-medium text-[#5b0108] text-sm sm:text-base mb-1">
+                          Permitir ser encontrado
+                        </h5>
+                        <p className="text-xs text-[#a62c2c]">
+                          Otros usuarios pueden buscarte por email o username
+                        </p>
+                      </div>
+                      <div className="flex items-center">
+                        <label className="relative inline-flex items-center cursor-pointer">
+                          <input
+                            type="checkbox"
+                            className="sr-only peer"
+                            checked={privacySettings.allowSearchable}
+                            onChange={(e) => handlePrivacyToggle('allowSearchable', e.target.checked)}
+                            disabled={privacyLoading}
+                          />
+                          <div className="w-11 h-6 bg-gray-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#C62328]"></div>
+                        </label>
+                      </div>
+                    </div>
+
+                    {/* Estado visual */}
+                    <div className="flex items-center justify-between text-xs sm:text-sm">
+                      <span className="text-[#5b0108]">
+                        Estado actual:
+                      </span>
+                      <span className={`font-medium ${
+                        privacySettings.allowSearchable 
+                          ? 'text-green-600' 
+                          : 'text-orange-600'
+                      }`}>
+                        {privacySettings.allowSearchable 
+                          ? '✅ Visible para búsquedas' 
+                          : '🔒 Oculto en búsquedas'
+                        }
+                      </span>
+                    </div>
+
+                    {/* Información adicional */}
+                    <div className="p-3 sm:p-4 rounded-xl bg-blue-50/50 border border-blue-200/30">
+                      <div className="flex items-start space-x-2">
+                        <div className="w-4 h-4 rounded-full bg-blue-500 flex items-center justify-center mt-0.5">
+                          <span className="text-white text-xs">i</span>
+                        </div>
+                        <div className="text-xs text-blue-800">
+                          <p className="font-medium mb-1">Sobre esta configuración:</p>
+                          <ul className="space-y-1 text-xs">
+                            <li>• Permite que otros usuarios te encuentren cuando busquen por tu email o username</li>
+                            <li>• No afecta a tus conexiones existentes</li>
+                            <li>• Puedes cambiar esta configuración en cualquier momento</li>
+                          </ul>
                         </div>
                       </div>
                     </div>
-                  ))}
+                  </div>
                 </div>
 
-                <div className="mt-6 p-4 rounded-xl bg-[#C62328]/10">
-                  <p className="text-sm text-[#C62328] font-medium">
-                    🔴 En desarrollo - Configuración avanzada próximamente
-                  </p>
+                {/* Sección de Información Compartida */}
+                <div className="rounded-xl p-4 sm:p-6" style={neomorphicCardStyle}>
+                  <div className="flex items-center space-x-3 mb-4 sm:mb-6">
+                    <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-[#C62328] flex items-center justify-center">
+                      <PrivacyIcon className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
+                    </div>
+                    <div>
+                      <h4 className="text-base sm:text-lg font-semibold text-[#7a2323]">
+                        Información Compartida
+                      </h4>
+                      <p className="text-xs sm:text-sm text-[#5b0108]">
+                        Controla qué datos compartes con tus acompañantes
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+                    {[
+                      {
+                        key: 'cycleInfoSharing' as const,
+                        title: "Información del ciclo",
+                        desc: "Fechas y predicciones del ciclo menstrual",
+                        icon: CompanionsIcon,
+                      },
+                      {
+                        key: 'symptomsSharing' as const,
+                        title: "Síntomas y estado",
+                        desc: "Registro de bienestar y síntomas",
+                        icon: ActivityIcon,
+                      },
+                      {
+                        key: 'alertsSharing' as const,
+                        title: "Alertas y recordatorios",
+                        desc: "Notificaciones compartidas",
+                        icon: CommunicationIcon,
+                      },
+                      {
+                        key: 'medicalDataSharing' as const,
+                        title: "Datos médicos",
+                        desc: "Información clínica sensible",
+                        icon: PrivacyIcon,
+                      },
+                    ].map((item) => (
+                      <div
+                        key={item.key}
+                        className="p-3 sm:p-4 rounded-xl"
+                        style={neomorphicInsetStyle}
+                      >
+                        <div className="flex items-start space-x-3">
+                          <item.icon className="w-5 h-5 sm:w-6 sm:h-6 text-[#C62328] mt-1 flex-shrink-0" />
+                          <div className="flex-1 min-w-0">
+                            <h5 className="font-medium text-[#5b0108] mb-1 text-sm sm:text-base">
+                              {item.title}
+                            </h5>
+                            <p className="text-xs text-[#a62c2c] mb-3">
+                              {item.desc}
+                            </p>
+                            <div className="flex items-center space-x-2">
+                              <input
+                                type="checkbox"
+                                className="accent-[#C62328] h-4 w-4"
+                                checked={privacySettings[item.key]}
+                                onChange={(e) => handlePrivacyToggle(item.key, e.target.checked)}
+                                disabled={privacyLoading}
+                              />
+                              <span className="text-xs text-[#5b0108]">
+                                Compartir
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Estado de carga/error */}
+                  {privacyLoading && (
+                    <div className="mt-4 text-center">
+                      <p className="text-sm text-[#C62328]">
+                        Actualizando configuración...
+                      </p>
+                    </div>
+                  )}
+
+                  {privacyError && (
+                    <div className="mt-4 p-3 rounded-xl bg-red-50 border border-red-200">
+                      <p className="text-sm text-red-700">
+                        {privacyError}
+                      </p>
+                    </div>
+                  )}
+
+                  {/* Nota informativa */}
+                  <div className="mt-4 sm:mt-6 p-3 sm:p-4 rounded-xl bg-[#C62328]/10">
+                    <div className="flex items-start space-x-2">
+                      <span className="text-[#C62328] text-sm">🔴</span>
+                      <p className="text-xs sm:text-sm text-[#C62328] font-medium">
+                        Configuración de permisos específicos disponible al gestionar cada acompañante individual
+                      </p>
+                    </div>
+                  </div>
                 </div>
               </motion.div>
             )}
