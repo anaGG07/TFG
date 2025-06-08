@@ -66,15 +66,11 @@ export const useCalendarData = (
         const startStr = format(startDate, "yyyy-MM-dd");
         const endStr = format(endDate, "yyyy-MM-dd");
 
-        console.log(`Fetching calendar data from ${startStr} to ${endStr}`);
-
         // ! 04/06/2025 - Usar el servicio que incluye predicciones
         const calendarData = await fetchCalendarWithPredictions(
           startStr,
           endStr
         );
-
-        console.log("Calendar data with predictions:", calendarData);
 
         // Procesar datos para el formato esperado
         const processedData: CalendarData = {
@@ -86,22 +82,18 @@ export const useCalendarData = (
           }),
         };
 
-        console.log("Processed calendar data:", processedData);
         setData(processedData);
       } catch (err) {
-        console.error("Error al obtener datos del calendario:", err);
         setError(err instanceof Error ? err.message : "Error desconocido");
 
         // Fallback a datos locales si están disponibles
         if (cycleDays && cycleDays.length > 0) {
-          console.log("Using fallback cycle days:", cycleDays);
           setData({
             userCycles: [],
             hostCycles: [],
             calendarDays: cycleDays,
           });
         } else {
-          console.log("No fallback data available, setting empty data");
           setData({
             userCycles: [],
             hostCycles: [],
@@ -156,15 +148,6 @@ export const useCalendarData = (
             current = addDays(current, 1);
             dayNumber++;
           }
-
-          const logMessage = isPrediction
-            ? `🔮 Generated ${dayNumber - 1} predicted days for cycle ${
-                cycle.id
-              } (${cycle.phase}, confidence: ${confidence}%)`
-            : `✅ Generated ${dayNumber - 1} real days for cycle ${cycle.id} (${
-                cycle.phase
-              })`;
-          console.log(logMessage);
         }
 
         // TAMBIÉN procesar filteredCycleDays si existen (datos registrados por el usuario)
@@ -183,7 +166,6 @@ export const useCalendarData = (
                 mood: day.mood || existingDay.mood,
                 notes: day.notes || existingDay.notes,
               });
-              console.log(`⚙️ Updated day ${dateStr} with registered data`);
             }
           });
         }
@@ -206,19 +188,16 @@ export const useCalendarData = (
             mood: localDay.mood || existingDay.mood,
             notes: localDay.notes || existingDay.notes,
           });
-          console.log(`⚙️ Updated day ${localDateStr} with local data`);
         } else {
           // Añadir nuevo día desde datos locales
           days.push({
             ...localDay,
             isPrediction: false,
           });
-          console.log(`➕ Added new local day ${localDateStr}`);
         }
       });
     }
 
-    console.log(`📅 Total calendar days processed: ${days.length}`);
     return days;
   };
 

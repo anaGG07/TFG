@@ -147,48 +147,49 @@ const NeomorphicDayCell: React.FC<{
           className={`absolute bottom-1 right-1 pointer-events-none ${
             isPredicted ? "opacity-50" : "opacity-80"
           }`}
-          initial={{ scale: 0, rotate: -180 }}
-          animate={{ scale: 1, rotate: 0 }}
+          initial={{ scale: 0 }}
+          animate={{ scale: 1 }}
           transition={{ 
             type: "spring",
-            stiffness: 260,
-            damping: 20,
-            delay: 0.1 
+            stiffness: 400,
+            damping: 30
           }}
         >
           <motion.div
             animate={{
-              scale: [1, 1.1, 1],
-              rotate: [0, 5, -5, 0]
+              scale: [1, 1.05, 1]
             }}
             transition={{
-              duration: 3,
+              duration: 2,
               repeat: Infinity,
-              repeatType: "reverse"
+              ease: "easeInOut"
             }}
           >
             {phaseConfig[dayData.phase].icon(
-              dayData.phase === CyclePhase.MENSTRUAL ? "#dc2626" :
+              dayData.phase === CyclePhase.MENSTRUAL ? "#ef4444" :
               dayData.phase === CyclePhase.FOLICULAR ? "#10b981" :
               dayData.phase === CyclePhase.OVULACION ? "#8b5cf6" :
               "#f59e0b"
             )}
           </motion.div>
-          {isPredicted && (
-            <motion.div 
-              className={`absolute -top-1 -right-1 bg-blue-400 rounded-full flex items-center justify-center ${
-                isMobile ? 'w-3 h-3' : 'w-4 h-4'
-              }`}
-              initial={{ scale: 0 }}
-              animate={{ scale: 1 }}
-              transition={{ delay: 0.2 }}
-            >
-              <span className={`text-white font-bold ${
-                isMobile ? 'text-[6px]' : 'text-[7px]'
-              }`}>P</span>
-            </motion.div>
-          )}
         </motion.div>
+      )}
+      
+      {/* INDICADOR DE PREDICCIÓN EN ESQUINA SUPERIOR IZQUIERDA */}
+      {isPredicted && (
+        <motion.div 
+          className={`absolute top-1 left-1 bg-blue-400 rounded-full ${
+            isMobile ? 'w-2 h-2' : 'w-2.5 h-2.5'
+          }`}
+          initial={{ scale: 0 }}
+          animate={{ scale: 1 }}
+          transition={{ 
+            delay: 0.1,
+            type: "spring",
+            stiffness: 500,
+            damping: 25
+          }}
+        />
       )}
 
       {/* INDICADORES DE FLUJO CON ESTILO PREDICCIÓN */}
@@ -200,18 +201,17 @@ const NeomorphicDayCell: React.FC<{
             <motion.div
               key={i}
               className={`rounded-full ${
-                isPredicted ? "bg-red-400 opacity-60" : "bg-red-600"
+                isPredicted ? "bg-red-300" : "bg-red-500"
               } ${
                 isMobile ? 'w-0.5 h-0.5' : 'w-0.5 h-0.5'
               }`}
-              animate={{
-                scale: [1, 1.2, 1],
-                opacity: isPredicted ? [0.4, 0.7, 0.4] : [0.7, 1, 0.7],
-              }}
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
               transition={{
-                duration: 1.5,
-                repeat: Infinity,
-                delay: i * 0.1,
+                delay: i * 0.05,
+                type: "spring",
+                stiffness: 500,
+                damping: 25
               }}
             />
           ))}
@@ -348,8 +348,6 @@ export const NeomorphicCalendar: React.FC<NeomorphicCalendarProps> = ({
 
   const calendarDays = calendarData?.calendarDays || [];
 
-  console.log("calendarDays:", calendarDays);
-
   // ! 03/06/2025 - Función para convertir datos del día del ciclo a formato del modal
   const convertCycleDayToModalData = (dayData: CycleDay | null) => {
     if (!dayData) return {};
@@ -419,13 +417,6 @@ export const NeomorphicCalendar: React.FC<NeomorphicCalendarProps> = ({
       (day) => day.date.slice(0, 10) === formattedDate
     );
 
-    console.log(
-      "Día seleccionado:",
-      formattedDate,
-      "Datos existentes:",
-      existingDayData
-    );
-
     setSelectedDate(date);
     setSelectedDayData(existingDayData || null);
     setIsModalOpen(true);
@@ -469,8 +460,6 @@ export const NeomorphicCalendar: React.FC<NeomorphicCalendarProps> = ({
             flowIntensity: modalData.flowIntensity,
           }),
       };
-
-      console.log("Enviando datos del día del ciclo:", cycleDayData);
 
       await addCycleDay(cycleDayData);
       setIsModalOpen(false);
@@ -593,25 +582,25 @@ export const NeomorphicCalendar: React.FC<NeomorphicCalendarProps> = ({
             <div key={phase} className={`flex items-center gap-1 ${
               isMobile ? 'text-xs' : 'text-xs'
             }`}>
-              <div className={`relative bg-[#e7e0d5] rounded-sm border flex items-center justify-center overflow-hidden ${
+              <div className={`relative bg-[#e7e0d5] rounded-sm border border-gray-200 flex items-center justify-center overflow-hidden ${
                 isMobile ? 'w-6 h-5' : 'w-8 h-6'
               }`}>
                 {phase === "menstrual" ? (
-                  <div className="w-full h-full bg-[#ffe8e9] rounded-sm flex items-center justify-center">
-                    <div className="scale-[0.6]">
-                      {config.icon("#dc2626")}
+                  <div className="w-full h-full bg-[#fef2f2] rounded-sm flex items-center justify-center">
+                    <div className="scale-[0.7]">
+                      {config.icon("#ef4444")}
                     </div>
                   </div>
                 ) : phase === "ovulacion" ? (
                   <div className="w-full h-full bg-purple-50 rounded-sm flex items-center justify-center">
-                    <div className="scale-[0.6]">
+                    <div className="scale-[0.7]">
                       {config.icon("#8b5cf6")}
                     </div>
                   </div>
                 ) : (
                   <>
                     <div className={`absolute top-0.5 ${config.leftBorder}`} />
-                    <div className="scale-[0.6]">
+                    <div className="scale-[0.7]">
                       {phase === "folicular" ? config.icon("#10b981") : config.icon("#f59e0b")}
                     </div>
                   </>
@@ -679,14 +668,12 @@ export const NeomorphicCalendar: React.FC<NeomorphicCalendarProps> = ({
                   const isCurrentMonth = isSameMonth(date, currentDate);
                   const isCurrentDay = isToday(date);
 
-                  console.log("Celda:", formattedDate, "dayData:", dayData);
-
                   return (
                     <motion.div
                       key={formattedDate}
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: index * 0.005 }}
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      transition={{ delay: index * 0.002 }}
                       className="w-full h-full"
                     >
                       <NeomorphicDayCell

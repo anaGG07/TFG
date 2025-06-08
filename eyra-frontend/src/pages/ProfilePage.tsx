@@ -244,11 +244,11 @@ const ProfilePage: React.FC = () => {
           <div
             style={{
               width: "2px",
-              height: "80%",
+              height: "100%",
               background: "linear-gradient(180deg, #e0d6c8 0%, #d4c7bb 100%)",
               boxShadow: "2px 0 8px #c6232822, -2px 0 8px #fff8",
               borderRadius: "2px",
-              marginLeft: "auto",
+              marginLeft: "50px",
               marginRight: "auto",
             }}
           />
@@ -261,8 +261,8 @@ const ProfilePage: React.FC = () => {
           <span
             className="absolute z-0 animate-avatar-pulse"
             style={{
-              width: isEditingAvatar ? 220 : isMobile ? 250 : 340,
-              height: isEditingAvatar ? 220 : isMobile ? 250 : 340,
+              width: isEditingAvatar ? 320 : isMobile ? 250 : 340,
+              height: isEditingAvatar ? 320 : isMobile ? 250 : 340,
               borderRadius: "50%",
               boxShadow: "0 0 0 0 #fff0, 0 0 32px 8px #fff6",
               background: "radial-gradient(circle, #fff8 0%, #fff0 80%)",
@@ -278,8 +278,8 @@ const ProfilePage: React.FC = () => {
             transition={{ duration: 0.5 }}
             className="flex items-center justify-center rounded-full shadow-lg absolute z-10"
             style={{
-              width: isEditingAvatar ? 200 : isMobile ? 220 : 320,
-              height: isEditingAvatar ? 200 : isMobile ? 220 : 320,
+              width: isEditingAvatar ? 300 : isMobile ? 220 : 320,
+              height: isEditingAvatar ? 300 : isMobile ? 220 : 320,
               background:
                 (isEditingAvatar
                   ? tempAvatar.backgroundColor

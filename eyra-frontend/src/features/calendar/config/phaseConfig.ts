@@ -14,35 +14,35 @@ export interface PhaseConfig {
 // ! 02/06/2025 - Configuración actualizada con colores pasteles y óvalos superiores
 export const phaseConfig: Record<CyclePhase, PhaseConfig> = {
   [CyclePhase.MENSTRUAL]: {
-    color: "from-red-200 to-red-300",
+    color: "from-red-100 to-red-200",
     icon: PhaseIcons.menstrual,
-    gradient: "bg-gradient-to-br from-red-100 via-red-200 to-red-300",
-    leftBorder: "border-l-4 border-red-300", // No se usa para menstrual
-    fullBackground: "bg-[#ffe8e9]", // ! 02/06/2025 - Fondo completo para menstruación
+    gradient: "bg-gradient-to-br from-red-50 via-red-100 to-red-200",
+    leftBorder: "border-l-4 border-red-200",
+    fullBackground: "bg-[#fef2f2]",
     description: "Menstruación",
   },
   [CyclePhase.FOLICULAR]: {
-    color: "from-green-200 to-green-300",
+    color: "from-green-100 to-green-200",
     icon: PhaseIcons.folicular,
-    gradient: "bg-gradient-to-br from-green-100 via-green-200 to-green-300",
-    leftBorder: "w-4 h-2 bg-emerald-200 rounded-full", // ! 02/06/2025 - Óvalo verde pastel
-    fullBackground: "bg-emerald-50", // Fondo muy sutil
+    gradient: "bg-gradient-to-br from-green-50 via-green-100 to-green-200",
+    leftBorder: "w-3 h-1.5 bg-emerald-300 rounded-full opacity-60",
+    fullBackground: "bg-emerald-50",
     description: "Fase folicular",
   },
   [CyclePhase.OVULACION]: {
-    color: "from-blue-200 to-blue-300",
+    color: "from-purple-100 to-purple-200",
     icon: PhaseIcons.ovulacion,
-    gradient: "bg-gradient-to-br from-blue-100 via-blue-200 to-blue-300",
-    leftBorder: "w-4 h-2 bg-purple-200 rounded-full", // ! 02/06/2025 - Óvalo púrpura pastel
-    fullBackground: "bg-purple-50", // ! 02/06/2025 - Fondo completo para primer día de ovulación
+    gradient: "bg-gradient-to-br from-purple-50 via-purple-100 to-purple-200",
+    leftBorder: "w-3 h-1.5 bg-purple-300 rounded-full opacity-60",
+    fullBackground: "bg-purple-50",
     description: "Ovulación",
   },
   [CyclePhase.LUTEA]: {
-    color: "from-yellow-200 to-yellow-300",
+    color: "from-amber-100 to-amber-200",
     icon: PhaseIcons.lutea,
-    gradient: "bg-gradient-to-br from-yellow-100 via-yellow-200 to-yellow-300",
-    leftBorder: "w-4 h-2 bg-amber-200 rounded-full", // ! 02/06/2025 - Óvalo ámbar pastel
-    fullBackground: "bg-amber-50", // Fondo muy sutil
+    gradient: "bg-gradient-to-br from-amber-50 via-amber-100 to-amber-200",
+    leftBorder: "w-3 h-1.5 bg-amber-300 rounded-full opacity-60",
+    fullBackground: "bg-amber-50",
     description: "Fase lútea",
   },
 };
