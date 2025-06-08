@@ -142,8 +142,13 @@ export const AddCycleDayModal: React.FC<AddCycleDayModalProps> = ({
             <div className="mb-6 p-4 rounded-lg bg-gradient-to-r from-gray-50 to-gray-100 border border-gray-200">
               <h3 className="text-lg font-medium text-gray-800 mb-2">Fase del ciclo</h3>
               <div className="flex items-center gap-3">
-                <div className={`w-12 h-12 rounded-full ${phaseConfig[currentPhase].gradient} flex items-center justify-center text-2xl`}>
-                  {phaseConfig[currentPhase].icon}
+                <div className={`w-12 h-12 rounded-full ${phaseConfig[currentPhase].gradient} flex items-center justify-center`}>
+                  {phaseConfig[currentPhase].icon(
+                    currentPhase === CyclePhase.MENSTRUAL ? "#dc2626" :
+                    currentPhase === CyclePhase.FOLICULAR ? "#10b981" :
+                    currentPhase === CyclePhase.OVULACION ? "#8b5cf6" :
+                    "#f59e0b"
+                  )}
                 </div>
                 <div>
                   <p className="font-medium text-gray-900">{phaseConfig[currentPhase].description}</p>

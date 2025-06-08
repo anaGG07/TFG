@@ -141,26 +141,54 @@ const NeomorphicDayCell: React.FC<{
           />
         )}
 
-      {/* ICONO DE FASE CON INDICADOR DE PREDICCIÓN */}
-      {dayData?.phase && (
-        <div
+      {/* ICONO DE FASE ANIMADO */}
+      {dayData?.phase && phaseStyle && (
+        <motion.div
           className={`absolute bottom-1 right-1 pointer-events-none ${
             isPredicted ? "opacity-50" : "opacity-80"
-          } ${
-            isMobile ? 'text-sm' : isTablet ? 'text-base' : 'text-lg'
           }`}
+          initial={{ scale: 0, rotate: -180 }}
+          animate={{ scale: 1, rotate: 0 }}
+          transition={{ 
+            type: "spring",
+            stiffness: 260,
+            damping: 20,
+            delay: 0.1 
+          }}
         >
-          {phaseConfig[dayData.phase].icon}
+          <motion.div
+            animate={{
+              scale: [1, 1.1, 1],
+              rotate: [0, 5, -5, 0]
+            }}
+            transition={{
+              duration: 3,
+              repeat: Infinity,
+              repeatType: "reverse"
+            }}
+          >
+            {phaseConfig[dayData.phase].icon(
+              dayData.phase === CyclePhase.MENSTRUAL ? "#dc2626" :
+              dayData.phase === CyclePhase.FOLICULAR ? "#10b981" :
+              dayData.phase === CyclePhase.OVULACION ? "#8b5cf6" :
+              "#f59e0b"
+            )}
+          </motion.div>
           {isPredicted && (
-            <div className={`absolute -top-1 -right-1 bg-blue-400 rounded-full flex items-center justify-center ${
-              isMobile ? 'w-1.5 h-1.5' : 'w-2 h-2'
-            }`}>
+            <motion.div 
+              className={`absolute -top-1 -right-1 bg-blue-400 rounded-full flex items-center justify-center ${
+                isMobile ? 'w-3 h-3' : 'w-4 h-4'
+              }`}
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              transition={{ delay: 0.2 }}
+            >
               <span className={`text-white font-bold ${
-                isMobile ? 'text-[5px]' : 'text-[6px]'
+                isMobile ? 'text-[6px]' : 'text-[7px]'
               }`}>P</span>
-            </div>
+            </motion.div>
           )}
-        </div>
+        </motion.div>
       )}
 
       {/* INDICADORES DE FLUJO CON ESTILO PREDICCIÓN */}
@@ -565,15 +593,28 @@ export const NeomorphicCalendar: React.FC<NeomorphicCalendarProps> = ({
             <div key={phase} className={`flex items-center gap-1 ${
               isMobile ? 'text-xs' : 'text-xs'
             }`}>
-              <div className={`relative bg-[#e7e0d5] rounded-sm border flex items-center justify-center ${
-                isMobile ? 'w-4 h-3' : 'w-6 h-4'
+              <div className={`relative bg-[#e7e0d5] rounded-sm border flex items-center justify-center overflow-hidden ${
+                isMobile ? 'w-6 h-5' : 'w-8 h-6'
               }`}>
                 {phase === "menstrual" ? (
-                  <div className="w-full h-full bg-[#ffe8e9] rounded-sm" />
+                  <div className="w-full h-full bg-[#ffe8e9] rounded-sm flex items-center justify-center">
+                    <div className="scale-[0.6]">
+                      {config.icon("#dc2626")}
+                    </div>
+                  </div>
                 ) : phase === "ovulacion" ? (
-                  <div className="w-full h-full bg-purple-50 rounded-sm" />
+                  <div className="w-full h-full bg-purple-50 rounded-sm flex items-center justify-center">
+                    <div className="scale-[0.6]">
+                      {config.icon("#8b5cf6")}
+                    </div>
+                  </div>
                 ) : (
-                  <div className={`absolute top-0.5 ${config.leftBorder}`} />
+                  <>
+                    <div className={`absolute top-0.5 ${config.leftBorder}`} />
+                    <div className="scale-[0.6]">
+                      {phase === "folicular" ? config.icon("#10b981") : config.icon("#f59e0b")}
+                    </div>
+                  </>
                 )}
               </div>
               {!isMobile && (
