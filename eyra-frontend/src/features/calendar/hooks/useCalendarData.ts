@@ -107,9 +107,9 @@ export const useCalendarData = (
     [cycleDays]
   );
 
-  /* ! 04/06/2025 - Función CORREGIDA para mostrar tanto fases reales como predicciones */
+  /* ! 08/06/2025 - Función CORREGIDA para evitar días duplicados usando Map */
   const extractCalendarDays = (result: any): CycleDay[] => {
-    const days: CycleDay[] = [];
+    const daysMap = new Map<string, CycleDay>(); // Usar Map para evitar duplicados por fecha
 
     // Extraer días de los ciclos del usuario (datos reales + predicciones)
     if (result.userCycles) {
@@ -117,7 +117,7 @@ export const useCalendarData = (
         const isPrediction = cycle.isPrediction || false;
         const confidence = cycle.confidence || 0;
 
-        // SIEMPRE generar días basados en rango del ciclo (tanto reales como predicciones)
+        // SOLO generar días si hay rango de fechas válido
         if (cycle.startDate && cycle.endDate && cycle.phase) {
           let current = new Date(cycle.startDate);
           const end = new Date(cycle.endDate);
@@ -125,13 +125,11 @@ export const useCalendarData = (
 
           while (current <= end) {
             const dateStr = format(current, "yyyy-MM-dd");
-
-            // Solo añadir si no existe ya un día para esta fecha
-            const existingDay = days.find(
-              (d) => d.date.slice(0, 10) === dateStr
-            );
+            const existingDay = daysMap.get(dateStr);
+            
             if (!existingDay) {
-              days.push({
+              // No existe día para esta fecha, crear nuevo
+              daysMap.set(dateStr, {
                 id: `${cycle.id}_${cycle.phase}_${dateStr}`,
                 date: dateStr,
                 dayNumber,
@@ -140,9 +138,42 @@ export const useCalendarData = (
                 symptoms: [],
                 mood: [],
                 notes: [],
-                isPrediction, // Usar el flag del ciclo
-                confidence, // Añadir confianza para predicciones
+                isPrediction,
+                confidence,
               });
+            } else if (!existingDay.isPrediction && isPrediction) {
+              // Día real existe, no reemplazar con predicción
+              // Mantener el día real
+            } else if (existingDay.isPrediction && !isPrediction) {
+              // Reemplazar predicción con día real
+              daysMap.set(dateStr, {
+                id: `${cycle.id}_${cycle.phase}_${dateStr}`,
+                date: dateStr,
+                dayNumber,
+                phase: cycle.phase,
+                flowIntensity: cycle.phase === "menstrual" ? 2 : undefined,
+                symptoms: [],
+                mood: [],
+                notes: [],
+                isPrediction,
+                confidence,
+              });
+            } else if (existingDay.isPrediction && isPrediction) {
+              // Ambos son predicciones, mantener el de mayor confianza
+              if (confidence > (existingDay.confidence || 0)) {
+                daysMap.set(dateStr, {
+                  id: `${cycle.id}_${cycle.phase}_${dateStr}`,
+                  date: dateStr,
+                  dayNumber,
+                  phase: cycle.phase,
+                  flowIntensity: cycle.phase === "menstrual" ? 2 : undefined,
+                  symptoms: [],
+                  mood: [],
+                  notes: [],
+                  isPrediction,
+                  confidence,
+                });
+              }
             }
 
             current = addDays(current, 1);
@@ -150,21 +181,21 @@ export const useCalendarData = (
           }
         }
 
-        // TAMBIÉN procesar filteredCycleDays si existen (datos registrados por el usuario)
+        // PROCESAR filteredCycleDays si existen (datos registrados por el usuario)
         if (cycle.filteredCycleDays && Array.isArray(cycle.filteredCycleDays)) {
           cycle.filteredCycleDays.forEach((day: any) => {
             const dateStr = day.date.slice(0, 10);
-            const existingDay = days.find(
-              (d) => d.date.slice(0, 10) === dateStr
-            );
+            const existingDay = daysMap.get(dateStr);
 
             if (existingDay) {
-              // Actualizar el día existente con datos registrados
-              Object.assign(existingDay, {
+              // Actualizar el día existente con datos registrados (datos reales tienen prioridad)
+              daysMap.set(dateStr, {
+                ...existingDay,
                 flowIntensity: day.flowIntensity || existingDay.flowIntensity,
                 symptoms: day.symptoms || existingDay.symptoms,
                 mood: day.mood || existingDay.mood,
                 notes: day.notes || existingDay.notes,
+                isPrediction: false, // Datos registrados no son predicciones
               });
             }
           });
@@ -172,25 +203,25 @@ export const useCalendarData = (
       });
     }
 
-    // MERGEAR con datos del contexto local (cycleDays) para incluir registros nuevos
+    // MERGEAR con datos del contexto local (cycleDays) - estos tienen prioridad máxima
     if (cycleDays && Array.isArray(cycleDays)) {
       cycleDays.forEach((localDay: CycleDay) => {
         const localDateStr = localDay.date.slice(0, 10);
-        const existingDay = days.find(
-          (d) => d.date.slice(0, 10) === localDateStr
-        );
+        const existingDay = daysMap.get(localDateStr);
 
         if (existingDay) {
           // Actualizar día existente con datos locales más recientes
-          Object.assign(existingDay, {
+          daysMap.set(localDateStr, {
+            ...existingDay,
             flowIntensity: localDay.flowIntensity || existingDay.flowIntensity,
             symptoms: localDay.symptoms || existingDay.symptoms,
             mood: localDay.mood || existingDay.mood,
             notes: localDay.notes || existingDay.notes,
+            isPrediction: false, // Datos locales no son predicciones
           });
         } else {
           // Añadir nuevo día desde datos locales
-          days.push({
+          daysMap.set(localDateStr, {
             ...localDay,
             isPrediction: false,
           });
@@ -198,7 +229,8 @@ export const useCalendarData = (
       });
     }
 
-    return days;
+    // Convertir Map a Array
+    return Array.from(daysMap.values());
   };
 
   // Refetch con parámetros específicos
