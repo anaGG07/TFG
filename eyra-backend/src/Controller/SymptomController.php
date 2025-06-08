@@ -21,8 +21,7 @@ class SymptomController extends AbstractController
         private EntityManagerInterface $entityManager,
         private LoggerInterface $logger,
         private SymptomLogRepository $symptomLogRepository
-    ) {
-    }
+    ) {}
 
     #[Route('/history', name: 'api_symptoms_history', methods: ['GET'])]
     public function getSymptomHistory(Request $request): JsonResponse
@@ -104,7 +103,7 @@ class SymptomController extends AbstractController
         foreach ($cycleDays as $cycleDay) {
             $symptoms = $cycleDay->getSymptoms();
             $dayInCycle = $cycleDay->getDayNumber();
-            
+
             if (!empty($symptoms)) {
                 foreach ($symptoms as $symptomType => $intensity) {
                     if (!isset($symptomData[$symptomType])) {
@@ -114,7 +113,7 @@ class SymptomController extends AbstractController
                             'daysInCycle' => []
                         ];
                     }
-                    
+
                     $symptomData[$symptomType]['occurrences']++;
                     $symptomData[$symptomType]['totalIntensity'] += $intensity;
                     $symptomData[$symptomType]['daysInCycle'][] = $dayInCycle;
@@ -131,7 +130,7 @@ class SymptomController extends AbstractController
                     'symptomType' => $symptomType,
                     'frequency' => round(($data['occurrences'] / $totalDays) * 100, 2),
                     'averageIntensity' => round($data['totalIntensity'] / $data['occurrences'], 2),
-                    'dayInCycle' => !empty($data['daysInCycle']) ? 
+                    'dayInCycle' => !empty($data['daysInCycle']) ?
                         round(array_sum($data['daysInCycle']) / count($data['daysInCycle'])) : 0
                 ];
             }
@@ -161,15 +160,8 @@ class SymptomController extends AbstractController
             return $this->json(['error' => 'Invalid date format'], 400);
         }
 
-        // Buscar o crear el día del ciclo correspondiente
-        $cycleDay = $this->cycleDayRepository->createQueryBuilder('cd')
-            ->innerJoin('cd.cyclePhase', 'mc')
-            ->where('mc.user = :user')
-            ->andWhere('cd.date = :date')
-            ->setParameter('user', $user)
-            ->setParameter('date', $date)
-            ->getQuery()
-            ->getOneOrNullResult();
+        // ! 08/06/2025 - Usar método del repository para mantener consistencia
+        $cycleDay = $this->cycleDayRepository->findByDateAndUser($date, $user);
 
         if (!$cycleDay) {
             return $this->json(['error' => 'Cycle day not found'], 404);

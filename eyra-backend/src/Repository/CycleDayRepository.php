@@ -21,34 +21,37 @@ class CycleDayRepository extends ServiceEntityRepository
 
     /**
      * Find days by user and date range
+     * ! 08/06/2025 - Corregido método para evitar error 500
      */
     public function findByUserAndDateRange(User $user, \DateTimeInterface $startDate, \DateTimeInterface $endDate): array
     {
-        $cacheKey = "days_user_{$user->getId()}_range_{$startDate->format('Ymd')}_{$endDate->format('Ymd')}";
-
-        return $this->createQueryBuilder('cd')
-            ->join('cd.cyclePhase', 'cp')
-            ->andWhere('cp.user = :user')
-            ->andWhere('cd.date >= :startDate')
-            ->andWhere('cd.date <= :endDate')
-            ->setParameter('user', $user)
-            ->setParameter('startDate', $startDate)
-            ->setParameter('endDate', $endDate)
-            ->orderBy('cd.date', 'ASC')
-            ->getQuery()
-            ->enableResultCache(3600, $cacheKey) // Cache durante 1 hora
-            ->getResult();
+        try {
+            return $this->createQueryBuilder('cd')
+                ->innerJoin('cd.cyclePhase', 'mc')  // Relación con MenstrualCycle
+                ->where('mc.user = :user')          // MenstrualCycle tiene campo user
+                ->andWhere('cd.date >= :startDate')
+                ->andWhere('cd.date <= :endDate')
+                ->setParameter('user', $user)
+                ->setParameter('startDate', $startDate)
+                ->setParameter('endDate', $endDate)
+                ->orderBy('cd.date', 'ASC')
+                ->getQuery()
+                ->getResult();
+        } catch (\Exception $e) {
+            // Log del error para debugging
+            error_log("Error in findByUserAndDateRange: " . $e->getMessage());
+            return [];
+        }
     }
 
     /**
      * Find days by cycle phase and date range
      * 
      * ! 25/05/2025 - Nuevo método para encontrar días por fase y rango de fechas para el calendario
+     * ! 08/06/2025 - Removido cache problemático
      */
     public function findByCyclePhaseAndDateRange(MenstrualCycle $cyclePhase, \DateTimeInterface $startDate, \DateTimeInterface $endDate): array
     {
-        $cacheKey = "days_phase_{$cyclePhase->getId()}_range_{$startDate->format('Ymd')}_{$endDate->format('Ymd')}";
-
         $results = $this->createQueryBuilder('cd')
             ->andWhere('cd.cyclePhase = :cyclePhase')
             ->andWhere('cd.date >= :startDate')
@@ -58,7 +61,6 @@ class CycleDayRepository extends ServiceEntityRepository
             ->setParameter('endDate', $endDate)
             ->orderBy('cd.date', 'ASC')
             ->getQuery()
-            ->enableResultCache(3600, $cacheKey) // Cache durante 1 hora
             ->getResult();
 
         // Filtrar para que solo haya un día por fecha (el primero encontrado)
@@ -75,39 +77,62 @@ class CycleDayRepository extends ServiceEntityRepository
 
     /**
      * Find days by cycle and phase
+     * ! 08/06/2025 - Corregido método que usaba campos inexistentes
      */
     public function findByCycleAndPhase(MenstrualCycle $cycle, CyclePhase $phase): array
     {
-        $cacheKey = "cycle_{$cycle->getId()}_phase_{$phase->value}";
-
         return $this->createQueryBuilder('cd')
-            ->andWhere('cd.cycle = :cycle')
-            ->andWhere('cd.phase = :phase')
+            ->andWhere('cd.cyclePhase = :cycle')       // Usar cyclePhase en lugar de cycle
+            ->andWhere('cd.phase = :phase')            // phase es string, no enum
             ->setParameter('cycle', $cycle)
-            ->setParameter('phase', $phase)
+            ->setParameter('phase', $phase->value)     // Convertir enum a string
             ->orderBy('cd.dayNumber', 'ASC')
             ->getQuery()
-            ->enableResultCache(3600, $cacheKey) // Cache durante 1 hora
             ->getResult();
     }
 
     /**
      * Find current cycle day for user
+     * ! 25/05/2025 - Actualizado para usar CyclePhaseService para coordinar cambios entre fases
+     * ! 08/06/2025 - Removido cache problemático y corregido JOIN
      */
-    // ! 25/05/2025 - Actualizado para usar CyclePhaseService para coordinar cambios entre fases
     public function findCurrentForUser(User $user): ?CycleDay
     {
         $today = new \DateTime('today');
-        $cacheKey = "current_day_user_{$user->getId()}_date_{$today->format('Ymd')}";
 
-        return $this->createQueryBuilder('cd')
-            ->join('cd.cyclePhase', 'cp')
-            ->andWhere('cp.user = :user')
-            ->andWhere('cd.date = :today')
-            ->setParameter('user', $user)
-            ->setParameter('today', $today)
-            ->getQuery()
-            ->enableResultCache(86400, $cacheKey) // Cache durante 24 horas
-            ->getOneOrNullResult();
+        try {
+            return $this->createQueryBuilder('cd')
+                ->innerJoin('cd.cyclePhase', 'mc')
+                ->where('mc.user = :user')
+                ->andWhere('cd.date = :today')
+                ->setParameter('user', $user)
+                ->setParameter('today', $today)
+                ->getQuery()
+                ->getOneOrNullResult();
+        } catch (\Exception $e) {
+            error_log("Error in findCurrentForUser: " . $e->getMessage());
+            return null;
+        }
+    }
+
+    /**
+     * ! 08/06/2025 - Nuevo método para buscar CycleDay por fecha y usuario
+     * Necesario para createSymptomLog en SymptomController
+     */
+    public function findByDateAndUser(\DateTimeInterface $date, User $user): ?CycleDay
+    {
+        try {
+            return $this->createQueryBuilder('cd')
+                ->innerJoin('cd.cyclePhase', 'mc')
+                ->where('mc.user = :user')
+                ->andWhere('cd.date = :date')
+                ->setParameter('user', $user)
+                ->setParameter('date', $date)
+                ->getQuery()
+                ->getOneOrNullResult();
+        } catch (\Exception $e) {
+            error_log("Error in findByDateAndUser: " . $e->getMessage());
+            return null;
+        }
     }
 }
