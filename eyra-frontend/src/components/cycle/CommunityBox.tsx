@@ -107,12 +107,18 @@ const CommunityBox: React.FC<{ expanded: boolean }> = ({ expanded }) => {
       >
         {community.length > 0 ? (
           community.map((user) => {
-            const avatarUrl = (user as any).avatarUrl;
+            // Para companions, usar los datos directos del user
+            // Para following, los datos están en ownerName, ownerUsername, etc.
+            const userName = (user as any).name || (user as any).ownerName;
+            const userUsername = (user as any).username || (user as any).ownerUsername;
             const avatarConfig = (user as any).avatar;
-            const hasAvatarConfig =
-              avatarConfig &&
-              typeof avatarConfig === "object" &&
-              Object.keys(avatarConfig).length > 0;
+            
+            // Verificar si hay configuración válida del avatar
+            const hasValidAvatarConfig = avatarConfig && 
+              typeof avatarConfig === "object" && 
+              Object.keys(avatarConfig).length > 0 &&
+              Object.values(avatarConfig).some(value => value !== "" && value !== null);
+
             return (
               <motion.button
                 key={user.id}
@@ -124,32 +130,24 @@ const CommunityBox: React.FC<{ expanded: boolean }> = ({ expanded }) => {
                 onClick={() => setSelectedId(user.id)}
                 whileHover={{ scale: 1.1 }}
               >
-                {hasAvatarConfig ? (
+                {hasValidAvatarConfig ? (
                   <AvatarPreview
                     config={avatarConfig}
                     className="w-14 h-14 rounded-full"
-                  />
-                ) : avatarUrl ? (
-                  <img
-                    src={avatarUrl}
-                    alt={
-                      (user as any).name ||
-                      (user as any).username ||
-                      (user as any).ownerName
-                    }
-                    className="w-14 h-14 rounded-full object-cover"
                   />
                 ) : (
                   <img
                     src="/img/avatar-default.png"
                     alt="Avatar por defecto"
                     className="w-14 h-14 rounded-full object-cover"
+                    onError={(e) => {
+                      // Fallback si la imagen por defecto también falla
+                      e.currentTarget.src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='40' fill='%23f8f4f1'/%3E%3C/svg%3E";
+                    }}
                   />
                 )}
                 <span className="block text-xs text-[#7a2323] mt-1 max-w-[70px] truncate">
-                  {(user as any).name ||
-                    (user as any).username ||
-                    (user as any).ownerName}
+                  {userName || userUsername}
                 </span>
               </motion.button>
             );
@@ -183,11 +181,12 @@ const CommunityBox: React.FC<{ expanded: boolean }> = ({ expanded }) => {
               className="w-full max-w-xs bg-[#f8f4f1] rounded-2xl shadow-inner p-4"
             >
               <h4 className="text-center text-[#C62328] font-bold mb-2">
-                {(community.find((u) => u.id === selectedId) as any)?.name ||
-                  (community.find((u) => u.id === selectedId) as any)
-                    ?.username ||
-                  (community.find((u) => u.id === selectedId) as any)
-                    ?.ownerName}
+                {(() => {
+                  const selectedUser = community.find((u) => u.id === selectedId);
+                  return selectedUser ? 
+                    ((selectedUser as any).name || (selectedUser as any).ownerName) :
+                    'Usuario';
+                })()}
               </h4>
               {isDesktop ? (
                 calendarData ? (

@@ -300,369 +300,369 @@ const AdminPage = () => {
   return (
     <>
       {isMobile && <style>{scrollbarHideStyles}</style>}
-      <div className={`w-full h-full min-h-0 flex flex-col overflow-hidden bg-transparent ${isMobile ? 'overflow-y-auto max-h-[100vh] px-0' : ''}`}>
-      <div className={`w-full flex flex-col h-full min-h-0 ${isMobile ? "px-2 pt-4 pb-20" : isTablet ? "px-6 pt-5 pb-16" : "pl-8 pr-4 pt-6 pb-6"}`}>
-        {/* Header */}
-        <div className={isMobile ? "mb-2" : "mb-4"}>
-          <h1 className={`font-bold text-[#7a2323] font-serif ${
-            isMobile ? "text-xl mb-1" : isTablet ? "text-2xl mb-1" : "text-3xl mb-1"
-          }`}>
-            {isMobile ? "Admin" : "Panel de Administración"}
-          </h1>
-          <p className={`text-[#7a2323]/70 ${isMobile ? "text-xs" : "text-sm"}`}>
-            {isMobile ? `Hola, ${user.name?.split(' ')[0] || user.name}` : `Bienvenido/a, ${user.name}. Aquí puedes gestionar el sistema EYRA.`}
-          </p>
-        </div>
-        {/* Navegación por pestañas */}
-        <div className="flex items-center mb-1 w-full overflow-x-auto gap-1 pb-1 scrollbar-hide">
-          {tabs.map((tab) => (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
-              className={`flex-1 rounded-xl px-3 py-1 font-semibold text-sm font-serif transition-all duration-200 focus:outline-none neo-shadow-sm whitespace-nowrap
-                ${
-                  activeTab === tab.id
-                    ? "bg-[#e7e0d5]/30 ring-2 ring-[#C62328] shadow-inner text-[#C62328]"
-                    : "bg-transparent hover:bg-[#f8b4b4]/30 text-[#7a2323]"
-                }
-              `}
-              aria-label={tab.label}
-            >
-              {tab.label}
-            </button>
-          ))}
-        </div>
-        {/* Contenido por pestañas */}
-        <div className="w-full flex-1 flex flex-col items-stretch">
-          <div className={`w-full flex-1 flex flex-col justify-start bg-transparent rounded-lg shadow-none p-0 ${
-            isMobile ? "min-h-[200px] px-0" : isTablet ? "min-h-[320px] px-2" : "min-h-[360px] px-4"
-          } max-w-full`}>
-            <AnimatePresence mode="wait">
-              {activeTab === "overview" && (
-                <motion.div
-                  key="overview"
-                  initial={{ opacity: 0, y: 30 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -30 }}
-                  className={`items-start ${
-                    isMobile 
-                      ? "flex flex-col gap-3 mt-2 min-h-[200px]"
-                      : isTablet
-                      ? "grid grid-cols-1 gap-4 mt-4 min-h-[300px]"
-                      : "grid grid-cols-1 lg:grid-cols-[1fr_370px] gap-6 md:gap-8 mt-4 md:mt-8 min-h-[320px]"
-                  }`}
-                  style={{ minWidth: 0 }}
-                >
-                  {/* Columna 1: Resumen o gráfica con toggle */}
-                  <div className="flex flex-col items-center gap-2 w-full">
-                    {!isMobile && (
-                      <div className="flex gap-1 mb-1">
-                        <button
-                          className={`rounded-full p-1 transition-all duration-200 ${
-                            !showChart
-                              ? "ring-2 ring-[#a7f3d0] bg-white"
-                              : "bg-transparent"
-                          }`}
-                          onClick={() => setShowChart(false)}
-                          aria-label="Ver resumen"
-                        >
-                          <TableToggleIcon active={!showChart} />
-                        </button>
-                        <button
-                          className={`rounded-full p-1 transition-all duration-200 ${
-                            showChart
-                              ? "ring-2 ring-[#f8b4b4] bg-white"
-                              : "bg-transparent"
-                          }`}
-                          onClick={() => setShowChart(true)}
-                          aria-label="Ver gráfica"
-                        >
-                          <ChartToggleIcon active={showChart} />
-                        </button>
-                      </div>
-                    )}
-                    <AnimatePresence mode="wait">
-                      {showChart && !isMobile ? (
-                        <motion.div
-                          key="doughnut"
-                          initial={{ opacity: 0, scale: 0.95 }}
-                          animate={{ opacity: 1, scale: 1 }}
-                          exit={{ opacity: 0, scale: 0.95 }}
-                          transition={{ duration: 0.4, ease: "easeInOut" }}
-                          className={`mx-auto rounded-full p-0 flex items-center justify-center relative ${
-                            isTablet ? "w-full max-w-xs" : "w-full max-w-xs"
-                          }`}
-                        >
-                          <Doughnut
-                            data={doughnutData}
-                            options={doughnutOptions}
-                          />
-                          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col items-center justify-center">
-                            <span className={`font-bold text-[#C62328] font-serif drop-shadow ${
-                              isTablet ? "text-xl" : "text-2xl"
-                            }`}>
-                              {stats?.totalUsers?.toLocaleString() || "0"}
-                            </span>
-                            <span className="text-xs text-[#7a2323]/70 font-serif">
-                              Usuarios
-                            </span>
-                          </div>
-                        </motion.div>
-                      ) : (
-                        <motion.div
-                          key="resumen"
-                          initial={{ opacity: 0, scale: 0.95 }}
-                          animate={{ opacity: 1, scale: 1 }}
-                          exit={{ opacity: 0, scale: 0.95 }}
-                          transition={{ duration: 0.4, ease: "easeInOut" }}
-                          className={`grid w-full justify-center mt-2 mb-2 ${
-                            isMobile 
-                              ? "grid-cols-3 gap-2" 
-                              : isTablet 
-                              ? "grid-cols-3 gap-4" 
-                              : "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6"
-                          }`}
-                        >
-                          <div className="flex flex-col items-center">
-                            <div className={`rounded-full shadow-[0_2px_8px_rgba(91,1,8,0.10),0_-2px_8px_rgba(255,255,255,0.25)] flex items-center justify-center z-10 bg-[#e7e0d5] ${
-                              isMobile ? "w-8 h-8 -mb-2" : "w-14 h-14 -mb-4"
-                            }`}>
-                              <UsersSummaryIcon className={isMobile ? "w-5 h-5" : "w-10 h-10"} />
-                            </div>
-                            <NeomorphicCard className={`flex flex-col items-center justify-center gap-1 bg-[#f8b4b4]/30 p-0 z-0 ${
-                              isMobile 
-                                ? "w-16 h-16 min-w-[3.5rem] min-h-[3.5rem] max-w-[4.5rem] max-h-[4.5rem]" 
-                                : "w-24 h-24 min-w-[6rem] min-h-[6rem] max-w-[7rem] max-h-[7rem]"
-                            }`}>
-                              <h3 className={`font-semibold text-[#C62328] font-serif ${
-                                isMobile ? "text-[10px] mt-2" : "text-xs mt-4"
-                              }`}>
-                                Usuarios
-                              </h3>
-                              <p className={`font-bold text-[#991b1b] ${
-                                isMobile ? "text-base" : "text-xl"
+      <div className="w-full h-full min-h-0 flex flex-col overflow-hidden bg-transparent">
+        <div className="max-w-7xl mx-auto pl-8 pr-4 pt-6 pb-6 flex flex-col h-full min-h-0">
+          {/* Header */}
+          <div className={isMobile ? "mb-2" : "mb-6"}>
+            <h1 className={`font-bold text-[#7a2323] font-serif ${
+              isMobile ? "text-xl mb-1" : isTablet ? "text-2xl mb-1" : "text-4xl mb-2"
+            }`}>
+              {isMobile ? "Admin" : "Panel de Administración"}
+            </h1>
+            <p className={`text-[#7a2323]/70 ${isMobile ? "text-xs" : "text-base"}`}>
+              {isMobile ? `Hola, ${user.name?.split(' ')[0] || user.name}` : `Bienvenido/a, ${user.name}. Aquí puedes gestionar el sistema EYRA.`}
+            </p>
+          </div>
+          {/* Navegación por pestañas */}
+          <div className="flex flex-row gap-3 items-center mb-2">
+            {tabs.map((tab) => (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id)}
+                className={`rounded-xl px-5 py-2 font-semibold text-base font-serif transition-all duration-200 focus:outline-none neo-shadow-sm
+                  ${
+                    activeTab === tab.id
+                      ? "bg-[#e7e0d5]/30 ring-2 ring-[#C62328] shadow-inner text-[#C62328]"
+                      : "bg-transparent hover:bg-[#f8b4b4]/30 text-[#7a2323]"
+                  }
+                `}
+                aria-label={tab.label}
+              >
+                {tab.label}
+              </button>
+            ))}
+          </div>
+          {/* Contenido por pestañas */}
+          <div className="w-full flex-1 flex flex-col items-center">
+            <div className={`w-full flex-1 flex flex-col justify-start bg-transparent rounded-lg shadow-none p-0 ${
+              isMobile ? "min-h-[200px] px-2" : isTablet ? "min-h-[320px] px-4" : "min-h-[520px] max-w-5xl min-w-[320px] md:min-w-[1100px]"
+            }`}>
+              <AnimatePresence mode="wait">
+                {activeTab === "overview" && (
+                  <motion.div
+                    key="overview"
+                    initial={{ opacity: 0, y: 30 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -30 }}
+                    className={`items-start ${
+                      isMobile 
+                        ? "flex flex-col gap-3 mt-2 min-h-[200px]"
+                        : isTablet
+                        ? "grid grid-cols-1 gap-4 mt-4 min-h-[300px]"
+                        : "grid grid-cols-1 lg:grid-cols-[1fr_370px] gap-6 md:gap-8 mt-4 md:mt-8 min-h-[320px]"
+                    }`}
+                    style={{ minWidth: 0 }}
+                  >
+                    {/* Columna 1: Resumen o gráfica con toggle */}
+                    <div className="flex flex-col items-center gap-2 w-full">
+                      {!isMobile && (
+                        <div className="flex gap-1 mb-1">
+                          <button
+                            className={`rounded-full p-1 transition-all duration-200 ${
+                              !showChart
+                                ? "ring-2 ring-[#a7f3d0] bg-white"
+                                : "bg-transparent"
+                            }`}
+                            onClick={() => setShowChart(false)}
+                            aria-label="Ver resumen"
+                          >
+                            <TableToggleIcon active={!showChart} />
+                          </button>
+                          <button
+                            className={`rounded-full p-1 transition-all duration-200 ${
+                              showChart
+                                ? "ring-2 ring-[#f8b4b4] bg-white"
+                                : "bg-transparent"
+                            }`}
+                            onClick={() => setShowChart(true)}
+                            aria-label="Ver gráfica"
+                          >
+                            <ChartToggleIcon active={showChart} />
+                          </button>
+                        </div>
+                      )}
+                      <AnimatePresence mode="wait">
+                        {showChart && !isMobile ? (
+                          <motion.div
+                            key="doughnut"
+                            initial={{ opacity: 0, scale: 0.95 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            exit={{ opacity: 0, scale: 0.95 }}
+                            transition={{ duration: 0.4, ease: "easeInOut" }}
+                            className={`mx-auto rounded-full p-0 flex items-center justify-center relative ${
+                              isTablet ? "w-full max-w-xs" : "w-full max-w-xs"
+                            }`}
+                          >
+                            <Doughnut
+                              data={doughnutData}
+                              options={doughnutOptions}
+                            />
+                            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col items-center justify-center">
+                              <span className={`font-bold text-[#C62328] font-serif drop-shadow ${
+                                isTablet ? "text-xl" : "text-2xl"
                               }`}>
                                 {stats?.totalUsers?.toLocaleString() || "0"}
-                              </p>
-                            </NeomorphicCard>
-                          </div>
-                          <div className="flex flex-col items-center">
-                            <div className={`rounded-full shadow-[0_2px_8px_rgba(21,128,61,0.10),0_-2px_8px_rgba(255,255,255,0.25)] flex items-center justify-center z-10 bg-[#e7e0d5] ${
-                              isMobile ? "w-8 h-8 -mb-2" : "w-14 h-14 -mb-4"
-                            }`}>
-                              <ActiveSummaryIcon className={isMobile ? "w-5 h-5" : "w-10 h-10"} />
+                              </span>
+                              <span className="text-xs text-[#7a2323]/70 font-serif">
+                                Usuarios
+                              </span>
                             </div>
-                            <NeomorphicCard className={`flex flex-col items-center justify-center gap-1 bg-[#a7f3d0]/30 p-0 z-0 ${
+                          </motion.div>
+                        ) : (
+                          <motion.div
+                            key="resumen"
+                            initial={{ opacity: 0, scale: 0.95 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            exit={{ opacity: 0, scale: 0.95 }}
+                            transition={{ duration: 0.4, ease: "easeInOut" }}
+                            className={`grid w-full justify-center mt-2 mb-2 ${
                               isMobile 
-                                ? "w-16 h-16 min-w-[3.5rem] min-h-[3.5rem] max-w-[4.5rem] max-h-[4.5rem]" 
-                                : "w-24 h-24 min-w-[6rem] min-h-[6rem] max-w-[7rem] max-h-[7rem]"
-                            }`}>
-                              <h3 className={`font-semibold text-[#15803d] font-serif ${
-                                isMobile ? "text-[10px] mt-2" : "text-xs mt-4"
+                                ? "grid-cols-3 gap-2" 
+                                : isTablet 
+                                ? "grid-cols-3 gap-4" 
+                                : "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6"
+                            }`}
+                          >
+                            <div className="flex flex-col items-center">
+                              <div className={`rounded-full shadow-[0_2px_8px_rgba(91,1,8,0.10),0_-2px_8px_rgba(255,255,255,0.25)] flex items-center justify-center z-10 bg-[#e7e0d5] ${
+                                isMobile ? "w-8 h-8 -mb-2" : "w-14 h-14 -mb-4"
                               }`}>
-                                Activos
-                              </h3>
-                              <p className={`font-bold text-[#15803d] ${
-                                isMobile ? "text-base" : "text-xl"
+                                <UsersSummaryIcon className={isMobile ? "w-5 h-5" : "w-10 h-10"} />
+                              </div>
+                              <NeomorphicCard className={`flex flex-col items-center justify-center gap-1 bg-[#f8b4b4]/30 p-0 z-0 ${
+                                isMobile 
+                                  ? "w-16 h-16 min-w-[3.5rem] min-h-[3.5rem] max-w-[4.5rem] max-h-[4.5rem]" 
+                                  : "w-24 h-24 min-w-[6rem] min-h-[6rem] max-w-[7rem] max-h-[7rem]"
                               }`}>
-                                {stats?.activeUsers?.toLocaleString() || "0"}
-                              </p>
-                            </NeomorphicCard>
-                          </div>
-                          <div className="flex flex-col items-center">
-                            <div className={`rounded-full shadow-[0_2px_8px_rgba(124,45,18,0.10),0_-2px_8px_rgba(255,255,255,0.25)] flex items-center justify-center z-10 bg-[#e7e0d5] ${
-                              isMobile ? "w-8 h-8 -mb-2" : "w-14 h-14 -mb-4"
-                            }`}>
-                              <AdminSummaryIcon className={isMobile ? "w-5 h-5" : "w-10 h-10"} />
+                                <h3 className={`font-semibold text-[#C62328] font-serif ${
+                                  isMobile ? "text-[10px] mt-2" : "text-xs mt-4"
+                                }`}>
+                                  Usuarios
+                                </h3>
+                                <p className={`font-bold text-[#991b1b] ${
+                                  isMobile ? "text-base" : "text-xl"
+                                }`}>
+                                  {stats?.totalUsers?.toLocaleString() || "0"}
+                                </p>
+                              </NeomorphicCard>
                             </div>
-                            <NeomorphicCard className={`flex flex-col items-center justify-center gap-1 bg-[#ddd6fe]/30 p-0 z-0 ${
-                              isMobile 
-                                ? "w-16 h-16 min-w-[3.5rem] min-h-[3.5rem] max-w-[4.5rem] max-h-[4.5rem]" 
-                                : "w-24 h-24 min-w-[6rem] min-h-[6rem] max-w-[7rem] max-h-[7rem]"
-                            }`}>
-                              <h3 className={`font-semibold text-[#7c2d12] font-serif ${
-                                isMobile ? "text-[10px] mt-2" : "text-xs mt-4"
+                            <div className="flex flex-col items-center">
+                              <div className={`rounded-full shadow-[0_2px_8px_rgba(21,128,61,0.10),0_-2px_8px_rgba(255,255,255,0.25)] flex items-center justify-center z-10 bg-[#e7e0d5] ${
+                                isMobile ? "w-8 h-8 -mb-2" : "w-14 h-14 -mb-4"
                               }`}>
-                                Admins
-                              </h3>
-                              <p className={`font-bold text-[#7c2d12] ${
-                                isMobile ? "text-base" : "text-xl"
+                                <ActiveSummaryIcon className={isMobile ? "w-5 h-5" : "w-10 h-10"} />
+                              </div>
+                              <NeomorphicCard className={`flex flex-col items-center justify-center gap-1 bg-[#a7f3d0]/30 p-0 z-0 ${
+                                isMobile 
+                                  ? "w-16 h-16 min-w-[3.5rem] min-h-[3.5rem] max-w-[4.5rem] max-h-[4.5rem]" 
+                                  : "w-24 h-24 min-w-[6rem] min-h-[6rem] max-w-[7rem] max-h-[7rem]"
                               }`}>
-                                {stats?.adminUsers?.toLocaleString() || "0"}
-                              </p>
-                            </NeomorphicCard>
-                          </div>
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
-                  </div>
-                  {/* Columna 2: Actividad reciente */}
-                  <div className={isMobile ? "mt-2" : ""}>
-                    <h3 className={`font-semibold text-[#7a2323] font-serif mb-1 ${
-                      isMobile ? "text-base" : "text-lg"
-                    }`}>
-                      {isMobile ? "Act. Reciente" : "Actividad Reciente"}
-                    </h3>
-                    <div className={`space-y-2 ${
-                      isMobile ? "max-h-48 overflow-y-auto" : ""
-                    }`}>
-                      {isLoadingStats ? (
-                        <div className={`animate-pulse flex items-center space-x-3 p-3 bg-gray-50 rounded-lg ${
-                          isMobile ? "p-2" : ""
-                        }`}>
-                          <div className={`bg-gray-200 rounded ${
-                            isMobile ? "w-5 h-5" : "w-6 h-6"
-                          }`}></div>
-                          <div className="flex-1">
-                            <div className={`h-4 bg-gray-200 rounded mb-2 ${
-                              isMobile ? "h-3" : ""
+                                <h3 className={`font-semibold text-[#15803d] font-serif ${
+                                  isMobile ? "text-[10px] mt-2" : "text-xs mt-4"
+                                }`}>
+                                  Activos
+                                </h3>
+                                <p className={`font-bold text-[#15803d] ${
+                                  isMobile ? "text-base" : "text-xl"
+                                }`}>
+                                  {stats?.activeUsers?.toLocaleString() || "0"}
+                                </p>
+                              </NeomorphicCard>
+                            </div>
+                            <div className="flex flex-col items-center">
+                              <div className={`rounded-full shadow-[0_2px_8px_rgba(124,45,18,0.10),0_-2px_8px_rgba(255,255,255,0.25)] flex items-center justify-center z-10 bg-[#e7e0d5] ${
+                                isMobile ? "w-8 h-8 -mb-2" : "w-14 h-14 -mb-4"
+                              }`}>
+                                <AdminSummaryIcon className={isMobile ? "w-5 h-5" : "w-10 h-10"} />
+                              </div>
+                              <NeomorphicCard className={`flex flex-col items-center justify-center gap-1 bg-[#ddd6fe]/30 p-0 z-0 ${
+                                isMobile 
+                                  ? "w-16 h-16 min-w-[3.5rem] min-h-[3.5rem] max-w-[4.5rem] max-h-[4.5rem]" 
+                                  : "w-24 h-24 min-w-[6rem] min-h-[6rem] max-w-[7rem] max-h-[7rem]"
+                              }`}>
+                                <h3 className={`font-semibold text-[#7c2d12] font-serif ${
+                                  isMobile ? "text-[10px] mt-2" : "text-xs mt-4"
+                                }`}>
+                                  Admins
+                                </h3>
+                                <p className={`font-bold text-[#7c2d12] ${
+                                  isMobile ? "text-base" : "text-xl"
+                                }`}>
+                                  {stats?.adminUsers?.toLocaleString() || "0"}
+                                </p>
+                              </NeomorphicCard>
+                            </div>
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
+                    </div>
+                    {/* Columna 2: Actividad reciente */}
+                    <div className={isMobile ? "mt-2" : ""}>
+                      <h3 className={`font-semibold text-[#7a2323] font-serif mb-1 ${
+                        isMobile ? "text-base" : "text-lg"
+                      }`}>
+                        {isMobile ? "Act. Reciente" : "Actividad Reciente"}
+                      </h3>
+                      <div className={`space-y-2 ${
+                        isMobile ? "max-h-48 overflow-y-auto" : ""
+                      }`}>
+                        {isLoadingStats ? (
+                          <div className={`animate-pulse flex items-center space-x-3 p-3 bg-gray-50 rounded-lg ${
+                            isMobile ? "p-2" : ""
+                          }`}>
+                            <div className={`bg-gray-200 rounded ${
+                              isMobile ? "w-5 h-5" : "w-6 h-6"
                             }`}></div>
-                            <div className={`bg-gray-200 rounded w-1/2 ${
-                              isMobile ? "h-2" : "h-3"
-                            }`}></div>
+                            <div className="flex-1">
+                              <div className={`h-4 bg-gray-200 rounded mb-2 ${
+                                isMobile ? "h-3" : ""
+                              }`}></div>
+                              <div className={`bg-gray-200 rounded w-1/2 ${
+                                isMobile ? "h-2" : "h-3"
+                              }`}></div>
+                            </div>
                           </div>
-                        </div>
-                      ) : (
-                        recentActivity.slice(0, isMobile ? 3 : 5).map((activity) => {
-                          const bgColor =
-                            activity.color === "green"
-                              ? "bg-[#a7f3d0]/30 border-[#bbf7d0]"
-                              : activity.color === "red"
-                              ? "bg-[#f8b4b4]/30 border-[#fecaca]"
-                              : "bg-[#ddd6fe]/30 border-[#e9d5ff]";
+                        ) : (
+                          recentActivity.slice(0, isMobile ? 3 : 5).map((activity) => {
+                            const bgColor =
+                              activity.color === "green"
+                                ? "bg-[#a7f3d0]/30 border-[#bbf7d0]"
+                                : activity.color === "red"
+                                ? "bg-[#f8b4b4]/30 border-[#fecaca]"
+                                : "bg-[#ddd6fe]/30 border-[#e9d5ff]";
 
-                          // Elegir icono SVG según tipo/color
-                          let Icon = null;
-                          if (activity.color === "green") Icon = CheckIcon;
-                          else if (activity.color === "red") Icon = UserIcon;
-                          else Icon = DiskIcon;
+                            // Elegir icono SVG según tipo/color
+                            let Icon = null;
+                            if (activity.color === "green") Icon = CheckIcon;
+                            else if (activity.color === "red") Icon = UserIcon;
+                            else Icon = DiskIcon;
 
-                          // Mostrar nombre en registro de usuario
-                          let title = activity.title;
-                          if (
-                            activity.type === "user_registered" &&
-                            activity.description
-                          ) {
-                            // Extraer nombre del usuario del description
-                            const match = activity.description.match(
-                              /([\wáéíóúüñÁÉÍÓÚÜÑ\s\-\.]+)/i
-                            );
-                            const nombre = match ? match[1].trim() : "";
-                            title = `Nuevo usuario: ${nombre}`;
-                          }
+                            // Mostrar nombre en registro de usuario
+                            let title = activity.title;
+                            if (
+                              activity.type === "user_registered" &&
+                              activity.description
+                            ) {
+                              // Extraer nombre del usuario del description
+                              const match = activity.description.match(
+                                /([\wáéíóúüñÁÉÍÓÚÜÑ\s\-\.]+)/i
+                              );
+                              const nombre = match ? match[1].trim() : "";
+                              title = `Nuevo usuario: ${nombre}`;
+                            }
 
-                          return (
-                            <div
-                              key={activity.id}
-                              className={`flex items-center space-x-3 rounded-lg border ${bgColor} ${
-                                isMobile ? "p-2" : "p-3"
-                              }`}
-                            >
-                              <span
-                                className={`flex items-center justify-center neo-shadow-sm rounded-full bg-white/80 border border-white ${
-                                  isMobile ? "w-8 h-8 min-w-8 min-h-8" : "w-10 h-10 min-w-10 min-h-10"
+                            return (
+                              <div
+                                key={activity.id}
+                                className={`flex items-center space-x-3 rounded-lg border ${bgColor} ${
+                                  isMobile ? "p-2" : "p-3"
                                 }`}
                               >
-                                <Icon className={isMobile ? "w-5 h-5" : "w-7 h-7"} />
-                              </span>
-                              <div className="flex-1">
-                                <div className={`font-medium text-[#7a2323] ${
-                                  isMobile ? "text-xs" : "text-sm"
-                                }`}>
-                                  {isMobile && title.length > 25 ? `${title.substring(0, 25)}...` : title}
-                                </div>
-                                <div className={`text-[#7a2323]/60 ${
-                                  isMobile ? "text-xs" : "text-xs"
-                                }`}>
-                                  {adminStatsService.formatRelativeTime(
-                                    activity.timestamp
-                                  )}
+                                <span
+                                  className={`flex items-center justify-center neo-shadow-sm rounded-full bg-white/80 border border-white ${
+                                    isMobile ? "w-8 h-8 min-w-8 min-h-8" : "w-10 h-10 min-w-10 min-h-10"
+                                  }`}
+                                >
+                                  <Icon className={isMobile ? "w-5 h-5" : "w-7 h-7"} />
+                                </span>
+                                <div className="flex-1">
+                                  <div className={`font-medium text-[#7a2323] ${
+                                    isMobile ? "text-xs" : "text-sm"
+                                  }`}>
+                                    {isMobile && title.length > 25 ? `${title.substring(0, 25)}...` : title}
+                                  </div>
+                                  <div className={`text-[#7a2323]/60 ${
+                                    isMobile ? "text-xs" : "text-xs"
+                                  }`}>
+                                    {adminStatsService.formatRelativeTime(
+                                      activity.timestamp
+                                    )}
+                                  </div>
                                 </div>
                               </div>
-                            </div>
-                          );
-                        })
-                      )}
-                      {!isLoadingStats && recentActivity.length === 0 && (
-                        <div className="text-center py-4 text-gray-500">
-                          No hay actividad reciente
-                        </div>
-                      )}
+                            );
+                          })
+                        )}
+                        {!isLoadingStats && recentActivity.length === 0 && (
+                          <div className="text-center py-4 text-gray-500">
+                            No hay actividad reciente
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </motion.div>
+                )}
+
+                {activeTab === "users" && (
+                  <motion.div
+                    key="users"
+                    initial={{ opacity: 0, y: 30 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -30 }}
+                    className="w-full"
+                    style={{ minWidth: 0 }}
+                  >
+                    <h2 className="text-2xl font-semibold mb-6">
+                      Gestión de Usuarios
+                    </h2>
+                    <UsersTable onRefresh={() => loadData()} />
+                  </motion.div>
+                )}
+
+                {activeTab === "conditions" && (
+                  <motion.div
+                    key="conditions"
+                    initial={{ opacity: 0, y: 30 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -30 }}
+                    className="w-full"
+                    style={{ minWidth: 0 }}
+                  >
+                    <h2 className="text-2xl font-semibold mb-6">
+                      Gestión de Condiciones
+                    </h2>
+                    <ConditionsTable onRefresh={() => loadData()} />
+                  </motion.div>
+                )}
+
+                {activeTab === "content" && (
+                  <motion.div
+                    key="content"
+                    initial={{ opacity: 0, y: 30 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -30 }}
+                    className="w-full"
+                    style={{ minWidth: 0 }}
+                  >
+                    <h2 className="text-2xl font-semibold mb-6">
+                      Gestión de Contenido
+                    </h2>
+                    <ContentTable onRefresh={() => loadData()} />
+                  </motion.div>
+                )}
+
+                {activeTab === "settings" && (
+                  <div>
+                    <h2 className="text-2xl font-semibold mb-6">
+                      Configuración del Sistema
+                    </h2>
+                    <div className="text-center py-12">
+                      <span className="text-6xl mb-4 block">⚙️</span>
+                      <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                        Próximamente
+                      </h3>
+                      <p className="text-gray-600">
+                        Las configuraciones del sistema estarán disponibles en una
+                        próxima actualización.
+                      </p>
                     </div>
                   </div>
-                </motion.div>
-              )}
-
-              {activeTab === "users" && (
-                <motion.div
-                  key="users"
-                  initial={{ opacity: 0, y: 30 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -30 }}
-                  className="w-full"
-                  style={{ minWidth: 0 }}
-                >
-                  <h2 className="text-2xl font-semibold mb-6">
-                    Gestión de Usuarios
-                  </h2>
-                  <UsersTable onRefresh={() => loadData()} />
-                </motion.div>
-              )}
-
-              {activeTab === "conditions" && (
-                <motion.div
-                  key="conditions"
-                  initial={{ opacity: 0, y: 30 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -30 }}
-                  className="w-full"
-                  style={{ minWidth: 0 }}
-                >
-                  <h2 className="text-2xl font-semibold mb-6">
-                    Gestión de Condiciones
-                  </h2>
-                  <ConditionsTable onRefresh={() => loadData()} />
-                </motion.div>
-              )}
-
-              {activeTab === "content" && (
-                <motion.div
-                  key="content"
-                  initial={{ opacity: 0, y: 30 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -30 }}
-                  className="w-full"
-                  style={{ minWidth: 0 }}
-                >
-                  <h2 className="text-2xl font-semibold mb-6">
-                    Gestión de Contenido
-                  </h2>
-                  <ContentTable onRefresh={() => loadData()} />
-                </motion.div>
-              )}
-
-              {activeTab === "settings" && (
-                <div>
-                  <h2 className="text-2xl font-semibold mb-6">
-                    Configuración del Sistema
-                  </h2>
-                  <div className="text-center py-12">
-                    <span className="text-6xl mb-4 block">⚙️</span>
-                    <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                      Próximamente
-                    </h3>
-                    <p className="text-gray-600">
-                      Las configuraciones del sistema estarán disponibles en una
-                      próxima actualización.
-                    </p>
-                  </div>
-                </div>
-              )}
-            </AnimatePresence>
+                )}
+              </AnimatePresence>
+            </div>
           </div>
         </div>
       </div>
-    </div>
     </>
   );
 };

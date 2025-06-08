@@ -5,6 +5,7 @@ export interface Companion {
   id: string;
   name: string;
   username: string;
+  avatar?: any; // Configuración del avatar del usuario
   role: "partner" | "parental" | "friend" | "healthcare_provider";
   status: "active" | "pending" | "inactive";
   lastActivity: string;
@@ -17,6 +18,7 @@ export interface Following {
   id: string;
   ownerName: string;
   ownerUsername: string;
+  avatar?: any; // Configuración del avatar del propietario
   role: "partner" | "parental" | "friend" | "healthcare_provider";
   lastActivity: string;
   permissions: string[];
@@ -52,6 +54,7 @@ export const trackingService = {
         id: companion.id.toString(),
         name: companion.name,
         username: companion.username,
+        avatar: companion.avatar, // Incluir avatar del companion
         role: companion.role,
         status: companion.status,
         lastActivity: companion.lastActivity,
@@ -77,6 +80,7 @@ export const trackingService = {
         id: person.id.toString(),
         ownerName: person.ownerName,
         ownerUsername: person.ownerUsername,
+        avatar: person.avatar, // Incluir avatar del propietario
         role: person.role,
         lastActivity: person.lastActivity,
         permissions: person.permissions || [],

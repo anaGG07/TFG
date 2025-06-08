@@ -43,10 +43,12 @@ class GuestController extends AbstractController
             ]);
             
             $result = array_map(function($guestAccess) {
+                $guest = $guestAccess->getGuest();
                 return [
                     'id' => $guestAccess->getId(),
-                    'name' => $guestAccess->getGuest()->getName(),
-                    'username' => $guestAccess->getGuest()->getUsername(),
+                    'name' => $guest->getName(),
+                    'username' => $guest->getUsername(),
+                    'avatar' => $guest->getAvatar(), // Incluir datos del avatar
                     'role' => $guestAccess->getGuestType()->value,
                     'status' => 'active',
                     'lastActivity' => $guestAccess->getUpdatedAt() ? $guestAccess->getUpdatedAt()->format('c') : $guestAccess->getCreatedAt()->format('c'),
@@ -84,10 +86,12 @@ class GuestController extends AbstractController
             ]);
             
             $result = array_map(function($guestAccess) {
+                $owner = $guestAccess->getOwner();
                 return [
                     'id' => $guestAccess->getId(),
-                    'ownerName' => $guestAccess->getOwner()->getName(),
-                    'ownerUsername' => $guestAccess->getOwner()->getUsername(),
+                    'ownerName' => $owner->getName(),
+                    'ownerUsername' => $owner->getUsername(),
+                    'avatar' => $owner->getAvatar(), // Incluir datos del avatar del propietario
                     'role' => $guestAccess->getGuestType()->value,
                     'lastActivity' => $guestAccess->getUpdatedAt() ? $guestAccess->getUpdatedAt()->format('c') : $guestAccess->getCreatedAt()->format('c'),
                     'permissions' => $guestAccess->getAccessTo(),
