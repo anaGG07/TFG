@@ -83,7 +83,6 @@ const DashboardPage: React.FC = () => {
           <RemindersView
             expanded={expandedId === "reminders"}
             notifications={notifications}
-            insights={insights}
             markAllAsRead={notificationService.markAllAsRead}
             markAsRead={notificationService.markAsRead}
           />

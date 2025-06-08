@@ -304,9 +304,6 @@ const ContentTable: React.FC<ContentTableProps> = ({ onRefresh }) => {
                 <div className="text-sm font-medium text-gray-900">
                   {content.title}
                 </div>
-                <div className="text-sm text-gray-500">
-                  ID: {content.id}
-                </div>
               </div>
             </div>
             <div className="text-sm text-gray-900" title={content.summary || content.description || ""}>

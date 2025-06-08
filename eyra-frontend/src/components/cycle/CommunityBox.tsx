@@ -35,14 +35,16 @@ const fetchUserCalendar = async (userId: string) => {
 };
 
 const CommunityBox: React.FC<{ expanded: boolean }> = ({ expanded }) => {
-  const { companions, following } = useTracking();
+  const { following } = useTracking();
   const { isMobile, isTablet, isDesktop } = useViewport();
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [calendarData, setCalendarData] = useState<any>(null);
   const [calendarLoading, setCalendarLoading] = useState(false);
-
-  // Unir comunidad (puedes personalizar el orden)
+  const [page, setPage] = useState(0);
+  const USERS_PER_PAGE = 5;
   const community = [...following];
+  const totalPages = Math.ceil(community.length / USERS_PER_PAGE);
+  const paginatedCommunity = community.slice(page * USERS_PER_PAGE, (page + 1) * USERS_PER_PAGE);
 
   // Seleccionar el primero por defecto
   useEffect(() => {
@@ -86,6 +88,99 @@ const CommunityBox: React.FC<{ expanded: boolean }> = ({ expanded }) => {
     );
   }
 
+  // Nueva función interna para renderizar avatares con paginación
+  const renderAvatars = () => {
+    if (isMobile || isTablet) {
+      // Paginación horizontal móvil/tablet
+      return (
+        <div className="flex flex-row items-center gap-2 w-full justify-center mb-4">
+          <button
+            aria-label="Anterior"
+            className="bg-white/70 rounded-full shadow p-1 border border-primary text-primary hover:bg-primary hover:text-white transition pointer-events-auto"
+            onClick={() => setPage((prev) => (prev === 0 ? totalPages - 1 : prev - 1))}
+            disabled={totalPages <= 1}
+          >
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6" /></svg>
+          </button>
+          <div className="flex flex-row gap-3 overflow-x-auto">
+            {paginatedCommunity.map((user: any) => {
+              const userName = user.name || user.ownerName;
+              const userUsername = user.username || user.ownerUsername;
+              const avatarConfig = user.avatar;
+              const hasValidAvatarConfig = avatarConfig && typeof avatarConfig === "object" && Object.keys(avatarConfig).length > 0 && Object.values(avatarConfig).some((value) => value !== "" && value !== null);
+              return (
+                <button
+                  key={user.id}
+                  className={`rounded-full border-2 ${selectedId === user.id ? "border-[#C62328] scale-110 shadow-lg" : "border-[#f8f4f1]"} transition-all bg-white flex flex-col items-center`}
+                  onClick={() => setSelectedId(user.id)}
+                >
+                  {hasValidAvatarConfig ? (
+                    <AvatarPreview config={avatarConfig} className="w-14 h-14 rounded-full" />
+                  ) : (
+                    <img src="/img/avatar-default.png" alt="Avatar por defecto" className="w-14 h-14 rounded-full object-cover" />
+                  )}
+                  <span className="block text-xs text-[#7a2323] mt-1 max-w-[70px] truncate">{userName || userUsername}</span>
+                </button>
+              );
+            })}
+          </div>
+          <button
+            aria-label="Siguiente"
+            className="bg-white/70 rounded-full shadow p-1 border border-primary text-primary hover:bg-primary hover:text-white transition pointer-events-auto"
+            onClick={() => setPage((prev) => (prev + 1) % totalPages)}
+            disabled={totalPages <= 1}
+          >
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><polyline points="9 6 15 12 9 18" /></svg>
+          </button>
+        </div>
+      );
+    } else {
+      // Paginación vertical escritorio
+      return (
+        <div className="flex flex-col items-center gap-2">
+          <button
+            aria-label="Arriba"
+            className="bg-white/70 rounded-full shadow p-1 border border-primary text-primary hover:bg-primary hover:text-white transition pointer-events-auto mb-2"
+            onClick={() => setPage((prev) => (prev === 0 ? totalPages - 1 : prev - 1))}
+            disabled={totalPages <= 1}
+          >
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><polyline points="18 15 12 9 6 15" /></svg>
+          </button>
+          <div className="flex flex-col gap-3">
+            {paginatedCommunity.map((user: any) => {
+              const userName = user.name || user.ownerName;
+              const userUsername = user.username || user.ownerUsername;
+              const avatarConfig = user.avatar;
+              const hasValidAvatarConfig = avatarConfig && typeof avatarConfig === "object" && Object.keys(avatarConfig).length > 0 && Object.values(avatarConfig).some((value) => value !== "" && value !== null);
+              return (
+                <button
+                  key={user.id}
+                  className={`rounded-full border-2 ${selectedId === user.id ? "border-[#C62328] scale-110 shadow-lg" : "border-[#f8f4f1]"} transition-all bg-white flex flex-col items-center`}
+                  onClick={() => setSelectedId(user.id)}
+                >
+                  {hasValidAvatarConfig ? (
+                    <AvatarPreview config={avatarConfig} className="w-14 h-14 rounded-full" />
+                  ) : (
+                    <img src="/img/avatar-default.png" alt="Avatar por defecto" className="w-14 h-14 rounded-full object-cover" />
+                  )}
+                  <span className="block text-xs text-[#7a2323] mt-1 max-w-[70px] truncate">{userName || userUsername}</span>
+                </button>
+              );
+            })}
+          </div>
+          <button
+            aria-label="Abajo"
+            className="bg-white/70 rounded-full shadow p-1 border border-primary text-primary hover:bg-primary hover:text-white transition pointer-events-auto mt-2"
+            onClick={() => setPage((prev) => (prev + 1) % totalPages)}
+            disabled={totalPages <= 1}
+          >
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 12 15 18 9" /></svg>
+          </button>
+        </div>
+      );
+    }
+  };
+
   // Vista expandida
   return (
     <div
@@ -105,72 +200,7 @@ const CommunityBox: React.FC<{ expanded: boolean }> = ({ expanded }) => {
         transition={{ duration: 0.5 }}
         style={{ minWidth: isMobile || isTablet ? undefined : 80 }}
       >
-        {community.length > 0 ? (
-          community.map((user) => {
-            // Para companions, usar los datos directos del user
-            // Para following, los datos están en ownerName, ownerUsername, etc.
-            const userName = (user as any).name || (user as any).ownerName;
-            const userUsername =
-              (user as any).username || (user as any).ownerUsername;
-            const avatarConfig = (user as any).avatar;
-
-            // Verificar si hay configuración válida del avatar
-            const hasValidAvatarConfig =
-              avatarConfig &&
-              typeof avatarConfig === "object" &&
-              Object.keys(avatarConfig).length > 0 &&
-              Object.values(avatarConfig).some(
-                (value) => value !== "" && value !== null
-              );
-
-            return (
-              <motion.button
-                key={user.id}
-                className={`rounded-full border-2 ${
-                  selectedId === user.id
-                    ? "border-[#C62328] scale-110 shadow-lg"
-                    : "border-[#f8f4f1]"
-                } transition-all bg-white flex flex-col items-center`}
-                onClick={() => setSelectedId(user.id)}
-                whileHover={{ scale: 1.1 }}
-              >
-                {hasValidAvatarConfig ? (
-                  <AvatarPreview
-                    config={avatarConfig}
-                    className="w-14 h-14 rounded-full"
-                  />
-                ) : (
-                  <img
-                    src="/img/avatar-default.png"
-                    alt="Avatar por defecto"
-                    className="w-14 h-14 rounded-full object-cover"
-                    onError={(e) => {
-                      // Fallback si la imagen por defecto también falla
-                      e.currentTarget.src =
-                        "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='40' fill='%23f8f4f1'/%3E%3C/svg%3E";
-                    }}
-                  />
-                )}
-                <span className="block text-xs text-[#7a2323] mt-1 max-w-[70px] truncate">
-                  {userName || userUsername}
-                </span>
-              </motion.button>
-            );
-          })
-        ) : (
-          <div className="flex flex-1 flex-col items-center justify-center py-8 w-full h-full min-h-[180px]">
-            <div className="text-center text-[#7a2323] text-sm mb-2">
-              ¡Todavía no sigues a nadie! <br />
-              Empieza a construir tu comunidad.
-            </div>
-            <button
-              className="bg-[#C62328] text-white rounded-xl px-4 py-2 text-xs font-semibold shadow hover:bg-[#a81d22] transition mt-2"
-              onClick={(e) => e.stopPropagation()}
-            >
-              Explorar comunidad
-            </button>
-          </div>
-        )}
+        {renderAvatars()}
       </motion.div>
       {/* Mini calendario o resumen a la derecha/abajo */}
       <div

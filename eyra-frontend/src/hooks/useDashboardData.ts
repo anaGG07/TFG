@@ -3,6 +3,7 @@ import { useState, useEffect, useCallback } from "react";
 import { useAuth } from "../context/AuthContext";
 import { apiFetch } from "../utils/httpClient";
 import { API_ROUTES } from "../config/apiRoutes";
+import { notificationService } from "../services/notificationService";
 
 // CORREGIDO: Interfaces que coinciden con la respuesta real del backend
 export interface CyclePhase {
@@ -58,6 +59,7 @@ export interface CycleStatistics {
 }
 
 export interface NotificationData {
+  all: any[];
   total: number;
   unread: number;
   highPriority: number;
@@ -86,7 +88,7 @@ export const useDashboardData = () => {
     currentCycle: null,
     todayData: null,
     statistics: null,
-    notifications: { total: 0, unread: 0, highPriority: 0 },
+    notifications: { all: [], total: 0, unread: 0, highPriority: 0 },
     insights: null,
     isLoading: true,
     error: null,
@@ -107,6 +109,7 @@ export const useDashboardData = () => {
         todayResponse,
         statisticsResponse,
         insightsResponse,
+        notificationsResponse,
       ] = await Promise.allSettled([
         apiFetch<CurrentCycleData>(API_ROUTES.CYCLES.CURRENT),
         apiFetch<TodayData>(API_ROUTES.CYCLES.TODAY),
@@ -114,6 +117,7 @@ export const useDashboardData = () => {
         apiFetch<InsightsSummary>(
           API_ROUTES.CYCLES.RECOMMENDATIONS + "?limit=3"
         ),
+        notificationService.getNotifications(),
       ]);
 
       // Procesar respuestas de manera segura
@@ -133,12 +137,23 @@ export const useDashboardData = () => {
       const insights =
         insightsResponse.status === "fulfilled" ? insightsResponse.value : null;
 
-      // Simular datos de notificaciones hasta que el endpoint funcione
-      const notificationsData = {
-        total: 0,
-        unread: 0,
-        highPriority: 0,
-      };
+      // Procesar notificaciones del backend real
+      let notificationsData: NotificationData = { all: [], total: 0, unread: 0, highPriority: 0 };
+      
+      if (notificationsResponse.status === "fulfilled") {
+        const notifications = notificationsResponse.value;
+        const unreadCount = notifications.filter((n: any) => !n.read).length;
+        const highPriorityCount = notifications.filter((n: any) => n.priority === 'high' && !n.read).length;
+        
+        notificationsData = {
+          all: notifications,
+          total: notifications.length,
+          unread: unreadCount,
+          highPriority: highPriorityCount,
+        };
+      } else {
+        console.warn("Failed to load notifications:", notificationsResponse.reason);
+      }
 
       setData({
         currentCycle,

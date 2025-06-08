@@ -2,15 +2,23 @@ import { API_ROUTES } from "../config/apiRoutes";
 import { apiFetch } from "../utils/httpClient";
 
 export interface Notification {
-  id: string;
+  id: number;
   type: string;
   title: string;
   message: string;
-  isRead: boolean;
+  read: boolean;
   priority: "high" | "normal" | "low";
   createdAt: string;
+  readAt?: string;
+  scheduledFor?: string;
+  context?: string;
+  targetUserType?: string;
   relatedEntityType?: string;
-  relatedEntityId?: string;
+  relatedEntityId?: number;
+  actionUrl?: string;
+  actionText?: string;
+  metadata?: any[];
+  dismissed?: boolean;
 }
 
 export const notificationService = {
@@ -38,14 +46,14 @@ export const notificationService = {
   // Marcar notificación como leída
   async markAsRead(id: string): Promise<void> {
     return apiFetch(API_ROUTES.NOTIFICATIONS.READ(id), {
-      method: "PUT",
+      method: "POST",
     });
   },
 
   // Marcar todas como leídas
   async markAllAsRead(): Promise<void> {
     return apiFetch(API_ROUTES.NOTIFICATIONS.READ_ALL, {
-      method: "PUT",
+      method: "POST",
     });
   },
 };

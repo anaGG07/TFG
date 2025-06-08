@@ -1,5 +1,6 @@
-import React, { useMemo, useState } from "react";
+import React, { useMemo, useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useSearchParams } from "react-router-dom";
 import DraggableGrid from "../components/DraggableGrid";
 import { useViewport } from "../hooks/useViewport";
 
@@ -1341,7 +1342,36 @@ const LibraryPage: React.FC = () => {
   console.log("LibraryPage: Renderizando RED TENT - Salud Femenina");
 
   const [hasExpandedItem, setHasExpandedItem] = useState(false);
+  const [searchParams] = useSearchParams();
+  const [highlightedArticle, setHighlightedArticle] = useState<LibraryContent | null>(null);
+  const [showHighlightModal, setShowHighlightModal] = useState(false);
   const { isMobile, isTablet } = useViewport();
+
+  // Detectar si viene un highlight desde el dashboard
+  useEffect(() => {
+    const highlightId = searchParams.get('highlight');
+    if (highlightId) {
+      // Buscar el artículo en todos los datos de la librería
+      for (const categoryData of Object.values(libraryData)) {
+        const article = categoryData.articles.find(a => a.id === highlightId);
+        if (article) {
+          setHighlightedArticle(article);
+          setShowHighlightModal(true);
+          break;
+        }
+      }
+      
+      // Limpiar el parámetro de la URL después de procesar
+      const newSearchParams = new URLSearchParams(searchParams);
+      newSearchParams.delete('highlight');
+      window.history.replaceState({}, '', `${window.location.pathname}${newSearchParams.toString() ? '?' + newSearchParams.toString() : ''}`);
+    }
+  }, [searchParams]);
+
+  const handleCloseHighlightModal = () => {
+    setShowHighlightModal(false);
+    setHighlightedArticle(null);
+  };
 
   // Calculate itemsPerPage dynamically based on viewport
   const itemsPerPage = useMemo(() => {
@@ -1408,6 +1438,28 @@ const LibraryPage: React.FC = () => {
       updatedItems.map((i) => ({ id: i.id, expanded: i.isExpanded }))
     );
   };
+
+  // Modal para el artículo destacado desde dashboard
+  if (showHighlightModal && highlightedArticle) {
+    return (
+      <motion.div
+        className="w-full h-full bg-[#e7e0d5] overflow-hidden relative"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.5 }}
+      >
+        <ArticleModal
+          article={highlightedArticle}
+          isOpen={showHighlightModal}
+          onClose={handleCloseHighlightModal}
+        />
+        {/* Fondo de la librería ligeramente visible */}
+        <div className="absolute inset-0 opacity-30">
+          <DraggableGrid items={libraryItems} onItemsChange={handleItemsChange} isLibrary={true} />
+        </div>
+      </motion.div>
+    );
+  }
 
   return (
     <motion.div

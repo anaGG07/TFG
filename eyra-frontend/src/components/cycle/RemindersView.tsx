@@ -2,12 +2,17 @@ import React from "react";
 import { motion } from "framer-motion";
 import { useViewport } from "../../hooks/useViewport";
 import RemindersExpanded from "./RemindersExpanded";
-import type { Notification } from "../../services/notificationService";
+
+interface NotificationsData {
+  all: any[];
+  total: number;
+  unread: number;
+  highPriority: number;
+}
 
 interface RemindersViewProps {
   expanded?: boolean;
-  notifications?: any;
-  insights?: any;
+  notifications?: NotificationsData | null;
   markAllAsRead?: () => Promise<void>;
   markAsRead?: (id: string) => Promise<void>;
 }
@@ -15,7 +20,6 @@ interface RemindersViewProps {
 const RemindersView: React.FC<RemindersViewProps> = ({
   expanded = false,
   notifications,
-  insights,
   markAllAsRead,
   markAsRead,
 }) => {
@@ -68,10 +72,8 @@ const RemindersView: React.FC<RemindersViewProps> = ({
   return (
     <RemindersExpanded
       notifications={notifications}
-      insights={insights}
       markAllAsRead={markAllAsRead || (() => Promise.resolve())}
       markAsRead={markAsRead || (() => Promise.resolve())}
-      isMobile={isMobile}
     />
   );
 };

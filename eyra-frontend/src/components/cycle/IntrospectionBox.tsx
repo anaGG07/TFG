@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
+import { useNavigate } from "react-router-dom";
 import { adminContentService } from "../../services/adminContentService";
 import type { Content } from "../../types/domain";
 
@@ -20,6 +21,7 @@ const typeLabels: Record<string, string> = {
 const IntrospectionBox: React.FC = () => {
   const [highlight, setHighlight] = useState<Content | null>(null);
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchContent = async () => {
@@ -55,16 +57,26 @@ const IntrospectionBox: React.FC = () => {
     return typeLabels[c.type?.toLowerCase?.()] || c.type || "";
   };
 
-  const getDate = (_c: Content | null) => "";
+  const handleClick = () => {
+    if (highlight?.id) {
+      // Navegar a library con el contenido específico como parámetro
+      navigate(`/library?highlight=${highlight.id}`);
+    }
+  };
 
   return (
-    <div className="h-full flex flex-col justify-center items-center px-6 py-8">
+    <div 
+      className="h-full flex flex-col justify-center items-center px-6 py-8 cursor-pointer"
+      onClick={handleClick}
+    >
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.7, ease: "easeOut" }}
-        className="rounded-2xl shadow-inner p-6 max-w-xl w-full"
+        className="rounded-2xl shadow-inner p-6 max-w-xl w-full hover:shadow-lg transition-shadow duration-300"
         style={{ boxShadow: "0 4px 24px 0 #e7e0d5, 0 -4px 24px 0 #fff", background: 'transparent' }}
+        whileHover={{ scale: 1.02 }}
+        whileTap={{ scale: 0.98 }}
       >
         {loading ? (
           <div className="text-center text-[#C62328] text-lg font-serif italic animate-pulse">Cargando...</div>
@@ -73,8 +85,11 @@ const IntrospectionBox: React.FC = () => {
             <div className="text-center text-lg md:text-xl font-serif italic text-[#C62328] mb-4">
               “{getFragment(highlight)}”
             </div>
-            <div className="text-center text-xs text-[#7a2323] opacity-80">
+            <div className="text-center text-xs text-[#7a2323] opacity-80 mb-2">
               {getTypeLabel(highlight)}
+            </div>
+            <div className="text-center text-xs text-[#C62328] opacity-60">
+              Haz clic para leer más →
             </div>
           </>
         ) : (
