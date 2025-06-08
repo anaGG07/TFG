@@ -684,5 +684,4 @@ const AdminPage = () => {
     </>
   );
 };
-//comentario de control
 export default AdminPage;
