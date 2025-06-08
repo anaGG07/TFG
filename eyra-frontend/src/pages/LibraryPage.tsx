@@ -1451,7 +1451,6 @@ const LibraryPage: React.FC = () => {
           </motion.div>
         )}
       </AnimatePresence>
-// comentario de control
       <motion.div
         className="w-full h-full pt-20"
         initial={{ y: 20, opacity: 0 }}
