@@ -417,9 +417,9 @@ const UsersTable: React.FC<UsersTableProps> = ({ onRefresh }) => {
       {/* Contenido principal: Tabla en desktop/tablet, Cards en móvil */}
       {isMobile ? (
         // Vista de cards para móvil
-        <div className="space-y-3">
+        <div className="space-y-3 w-full max-w-full px-0">
           {paginatedUsers.map((user) => (
-            <div key={user.id} className="neo-card p-4">
+            <div key={user.id} className="neo-card p-4 w-full">
               {/* Header de la card */}
               <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center gap-3">

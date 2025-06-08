@@ -300,10 +300,8 @@ const AdminPage = () => {
   return (
     <>
       {isMobile && <style>{scrollbarHideStyles}</style>}
-      <div className={`w-full h-full min-h-0 flex flex-col overflow-hidden bg-transparent ${isMobile ? 'overflow-y-auto max-h-[100vh]' : ''}`}>
-      <div className={`max-w-7xl mx-auto flex flex-col h-full min-h-0 ${
-        isMobile ? "px-4 pt-4 pb-20" : isTablet ? "px-6 pt-5 pb-16" : "pl-8 pr-4 pt-6 pb-6"
-      }`}>
+      <div className={`w-full h-full min-h-0 flex flex-col overflow-hidden bg-transparent ${isMobile ? 'overflow-y-auto max-h-[100vh] px-0' : ''}`}>
+      <div className={`max-w-7xl mx-auto flex flex-col h-full min-h-0 w-full max-w-full ${isMobile ? "px-2 pt-4 pb-20" : isTablet ? "px-6 pt-5 pb-16" : "pl-8 pr-4 pt-6 pb-6"}`}>
         {/* Header */}
         <div className={isMobile ? "mb-4" : "mb-6"}>
           <h1 className={`font-bold text-[#7a2323] font-serif ${

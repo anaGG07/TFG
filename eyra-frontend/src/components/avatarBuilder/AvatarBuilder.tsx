@@ -108,7 +108,7 @@ const AvatarBuilder: React.FC<AvatarBuilderProps> = ({
       </div>
 
       {/* Renderizado de la caja de edición según tab */}
-      <div className="flex justify-center pb-28 md:pb-0">
+      <div className="flex justify-center">
         {activeTab === 'rostro' && (
           <div className="bg-[#f5ede6] rounded-2xl shadow-neomorphic p-6 min-w-[240px] max-w-md w-full">
             <div className="mb-4 flex items-center gap-2">
@@ -419,21 +419,14 @@ const AvatarBuilder: React.FC<AvatarBuilderProps> = ({
       </div>
 
       {/* Botones de acción como iconos */}
-      <div
-        className={
-          isMobile
-            ? "fixed bottom-0 left-0 w-full flex flex-row justify-center gap-8 py-4 bg-[#f5ede6]/90 shadow-lg z-50 mb-20"
-            : "flex flex-row justify-center gap-4 mt-6 mb-2"
-        }
-        style={isMobile ? {backdropFilter: 'blur(6px)'} : {}}
-      >
-        <button type="button" onClick={onCancel} title="Cancelar" className="hover:bg-[#f5ede6] rounded-full p-2 transition-colors">
+      <div className="flex flex-row justify-center gap-4 mt-6 mb-6">
+        <button type="button" onClick={onCancel} title="Cancelar" className="hover:bg-[#f5ede6] rounded-full p-3 transition-colors shadow-neomorphic bg-white">
           <IconCancel />
         </button>
-        <button type="button" onClick={onSave} title="Guardar avatar" className="hover:bg-[#f5ede6] rounded-full p-2 transition-colors">
+        <button type="button" onClick={onSave} title="Guardar avatar" className="hover:bg-[#f5ede6] rounded-full p-3 transition-colors shadow-neomorphic bg-white">
           <IconTick />
         </button>
-        <button type="button" onClick={onRandom} title="Aleatorio" className="hover:bg-[#f5ede6] rounded-full p-2 transition-colors">
+        <button type="button" onClick={onRandom} title="Aleatorio" className="hover:bg-[#f5ede6] rounded-full p-3 transition-colors shadow-neomorphic bg-white">
           <IconRandom />
         </button>
       </div>

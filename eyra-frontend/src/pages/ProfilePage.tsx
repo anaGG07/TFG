@@ -232,18 +232,12 @@ const ProfilePage: React.FC = () => {
   // Renderizado
   return (
     <div
-      className={
-        `flex flex-col lg:flex-row w-full min-h-screen` +
-        (isMobile ? ' overflow-y-auto' : '')
-      }
+      className="flex flex-col lg:flex-row w-full min-h-screen"
       style={{ background: "#e7e0d5" }}
     >
       {/* Columna izquierda: Avatar */}
       <div
-        className={
-          `flex flex-col items-center justify-center w-full lg:w-[420px] lg:min-w-[340px] px-2 gap-6 relative max-h-screen overflow-visible` +
-          (isMobile ? '' : ' h-screen')
-        }
+        className="flex flex-col items-center justify-center w-full lg:w-[420px] lg:min-w-[340px] px-2 gap-6 relative lg:max-h-screen overflow-visible lg:h-screen"
         style={{ minHeight: isMobile ? undefined : "unset" }}
       >
         {/* Línea de separación neumórfica - solo desktop */}
@@ -323,10 +317,7 @@ const ProfilePage: React.FC = () => {
         </NeomorphicButton>
       </div>
       {/* Columna derecha: Contenido sobre fondo */}
-      <div
-        className="flex-1 flex flex-col justify-start items-center min-h-screen py-4 lg:py-10 px-2 md:px-8 overflow-visible"
-        style={{ maxHeight: "100vh", overflowY: "auto" }}
-      >
+      <div className="flex-1 flex flex-col justify-start items-center py-4 lg:py-10 px-2 md:px-8 lg:max-h-screen lg:overflow-y-auto">
         {/* Cabecera: nombre, email, frase */}
         {!isEditingAvatar && (
           <div className="flex flex-col items-center gap-1 mb-4 lg:mb-6">
@@ -343,7 +334,7 @@ const ProfilePage: React.FC = () => {
         )}
         {/* Tabs de iconos mejorados o editor de avatar */}
         {isEditingAvatar ? (
-          <div className="w-full max-w-4xl animate-fade-in">
+          <div className={`w-full max-w-4xl animate-fade-in ${isMobile ? 'pb-6' : ''}`}>
             <h2 className="font-serif text-xl lg:text-2xl font-bold text-[#7a2323] mb-2 text-center">
               Personaliza tu avatar
             </h2>
