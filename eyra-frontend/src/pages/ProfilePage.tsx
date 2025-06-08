@@ -254,39 +254,53 @@ const ProfilePage: React.FC = () => {
           />
         </div>
         {/* Avatar neumórfico circular con pulso de luz + botón alineado */}
-        <div className="relative w-full flex justify-center" style={{ minHeight: 400 }}>
-          <span className="absolute z-0 animate-avatar-pulse" style={{
-            width: isMobile ? 250 : 340,
-            height: isMobile ? 250 : 340,
-            borderRadius: '50%',
-            boxShadow: '0 0 0 0 #fff0, 0 0 32px 8px #fff6',
-            background: 'radial-gradient(circle, #fff8 0%, #fff0 70%)',
-            pointerEvents: 'none',
-            left: '50%',
-            top: '50%',
-            transform: 'translate(-50%, -50%)',
-          }} />
+        <div
+          className="relative flex flex-col items-center w-full justify-center"
+          style={{ minHeight: isMobile ? 320 : 400 }}
+        >
+          <span
+            className="absolute z-0 animate-avatar-pulse"
+            style={{
+              width: isEditingAvatar ? 220 : isMobile ? 250 : 340,
+              height: isEditingAvatar ? 220 : isMobile ? 250 : 340,
+              borderRadius: "50%",
+              boxShadow: "0 0 0 0 #fff0, 0 0 32px 8px #fff6",
+              background: "radial-gradient(circle, #fff8 0%, #fff0 80%)",
+              pointerEvents: "none",
+              left: "50%",
+              top: "50%",
+              transform: "translate(-50%, -50%)",
+            }}
+          />
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.5 }}
             className="flex items-center justify-center rounded-full shadow-lg absolute z-10"
             style={{
-              width: isMobile ? 220 : 320,
-              height: isMobile ? 220 : 320,
-              background: (isEditingAvatar ? tempAvatar.backgroundColor : form.avatar.backgroundColor) || '#f5ede6',
-              boxShadow: '0 8px 32px #c6232822, 8px 8px 24px #e7e0d5, -8px -8px 24px #fff8',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              left: '50%',
-              top: '50%',
-              transform: 'translate(-50%, -50%)',
+              width: isEditingAvatar ? 200 : isMobile ? 220 : 320,
+              height: isEditingAvatar ? 200 : isMobile ? 220 : 320,
+              background:
+                (isEditingAvatar
+                  ? tempAvatar.backgroundColor
+                  : form.avatar.backgroundColor) || "#f5ede6",
+              boxShadow:
+                "0 8px 32px #c6232822, 8px 8px 24px #e7e0d5, -8px -8px 24px #fff8",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              transform: "translate(-50%, -50%)",
             }}
           >
-            <AvatarPreview 
-              config={isEditingAvatar ? tempAvatar : getAvatarConfig()} 
-              className={isMobile ? "w-[180px] h-[180px]" : "w-[260px] h-[260px]"}
+            <AvatarPreview
+              config={isEditingAvatar ? tempAvatar : getAvatarConfig()}
+              className={
+                isEditingAvatar
+                  ? "w-[140px] h-[140px]"
+                  : isMobile
+                  ? "w-[180px] h-[180px]"
+                  : "w-[260px] h-[260px]"
+              }
             />
           </motion.div>
         </div>
