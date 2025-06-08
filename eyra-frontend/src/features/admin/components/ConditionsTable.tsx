@@ -359,9 +359,9 @@ const ConditionsTable: React.FC<ConditionsTableProps> = ({ onRefresh }) => {
       {/* Contenido principal: Tabla en desktop/tablet, Cards en móvil */}
       {isMobile ? (
         // Vista de cards para móvil
-        <div className="space-y-3 overflow-y-auto max-h-[60vh] px-1">
+        <div className="flex flex-col gap-3 w-full max-w-full px-0">
           {paginatedConditions.map((condition) => (
-            <div key={condition.id} className="neo-card p-4 flex flex-col gap-2">
+            <div key={condition.id} className="neo-card p-4 flex flex-col gap-2 w-full">
               {/* Header de la card */}
               <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center gap-3">

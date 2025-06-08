@@ -316,12 +316,12 @@ const AdminPage = () => {
           </p>
         </div>
         {/* Navegación por pestañas */}
-        <div className="flex flex-row gap-3 items-center mb-2">
+        <div className={`flex items-center mb-2 w-full max-w-full overflow-x-auto gap-2 pb-2 scrollbar-hide`}>
           {tabs.map((tab) => (
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`rounded-xl px-5 py-2 font-semibold text-base font-serif transition-all duration-200 focus:outline-none neo-shadow-sm
+              className={`rounded-xl px-4 py-2 font-semibold text-base font-serif transition-all duration-200 focus:outline-none neo-shadow-sm flex-shrink-0 whitespace-nowrap
                 ${
                   activeTab === tab.id
                     ? "bg-[#e7e0d5]/30 ring-2 ring-[#C62328] shadow-inner text-[#C62328]"

@@ -294,9 +294,9 @@ const ContentTable: React.FC<ContentTableProps> = ({ onRefresh }) => {
       </div>
 
       {/* Tabla */}
-      <div className="space-y-3 overflow-y-auto max-h-[60vh] px-1">
+      <div className="flex flex-col gap-3 w-full max-w-full px-0">
         {paginatedContents.map((content) => (
-          <div key={content.id} className="neo-card p-4 flex flex-col gap-2">
+          <div key={content.id} className="neo-card p-4 flex flex-col gap-2 w-full">
             <div className="flex items-center">
               <div className="ml-4">
                 <div className="text-sm font-medium text-gray-900">
