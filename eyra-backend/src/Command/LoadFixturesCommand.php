@@ -120,6 +120,9 @@ class LoadFixturesCommand extends Command
                 $hashedPassword = $this->passwordHasher->hashPassword($user, $userData['password']);
                 $user->setPassword($hashedPassword);
                 
+                // ! 08/06/2025 - Establecer configuración de privacidad por defecto
+                $user->setAllowSearchable(true);
+                
                 $this->entityManager->persist($user);
                 $result[] = [
                     'entity' => $user,

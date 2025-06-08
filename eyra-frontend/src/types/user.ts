@@ -30,4 +30,6 @@ export interface User {
   state: boolean;
   onboardingCompleted: boolean;
   onboarding: Onboarding;
+  // ! 08/06/2025 - Campo para controlar privacidad de búsqueda
+  allowSearchable: boolean;
 } 

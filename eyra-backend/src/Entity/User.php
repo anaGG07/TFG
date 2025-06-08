@@ -191,6 +191,11 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[Groups(['user:read', 'user:write'])]
     private ?array $avatar = null;
 
+    // ! 08/06/2025 - Campo para controlar si el usuario permite ser encontrado en búsquedas
+    #[ORM\Column(options: ["default" => true])]
+    #[Groups(['user:read', 'user:write'])]
+    private ?bool $allowSearchable = true;
+
     // Y añadir estos métodos getter/setter:
 
     public function getOnboarding(): ?Onboarding
@@ -726,6 +731,24 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
             $this->avatar = $avatar;
         }
+
+        return $this;
+    }
+
+    /**
+     * Obtiene si el usuario permite ser encontrado en búsquedas
+     */
+    public function isAllowSearchable(): ?bool
+    {
+        return $this->allowSearchable;
+    }
+
+    /**
+     * Establece si el usuario permite ser encontrado en búsquedas
+     */
+    public function setAllowSearchable(bool $allowSearchable): static
+    {
+        $this->allowSearchable = $allowSearchable;
 
         return $this;
     }

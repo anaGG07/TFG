@@ -366,8 +366,6 @@ const UserSearchModal: React.FC<UserSearchModalProps> = ({
           {/* Información de privacidad */}
           <div className="bg-[#E7E0D5]/10 rounded-lg p-3 text-xs text-[#E7E0D5]">
             <p className="mb-1">🔒 Solo puedes buscar usuarios que permiten ser encontrados</p>
-            <p className="mb-1">📧 Las búsquedas por email no muestran información personal</p>
-            <p>👤 Las búsquedas por usuario respetan su configuración de privacidad</p>
           </div>
 
           {/* Botón cancelar */}

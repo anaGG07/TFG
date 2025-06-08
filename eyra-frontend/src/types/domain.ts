@@ -36,6 +36,8 @@ export interface User {
   state: boolean;
   onboardingCompleted: boolean;
   avatar: AvatarConfig;
+  // ! 08/06/2025 - Campo para controlar privacidad de búsqueda
+  allowSearchable: boolean;
   onboarding: {
     receiveAlerts: boolean;
     receiveRecommendations: boolean;

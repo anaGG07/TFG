@@ -45,6 +45,8 @@ const ProfilePage: React.FC = () => {
     username: user?.username || "",
     birthDate: user?.birthDate || "",
     avatar: user?.avatar || defaultAvatarConfig,
+    // ! 08/06/2025 - Añadido campo de privacidad
+    allowSearchable: user?.allowSearchable ?? true,
     receiveAlerts: user?.onboarding?.receiveAlerts ?? true,
     receiveRecommendations: user?.onboarding?.receiveRecommendations ?? true,
     receiveCyclePhaseTips: user?.onboarding?.receiveCyclePhaseTips ?? true, 
@@ -68,6 +70,8 @@ const ProfilePage: React.FC = () => {
         username: user?.username || "",
         birthDate: user?.birthDate || "",
         avatar: user?.avatar || defaultAvatarConfig,
+        // ! 08/06/2025 - Añadido campo de privacidad
+        allowSearchable: user?.allowSearchable ?? true,
         receiveAlerts: user?.onboarding?.receiveAlerts ?? true,
         receiveRecommendations:
           user?.onboarding?.receiveRecommendations ?? true,
@@ -241,8 +245,8 @@ const ProfilePage: React.FC = () => {
             marginRight: 'auto',
           }} />
         </div>
-        {/* Avatar neumórfico circular con pulso de luz */}
-        <div className="relative flex items-center justify-center lg:justify-start w-full">
+        {/* Avatar neumórfico circular con pulso de luz + botón alineado */}
+        <div className="relative flex flex-col items-center w-full">
           <span className="absolute z-0 animate-avatar-pulse" style={{
             width: isEditingAvatar ? 200 : (isMobile ? 250 : 340),
             height: isEditingAvatar ? 200 : (isMobile ? 250 : 340),
@@ -268,17 +272,17 @@ const ProfilePage: React.FC = () => {
               className={isEditingAvatar ? "w-[120px] h-[120px]" : (isMobile ? "w-[160px] h-[160px]" : "w-[220px] h-[220px]")}
             />
           </motion.div>
+          <NeomorphicButton
+            variant="primary"
+            onClick={() => {
+              setTempAvatar(form.avatar);
+              setIsEditingAvatar(true);
+            }}
+            className="mt-4 px-4 lg:px-8 py-2 lg:py-3 text-base lg:text-lg"
+          >
+            Editar avatar
+          </NeomorphicButton>
         </div>
-        <NeomorphicButton
-          variant="primary"
-          onClick={() => {
-            setTempAvatar(form.avatar);
-            setIsEditingAvatar(true);
-          }}
-          className="mt-2 px-4 lg:px-8 py-2 lg:py-3 text-base lg:text-lg self-center lg:self-start"
-        >
-          Editar avatar
-        </NeomorphicButton>
       </div>
       {/* Columna derecha: Contenido sobre fondo */}
       <div className="flex-1 flex flex-col justify-start items-center min-h-screen py-4 lg:py-10 px-2 md:px-8 overflow-visible" style={{ maxHeight: '100vh', overflowY: 'auto' }}>

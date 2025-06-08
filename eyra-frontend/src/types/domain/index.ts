@@ -45,6 +45,8 @@ export interface User {
   genderIdentity: string;
   birthDate: string;
   roles: string[];
+  // ! 08/06/2025 - Campo para controlar privacidad de búsqueda
+  allowSearchable: boolean;
 }
 
 export interface CycleDay {

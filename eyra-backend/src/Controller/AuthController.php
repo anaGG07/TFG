@@ -117,6 +117,9 @@ class AuthController extends AbstractController
             // Inicializar onboardingCompleted como falso
             $user->setOnboardingCompleted(false);
 
+            // ! 08/06/2025 - Establecer configuración de privacidad por defecto para nuevos usuarios
+            $user->setAllowSearchable(true);
+
             // ! 28/05/2025 - Inicializar avatar con plantilla vacía si no se proporciona
             if (isset($data['avatar'])) {
                 try {
