@@ -14,6 +14,7 @@ import {
   HormoneLevel,
 } from "../types/domain";
 import { API_ROUTES } from "../config/apiRoutes";
+import { startOfMonth, endOfMonth } from 'date-fns';
 
 export interface CycleDayInput {
   date: string;
@@ -144,6 +145,30 @@ export const CycleProvider: React.FC<{ children: ReactNode }> = ({
     },
     []
   );
+
+  // Efecto para cargar automáticamente los días del ciclo al montar y al cambiar de día
+  const lastLoadedDate = React.useRef<string>("");
+  useEffect(() => {
+    const loadForToday = () => {
+      const today = new Date();
+      const todayStr = today.toISOString().split("T")[0];
+      const monthStart = startOfMonth(today);
+      const monthEnd = endOfMonth(today);
+      // Solo recargar si la fecha cambió
+      if (lastLoadedDate.current !== todayStr) {
+        lastLoadedDate.current = todayStr;
+        loadCalendarDays(
+          monthStart.toISOString().split("T")[0],
+          monthEnd.toISOString().split("T")[0]
+        );
+      }
+    };
+    // Cargar al montar
+    loadForToday();
+    // Revisar cada minuto si cambió el día
+    const interval = setInterval(loadForToday, 60 * 1000);
+    return () => clearInterval(interval);
+  }, [loadCalendarDays]);
 
   // Añadir información a un día del ciclo - API REAL ACTIVADA
   const addCycleDay = useCallback(

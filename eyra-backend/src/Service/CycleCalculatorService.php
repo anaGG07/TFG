@@ -97,9 +97,9 @@ class CycleCalculatorService
                 break;
         }
 
-        // Calcular fechas esperadas
+        // Calcular fechas esperadas (CORREGIDO: cálculo inclusivo)
         $nextStartDate = (new \DateTime($lastCycle->getStartDate()->format('Y-m-d')))->modify("+{$predictedLength} days");
-        $nextEndDate = (new \DateTime($nextStartDate->format('Y-m-d')))->modify("+{$predictedDuration} days");
+        $nextEndDate = (new \DateTime($nextStartDate->format('Y-m-d')))->modify("+" . ($predictedDuration - 1) . " days");
 
         // Generar array de días predichos de menstruación
         $predictedPeriodDays = [];
@@ -351,10 +351,10 @@ class CycleCalculatorService
                     $lastRealDate = $cycle->getEndDate();
                     break;
                 } 
-                // Si no tiene fecha de fin, usar la fecha de inicio + duración estimada
+                // Si no tiene fecha de fin, usar la fecha de inicio + duración estimada (CORREGIDO)
                 elseif ($cycle->getStartDate()) {
                     $estimatedDuration = $cycle->getAverageDuration() ?? 5;
-                    $lastRealDate = (clone $cycle->getStartDate())->modify("+{$estimatedDuration} days");
+                    $lastRealDate = (clone $cycle->getStartDate())->modify("+" . ($estimatedDuration - 1) . " days");
                     break;
                 }
             }
@@ -412,7 +412,7 @@ class CycleCalculatorService
             foreach ($existingCycles as $existingCycle) {
                 $existingStart = $existingCycle->getStartDate();
                 $existingEnd = $existingCycle->getEndDate() ?? 
-                    (clone $existingStart)->modify('+' . ($existingCycle->getAverageDuration() ?? 5) . ' days');
+                    (clone $existingStart)->modify('+' . (($existingCycle->getAverageDuration() ?? 5) - 1) . ' days');
                 
                 if ($nextCycleStart >= $existingStart && $nextCycleStart <= $existingEnd) {
                     $hasOverlap = true;
