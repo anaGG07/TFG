@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Entity\SymptomLog;
 use App\Entity\User;
 use App\Repository\CycleDayRepository;
 use App\Repository\SymptomLogRepository;
@@ -90,7 +91,8 @@ class SymptomController extends AbstractController
         $startDate = new \DateTime('-6 months');
         $endDate = new \DateTime();
 
-        $cycleDays = $this->cycleDayRepository->findByUserAndDateRange(
+        // ! 08/06/2025 - Cambiado a usar SymptomLog en lugar de CycleDay para consistencia
+        $symptomLogs = $this->symptomLogRepository->findByUserAndDateRange(
             $user,
             $startDate,
             $endDate
@@ -100,25 +102,22 @@ class SymptomController extends AbstractController
         $symptomData = [];
         $totalDays = 0;
 
-        foreach ($cycleDays as $cycleDay) {
-            $symptoms = $cycleDay->getSymptoms();
-            $dayInCycle = $cycleDay->getDayNumber();
+        foreach ($symptomLogs as $log) {
+            $symptomType = $log->getSymptom();
+            $intensity = $log->getIntensity();
 
-            if (!empty($symptoms)) {
-                foreach ($symptoms as $symptomType => $intensity) {
-                    if (!isset($symptomData[$symptomType])) {
-                        $symptomData[$symptomType] = [
-                            'occurrences' => 0,
-                            'totalIntensity' => 0,
-                            'daysInCycle' => []
-                        ];
-                    }
-
-                    $symptomData[$symptomType]['occurrences']++;
-                    $symptomData[$symptomType]['totalIntensity'] += $intensity;
-                    $symptomData[$symptomType]['daysInCycle'][] = $dayInCycle;
-                }
+            if (!isset($symptomData[$symptomType])) {
+                $symptomData[$symptomType] = [
+                    'occurrences' => 0,
+                    'totalIntensity' => 0,
+                    'dates' => []
+                ];
             }
+
+            $symptomData[$symptomType]['occurrences']++;
+            $symptomData[$symptomType]['totalIntensity'] += $intensity;
+            $symptomData[$symptomType]['dates'][] = $log->getDate()->format('Y-m-d');
+
             $totalDays++;
         }
 
@@ -128,10 +127,13 @@ class SymptomController extends AbstractController
             if ($data['occurrences'] > 0) {
                 $patterns[] = [
                     'symptomType' => $symptomType,
-                    'frequency' => round(($data['occurrences'] / $totalDays) * 100, 2),
+                    'frequency' => round(($data['occurrences'] / max($totalDays, 1)) * 100, 2),
                     'averageIntensity' => round($data['totalIntensity'] / $data['occurrences'], 2),
-                    'dayInCycle' => !empty($data['daysInCycle']) ?
-                        round(array_sum($data['daysInCycle']) / count($data['daysInCycle'])) : 0
+                    'totalOccurrences' => $data['occurrences'],
+                    'dateRange' => [
+                        'first' => min($data['dates']),
+                        'last' => max($data['dates'])
+                    ]
                 ];
             }
         }
@@ -160,31 +162,27 @@ class SymptomController extends AbstractController
             return $this->json(['error' => 'Invalid date format'], 400);
         }
 
-        // ! 08/06/2025 - Usar método del repository para mantener consistencia
-        $cycleDay = $this->cycleDayRepository->findByDateAndUser($date, $user);
-
-        if (!$cycleDay) {
-            return $this->json(['error' => 'Cycle day not found'], 404);
-        }
-
-        // Actualizar síntomas
-        $symptoms = $cycleDay->getSymptoms() ?? [];
-        $symptoms[$data['symptom']] = (int)$data['intensity'];
-        $cycleDay->setSymptoms($symptoms);
+        // ! 08/06/2025 - Crear nuevo SymptomLog en lugar de modificar CycleDay
+        $symptomLog = new SymptomLog();
+        $symptomLog->setUser($user);
+        $symptomLog->setDate($date);
+        $symptomLog->setSymptom($data['symptom']);
+        $symptomLog->setIntensity((int)$data['intensity']);
 
         if (isset($data['notes'])) {
-            $cycleDay->setNotes($data['notes']);
+            $symptomLog->setNotes($data['notes']);
         }
 
+        $this->entityManager->persist($symptomLog);
         $this->entityManager->flush();
 
         return $this->json([
-            'id' => $cycleDay->getId() . '_' . $data['symptom'],
-            'date' => $cycleDay->getDate()->format('Y-m-d'),
-            'symptom' => $data['symptom'],
-            'intensity' => $data['intensity'],
-            'notes' => $cycleDay->getNotes(),
-            'entity' => 'menstrual_cycle'
+            'id' => $symptomLog->getId(),
+            'date' => $symptomLog->getDate()->format('Y-m-d'),
+            'symptom' => $symptomLog->getSymptom(),
+            'intensity' => $symptomLog->getIntensity(),
+            'notes' => $symptomLog->getNotes(),
+            'entity' => $symptomLog->getEntity()
         ], 201);
     }
 
@@ -201,22 +199,21 @@ class SymptomController extends AbstractController
         $startDate = new \DateTime('-30 days');
         $endDate = new \DateTime();
 
-        $cycleDays = $this->cycleDayRepository->findByUserAndDateRange(
+        // ! 08/06/2025 - Cambiado a usar SymptomLog para consistencia
+        $symptomLogs = $this->symptomLogRepository->findByUserAndDateRange(
             $user,
             $startDate,
             $endDate
         );
 
         $logs = [];
-        foreach ($cycleDays as $cycleDay) {
-            $symptoms = $cycleDay->getSymptoms();
-            if (!empty($symptoms)) {
-                $logs[] = [
-                    'date' => $cycleDay->getDate()->format('Y-m-d'),
-                    'symptoms' => $symptoms,
-                    'notes' => $cycleDay->getNotes()
-                ];
-            }
+        foreach ($symptomLogs as $log) {
+            $logs[] = [
+                'date' => $log->getDate()->format('Y-m-d'),
+                'symptom' => $log->getSymptom(),
+                'intensity' => $log->getIntensity(),
+                'notes' => $log->getNotes()
+            ];
         }
 
         return $this->json($logs);

@@ -20,13 +20,37 @@ const fetchUserCalendar = async (userId: string) => {
       }&end=${endOfMonth.toISOString().split("T")[0]}`
     );
 
-    if (response && response.hostCycles) {
+    console.log("Calendar API Response:", response); // Debug log
+    console.log("Looking for userId:", userId, "as hostId"); // Debug log
+
+    if (response && response.hostCycles && response.hostCycles.length > 0) {
+      console.log("Found hostCycles:", response.hostCycles); // Debug log
+      
       // Filtrar los ciclos del anfitrión específico
       const hostData = response.hostCycles.find(
         (host: any) => host.hostId === parseInt(userId)
       );
+      
+      console.log("Found hostData for userId", userId, ":", hostData); // Debug log
       return hostData || null;
     }
+    
+    // Si no hay hostCycles, verificar si hay userCycles (fallback temporal)
+    if (response && response.userCycles && response.userCycles.length > 0) {
+      console.log("No hostCycles found, but found userCycles:", response.userCycles);
+      console.log("Note: This might indicate the selected user is yourself or permissions issue");
+      
+      // Para depuración: mostrar que estos son datos propios
+      return {
+        hostId: parseInt(userId),
+        hostName: "Tus propios datos",
+        cycles: response.userCycles,
+        currentPhase: response.userCycles.length > 0 ? response.userCycles[0].phase : null,
+        note: "Showing your own data - check permissions or user selection"
+      };
+    }
+    
+    console.log("No calendar data found for userId:", userId);
     return null;
   } catch (error) {
     console.error("Error fetching shared calendar:", error);
@@ -46,9 +70,21 @@ const CommunityBox: React.FC<{ expanded: boolean }> = ({ expanded }) => {
   const totalPages = Math.ceil(community.length / USERS_PER_PAGE);
   const paginatedCommunity = community.slice(page * USERS_PER_PAGE, (page + 1) * USERS_PER_PAGE);
 
+  // Debug: Log community data
+  console.log("Community data:", {
+    followingCount: following.length,
+    community: community.map(user => ({
+      id: user.id,
+      name: user.ownerName || user.name,
+      username: user.ownerUsername || user.username
+    })),
+    selectedId
+  });
+
   // Seleccionar el primero por defecto
   useEffect(() => {
     if (community.length > 0 && !selectedId) {
+      console.log("Community users:", community); // Debug log
       setSelectedId(community[0].id);
     }
   }, [community, selectedId]);
@@ -231,17 +267,53 @@ const CommunityBox: React.FC<{ expanded: boolean }> = ({ expanded }) => {
               </h4>
               {isDesktop ? (
                 calendarData ? (
-                  <NeomorphicCalendar />
+                  <div className="text-center">
+                    {/* Mostrar nota de depuración si existe */}
+                    {calendarData.note && (
+                      <div className="text-xs text-orange-600 mb-2 italic">
+                        {calendarData.note}
+                      </div>
+                    )}
+                    
+                    <div className="text-sm text-[#7a2323] mb-2">
+                      {calendarData.currentPhase 
+                        ? `Fase actual: ${calendarData.currentPhase}`
+                        : "Datos de calendario disponibles"
+                      }
+                    </div>
+                    
+                    {/* Información adicional */}
+                    {calendarData.cycles && calendarData.cycles.length > 0 && (
+                      <div className="text-xs text-[#7a2323] opacity-70">
+                        {calendarData.cycles.length} registro(s) de ciclo
+                        {calendarData.hostName && (
+                          <div className="mt-1">De: {calendarData.hostName}</div>
+                        )}
+                      </div>
+                    )}
+                  </div>
                 ) : (
                   <div className="text-center text-[#7a2323] text-sm opacity-70">
-                    No hay datos de ciclo para esta persona.
+                    No hay datos de ciclo disponibles para esta persona.
+                    <div className="text-xs mt-1 opacity-50">
+                      Verifica permisos de acceso o conexión.
+                    </div>
                   </div>
                 )
               ) : (
                 <div className="text-center text-[#7a2323] text-sm opacity-70">
-                  {calendarData && calendarData.currentPhase
-                    ? `Fase actual: ${calendarData.currentPhase}`
-                    : "No hay datos de ciclo para esta persona."}
+                  {calendarData ? (
+                    <>
+                      {calendarData.currentPhase ? `Fase: ${calendarData.currentPhase}` : 'Datos disponibles'}
+                      {calendarData.note && (
+                        <div className="text-xs mt-1 italic text-orange-600">
+                          (Datos propios)
+                        </div>
+                      )}
+                    </>
+                  ) : (
+                    "No hay datos de ciclo para esta persona."
+                  )}
                 </div>
               )}
             </motion.div>

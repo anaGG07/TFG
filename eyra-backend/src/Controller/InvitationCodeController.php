@@ -41,7 +41,7 @@ class InvitationCodeController extends AbstractController
     {
         $data = json_decode($request->getContent(), true);
 
-        // Validar datos de la solicitud
+        // Validar datos de la solicitud (NO requiere invitedEmail)
         $violations = $this->validateGenerateRequest($data);
         if (count($violations) > 0) {
             return $this->json(['errors' => $violations], Response::HTTP_BAD_REQUEST);
@@ -68,8 +68,8 @@ class InvitationCodeController extends AbstractController
             'id' => $code->getId(),
             'code' => $code->getCode(),
             'type' => $code->getGuestType(), // Usar 'type' en lugar de 'guestType'
-            'status' => 'active', // Agregar status
-            'createdAt' => $code->getCreatedAt()->format('c'), // Agregar createdAt
+            'status' => 'active',
+            'createdAt' => $code->getCreatedAt()->format('c'),
             'accessPermissions' => $code->getAccessPermissions(),
             'expiresAt' => $code->getExpiresAt()->format('c'),
         ], Response::HTTP_CREATED);

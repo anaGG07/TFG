@@ -6,9 +6,6 @@ import InvitationWithEmailModal, {
   InvitationModalData,
 } from "../components/InvitationWithEmailModal";
 import UserSearchModal, { UserSearchData } from "../components/UserSearchModal";
-import RelationshipTypeModal, {
-  RelationshipTypeData,
-} from "../components/RelationshipTypeModal";
 import { useTracking } from "../hooks/useTracking";
 import { usePrivacySettings } from "../hooks/usePrivacySettings";
 import { Companion, Following, Invitation } from "../services/trackingService";
@@ -227,8 +224,6 @@ const TrackingPage: React.FC = () => {
   const [showInviteWithEmailDialog, setShowInviteWithEmailDialog] =
     useState(false);
   const [showUserSearchDialog, setShowUserSearchDialog] = useState(false);
-  const [showRelationshipTypeDialog, setShowRelationshipTypeDialog] =
-    useState(false);
 
   // Estado para el modal de permisos
   const [permissionsModal, setPermissionsModal] = useState<{
@@ -247,27 +242,8 @@ const TrackingPage: React.FC = () => {
 
   // Handlers para eventos reales
   const handleCreateInvitation = async () => {
-    // En lugar de hardcodear "partner", abrimos el modal de selección
-    setShowRelationshipTypeDialog(true);
-  };
-
-  const handleCreateInvitationWithType = async (data: RelationshipTypeData) => {
-    if (creatingInvitation) return;
-
-    try {
-      setCreatingInvitation(true);
-      await createInvitation({
-        guestType: data.guestType,
-        accessPermissions: data.accessPermissions,
-        expirationHours: data.expirationHours,
-      });
-      alert(`¡Código de invitación generado exitosamente!`);
-    } catch (error) {
-      console.error("Error creando invitación:", error);
-      throw error; // Re-lanzar para que el modal pueda manejarlo
-    } finally {
-      setCreatingInvitation(false);
-    }
+    // Ahora siempre abrimos el modal que pide email
+    setShowInviteWithEmailDialog(true);
   };
 
   const handleCreateInvitationWithEmail = async (data: InvitationModalData) => {
@@ -1060,16 +1036,6 @@ const TrackingPage: React.FC = () => {
         onInviteUser={handleInviteFoundUser}
         onInviteEmail={handleCreateInvitationWithEmail}
         isLoading={creatingInvitationWithEmail}
-      />
-
-      {/* Modal de selección de tipo de relación */}
-      <RelationshipTypeModal
-        isOpen={showRelationshipTypeDialog}
-        onClose={() => setShowRelationshipTypeDialog(false)}
-        onSubmit={handleCreateInvitationWithType}
-        isLoading={creatingInvitation}
-        title="Tipo de Relación"
-        subtitle="Selecciona qué tipo de relación tienes con esta persona para generar un código adecuado"
       />
     </>
   );
