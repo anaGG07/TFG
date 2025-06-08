@@ -66,11 +66,18 @@ export const useCalendarData = (
         const startStr = format(startDate, "yyyy-MM-dd");
         const endStr = format(endDate, "yyyy-MM-dd");
 
+        console.log('=== FETCH CALENDAR DATA ===');
+        console.log('Buscando datos para:', startStr, 'a', endStr);
+
         // ! 04/06/2025 - Usar el servicio que incluye predicciones
         const calendarData = await fetchCalendarWithPredictions(
           startStr,
           endStr
         );
+
+        console.log('=== DATOS RECIBIDOS DEL BACKEND ===');
+        console.log('Número de ciclos recibidos:', calendarData?.length || 0);
+        console.log('Datos completos:', calendarData);
 
         // Procesar datos para el formato esperado
         const processedData: CalendarData = {
@@ -81,6 +88,12 @@ export const useCalendarData = (
             hostCycles: [],
           }),
         };
+
+        console.log('=== DATOS PROCESADOS ===');
+        console.log('Días del calendario:', processedData.calendarDays.length);
+        processedData.calendarDays.forEach(day => {
+          console.log(`Día ${day.date}: fase=${day.phase}, flujo=${day.flowIntensity}, predicción=${day.isPrediction}`);
+        });
 
         setData(processedData);
       } catch (err) {
@@ -233,9 +246,15 @@ export const useCalendarData = (
     return Array.from(daysMap.values());
   };
 
-  // Refetch con parámetros específicos
+  // Refetch con parámetros específicos y invalidación forzada
   const refetch = useCallback(
     async (startDate: Date, endDate: Date) => {
+      console.log('=== REFETCH INICIADO ===');
+      console.log('Rango solicitado:', format(startDate, 'yyyy-MM-dd'), 'a', format(endDate, 'yyyy-MM-dd'));
+      
+      // Limpiar datos anteriores
+      setData(null);
+      
       await fetchCalendarData(startDate, endDate);
     },
     [fetchCalendarData]

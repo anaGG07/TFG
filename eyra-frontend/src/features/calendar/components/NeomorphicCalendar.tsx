@@ -712,7 +712,7 @@ export const NeomorphicCalendar: React.FC<NeomorphicCalendarProps> = ({
     }
 
     try {
-      // ! 03/06/2025 - Mapear los datos del modal al formato simple esperado por el backend
+      // ! NUEVO: Mapear los datos del modal al formato correcto
       const cycleDayData = {
         date: format(selectedDate, "yyyy-MM-dd"),
         symptoms: modalData.symptoms || [],
@@ -726,19 +726,36 @@ export const NeomorphicCalendar: React.FC<NeomorphicCalendarProps> = ({
           }),
       };
 
-      console.log('Guardando datos del ciclo:', cycleDayData);
+      console.log('=== GUARDANDO DATOS DEL CICLO ===');
+      console.log('Fecha:', cycleDayData.date);
+      console.log('Datos completos:', cycleDayData);
+      
+      // Cerrar modal inmediatamente para mejor UX
+      setIsModalOpen(false);
+      setSelectedDayData(null);
+      
+      // Guardar en el backend
       await addCycleDay(cycleDayData);
       
-      // Forzar refetch de datos del calendario
-      const { start, end } = getDateRange(currentDate, viewType);
-      await refetch(start, end);
+      console.log('=== DATOS GUARDADOS EXITOSAMENTE ===');
       
-      setIsModalOpen(false);
-      setSelectedDayData(null); // Limpiar datos después de guardar
+      // IMPORTANTE: Esperar un momento y luego refrescar los datos
+      setTimeout(async () => {
+        try {
+          const { start, end } = getDateRange(currentDate, viewType);
+          console.log('=== REFRESCANDO CALENDARIO ===');
+          console.log('Rango:', format(start, 'yyyy-MM-dd'), 'a', format(end, 'yyyy-MM-dd'));
+          
+          await refetch(start, end);
+          
+          console.log('=== CALENDARIO REFRESCADO ===');
+        } catch (error) {
+          console.error('Error al refrescar calendario:', error);
+        }
+      }, 1000); // Esperar 1 segundo para que el backend procese
       
-      console.log('Datos guardados exitosamente');
     } catch (error) {
-      console.error("Error al guardar el día del ciclo:", error);
+      console.error("=== ERROR AL GUARDAR ===:", error);
     }
   };
 

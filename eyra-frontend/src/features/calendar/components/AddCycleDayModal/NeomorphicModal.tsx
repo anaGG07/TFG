@@ -264,9 +264,9 @@ export const NeomorphicModal: React.FC<NeomorphicModalProps> = ({
             transition={{ type: "spring", stiffness: 300, damping: 30 }}
             className="
               w-full max-w-2xl max-h-[90vh] overflow-hidden
-              bg-gradient-to-br from-[#e7e0d5] to-[#d7d0c4] 
+              bg-[#f5f5f4]
               rounded-3xl
-              shadow-[15px_15px_30px_rgba(120,113,108,0.2),-15px_-15px_30px_rgba(255,255,255,0.9)]
+              shadow-lg
             "
             onClick={(e) => e.stopPropagation()}
           >

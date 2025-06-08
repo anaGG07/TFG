@@ -178,11 +178,12 @@ export const CycleProvider: React.FC<{ children: ReactNode }> = ({
         console.log("CycleContext: Guardando día de ciclo en API real", data);
 
         // ACTIVADO: Usar API real con tipos correctos
-        await apiFetch<void>(API_ROUTES.CYCLES.ALL, {
+        const response = await apiFetch<any>(API_ROUTES.CYCLES.ALL, {
           method: "POST",
           body: data,
         });
 
+        console.log("CycleContext: Respuesta del backend:", response);
         console.log("CycleContext: Día de ciclo guardado exitosamente");
 
         // Recargar datos del calendario después del guardado
