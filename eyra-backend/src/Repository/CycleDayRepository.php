@@ -28,8 +28,7 @@ class CycleDayRepository extends ServiceEntityRepository
 
         return $this->createQueryBuilder('cd')
             ->join('cd.cyclePhase', 'cp')
-            ->join('cp.cycle', 'c')
-            ->andWhere('c.user = :user')
+            ->andWhere('cp.user = :user')
             ->andWhere('cd.date >= :startDate')
             ->andWhere('cd.date <= :endDate')
             ->setParameter('user', $user)
@@ -102,8 +101,8 @@ class CycleDayRepository extends ServiceEntityRepository
         $cacheKey = "current_day_user_{$user->getId()}_date_{$today->format('Ymd')}";
 
         return $this->createQueryBuilder('cd')
-            ->join('cd.cyclePhase', 'c')
-            ->andWhere('c.user = :user')
+            ->join('cd.cyclePhase', 'cp')
+            ->andWhere('cp.user = :user')
             ->andWhere('cd.date = :today')
             ->setParameter('user', $user)
             ->setParameter('today', $today)

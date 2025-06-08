@@ -93,9 +93,6 @@ const NeomorphicDayCell: React.FC<{
         w-full h-full rounded-lg
         ${getCellStyle()}
         ${
-          isPredicted ? "opacity-70 border-2 border-dashed border-gray-400" : ""
-        }
-        ${
           isSelected
             ? "shadow-inner shadow-[#7a2323]/20"
             : "shadow-[inset_1px_1px_3px_rgba(199,191,180,0.3),inset_-1px_-1px_3px_rgba(255,255,255,0.7)]"
@@ -611,7 +608,7 @@ export const NeomorphicCalendar: React.FC<NeomorphicCalendarProps> = ({
           <div className={`flex items-center gap-1 border-l pl-1 ml-1 ${
             isMobile ? 'text-xs' : 'text-xs pl-2 ml-1'
           }`}>
-            <div className={`rounded-full bg-blue-400 border-2 border-dashed border-gray-400 opacity-70 ${
+            <div className={`rounded-full bg-blue-400 opacity-70 ${
               isMobile ? 'w-2 h-2' : 'w-2.5 h-2.5'
             }`} />
             {!isMobile && (
