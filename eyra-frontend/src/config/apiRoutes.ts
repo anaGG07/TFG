@@ -1,8 +1,5 @@
 const API_URL = import.meta.env.VITE_API_URL || "https://eyraclub.es";
 
-// Log para verificar API URL
-console.log("API_ROUTES utilizando URL base:", API_URL);
-
 // Función auxiliar para crear URLs completas
 const createApiUrl = (path: string): string => {
   // Las rutas en el backend ya tienen el prefijo /api definido en el controlador

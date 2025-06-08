@@ -43,11 +43,6 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     const user = authService.getAuthState();
     setUser(user);
     setIsAuthenticated(!!user);
-    console.log("AuthContext: Estado sincronizado:", {
-      isAuthenticated: !!user,
-      hasUser: !!user,
-      userEmail: user?.email,
-    });
   }, []);
 
   // Verificación simplificada
@@ -56,10 +51,8 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       if (!silent) setIsLoading(true);
 
       try {
-        console.log("AuthContext: Verificando sesión...");
         const isValid = await authService.verifySession(silent);
         syncAuthState();
-        console.log("AuthContext: Verificación completada:", isValid);
         return isValid;
       } catch (error) {
         console.error("AuthContext: Error en verificación:", error);
@@ -68,7 +61,6 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       } finally {
         if (!silent) {
           setIsLoading(false);
-          console.log("AuthContext: Loading establecido a false");
         }
       }
     },
@@ -81,8 +73,6 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     hasInitialized.current = true;
 
     const initialize = async () => {
-      console.log("AuthContext: === INICIANDO INICIALIZACIÓN ===");
-
       try {
         // 1. Sincronizar estado local inmediatamente
         syncAuthState();
@@ -90,10 +80,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         // 2. Verificar en servidor con timeout
         const initPromise = checkAuth(true);
         const timeoutPromise = new Promise<boolean>((resolve) => {
-          setTimeout(() => {
-            console.log("AuthContext: Timeout de inicialización alcanzado");
-            resolve(false);
-          }, 5000); // 5 segundos máximo
+          setTimeout(() => resolve(false), 5000); // 5 segundos máximo
         });
 
         await Promise.race([initPromise, timeoutPromise]);
@@ -101,7 +88,6 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         console.error("AuthContext: Error en inicialización:", error);
       } finally {
         setIsLoading(false);
-        console.log("AuthContext: === INICIALIZACIÓN COMPLETADA ===");
       }
     };
 
@@ -122,10 +108,8 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const login = async (credentials: LoginRequest) => {
     setIsLoading(true);
     try {
-      console.log("AuthContext: Ejecutando login...");
       const loggedInUser = await authService.login(credentials);
       syncAuthState();
-      console.log("AuthContext: Login exitoso para:", loggedInUser.email);
       return loggedInUser;
     } catch (error) {
       console.error("AuthContext: Error en login:", error);
@@ -139,9 +123,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const register = async (userData: RegisterRequest) => {
     setIsLoading(true);
     try {
-      console.log("AuthContext: Ejecutando registro...");
       await authService.register(userData);
-      console.log("AuthContext: Registro exitoso");
     } catch (error) {
       console.error("AuthContext: Error en registro:", error);
       throw error;
@@ -153,10 +135,8 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const logout = async () => {
     setIsLoading(true);
     try {
-      console.log("AuthContext: Ejecutando logout...");
       await authService.logout();
       syncAuthState();
-      console.log("AuthContext: Logout exitoso");
     } catch (error) {
       console.error("AuthContext: Error en logout:", error);
     } finally {
@@ -170,26 +150,14 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   };
 
   const completeOnboarding = async (onboardingData: any) => {
-    console.log("AuthContext: Completando onboarding...");
     const updatedUser = await authService.completeOnboarding(onboardingData);
     syncAuthState();
-    console.log("AuthContext: Onboarding completado");
     return updatedUser;
   };
 
   const refreshSession = useCallback(async (): Promise<boolean> => {
-    console.log("AuthContext: Refrescando sesión...");
     return checkAuth(false);
   }, [checkAuth]);
-
-  // Log del estado actual
-  console.log("AuthContext: Estado actual render:", {
-    isLoading,
-    isAuthenticated,
-    hasUser: !!user,
-    userEmail: user?.email,
-    hasInitialized: hasInitialized.current,
-  });
 
   const value: AuthContextType = {
     user,

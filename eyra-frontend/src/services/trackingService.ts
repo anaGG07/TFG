@@ -95,11 +95,9 @@ export const trackingService = {
   // Obtener invitaciones activas
   async getInvitations(): Promise<Invitation[]> {
     try {
-      console.log("Llamando a:", API_ROUTES.TRACKING.INVITATIONS);
       const response = await apiFetch(API_ROUTES.TRACKING.INVITATIONS, {
         method: "GET",
       }) as { codes: Invitation[] };
-      console.log("Respuesta completa de invitaciones:", response);
       return response.codes || [];
     } catch (error) {
       console.error("Error obteniendo invitations:", error);
@@ -110,15 +108,11 @@ export const trackingService = {
   // Crear nueva invitación
   async createInvitation(data: InvitationCreateRequest): Promise<Invitation> {
     try {
-      console.log("Creando invitación:", data);
-      console.log("URL:", API_ROUTES.TRACKING.CREATE_INVITATION);
-
       const response = await apiFetch(API_ROUTES.TRACKING.CREATE_INVITATION, {
         method: "POST",
         body: data,
       }) as Invitation;
 
-      console.log("Respuesta exitosa:", response);
       return response;
     } catch (error) {
       console.error("Error creando invitación:", error);
@@ -132,9 +126,6 @@ export const trackingService = {
     emails: { inviterNotified: boolean; invitedNotified: boolean };
   }> {
     try {
-      console.log("Creando invitación con envío de emails:", data);
-      console.log("URL:", API_ROUTES.TRACKING.CREATE_INVITATION_AND_SEND);
-
       const response = await apiFetch(API_ROUTES.TRACKING.CREATE_INVITATION_AND_SEND, {
         method: "POST",
         body: data,
@@ -143,8 +134,6 @@ export const trackingService = {
         invitation: any;
         emails: { inviterNotified: boolean; invitedNotified: boolean };
       };
-
-      console.log("Invitación creada y emails enviados:", response);
       
       // Mapear la respuesta al formato esperado
       const invitation: Invitation = {
@@ -176,11 +165,9 @@ export const trackingService = {
   // Canjear código de invitación
   async redeemInvitationCode(code: string): Promise<any> {
     try {
-      console.log("Canjeando código:", code);
       const response = await apiFetch(API_ROUTES.TRACKING.REDEEM_CODE(code), {
         method: "POST",
       });
-      console.log("Código canjeado exitosamente:", response);
       return response;
     } catch (error) {
       console.error("Error canjeando código:", error);

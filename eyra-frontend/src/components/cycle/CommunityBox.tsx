@@ -75,8 +75,8 @@ const CommunityBox: React.FC<{ expanded: boolean }> = ({ expanded }) => {
     followingCount: following.length,
     community: community.map(user => ({
       id: user.id,
-      name: user.ownerName || user.name,
-      username: user.ownerUsername || user.username
+      name: user.ownerName,
+      username: user.ownerUsername
     })),
     selectedId
   });

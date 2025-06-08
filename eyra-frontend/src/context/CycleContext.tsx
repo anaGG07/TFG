@@ -83,11 +83,6 @@ export const CycleProvider: React.FC<{ children: ReactNode }> = ({
     async (startDate: string, endDate: string) => {
       setIsLoading(true);
       try {
-        console.log(
-          "CycleContext: Cargando datos del calendario desde API real",
-          { startDate, endDate }
-        );
-
         // ACTIVADO: Usar API real con tipos correctos
         const response = await apiFetch<CalendarApiResponse>(
           API_ROUTES.CYCLES.CALENDAR + `?start=${startDate}&end=${endDate}`
@@ -125,11 +120,6 @@ export const CycleProvider: React.FC<{ children: ReactNode }> = ({
           }
         });
 
-        console.log("CycleContext: Datos cargados exitosamente", {
-          cycles: userCycles.length,
-          days: calendarData.length,
-        });
-
         setCalendarDays(calendarData);
         setIsLoading(false);
       } catch (error) {
@@ -139,7 +129,6 @@ export const CycleProvider: React.FC<{ children: ReactNode }> = ({
         );
 
         // Fallback a datos simulados solo en caso de error
-        console.log("CycleContext: Usando datos simulados como fallback");
         const simulatedDays = generateSimulatedCalendarDays(startDate, endDate);
         setCalendarDays(simulatedDays);
         setIsLoading(false);
@@ -175,8 +164,6 @@ export const CycleProvider: React.FC<{ children: ReactNode }> = ({
     async (data: CycleDayInput) => {
       setIsLoading(true);
       try {
-        console.log("CycleContext: Guardando día de ciclo en API real", data);
-
         // SISTEMA DE RETRY CON MÚLTIPLES ENDPOINTS
         let response;
         let saveSuccessful = false;
@@ -189,25 +176,18 @@ export const CycleProvider: React.FC<{ children: ReactNode }> = ({
 
         for (const endpoint of endpoints) {
           try {
-            console.log(`Intentando ${endpoint.name}...`);
             response = await apiFetch<any>(endpoint.url, {
               method: endpoint.method,
               body: data,
             });
-            console.log(`✅ ${endpoint.name} exitoso:`, response);
             saveSuccessful = true;
             break;
           } catch (error: any) {
-            console.log(`❌ ${endpoint.name} falló:`, error.message);
             if (endpoints.indexOf(endpoint) === endpoints.length - 1) {
               // Último intento falló
               throw error;
             }
           }
-        }
-
-        if (saveSuccessful) {
-          console.log("CycleContext: Día de ciclo guardado exitosamente en backend");
         }
 
         // Recargar datos del calendario después del guardado
@@ -232,7 +212,6 @@ export const CycleProvider: React.FC<{ children: ReactNode }> = ({
         );
 
         // Fallback: actualizar estado local si falla la API
-        console.log("CycleContext: Actualizando estado local como fallback");
         setCalendarDays((prev) => {
           const existingDayIndex = prev.findIndex(
             (day) => day.date === data.date
@@ -277,15 +256,11 @@ export const CycleProvider: React.FC<{ children: ReactNode }> = ({
     async (data: NewCycleInput) => {
       setIsLoading(true);
       try {
-        console.log("CycleContext: Iniciando nuevo ciclo en API real", data);
-
         // ACTIVADO: Usar API real con tipos correctos
         await apiFetch<void>(API_ROUTES.CYCLES.START_CYCLE, {
           method: "POST",
           body: data,
         });
-
-        console.log("CycleContext: Nuevo ciclo iniciado exitosamente");
 
         // Recargar datos después de iniciar ciclo
         const today = new Date();
@@ -309,10 +284,6 @@ export const CycleProvider: React.FC<{ children: ReactNode }> = ({
         );
 
         // Fallback: simulación para desarrollo
-        console.log(
-          "CycleContext: Usando simulación como fallback para nuevo ciclo"
-        );
-
         const newDay: CycleDay = {
           id: String(Date.now()),
           date: data.startDate,
@@ -347,15 +318,11 @@ export const CycleProvider: React.FC<{ children: ReactNode }> = ({
   const getCurrentCycle = useCallback(async () => {
     setIsLoading(true);
     try {
-      console.log("CycleContext: Obteniendo ciclo actual desde API real");
-
       // ACTIVADO: Usar API real con tipos correctos
       const response = await apiFetch<CurrentCycleResponse>(
         API_ROUTES.CYCLES.CURRENT
       );
       setCurrentCycle(response);
-
-      console.log("CycleContext: Ciclo actual obtenido exitosamente", response);
       setIsLoading(false);
     } catch (error) {
       console.error(
@@ -364,9 +331,6 @@ export const CycleProvider: React.FC<{ children: ReactNode }> = ({
       );
 
       // Fallback: simulación para desarrollo
-      console.log(
-        "CycleContext: Usando simulación como fallback para ciclo actual"
-      );
       const simulatedCurrentCycle: CurrentCycleResponse = {
         cycleId: "simulated-cycle-" + Date.now(),
         phases: {},
@@ -388,17 +352,11 @@ export const CycleProvider: React.FC<{ children: ReactNode }> = ({
   const getRecommendations = useCallback(async (): Promise<any[]> => {
     setIsLoading(true);
     try {
-      console.log("CycleContext: Obteniendo recomendaciones desde API real");
-
       // ACTIVADO: Usar API real con tipos correctos
       const response = await apiFetch<RecommendationResponse | any[]>(
         API_ROUTES.CYCLES.RECOMMENDATIONS
       );
 
-      console.log(
-        "CycleContext: Recomendaciones obtenidas exitosamente",
-        response
-      );
       setIsLoading(false);
 
       // Si la API devuelve un objeto con success y recommendations
@@ -425,9 +383,6 @@ export const CycleProvider: React.FC<{ children: ReactNode }> = ({
       );
 
       // Fallback: simulación para desarrollo
-      console.log(
-        "CycleContext: Usando simulación como fallback para recomendaciones"
-      );
       const simulatedRecommendations = [
         {
           id: 1,
@@ -466,6 +421,38 @@ export const CycleProvider: React.FC<{ children: ReactNode }> = ({
   ): CycleDay[] => {
     console.log("CycleContext: Generando datos simulados para fallback");
 
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+    const days: CycleDay[] = [];
+
+    let currentDate = new Date(start);
+    let cycleDay = 1;
+
+    while (currentDate <= end) {
+      let phase: CyclePhase;
+      let flowIntensity: number | undefined;
+
+      if (cycleDay <= 5) {
+        phase = CyclePhase.MENSTRUAL;
+        flowIntensity = Math.max(1, 6 - cycleDay);
+      } else if (cycleDay <= 13) {
+        phase = CyclePhase.FOLICULAR;
+        flowIntensity = undefined;
+      } else if (cycleDay <= 15) {
+        phase = CyclePhase.OVULACION;
+        flowIntensity = undefined;
+      } else {
+        phase = CyclePhase.LUTEA;
+        flowIntensity = undefined;
+      }
+
+      if (Math.random() > 0.3) {
+        const dateString = currentDate.toISOString().split("T")[0];
+
+  const generateSimulatedCalendarDays = (
+    startDate: string,
+    endDate: string
+  ): CycleDay[] => {
     const start = new Date(startDate);
     const end = new Date(endDate);
     const days: CycleDay[] = [];

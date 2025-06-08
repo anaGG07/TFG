@@ -16,11 +16,8 @@ interface ApiFetchOptions {
  */
 export const authEvents = {
   onUnauthorized: () => {
-    console.log('httpClient: Evento onUnauthorized, redireccionando a login');
-    
     // Comprobar si ya está en login para evitar bucles
     if (window.location.pathname === '/login') {
-      console.log('httpClient: Ya estamos en login, evitando bucle');
       return;
     }
     
@@ -60,43 +57,13 @@ export async function apiFetch<T>(path: string, options: FetchOptions = {}, sile
   }
 
   try {
-    console.log(`httpClient: Iniciando petición a ${url}`, {
-      method: fetchOptionsInit.method || 'GET',
-      headers: fetchOptionsInit.headers,
-      credentials: fetchOptionsInit.credentials
-    });
-
     const response = await fetch(url, fetchOptionsInit);
-
-    console.log(`httpClient: Respuesta de ${url}`, {
-      status: response.status,
-      ok: response.ok,
-      headers: Object.fromEntries(response.headers.entries())
-    });
 
     if (!response.ok) {
       if (response.status === 401) {
-        if (!silent) {
-          console.error(`Error 401 en petición a ${url}`, {
-            headers: Object.fromEntries(response.headers.entries()),
-            cookies: document.cookie
-          });
-        }
-        
-        // Intentar obtener más información del error
-        try {
-          const errorData = await response.json();
-          console.error('Detalles del error 401:', errorData);
-        } catch (e) {
-          console.error('No se pudo obtener detalles del error 401');
-        }
-        
         // Si la ruta es /api/profile, no redirigir al login inmediatamente
         if (!path.includes('/api/profile')) {
-          console.log('httpClient: Redirigiendo a login por 401 en ruta:', path);
           authEvents.onUnauthorized();
-        } else {
-          console.log('httpClient: Ignorando 401 en verificación de perfil');
         }
       }
       throw new Error(`Error en la petición: ${response.status} ${response.statusText}`);
@@ -104,7 +71,7 @@ export async function apiFetch<T>(path: string, options: FetchOptions = {}, sile
 
     return await response.json();
   } catch (error) {
-    console.error("Error en petición API:", error);
+    if (!silent) console.error("Error en petición API:", error);
     throw error;
   }
 }
@@ -119,7 +86,6 @@ export async function apiFetchParallel<T>(requests: ApiFetchOptions[]): Promise<
     );
     return await Promise.all(promises);
   } catch (error) {
-    console.error("Error en peticiones paralelas:", error);
     throw error;
   }
 }

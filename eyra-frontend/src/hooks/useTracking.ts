@@ -20,8 +20,6 @@ export const useTracking = () => {
       setLoading(true);
       setError(null);
 
-      console.log("Cargando datos de tracking...");
-
       const [
         companionsData,
         followingData,
@@ -45,13 +43,6 @@ export const useTracking = () => {
           return 0;
         }),
       ]);
-
-      console.log("Datos cargados:", {
-        companions: companionsData.length,
-        following: followingData.length,
-        invitations: invitationsData.length,
-        notifications: notificationCount,
-      });
 
       setCompanions(companionsData);
       setFollowing(followingData);
@@ -115,7 +106,6 @@ export const useTracking = () => {
     try {
       setError(null);
       const result = await trackingService.redeemInvitationCode(code);
-      console.log("Código canjeado exitosamente:", result);
       // Recargar datos para mostrar la nueva conexión
       await loadTrackingData();
       return result;
