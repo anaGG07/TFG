@@ -240,7 +240,7 @@ const ProfilePage: React.FC = () => {
         style={{ minHeight: "unset" }}
       >
         {/* Línea de separación neumórfica - solo desktop */}
-        <div className="hidden lg:block absolute right-0 h-full w-[2.5rem] flex items-center justify-center z-10">
+        <div className="hidden lg:block absolute top-0 right-[-32px] h-full w-[2.5rem] flex items-center justify-center z-10">
           <div
             style={{
               width: "2px",
