@@ -36,6 +36,36 @@ class CycleCalculatorService
     ) {}
 
     /**
+     * Helper para crear instancias DateTime seguras
+     */
+    private function createSafeDateTime(?\DateTimeInterface $date): \DateTime
+    {
+        if ($date === null) {
+            return new \DateTime();
+        }
+
+        if ($date instanceof \DateTime) {
+            return clone $date;
+        }
+
+        if ($date instanceof \DateTimeImmutable) {
+            return \DateTime::createFromImmutable($date);
+        }
+
+        // Si es otro tipo de DateTimeInterface
+        return new \DateTime($date->format('Y-m-d H:i:s'));
+    }
+
+    /**
+     * Helper para modificar fechas de forma segura
+     */
+    private function modifyDateSafely(?\DateTimeInterface $date, string $modifier): \DateTime
+    {
+        $safeDate = $this->createSafeDateTime($date);
+        return $safeDate->modify($modifier);
+    }
+
+    /**
      * Predecir el próximo ciclo basado en datos históricos
      */
     public function predictNextCycle(User $user): array
@@ -119,14 +149,15 @@ class CycleCalculatorService
                 break;
         }
 
-        // Calcular fechas esperadas
-        $nextStartDate = (clone $lastCycle->getStartDate())->modify("+{$predictedLength} days");
-        $nextEndDate = (clone $nextStartDate)->modify("+" . ($predictedDuration - 1) . " days");
+        // ✅ CORRECCIÓN: Calcular fechas esperadas de forma segura
+        $nextStartDate = $this->modifyDateSafely($lastCycle->getStartDate(), "+{$predictedLength} days");
+        $nextEndDate = $this->modifyDateSafely($nextStartDate, "+" . ($predictedDuration - 1) . " days");
 
         // Generar array de días predichos de menstruación
         $predictedPeriodDays = [];
         for ($i = 0; $i < $predictedDuration; $i++) {
-            $predictedPeriodDays[] = (clone $nextStartDate)->modify("+{$i} days")->format('Y-m-d');
+            $dayDate = $this->modifyDateSafely($nextStartDate, "+{$i} days");
+            $predictedPeriodDays[] = $dayDate->format('Y-m-d');
         }
 
         // Ajustar confianza basado en regularidad y cantidad de datos
@@ -172,11 +203,11 @@ class CycleCalculatorService
         if (!empty($existingCycles)) {
             foreach ($existingCycles as $cycle) {
                 if ($cycle->getEndDate()) {
-                    $lastRealDate = $cycle->getEndDate();
+                    $lastRealDate = $this->createSafeDateTime($cycle->getEndDate());
                     break;
                 } elseif ($cycle->getStartDate()) {
                     $estimatedDuration = $cycle->getAverageDuration() ?? 5;
-                    $lastRealDate = (clone $cycle->getStartDate())->modify("+" . ($estimatedDuration - 1) . " days");
+                    $lastRealDate = $this->modifyDateSafely($cycle->getStartDate(), "+" . ($estimatedDuration - 1) . " days");
                     break;
                 }
             }
@@ -186,7 +217,7 @@ class CycleCalculatorService
         if (!$lastRealDate) {
             $onboarding = $this->onboardingRepository->findOneBy(['user' => $user]);
             if ($onboarding && $onboarding->getLastPeriodDate()) {
-                $lastRealDate = $onboarding->getLastPeriodDate();
+                $lastRealDate = $this->createSafeDateTime($onboarding->getLastPeriodDate());
             } else {
                 return []; // No hay datos suficientes
             }
@@ -220,18 +251,19 @@ class CycleCalculatorService
             $confidence = $prediction['confidence'];
         }
 
-        // 5. Generar predicciones comenzando DESPUÉS de la última fecha real
+        // 5. ✅ CORRECCIÓN: Generar predicciones comenzando DESPUÉS de la última fecha real
         $predictions = [];
-        $nextCycleStart = (clone $lastRealDate)->modify('+1 day');
+        $nextCycleStart = $this->modifyDateSafely($lastRealDate, '+1 day');
 
         // Ajustar al próximo inicio de ciclo esperado basado en el último ciclo real
         if (!empty($existingCycles)) {
             $lastCycle = $existingCycles[0];
-            $daysSinceLastStart = $lastRealDate->diff($lastCycle->getStartDate())->days;
+            $lastCycleStartDate = $this->createSafeDateTime($lastCycle->getStartDate());
+            $daysSinceLastStart = $lastRealDate->diff($lastCycleStartDate)->days;
             $daysUntilNext = $cycleLength - $daysSinceLastStart;
 
             if ($daysUntilNext > 0) {
-                $nextCycleStart = (clone $lastRealDate)->modify("+{$daysUntilNext} days");
+                $nextCycleStart = $this->modifyDateSafely($lastRealDate, "+{$daysUntilNext} days");
             }
         }
 
@@ -245,9 +277,10 @@ class CycleCalculatorService
             // Verificar que no haya solapamiento con ciclos existentes
             $hasOverlap = false;
             foreach ($existingCycles as $existingCycle) {
-                $existingStart = $existingCycle->getStartDate();
-                $existingEnd = $existingCycle->getEndDate() ??
-                    (clone $existingStart)->modify('+' . (($existingCycle->getAverageDuration() ?? 5) - 1) . ' days');
+                $existingStart = $this->createSafeDateTime($existingCycle->getStartDate());
+                $existingEnd = $existingCycle->getEndDate()
+                    ? $this->createSafeDateTime($existingCycle->getEndDate())
+                    : $this->modifyDateSafely($existingStart, '+' . (($existingCycle->getAverageDuration() ?? 5) - 1) . ' days');
 
                 if ($nextCycleStart >= $existingStart && $nextCycleStart <= $existingEnd) {
                     $hasOverlap = true;
@@ -257,7 +290,7 @@ class CycleCalculatorService
 
             if ($hasOverlap) {
                 // Saltar al siguiente ciclo posible
-                $nextCycleStart = (clone $nextCycleStart)->modify("+{$cycleLength} days");
+                $nextCycleStart = $this->modifyDateSafely($nextCycleStart, "+{$cycleLength} days");
                 continue;
             }
 
@@ -269,15 +302,15 @@ class CycleCalculatorService
             $ovulationDuration = 2;
             $lutealDuration = max(1, $cycleLength - $menstrualDuration - $follicularDuration - $ovulationDuration);
 
-            // Fechas de cada fase
+            // ✅ CORRECCIÓN: Fechas de cada fase calculadas de forma segura
             $menstrualStart = clone $nextCycleStart;
-            $menstrualEnd = (clone $menstrualStart)->modify("+" . ($menstrualDuration - 1) . " days");
-            $follicularStart = (clone $menstrualEnd)->modify("+1 day");
-            $follicularEnd = (clone $follicularStart)->modify("+" . ($follicularDuration - 1) . " days");
-            $ovulationStart = (clone $follicularEnd)->modify("+1 day");
-            $ovulationEnd = (clone $ovulationStart)->modify("+" . ($ovulationDuration - 1) . " days");
-            $lutealStart = (clone $ovulationEnd)->modify("+1 day");
-            $nextCycleEnd = (clone $nextCycleStart)->modify("+" . ($cycleLength - 1) . " days");
+            $menstrualEnd = $this->modifyDateSafely($menstrualStart, "+" . ($menstrualDuration - 1) . " days");
+            $follicularStart = $this->modifyDateSafely($menstrualEnd, "+1 day");
+            $follicularEnd = $this->modifyDateSafely($follicularStart, "+" . ($follicularDuration - 1) . " days");
+            $ovulationStart = $this->modifyDateSafely($follicularEnd, "+1 day");
+            $ovulationEnd = $this->modifyDateSafely($ovulationStart, "+" . ($ovulationDuration - 1) . " days");
+            $lutealStart = $this->modifyDateSafely($ovulationEnd, "+1 day");
+            $nextCycleEnd = $this->modifyDateSafely($nextCycleStart, "+" . ($cycleLength - 1) . " days");
 
             // Solo generar predicciones que estén completamente en el futuro
             $today = new \DateTime();
@@ -340,7 +373,7 @@ class CycleCalculatorService
             }
 
             // Preparar para el siguiente ciclo - CORRECCIÓN: usar +$cycleLength días
-            $nextCycleStart = (clone $nextCycleStart)->modify("+{$cycleLength} days");
+            $nextCycleStart = $this->modifyDateSafely($nextCycleStart, "+{$cycleLength} days");
         }
 
         $this->logger->info('CycleCalculator: Predicciones generadas', [
@@ -357,10 +390,13 @@ class CycleCalculatorService
         // Verificar si existe un ciclo activo
         $activeCycle = $this->cycleRepository->findCurrentForUser($user->getId());
         if ($activeCycle) {
-            if ($startDate < $activeCycle->getStartDate()) {
+            $activeCycleStartDate = $this->createSafeDateTime($activeCycle->getStartDate());
+            $safeStartDate = $this->createSafeDateTime($startDate);
+
+            if ($safeStartDate < $activeCycleStartDate) {
                 throw new \InvalidArgumentException('La fecha de inicio del nuevo ciclo no puede ser anterior a la fecha de inicio del ciclo activo');
             }
-            $activeCycle->setEndDate($startDate);
+            $activeCycle->setEndDate($safeStartDate);
             $this->entityManager->flush();
         }
 
@@ -419,16 +455,17 @@ class CycleCalculatorService
             'totalCycleLength' => $avgLength
         ]);
 
-        // Calcular fechas de cada fase
-        $menstrualStart = new \DateTime($startDate->format('Y-m-d'));
-        $menstrualEnd = (clone $menstrualStart)->modify("+" . ($menstrualDuration - 1) . " days");
+        // ✅ CORRECCIÓN: Calcular fechas de cada fase de forma segura
+        $safeStartDate = $this->createSafeDateTime($startDate);
+        $menstrualStart = clone $safeStartDate;
+        $menstrualEnd = $this->modifyDateSafely($menstrualStart, "+" . ($menstrualDuration - 1) . " days");
 
-        $follicularStart = (clone $menstrualEnd)->modify("+1 day");
-        $follicularEnd = (clone $follicularStart)->modify("+" . ($follicularDuration - 1) . " days");
-        $ovulationStart = (clone $follicularEnd)->modify("+1 day");
-        $ovulationEnd = (clone $ovulationStart)->modify("+" . ($ovulationDuration - 1) . " days");
-        $lutealStart = (clone $ovulationEnd)->modify("+1 day");
-        $nextCycleStart = (clone $startDate)->modify("+{$avgLength} days");
+        $follicularStart = $this->modifyDateSafely($menstrualEnd, "+1 day");
+        $follicularEnd = $this->modifyDateSafely($follicularStart, "+" . ($follicularDuration - 1) . " days");
+        $ovulationStart = $this->modifyDateSafely($follicularEnd, "+1 day");
+        $ovulationEnd = $this->modifyDateSafely($ovulationStart, "+" . ($ovulationDuration - 1) . " days");
+        $lutealStart = $this->modifyDateSafely($ovulationEnd, "+1 day");
+        $nextCycleStart = $this->modifyDateSafely($safeStartDate, "+{$avgLength} days");
 
         // Crear las 4 fases
         $menstrualPhase = new MenstrualCycle();

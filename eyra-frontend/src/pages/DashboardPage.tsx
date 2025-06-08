@@ -8,6 +8,7 @@ import { CycleVisual } from "../components/cycle";
 import SymptomsView from "../components/cycle/SymptomsView";
 import RitualsView from "../components/cycle/RitualsView";
 import RemindersExpanded from "../components/cycle/RemindersExpanded";
+import IntrospectionBox from "../components/cycle/IntrospectionBox";
 import { notificationService } from "../services/notificationService";
 
 const DashboardPage: React.FC = () => {
@@ -95,83 +96,9 @@ const DashboardPage: React.FC = () => {
       },
       {
         id: "wellness",
-        title: "Bienestar",
+        title: "Introspección",
         isExpanded: expandedId === "wellness",
-        component: (
-          <div className="h-full flex flex-col">
-            <div className="flex items-center justify-center mb-6">
-              <div
-                className={`rounded-full flex items-center justify-center ${
-                  isMobile ? 'w-12 h-12' : 'w-16 h-16'
-                }`}
-                style={{
-                  background: "bg-secondary",
-                  border: "2px solid rgba(198, 35, 40, 0.3)",
-                  boxShadow: `
-                  inset 4px 4px 8px rgba(91, 1, 8, 0.1),
-                  inset -4px -4px 8px rgba(255, 255, 255, 0.9)
-                `,
-                }}
-              >
-                <span className={isMobile ? 'text-xl' : 'text-2xl'}>💆‍♀️</span>
-              </div>
-            </div>
-            <div className="flex-1 space-y-4">
-              <p className={`text-primary-dark text-center leading-relaxed font-medium ${
-                isMobile ? 'text-xs' : 'text-sm'
-              }`}>
-                Consejos y recomendaciones
-              </p>
-              <div
-                className="rounded-xl p-4 border"
-                style={{
-                  background: "bg-gradient-to-br from-primary to-primary-dark",
-                  border: "1px solid rgba(198, 35, 40, 0.15)",
-                  boxShadow: `
-                  inset 2px 2px 4px rgba(198, 35, 40, 0.03),
-                  inset -2px -2px 4px rgba(255, 255, 255, 0.8)
-                `,
-                }}
-              >
-                <div className="space-y-2">
-                  <div className="flex items-center space-x-3">
-                    <div
-                      className="w-3 h-3 rounded-full"
-                      style={{
-                        background: "bg-secondary",
-                      }}
-                    ></div>
-                    <p className="text-xs text-primary-dark font-semibold">
-                      {currentCycle && currentCycle.currentPhase
-                        ? "Contenido personalizado"
-                        : "Explora contenido personalizado"}
-                    </p>
-                  </div>
-                  {statistics && (
-                    <div className="space-y-1">
-                      <div className="flex items-center justify-between">
-                        <span className="text-xs text-primary-dark">
-                          Ciclo promedio:
-                        </span>
-                        <span className="text-xs text-primary font-bold">
-                          {statistics.averageCycleLength} días
-                        </span>
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <span className="text-xs text-primary-dark">
-                          Período promedio:
-                        </span>
-                        <span className="text-xs text-primary font-bold">
-                          {statistics.averagePeriodLength} días
-                        </span>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </div>
-            </div>
-          </div>
-        ),
+        component: <IntrospectionBox />,
       },
       {
         id: "community",
