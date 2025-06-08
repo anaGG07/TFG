@@ -271,8 +271,6 @@ const ProfilePage: React.FC = () => {
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              left: '50%',
-              top: '50%',
               transform: 'translate(-50%, -50%)',
             }}
           >
