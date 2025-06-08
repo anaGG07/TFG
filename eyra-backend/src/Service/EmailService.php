@@ -50,6 +50,12 @@ class EmailService
     public function sendWelcomeEmail(string $userEmail, string $userName): bool
     {
         try {
+            $this->logger->info('EmailService: Iniciando envío de email de bienvenida', [
+                'recipient' => $userEmail,
+                'userName' => $userName,
+                'mailer_dsn' => $_ENV['MAILER_DSN'] ?? 'not_configured'
+            ]);
+
             $email = (new TemplatedEmail())
                 ->from('info@eyraclub.es')
                 ->to($userEmail)
@@ -60,17 +66,28 @@ class EmailService
                     'dashboardUrl' => $this->generateDashboardUrl()
                 ]);
 
+            $this->logger->info('EmailService: Email preparado, enviando...', [
+                'from' => 'info@eyraclub.es',
+                'to' => $userEmail,
+                'subject' => '¡Bienvenida a EYRA!',
+                'template' => 'emails/welcome.html.twig',
+                'dashboardUrl' => $this->generateDashboardUrl()
+            ]);
+
             $this->mailer->send($email);
             
-            $this->logger->info('Email de bienvenida enviado', [
+            $this->logger->info('EmailService: Email de bienvenida enviado exitosamente', [
                 'recipient' => $userEmail
             ]);
             
             return true;
         } catch (\Exception $e) {
-            $this->logger->error('Error al enviar email de bienvenida', [
+            $this->logger->error('EmailService: Error crítico al enviar email de bienvenida', [
                 'recipient' => $userEmail,
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine()
             ]);
             
             return false;
@@ -118,6 +135,13 @@ class EmailService
         \DateTime $expirationDate
     ): bool {
         try {
+            $this->logger->info('EmailService: Iniciando envío de email de confirmación de invitación', [
+                'inviter' => $inviterEmail,
+                'invited' => $invitedEmail,
+                'code' => substr($invitationCode, 0, 4) . '...',
+                'guestType' => $guestType
+            ]);
+
             $email = (new TemplatedEmail())
                 ->from('info@eyraclub.es')
                 ->to($inviterEmail)
@@ -133,9 +157,14 @@ class EmailService
                     'dashboardUrl' => $this->generateDashboardUrl()
                 ]);
 
+            $this->logger->info('EmailService: Enviando email de confirmación...', [
+                'template' => 'emails/invitation_sent.html.twig',
+                'context_keys' => ['inviterName', 'invitedEmail', 'invitationCode', 'guestTypeLabel', 'accessPermissions', 'expirationDate', 'dashboardUrl']
+            ]);
+
             $this->mailer->send($email);
             
-            $this->logger->info('Email de confirmación de invitación enviado', [
+            $this->logger->info('EmailService: Email de confirmación de invitación enviado exitosamente', [
                 'inviter' => $inviterEmail,
                 'invited' => $invitedEmail,
                 'code' => substr($invitationCode, 0, 4) . '...'
@@ -143,10 +172,13 @@ class EmailService
             
             return true;
         } catch (\Exception $e) {
-            $this->logger->error('Error al enviar email de confirmación de invitación', [
+            $this->logger->error('EmailService: Error crítico al enviar email de confirmación de invitación', [
                 'inviter' => $inviterEmail,
                 'invited' => $invitedEmail,
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine()
             ]);
             
             return false;
@@ -162,6 +194,13 @@ class EmailService
         \DateTime $expirationDate
     ): bool {
         try {
+            $this->logger->info('EmailService: Iniciando envío de email de invitación recibida', [
+                'recipient' => $invitedEmail,
+                'inviter' => $inviterName,
+                'code' => substr($invitationCode, 0, 4) . '...',
+                'guestType' => $guestType
+            ]);
+
             $email = (new TemplatedEmail())
                 ->from('info@eyraclub.es')
                 ->to($invitedEmail)
@@ -176,9 +215,14 @@ class EmailService
                     'invitationUrl' => $this->generateInvitationUrl($invitationCode)
                 ]);
 
+            $this->logger->info('EmailService: Enviando email de invitación...', [
+                'template' => 'emails/invitation_received.html.twig',
+                'invitationUrl' => $this->generateInvitationUrl($invitationCode)
+            ]);
+
             $this->mailer->send($email);
             
-            $this->logger->info('Email de invitación enviado', [
+            $this->logger->info('EmailService: Email de invitación enviado exitosamente', [
                 'recipient' => $invitedEmail,
                 'inviter' => $inviterName,
                 'code' => substr($invitationCode, 0, 4) . '...'
@@ -186,10 +230,13 @@ class EmailService
             
             return true;
         } catch (\Exception $e) {
-            $this->logger->error('Error al enviar email de invitación', [
+            $this->logger->error('EmailService: Error crítico al enviar email de invitación', [
                 'recipient' => $invitedEmail,
                 'inviter' => $inviterName,
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine()
             ]);
             
             return false;

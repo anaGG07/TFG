@@ -198,14 +198,15 @@ class AuthController extends AbstractController
             $this->entityManager->flush();
 
             // ! 29/05/2025 - Enviar email de bienvenida al registrarse
-            $this->emailService->sendWelcomeEmail(
+            $emailSent = $this->emailService->sendWelcomeEmail(
                 $user->getEmail(),
                 $user->getName()
             );
 
             $this->logger->info('Usuario registrado exitosamente', [
                 'userId' => $user->getId(),
-                'email' => $user->getEmail()
+                'email' => $user->getEmail(),
+                'welcomeEmailSent' => $emailSent
             ]);
 
             return $this->json([

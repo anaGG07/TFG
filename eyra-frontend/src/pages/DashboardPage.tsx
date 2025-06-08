@@ -4,7 +4,7 @@ import { useAuth } from "../context/AuthContext";
 import { useDashboardData } from "../hooks/useDashboardData";
 import { useViewport } from "../hooks/useViewport";
 import DraggableGrid from "../components/DraggableGrid";
-import { CycleStatusCard } from "../components/cycle";
+import { CycleVisualCorrected } from "../components/cycle/CycleVisualCorrected";
 import SymptomsView from "../components/cycle/SymptomsView";
 import RitualsView from "../components/cycle/RitualsView";
 import RemindersView from "../components/cycle/RemindersView";
@@ -50,7 +50,21 @@ const DashboardPage: React.FC = () => {
         id: "cycle",
         title: "Tu Ciclo",
         isExpanded: expandedId === "cycle",
-        component: <CycleStatusCard className="h-full w-full" />,
+        component: (
+          <div
+            className="h-full flex flex-col items-center justify-center"
+            style={{
+              background: cycleMoodColor,
+              borderRadius: 24,
+              transition: "background 0.4s",
+            }}
+          >
+            <CycleVisualCorrected
+              expanded={expandedId === "cycle"}
+              onMoodColorChange={handleCycleMoodChange}
+            />
+          </div>
+        ),
       },
       {
         id: "symptoms",
