@@ -301,9 +301,15 @@ const AdminPage = () => {
     <>
       {isMobile && <style>{scrollbarHideStyles}</style>}
       <div className="w-full h-full min-h-0 flex flex-col overflow-hidden bg-transparent">
-        <div className="max-w-7xl mx-auto pl-8 pr-4 pt-4 pb-2 flex flex-col h-full min-h-0">
+        <div className={`max-w-7xl mx-auto flex flex-col h-full min-h-0 ${
+          isMobile 
+            ? "px-3 pt-3 pb-1" 
+            : isTablet 
+            ? "px-6 pt-3 pb-2" 
+            : "pl-8 pr-4 pt-4 pb-2"
+        }`}>
           {/* Header */}
-          <div className={isMobile ? "mb-2" : "mb-4"}>
+          <div className={isMobile ? "mb-2" : isTablet ? "mb-3" : "mb-4"}>
             <h1 className={`font-bold text-[#7a2323] font-serif ${
               isMobile ? "text-xl mb-1" : isTablet ? "text-2xl mb-1" : "text-4xl mb-2"
             }`}>
@@ -313,29 +319,50 @@ const AdminPage = () => {
               {isMobile ? `Hola, ${user.name?.split(' ')[0] || user.name}` : `Bienvenido/a, ${user.name}. Aquí puedes gestionar el sistema EYRA.`}
             </p>
           </div>
-          {/* Navegación por pestañas */}
-          <div className="flex flex-row gap-3 items-center mb-1">
-            {tabs.map((tab) => (
-              <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
-                className={`rounded-xl px-5 py-2 font-semibold text-base font-serif transition-all duration-200 focus:outline-none neo-shadow-sm
-                  ${
-                    activeTab === tab.id
-                      ? "bg-[#e7e0d5]/30 ring-2 ring-[#C62328] shadow-inner text-[#C62328]"
-                      : "bg-transparent hover:bg-[#f8b4b4]/30 text-[#7a2323]"
-                  }
-                `}
-                aria-label={tab.label}
+          {/* Navegación por pestañas - Desktop vs Móvil/Tablet */}
+          {isMobile || isTablet ? (
+            // Selector dropdown para móvil/tablet
+            <div className="mb-3">
+              <select
+                value={activeTab}
+                onChange={(e) => setActiveTab(e.target.value as typeof activeTab)}
+                className="w-full px-4 py-3 rounded-xl font-semibold text-base font-serif transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-[#C62328] bg-[#e7e0d5]/30 border border-[#C62328]/20 text-[#7a2323]"
+                style={{
+                  background: "linear-gradient(145deg, #e7e0d5, #d4c7bb)",
+                  boxShadow: "inset 2px 2px 4px rgba(91, 1, 8, 0.1), inset -2px -2px 4px rgba(255, 255, 255, 0.3)",
+                }}
               >
-                {tab.label}
-              </button>
-            ))}
-          </div>
+                <option value="overview">📊 Resumen</option>
+                <option value="users">👥 Usuarios</option>
+                <option value="conditions">🏥 Condiciones</option>
+                <option value="content">📝 Contenido</option>
+              </select>
+            </div>
+          ) : (
+            // Pestañas horizontales para desktop
+            <div className="flex flex-row gap-3 items-center mb-1">
+              {tabs.map((tab) => (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id)}
+                  className={`rounded-xl px-5 py-2 font-semibold text-base font-serif transition-all duration-200 focus:outline-none neo-shadow-sm
+                    ${
+                      activeTab === tab.id
+                        ? "bg-[#e7e0d5]/30 ring-2 ring-[#C62328] shadow-inner text-[#C62328]"
+                        : "bg-transparent hover:bg-[#f8b4b4]/30 text-[#7a2323]"
+                    }
+                  `}
+                  aria-label={tab.label}
+                >
+                  {tab.label}
+                </button>
+              ))}
+            </div>
+          )}
           {/* Contenido por pestañas */}
           <div className="w-full flex-1 flex flex-col items-center">
             <div className={`w-full flex-1 flex flex-col justify-start bg-transparent rounded-lg shadow-none p-0 ${
-              isMobile ? "min-h-[200px] px-2" : isTablet ? "min-h-[320px] px-4" : "min-h-[520px] max-w-5xl min-w-[320px] md:min-w-[1100px]"
+              isMobile ? "min-h-[160px] px-0" : isTablet ? "min-h-[260px] px-2" : "min-h-[520px] max-w-5xl min-w-[320px] md:min-w-[1100px]"
             }`}>
               <AnimatePresence mode="wait">
                 {activeTab === "overview" && (
@@ -346,9 +373,9 @@ const AdminPage = () => {
                     exit={{ opacity: 0, y: -30 }}
                     className={`items-start ${
                       isMobile 
-                        ? "flex flex-col gap-3 mt-2 min-h-[200px]"
+                        ? "flex flex-col gap-3 mt-1 min-h-[180px]"
                         : isTablet
-                        ? "grid grid-cols-1 gap-4 mt-4 min-h-[300px]"
+                        ? "grid grid-cols-1 gap-3 mt-2 min-h-[280px]"
                         : "grid grid-cols-1 lg:grid-cols-[1fr_370px] gap-6 md:gap-8 mt-4 md:mt-8 min-h-[320px]"
                     }`}
                     style={{ minWidth: 0 }}
@@ -504,7 +531,7 @@ const AdminPage = () => {
                         {isMobile ? "Act. Reciente" : "Actividad Reciente"}
                       </h3>
                       <div className={`space-y-2 ${
-                        isMobile ? "max-h-48 overflow-y-auto" : ""
+                        isMobile ? "max-h-40 overflow-y-auto" : isTablet ? "max-h-48 overflow-y-auto" : ""
                       }`}>
                         {isLoadingStats ? (
                           <div className={`animate-pulse flex items-center space-x-3 p-3 bg-gray-50 rounded-lg ${
@@ -523,7 +550,7 @@ const AdminPage = () => {
                             </div>
                           </div>
                         ) : (
-                          recentActivity.slice(0, isMobile ? 3 : 5).map((activity) => {
+                          recentActivity.slice(0, isMobile ? 2 : isTablet ? 3 : 5).map((activity) => {
                             const bgColor =
                               activity.color === "green"
                                 ? "bg-[#a7f3d0]/30 border-[#bbf7d0]"
