@@ -283,11 +283,6 @@ const ContentTable: React.FC<ContentTableProps> = ({ onRefresh }) => {
             ? ` de ${allContents.length} total` 
             : ''
           }
-          {totalPages > 1 && (
-            <span className="ml-2 px-2 py-1 bg-[#C62328]/10 text-[#C62328] rounded text-xs font-medium">
-              {totalPages} páginas disponibles
-            </span>
-          )}
         </div>
         <button
           onClick={() => setIsCreateModalOpen(true)}
@@ -381,13 +376,9 @@ const ContentTable: React.FC<ContentTableProps> = ({ onRefresh }) => {
         onSave={handleContentCreated}
       />
 
-      {/* Paginación - Siempre visible si hay páginas */}
+      {/* Paginación - Estilo unificado como en Usuarios */}
       {totalPages > 1 && (
-        <div className="flex justify-center items-center gap-4 mt-6 mb-4 sticky bottom-0 bg-[#e7e0d5] py-2 rounded-lg"
-             style={{
-               boxShadow: '0 -2px 8px rgba(91, 1, 8, 0.1)',
-               zIndex: 10
-             }}>
+        <div className="flex justify-center items-center gap-4 mt-6 mb-4">
           <button
             onClick={() => setPage((p) => Math.max(0, p - 1))}
             disabled={page === 0}
@@ -401,9 +392,31 @@ const ContentTable: React.FC<ContentTableProps> = ({ onRefresh }) => {
             <svg className="w-4 h-4 text-[#C62328]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7"/></svg>
           </button>
           <div className="flex items-center gap-2">
-            <span className="text-sm text-[#C62328] font-medium">
-              Página {page + 1} de {totalPages} ({contents.length} registros)
-            </span>
+            {Array.from({ length: totalPages }, (_, i) => {
+              // Mostrar solo primeras 2, últimas 2 y 2 alrededor de la actual
+              if (i === 0 || i === totalPages - 1 || Math.abs(i - page) <= 1 || (page < 3 && i < 4) || (page > totalPages - 4 && i > totalPages - 5)) {
+                return (
+                  <button
+                    key={i}
+                    onClick={() => setPage(i)}
+                    className={`w-8 h-8 rounded-lg transition-all duration-200 flex items-center justify-center text-sm font-medium ${i === page ? 'text-white' : 'text-[#C62328] hover:text-white'}`}
+                    style={{
+                      background: i === page ? 'linear-gradient(135deg, #C62328, #9d0d0b)' : 'linear-gradient(145deg, #fafaf9, #e7e5e4)',
+                      boxShadow: i === page ? 'inset 2px 2px 4px rgba(91, 1, 8, 0.3), inset -2px -2px 4px rgba(255, 108, 92, 0.2)' : '3px 3px 6px rgba(91, 1, 8, 0.06), -3px -3px 6px rgba(255, 255, 255, 0.4)',
+                    }}
+                    aria-label={`Página ${i + 1}`}
+                  >
+                    {i + 1}
+                  </button>
+                );
+              } else if (
+                (i === page - 2 && page > 2) ||
+                (i === page + 2 && page < totalPages - 3)
+              ) {
+                return <span key={i} className="w-8 h-8 flex items-center justify-center text-[#C62328]">...</span>;
+              }
+              return null;
+            })}
           </div>
           <button
             onClick={() => setPage((p) => Math.min(totalPages - 1, p + 1))}

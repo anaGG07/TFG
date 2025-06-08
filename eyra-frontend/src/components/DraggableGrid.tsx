@@ -328,7 +328,6 @@ const DraggableGrid: React.FC<DraggableGridProps> = ({
               ease: [0.25, 0.46, 0.45, 0.94],
             }}
             className="flex-1 relative cursor-pointer overflow-hidden"
-            onClick={() => handleItemClick(expandedItem.id)}
             style={{
               minHeight: isMobile ? "250px" : isTablet ? "360px" : "400px", // Reducida altura en móvil
               maxHeight: isMobile ? "calc(100vh - 200px)" : undefined, // Altura máxima en móvil
