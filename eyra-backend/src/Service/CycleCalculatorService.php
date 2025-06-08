@@ -256,18 +256,21 @@ class CycleCalculatorService
         $ovulationDuration = 2; // Típicamente 1-2 días
         $lutealDuration = $avgLength - $menstrualDuration - $follicularDuration - $ovulationDuration;
 
-        // Fechas de inicio de cada fase
+        // Calcular fechas de cada fase (CORREGIDO: cálculo inclusivo)
         $menstrualStart = new \DateTime($startDate->format('Y-m-d'));
-        $follicularStart = (new \DateTime($startDate->format('Y-m-d')))->modify("+{$menstrualDuration} days");
-        $ovulationStart = (new \DateTime($follicularStart->format('Y-m-d')))->modify("+{$follicularDuration} days");
-        $lutealStart = (new \DateTime($ovulationStart->format('Y-m-d')))->modify("+{$ovulationDuration} days");
+        $menstrualEnd = (clone $menstrualStart)->modify("+" . ($menstrualDuration - 1) . " days");
+        $follicularStart = (clone $menstrualEnd)->modify("+1 day");
+        $follicularEnd = (clone $follicularStart)->modify("+" . ($follicularDuration - 1) . " days");
+        $ovulationStart = (clone $follicularEnd)->modify("+1 day");
+        $ovulationEnd = (clone $ovulationStart)->modify("+" . ($ovulationDuration - 1) . " days");
+        $lutealStart = (clone $ovulationEnd)->modify("+1 day");
         $nextCycleStart = (new \DateTime($startDate->format('Y-m-d')))->modify("+{$avgLength} days");
 
         // 1. Crear fase menstrual
         $menstrualPhase = new MenstrualCycle();
         $menstrualPhase->setUser($user);
         $menstrualPhase->setStartDate($menstrualStart);
-        $menstrualPhase->setEndDate($follicularStart);
+        $menstrualPhase->setEndDate($menstrualEnd);
         $menstrualPhase->setPhase(CyclePhase::MENSTRUAL);
         $menstrualPhase->setCycleId($cycleId);
         $menstrualPhase->setAverageDuration($menstrualDuration);
@@ -279,7 +282,7 @@ class CycleCalculatorService
         $follicularPhase = new MenstrualCycle();
         $follicularPhase->setUser($user);
         $follicularPhase->setStartDate($follicularStart);
-        $follicularPhase->setEndDate($ovulationStart);
+        $follicularPhase->setEndDate($follicularEnd);
         $follicularPhase->setPhase(CyclePhase::FOLICULAR);
         $follicularPhase->setCycleId($cycleId);
         $follicularPhase->setAverageDuration($follicularDuration);
@@ -291,7 +294,7 @@ class CycleCalculatorService
         $ovulationPhase = new MenstrualCycle();
         $ovulationPhase->setUser($user);
         $ovulationPhase->setStartDate($ovulationStart);
-        $ovulationPhase->setEndDate($lutealStart);
+        $ovulationPhase->setEndDate($ovulationEnd);
         $ovulationPhase->setPhase(CyclePhase::OVULACION);
         $ovulationPhase->setCycleId($cycleId);
         $ovulationPhase->setAverageDuration($ovulationDuration);
@@ -431,11 +434,14 @@ class CycleCalculatorService
             $ovulationDuration = 2;
             $lutealDuration = max(1, $cycleLength - $menstrualDuration - $follicularDuration - $ovulationDuration);
 
-            // Fechas de cada fase
+            // Fechas de cada fase (CORREGIDO: cálculo inclusivo de duración)
             $menstrualStart = clone $nextCycleStart;
-            $follicularStart = (clone $menstrualStart)->modify("+{$menstrualDuration} days");
-            $ovulationStart = (clone $follicularStart)->modify("+{$follicularDuration} days");
-            $lutealStart = (clone $ovulationStart)->modify("+{$ovulationDuration} days");
+            $menstrualEnd = (clone $menstrualStart)->modify("+" . ($menstrualDuration - 1) . " days");
+            $follicularStart = (clone $menstrualEnd)->modify("+1 day");
+            $follicularEnd = (clone $follicularStart)->modify("+" . ($follicularDuration - 1) . " days");
+            $ovulationStart = (clone $follicularEnd)->modify("+1 day");
+            $ovulationEnd = (clone $ovulationStart)->modify("+" . ($ovulationDuration - 1) . " days");
+            $lutealStart = (clone $ovulationEnd)->modify("+1 day");
             $nextCycleEnd = (clone $nextCycleStart)->modify("+{$cycleLength} days");
 
             // Solo generar predicciones que estén completamente en el futuro
@@ -447,7 +453,7 @@ class CycleCalculatorService
                     'cycleId' => $cycleId,
                     'phase' => 'menstrual',
                     'startDate' => $menstrualStart->format('Y-m-d'),
-                    'endDate' => $follicularStart->format('Y-m-d'),
+                    'endDate' => $menstrualEnd->format('Y-m-d'),
                     'isPrediction' => true,
                     'confidence' => $confidence,
                     'averageCycleLength' => $cycleLength,
@@ -461,7 +467,7 @@ class CycleCalculatorService
                     'cycleId' => $cycleId,
                     'phase' => 'folicular',
                     'startDate' => $follicularStart->format('Y-m-d'),
-                    'endDate' => $ovulationStart->format('Y-m-d'),
+                    'endDate' => $follicularEnd->format('Y-m-d'),
                     'isPrediction' => true,
                     'confidence' => $confidence,
                     'averageCycleLength' => $cycleLength,
@@ -475,7 +481,7 @@ class CycleCalculatorService
                     'cycleId' => $cycleId,
                     'phase' => 'ovulacion',
                     'startDate' => $ovulationStart->format('Y-m-d'),
-                    'endDate' => $lutealStart->format('Y-m-d'),
+                    'endDate' => $ovulationEnd->format('Y-m-d'),
                     'isPrediction' => true,
                     'confidence' => $confidence,
                     'averageCycleLength' => $cycleLength,

@@ -115,10 +115,10 @@ const NeomorphicDayCell: React.FC<{
           ${isPredicted ? "text-gray-600 italic" : "text-gray-800"}
           ${
             isMobile 
-              ? isToday ? 'text-base' : 'text-sm'
+              ? isToday ? 'text-lg' : 'text-base'
               : isTablet 
-                ? isToday ? 'text-lg' : 'text-base'
-                : isToday ? 'text-lg' : 'text-base'
+                ? isToday ? 'text-xl' : 'text-lg'
+                : isToday ? 'text-xl' : 'text-lg'
           }
         `}
         animate={isToday ? { scale: [1, 1.1, 1] } : {}}
@@ -156,7 +156,7 @@ const NeomorphicDayCell: React.FC<{
               ease: "easeInOut"
             }}
             className={`${
-              isMobile ? 'scale-[0.85]' : 'scale-[0.9]'
+              isMobile ? 'scale-100' : 'scale-110'
             }`}
           >
             {phaseConfig[dayData.phase].icon(
