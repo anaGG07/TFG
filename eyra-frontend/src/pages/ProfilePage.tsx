@@ -232,7 +232,10 @@ const ProfilePage: React.FC = () => {
   // Renderizado
   return (
     <div
-      className="flex flex-col lg:flex-row w-full min-h-screen"
+      className={
+        `flex flex-col lg:flex-row w-full min-h-screen` +
+        (isMobile ? ' overflow-y-auto' : '')
+      }
       style={{ background: "#e7e0d5" }}
     >
       {/* Columna izquierda: Avatar */}

@@ -68,8 +68,10 @@ const AvatarBuilder: React.FC<AvatarBuilderProps> = ({
     if (onChange) onChange(newConfig);
   };
 
+  const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
+
   return (
-    <div className="w-full flex flex-col gap-6 justify-center max-w-6xl mx-auto">
+    <div className="w-full flex flex-col gap-6 justify-center max-w-6xl mx-auto relative">
       {/* Vista previa del avatar (opcional) */}
       {showPreview && (
         <div className="flex justify-center mb-6">
@@ -83,7 +85,7 @@ const AvatarBuilder: React.FC<AvatarBuilderProps> = ({
             <div className="flex justify-center">
               <AvatarPreview
                 config={config}
-                className="w-48 h-48 shadow-neomorphic rounded-xl"
+                className={isMobile ? "w-[120px] h-[120px]" : "w-48 h-48"}
               />
             </div>
           </div>
@@ -106,7 +108,7 @@ const AvatarBuilder: React.FC<AvatarBuilderProps> = ({
       </div>
 
       {/* Renderizado de la caja de edición según tab */}
-      <div className="flex justify-center">
+      <div className="flex justify-center pb-28 md:pb-0">
         {activeTab === 'rostro' && (
           <div className="bg-[#f5ede6] rounded-2xl shadow-neomorphic p-6 min-w-[240px] max-w-md w-full">
             <div className="mb-4 flex items-center gap-2">
@@ -417,7 +419,14 @@ const AvatarBuilder: React.FC<AvatarBuilderProps> = ({
       </div>
 
       {/* Botones de acción como iconos */}
-      <div className="flex flex-row justify-center gap-4 mt-6 mb-2">
+      <div
+        className={
+          isMobile
+            ? "fixed bottom-0 left-0 w-full flex flex-row justify-center gap-8 py-4 bg-[#f5ede6]/90 shadow-lg z-50"
+            : "flex flex-row justify-center gap-4 mt-6 mb-2"
+        }
+        style={isMobile ? {backdropFilter: 'blur(6px)'} : {}}
+      >
         <button type="button" onClick={onCancel} title="Cancelar" className="hover:bg-[#f5ede6] rounded-full p-2 transition-colors">
           <IconCancel />
         </button>
