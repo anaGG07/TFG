@@ -12,6 +12,7 @@ use App\Enum\ProfileType;
 use App\Enum\HormoneType;
 use App\Repository\OnboardingRepository;
 use App\Service\CycleCalculatorService;
+use App\Service\InvitationCodeService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -32,6 +33,7 @@ class OnboardingController extends AbstractController
     private $tokenStorage;
     private LoggerInterface $logger;
     private CycleCalculatorService $cycleCalculatorService;
+    private InvitationCodeService $invitationCodeService;
     private OnboardingRepository $onboardingRepository;
     private SerializerInterface $serializer;
     // private ContainerInterface $container;
@@ -39,6 +41,7 @@ class OnboardingController extends AbstractController
     public function __construct(
         LoggerInterface $logger,
         CycleCalculatorService $cycleCalculatorService,
+        InvitationCodeService $invitationCodeService,
         OnboardingRepository $onboardingRepository,
         SerializerInterface $serializer,
         // ContainerInterface $container,
@@ -48,6 +51,7 @@ class OnboardingController extends AbstractController
     ) {
         $this->logger = $logger;
         $this->cycleCalculatorService = $cycleCalculatorService;
+        $this->invitationCodeService = $invitationCodeService;
         $this->onboardingRepository = $onboardingRepository;
         $this->serializer = $serializer;
         // $this->container = $container;
@@ -269,6 +273,35 @@ class OnboardingController extends AbstractController
                 }
             }
 
+            // Validar y procesar código de invitación para usuarios de seguimiento
+            if ($data['stageOfLife'] === 'trackingOthers') {
+                if (!isset($data['accessCode']) || empty(trim($data['accessCode']))) {
+                    return $this->json([
+                        'message' => 'El código de invitación es obligatorio para usuarios de seguimiento',
+                        'field' => 'accessCode'
+                    ], 400);
+                }
+
+                // Verificar que el código sea válido antes de proceder
+                $invitationCode = $this->invitationCodeService->verifyCode(trim($data['accessCode']));
+                if (!$invitationCode) {
+                    return $this->json([
+                        'message' => 'El código de invitación no es válido o ha expirado',
+                        'field' => 'accessCode'
+                    ], 400);
+                }
+
+                // Verificar que no sea el mismo usuario
+                if ($invitationCode->getCreator()->getId() === $user->getId()) {
+                    return $this->json([
+                        'message' => 'No puedes usar tu propio código de invitación',
+                        'field' => 'accessCode'
+                    ], 400);
+                }
+
+                $this->logger->info('Onboarding: Código de invitación válido para usuario ' . $user->getId());
+            }
+
             // Crear o actualizar la entidad Onboarding
             $onboarding = $em->getRepository(Onboarding::class)->findOneBy(['user' => $user]) ?? new Onboarding();
 
@@ -330,6 +363,11 @@ class OnboardingController extends AbstractController
 
             if (isset($data['commonSymptoms'])) {
                 $onboarding->setCommonSymptoms($data['commonSymptoms']);
+            }
+
+            // Guardar código de acceso para usuarios de seguimiento
+            if (isset($data['accessCode'])) {
+                $onboarding->setAccessCode(trim($data['accessCode']));
             }
 
             // Marcar el onboarding como completado
@@ -441,6 +479,28 @@ class OnboardingController extends AbstractController
                 }
             }
 
+            // 4. Canjear código de invitación para usuarios de seguimiento
+            $guestAccessCreated = false;
+            $guestAccessData = null;
+            if ($data['stageOfLife'] === 'trackingOthers' && !empty($data['accessCode'])) {
+                try {
+                    $guestAccess = $this->invitationCodeService->redeemCode(trim($data['accessCode']), $user);
+                    $guestAccessCreated = true;
+                    $guestAccessData = [
+                        'guestAccessId' => $guestAccess->getId(),
+                        'ownerName' => $guestAccess->getOwner()->getName(),
+                        'ownerUsername' => $guestAccess->getOwner()->getUsername(),
+                        'guestType' => $guestAccess->getGuestType()->value,
+                        'permissions' => $guestAccess->getAccessTo()
+                    ];
+                    $this->logger->info('Onboarding: Código de invitación canjeado exitosamente para usuario ' . $user->getId());
+                } catch (\Exception $e) {
+                    $this->logger->error('Onboarding: Error al canjear código de invitación: ' . $e->getMessage());
+                    // No fallamos el onboarding por errores en el canje del código
+                    // El usuario puede intentar canjear el código manualmente más tarde
+                }
+            }
+
             // Guardar todos los cambios en una sola transacción
             $em->flush();
 
@@ -493,6 +553,11 @@ class OnboardingController extends AbstractController
 
             if (!empty($symptomsRegistered)) {
                 $response['additionalData']['symptomsRegistered'] = $symptomsRegistered;
+            }
+
+            if ($guestAccessCreated && $guestAccessData) {
+                $response['additionalData']['guestAccessCreated'] = true;
+                $response['additionalData']['guestAccess'] = $guestAccessData;
             }
 
             return $this->json($response);
