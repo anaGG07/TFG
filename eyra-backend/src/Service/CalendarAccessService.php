@@ -86,10 +86,11 @@ class CalendarAccessService
         $hostPermissions = $access->getAccessTo() ?? [];
         $guestPreferences = $access->getGuestPreferences() ?? [];
 
-        // Si tiene 'view_cycle', añadir todas las fases automáticamente
+        // Si tiene 'view_cycle', añadir todas las fases y permisos de días automáticamente
         if (in_array('view_cycle', $hostPermissions)) {
             $hostPermissions = array_unique(array_merge($hostPermissions, [
-                'phase_menstrual', 'phase_folicular', 'phase_ovulacion', 'phase_lutea'
+                'phase_menstrual', 'phase_folicular', 'phase_ovulacion', 'phase_lutea',
+                'symptoms', 'mood_tracking'
             ]));
         }
 

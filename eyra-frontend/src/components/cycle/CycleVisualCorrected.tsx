@@ -40,7 +40,7 @@ export const CycleVisualCorrected: React.FC<CycleVisualCorrectedProps> = ({
     return (
       <div className="flex flex-col items-center justify-center h-full w-full">
         <img
-          src="/img/33.svg"
+          src="/img/UteroRojo.svg"
           alt="Cargando ciclo"
           style={{
             width: 240,
@@ -59,7 +59,7 @@ export const CycleVisualCorrected: React.FC<CycleVisualCorrectedProps> = ({
     return (
       <div className="flex flex-col items-center justify-center h-full w-full">
         <img
-          src="/img/33.svg"
+          src="/img/UteroRojo.svg"
           alt="Error"
           style={{
             width: 240,
@@ -78,7 +78,7 @@ export const CycleVisualCorrected: React.FC<CycleVisualCorrectedProps> = ({
     return (
       <div className="flex flex-col items-center justify-center h-full w-full">
         <img
-          src="/img/33.svg"
+          src="/img/UteroRojo.svg"
           alt="Ciclo menstrual"
           style={{
             width: 240,
