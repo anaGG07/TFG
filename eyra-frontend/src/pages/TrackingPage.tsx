@@ -713,49 +713,50 @@ const TrackingPage: React.FC = () => {
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: 20 }}
-                className="space-y-6"
+                className="space-y-4"
               >
                 {/* Header de privacidad */}
-                <div className="rounded-xl p-4 sm:p-6" style={neomorphicCardStyle}>
-                  <div className="flex items-center space-x-3 mb-4">
-                    <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-[#C62328] flex items-center justify-center">
-                      <PrivacyIcon className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
+                <div className="rounded-xl p-3 sm:p-4" style={neomorphicCardStyle}>
+                  <div className="flex items-center space-x-3 mb-2">
+                    <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-[#C62328] flex items-center justify-center">
+                      <PrivacyIcon className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
                     </div>
                     <div>
-                      <h3 className="text-lg sm:text-xl font-semibold text-[#7a2323]">
+                      <h3 className="text-base sm:text-lg font-semibold text-[#7a2323]">
                         Configuración de Privacidad
                       </h3>
-                      <p className="text-xs sm:text-sm text-[#5b0108]">
+                      <p className="text-xs text-[#5b0108]">
                         Controla qué información compartes y tu visibilidad
                       </p>
                     </div>
                   </div>
                 </div>
 
-                {/* Sección de Descubrimiento */}
-                <div className="rounded-xl p-4 sm:p-6" style={neomorphicCardStyle}>
-                  <div className="flex items-center space-x-3 mb-4 sm:mb-6">
-                    <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-blue-500 flex items-center justify-center">
-                      <SearchIcon className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
+                {/* Sección Unificada de Configuración */}
+                <div className="rounded-xl p-3 sm:p-4" style={neomorphicCardStyle}>
+                  {/* Descubrimiento y Visibilidad */}
+                  <div className="mb-4 sm:mb-6">
+                    <div className="flex items-center space-x-3 mb-3 sm:mb-4">
+                      <div className="w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-blue-500 flex items-center justify-center">
+                        <SearchIcon className="w-3 h-3 sm:w-4 sm:h-4 text-white" />
+                      </div>
+                      <div>
+                        <h4 className="text-sm sm:text-base font-semibold text-[#7a2323]">
+                          Descubrimiento y Visibilidad
+                        </h4>
+                        <p className="text-xs text-[#5b0108]">
+                          Controla si otros usuarios pueden encontrarte
+                        </p>
+                      </div>
                     </div>
-                    <div>
-                      <h4 className="text-base sm:text-lg font-semibold text-[#7a2323]">
-                        Descubrimiento y Visibilidad
-                      </h4>
-                      <p className="text-xs sm:text-sm text-[#5b0108]">
-                        Controla si otros usuarios pueden encontrarte
-                      </p>
-                    </div>
-                  </div>
 
-                  <div className="space-y-3 sm:space-y-4">
-                    {/* Toggle para búsqueda */}
+                    {/* Toggle unificado para búsqueda */}
                     <div 
-                      className="flex items-center justify-between p-3 sm:p-4 rounded-xl"
+                      className="flex items-center justify-between p-3 rounded-xl mb-2"
                       style={neomorphicInsetStyle}
                     >
                       <div className="flex-1 mr-3">
-                        <h5 className="font-medium text-[#5b0108] text-sm sm:text-base mb-1">
+                        <h5 className="font-medium text-[#5b0108] text-sm mb-1">
                           Permitir ser encontrado
                         </h5>
                         <p className="text-xs text-[#a62c2c]">
@@ -776,15 +777,12 @@ const TrackingPage: React.FC = () => {
                       </div>
                     </div>
 
-                    {/* Estado visual */}
-                    <div className="flex items-center justify-between text-xs sm:text-sm">
-                      <span className="text-[#5b0108]">
-                        Estado actual:
-                      </span>
-                      <span className={`font-medium ${
+                    {/* Estado visual compacto */}
+                    <div className="text-center">
+                      <span className={`text-xs font-medium px-2 py-1 rounded-full ${
                         privacySettings.allowSearchable 
-                          ? 'text-green-600' 
-                          : 'text-orange-600'
+                          ? 'bg-green-100 text-green-700' 
+                          : 'bg-orange-100 text-orange-700'
                       }`}>
                         {privacySettings.allowSearchable 
                           ? '✅ Visible para búsquedas' 
@@ -792,104 +790,87 @@ const TrackingPage: React.FC = () => {
                         }
                       </span>
                     </div>
+                  </div>
 
-                    {/* Información adicional */}
-                    <div className="p-3 sm:p-4 rounded-xl bg-blue-50/50 border border-blue-200/30">
-                      <div className="flex items-start space-x-2">
-                        <div className="w-4 h-4 rounded-full bg-blue-500 flex items-center justify-center mt-0.5">
-                          <span className="text-white text-xs">i</span>
-                        </div>
-                        <div className="text-xs text-blue-800">
-                          <p className="font-medium mb-1">Sobre esta configuración:</p>
-                          <ul className="space-y-1 text-xs">
-                            <li>• Permite que otros usuarios te encuentren cuando busquen por tu email o username</li>
-                            <li>• No afecta a tus conexiones existentes</li>
-                            <li>• Puedes cambiar esta configuración en cualquier momento</li>
-                          </ul>
-                        </div>
+                  {/* Información Compartida */}
+                  <div>
+                    <div className="flex items-center space-x-3 mb-3 sm:mb-4">
+                      <div className="w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-[#C62328] flex items-center justify-center">
+                        <ShareIcon className="w-3 h-3 sm:w-4 sm:h-4 text-white" />
+                      </div>
+                      <div>
+                        <h4 className="text-sm sm:text-base font-semibold text-[#7a2323]">
+                          Información Compartida
+                        </h4>
+                        <p className="text-xs text-[#5b0108]">
+                          Controla qué datos compartes con tus acompañantes
+                        </p>
                       </div>
                     </div>
-                  </div>
-                </div>
 
-                {/* Sección de Información Compartida */}
-                <div className="rounded-xl p-4 sm:p-6" style={neomorphicCardStyle}>
-                  <div className="flex items-center space-x-3 mb-4 sm:mb-6">
-                    <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-[#C62328] flex items-center justify-center">
-                      <ShareIcon className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
-                    </div>
-                    <div>
-                      <h4 className="text-base sm:text-lg font-semibold text-[#7a2323]">
-                        Información Compartida
-                      </h4>
-                      <p className="text-xs sm:text-sm text-[#5b0108]">
-                        Controla qué datos compartes con tus acompañantes
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-                    {[
-                      {
-                        key: 'cycleInfoSharing' as const,
-                        title: "Información del ciclo",
-                        desc: "Fechas y predicciones del ciclo menstrual",
-                        icon: ActivityIcon,
-                      },
-                      {
-                        key: 'symptomsSharing' as const,
-                        title: "Síntomas y estado",
-                        desc: "Registro de bienestar y síntomas",
-                        icon: ActivityIcon,
-                      },
-                      {
-                        key: 'alertsSharing' as const,
-                        title: "Alertas y recordatorios",
-                        desc: "Notificaciones compartidas",
-                        icon: CommunicationIcon,
-                      },
-                      {
-                        key: 'medicalDataSharing' as const,
-                        title: "Datos médicos",
-                        desc: "Información clínica sensible",
-                        icon: PrivacyIcon,
-                      },
-                    ].map((item) => (
-                      <div
-                        key={item.key}
-                        className="p-3 sm:p-4 rounded-xl"
-                        style={neomorphicInsetStyle}
-                      >
-                        <div className="flex items-start space-x-3">
-                          <item.icon className="w-5 h-5 sm:w-6 sm:h-6 text-[#C62328] mt-1 flex-shrink-0" />
-                          <div className="flex-1 min-w-0">
-                            <h5 className="font-medium text-[#5b0108] mb-1 text-sm sm:text-base">
-                              {item.title}
-                            </h5>
-                            <p className="text-xs text-[#a62c2c] mb-3">
-                              {item.desc}
-                            </p>
-                            <div className="flex items-center space-x-2">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3">
+                      {[
+                        {
+                          key: 'cycleInfoSharing' as const,
+                          title: "Información del ciclo",
+                          desc: "Fechas y predicciones del ciclo menstrual",
+                          icon: ActivityIcon,
+                        },
+                        {
+                          key: 'symptomsSharing' as const,
+                          title: "Síntomas y estado",
+                          desc: "Registro de bienestar y síntomas",
+                          icon: ActivityIcon,
+                        },
+                        {
+                          key: 'alertsSharing' as const,
+                          title: "Alertas y recordatorios",
+                          desc: "Notificaciones compartidas",
+                          icon: CommunicationIcon,
+                        },
+                        {
+                          key: 'medicalDataSharing' as const,
+                          title: "Datos médicos",
+                          desc: "Información clínica sensible",
+                          icon: PrivacyIcon,
+                        },
+                      ].map((item) => (
+                        <div
+                          key={item.key}
+                          className="flex items-center justify-between p-3 rounded-xl"
+                          style={neomorphicInsetStyle}
+                        >
+                          <div className="flex items-center space-x-2 flex-1 mr-3">
+                            <item.icon className="w-4 h-4 text-[#C62328] flex-shrink-0" />
+                            <div className="min-w-0">
+                              <h5 className="font-medium text-[#5b0108] text-xs sm:text-sm leading-tight">
+                                {item.title}
+                              </h5>
+                              <p className="text-xs text-[#a62c2c] leading-tight">
+                                {item.desc}
+                              </p>
+                            </div>
+                          </div>
+                          <div className="flex items-center">
+                            <label className="relative inline-flex items-center cursor-pointer">
                               <input
                                 type="checkbox"
-                                className="accent-[#C62328] h-4 w-4"
+                                className="sr-only peer"
                                 checked={privacySettings[item.key]}
                                 onChange={(e) => handlePrivacyToggle(item.key, e.target.checked)}
                                 disabled={privacyLoading}
                               />
-                              <span className="text-xs text-[#5b0108]">
-                                Compartir
-                              </span>
-                            </div>
+                              <div className="w-11 h-6 bg-gray-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#C62328]"></div>
+                            </label>
                           </div>
                         </div>
-                      </div>
-                    ))}
+                      ))}
+                    </div>
                   </div>
 
                   {/* Estado de carga/error */}
                   {privacyLoading && (
-                    <div className="mt-4 text-center">
+                    <div className="mt-3 text-center">
                       <p className="text-sm text-[#C62328]">
                         Actualizando configuración...
                       </p>
@@ -897,18 +878,38 @@ const TrackingPage: React.FC = () => {
                   )}
 
                   {privacyError && (
-                    <div className="mt-4 p-3 rounded-xl bg-red-50 border border-red-200">
+                    <div className="mt-3 p-2 rounded-xl bg-red-50 border border-red-200">
                       <p className="text-sm text-red-700">
                         {privacyError}
                       </p>
                     </div>
                   )}
+                </div>
 
-                  {/* Nota informativa */}
-                  <div className="mt-4 sm:mt-6 p-3 sm:p-4 rounded-xl bg-[#C62328]/10">
+                {/* Información y avisos */}
+                <div className="space-y-3">
+                  {/* Información sobre descubrimiento */}
+                  <div className="p-3 rounded-xl bg-blue-50/50 border border-blue-200/30">
                     <div className="flex items-start space-x-2">
-                      <span className="text-[#C62328] text-sm">🔴</span>
-                      <p className="text-xs sm:text-sm text-[#C62328] font-medium">
+                      <div className="w-4 h-4 rounded-full bg-blue-500 flex items-center justify-center mt-0.5 flex-shrink-0">
+                        <span className="text-white text-xs">i</span>
+                      </div>
+                      <div className="text-xs text-blue-800">
+                        <p className="font-medium mb-1">Sobre la configuración de búsqueda:</p>
+                        <ul className="space-y-1 text-xs">
+                          <li>• Permite que otros usuarios te encuentren cuando busquen por tu email o username</li>
+                          <li>• No afecta a tus conexiones existentes</li>
+                          <li>• Puedes cambiar esta configuración en cualquier momento</li>
+                        </ul>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Nota sobre permisos específicos */}
+                  <div className="p-3 rounded-xl bg-[#C62328]/10">
+                    <div className="flex items-start space-x-2">
+                      <span className="text-[#C62328] text-sm flex-shrink-0">🔴</span>
+                      <p className="text-xs text-[#C62328] font-medium">
                         Configuración de permisos específicos disponible al gestionar cada acompañante individual
                       </p>
                     </div>
