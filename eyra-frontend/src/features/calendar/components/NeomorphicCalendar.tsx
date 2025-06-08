@@ -75,7 +75,7 @@ const NeomorphicDayCell: React.FC<{
       return phaseStyle.fullBackground;
     }
 
-    // Resto de fases: fondo base con óvalo superior
+    // Resto de fases: fondo base
     return "bg-[#e7e0d5]";
   };
 
@@ -130,16 +130,7 @@ const NeomorphicDayCell: React.FC<{
         }`}>?</span>}
       </motion.div>
 
-      {/* ÓVALO SUPERIOR PARA FASES (excepto menstruación y primer día ovulación) */}
-      {dayData?.phase &&
-        dayData.phase !== CyclePhase.MENSTRUAL &&
-        !(
-          dayData.phase === CyclePhase.OVULACION && dayData.dayNumber === 1
-        ) && (
-          <div
-            className={`absolute top-1 left-1/2 transform -translate-x-1/2 ${phaseStyle?.leftBorder}`}
-          />
-        )}
+
 
       {/* ICONO DE FASE ANIMADO */}
       {dayData?.phase && phaseStyle && (

@@ -183,8 +183,6 @@ export const AVATAR_OPTIONS = {
     { value: "krilin", name: "Puntos Krilin" },
     { value: "front", name: "Frontal" },
     { value: "tribal", name: "Tribal" },
-    { value: "tribal2", name: "Tribal 2" },
-    { value: "throat", name: "Garganta" },
   ],
 
   // Accesorios - del código de referencia

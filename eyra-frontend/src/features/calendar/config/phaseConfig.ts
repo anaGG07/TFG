@@ -6,12 +6,12 @@ export interface PhaseConfig {
   color: string;
   icon: (color: string) => React.ReactElement;
   gradient: string;
-  leftBorder: string; // ! 02/06/2025 - Nuevo: borde izquierdo para la franja
-  fullBackground: string; // ! 02/06/2025 - Nuevo: fondo completo para casos especiales
+  leftBorder: string; // Solo para la leyenda
+  fullBackground: string;
   description: string;
 }
 
-// ! 02/06/2025 - Configuración actualizada con colores pasteles y óvalos superiores
+// Configuración actualizada - franjas eliminadas del calendario, mantenidas en leyenda
 export const phaseConfig: Record<CyclePhase, PhaseConfig> = {
   [CyclePhase.MENSTRUAL]: {
     color: "from-red-100 to-red-200",
