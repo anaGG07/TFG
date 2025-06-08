@@ -408,7 +408,7 @@ const AdminPage = () => {
                             </span>
                           </div>
                         </motion.div>
-                      ) :
+                      ) : (
                         <motion.div
                           key="resumen"
                           initial={{ opacity: 0, scale: 0.95 }}
