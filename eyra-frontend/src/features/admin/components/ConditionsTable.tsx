@@ -13,14 +13,16 @@ interface ConditionsTableProps {
   onRefresh?: () => void;
 }
 
+// Hook para calcular registros por página según pantalla - REDUCIDO PARA MÁS ESPACIO
 function useAutoRowsPerPage(min = 1, max = 50) {
-  const [rows, setRows] = useState(8);
+  const [rows, setRows] = useState(5); // Reducido de 8 a 5
   useEffect(() => {
     function updateRows() {
       const height = window.innerHeight;
+      // Reducido: 5 filas en escritorio, 3 en tablet, 1 en móvil
       if (height < 500) setRows(Math.max(min, 1));
-      else if (height < 800) setRows(Math.max(min, 4));
-      else setRows(Math.max(min, 8));
+      else if (height < 800) setRows(Math.max(min, 3));
+      else setRows(Math.max(min, 5));
     }
     updateRows();
     window.addEventListener('resize', updateRows);
@@ -550,13 +552,6 @@ const ConditionsTable: React.FC<ConditionsTableProps> = ({ onRefresh }) => {
         </div>
       )}
 
-      {/* Debug info - temporal */}
-      {process.env.NODE_ENV === 'development' && (
-        <div className="bg-yellow-50 border border-yellow-200 rounded p-2 mb-4 text-xs">
-          <strong>Debug Info:</strong> Total conditions: {conditions.length}, Rows per page: {rowsPerPage}, Total pages: {totalPages}, Current page: {page + 1}
-        </div>
-      )}
-
       {/* Mensaje si no hay condiciones */}
       {conditions.length === 0 && (
         <div className="text-center py-8 text-gray-500">
@@ -591,7 +586,7 @@ const ConditionsTable: React.FC<ConditionsTableProps> = ({ onRefresh }) => {
         onSave={handleConditionCreated}
       />
 
-      {/* Paginación - Estilo unificado como en Usuarios */}
+      {/* Paginación */}
       {totalPages > 1 && (
         <div className="flex justify-center items-center gap-4 mt-6 mb-4">
           <button
@@ -608,7 +603,6 @@ const ConditionsTable: React.FC<ConditionsTableProps> = ({ onRefresh }) => {
           </button>
           <div className="flex items-center gap-2">
             {Array.from({ length: totalPages }, (_, i) => {
-              // Mostrar solo primeras 2, últimas 2 y 2 alrededor de la actual
               if (i === 0 || i === totalPages - 1 || Math.abs(i - page) <= 1 || (page < 3 && i < 4) || (page > totalPages - 4 && i > totalPages - 5)) {
                 return (
                   <button
