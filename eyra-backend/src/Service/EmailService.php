@@ -199,21 +199,21 @@ class EmailService
     // Métodos auxiliares
     private function generateResetUrl(string $token): string
     {
-        $baseUrl = $_ENV['FRONTEND_BASE_URL'] ?? 'http://localhost:5173';
+        $baseUrl = $_ENV['FRONTEND_BASE_URL'] ?? 'https://eyraclub.es';
         $resetPath = $_ENV['FRONTEND_RESET_PASSWORD_PATH'] ?? '/reset-password';
         return $baseUrl . $resetPath . '?token=' . $token;
     }
 
     private function generateDashboardUrl(): string
     {
-        $baseUrl = $_ENV['FRONTEND_BASE_URL'] ?? 'http://localhost:5173';
+        $baseUrl = $_ENV['FRONTEND_BASE_URL'] ?? 'https://eyraclub.es';
         $dashboardPath = $_ENV['FRONTEND_DASHBOARD_PATH'] ?? '/dashboard';
         return $baseUrl . $dashboardPath;
     }
 
     private function generateCalendarUrl(): string
     {
-        $baseUrl = $_ENV['FRONTEND_BASE_URL'] ?? 'http://localhost:5173';
+        $baseUrl = $_ENV['FRONTEND_BASE_URL'] ?? 'https://eyraclub.es';
         return $baseUrl . '/calendar';
     }
 
@@ -247,7 +247,7 @@ class EmailService
 
     private function generateInvitationUrl(string $code): string
     {
-        $baseUrl = $_ENV['FRONTEND_BASE_URL'] ?? 'http://localhost:5173';
+        $baseUrl = $_ENV['FRONTEND_BASE_URL'] ?? 'https://eyraclub.es';
         $invitationPath = $_ENV['FRONTEND_INVITATION_PATH'] ?? '/invitation';
         return $baseUrl . $invitationPath . '?code=' . $code;
     }
