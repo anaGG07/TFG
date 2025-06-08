@@ -317,7 +317,7 @@ const AdminPage = () => {
         </div>
         {/* Contenido por pestañas */}
         <div className="w-full flex-1 flex flex-col items-center">
-          <div className="w-full max-w-5xl min-w-[1100px] min-h-[520px] bg-transparent rounded-lg shadow-none p-0 flex-1 flex flex-col justify-start">
+          <div className="w-full max-w-full md:max-w-3xl lg:max-w-5xl min-h-[420px] bg-transparent rounded-lg shadow-none p-0 flex-1 flex flex-col justify-start">
             <AnimatePresence mode="wait">
               {activeTab === "overview" && (
                 <motion.div
@@ -325,11 +325,11 @@ const AdminPage = () => {
                   initial={{ opacity: 0, y: 30 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -30 }}
-                  className="grid grid-cols-1 md:grid-cols-[1fr_370px] gap-12 items-start mt-8 min-h-[420px]"
+                  className="grid grid-cols-1 lg:grid-cols-[1fr_370px] gap-8 md:gap-12 items-start mt-4 md:mt-8 min-h-[420px]"
                   style={{ minWidth: 0 }}
                 >
                   {/* Columna 1: Resumen o gráfica con toggle */}
-                  <div className="flex flex-col items-center gap-4">
+                  <div className="flex flex-col items-center gap-4 w-full">
                     <div className="flex gap-2 mb-2">
                       <button
                         className={`rounded-full p-2 transition-all duration-200 ${
@@ -385,7 +385,7 @@ const AdminPage = () => {
                           animate={{ opacity: 1, scale: 1 }}
                           exit={{ opacity: 0, scale: 0.95 }}
                           transition={{ duration: 0.4, ease: "easeInOut" }}
-                          className="grid grid-cols-1 md:grid-cols-3 gap-8 w-full justify-center mt-4 mb-4"
+                          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8 w-full justify-center mt-4 mb-4"
                         >
                           <div className="flex flex-col items-center">
                             <div className="w-20 h-20 rounded-full shadow-[0_2px_12px_rgba(91,1,8,0.10),0_-2px_12px_rgba(255,255,255,0.25)] flex items-center justify-center -mb-8 z-10 bg-[#e7e0d5]">
@@ -431,7 +431,7 @@ const AdminPage = () => {
                     </AnimatePresence>
                   </div>
                   {/* Columna 2: Actividad reciente */}
-                  <div className="flex flex-col gap-4">
+                  <div className="flex flex-col gap-4 w-full max-w-full">
                     <h3 className="text-xl font-semibold text-[#7a2323] font-serif mb-2">
                       Actividad Reciente
                     </h3>
