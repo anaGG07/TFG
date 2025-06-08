@@ -162,10 +162,14 @@ class SymptomController extends AbstractController
         }
 
         // Buscar o crear el día del ciclo correspondiente
-        $cycleDay = $this->cycleDayRepository->findOneBy([
-            'date' => $date,
-            'user' => $user
-        ]);
+        $cycleDay = $this->cycleDayRepository->createQueryBuilder('cd')
+            ->innerJoin('cd.cyclePhase', 'mc')
+            ->where('mc.user = :user')
+            ->andWhere('cd.date = :date')
+            ->setParameter('user', $user)
+            ->setParameter('date', $date)
+            ->getQuery()
+            ->getOneOrNullResult();
 
         if (!$cycleDay) {
             return $this->json(['error' => 'Cycle day not found'], 404);
