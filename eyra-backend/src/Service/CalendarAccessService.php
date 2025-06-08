@@ -86,6 +86,13 @@ class CalendarAccessService
         $hostPermissions = $access->getAccessTo() ?? [];
         $guestPreferences = $access->getGuestPreferences() ?? [];
 
+        // Si tiene 'view_cycle', añadir todas las fases automáticamente
+        if (in_array('view_cycle', $hostPermissions)) {
+            $hostPermissions = array_unique(array_merge($hostPermissions, [
+                'phase_menstrual', 'phase_folicular', 'phase_ovulacion', 'phase_lutea'
+            ]));
+        }
+
         // Si no hay preferencias del invitado, usar todos los permisos del anfitrión
         if (empty($guestPreferences)) {
             $effectivePermissions = $hostPermissions;

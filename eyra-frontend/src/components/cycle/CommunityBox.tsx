@@ -65,7 +65,7 @@ const CommunityBox: React.FC<{ expanded: boolean }> = ({ expanded }) => {
   const [calendarData, setCalendarData] = useState<any>(null);
   const [calendarLoading, setCalendarLoading] = useState(false);
   const [page, setPage] = useState(0);
-  const USERS_PER_PAGE = 5;
+  const USERS_PER_PAGE = 2;
   const community = [...following];
   const totalPages = Math.ceil(community.length / USERS_PER_PAGE);
   const paginatedCommunity = community.slice(page * USERS_PER_PAGE, (page + 1) * USERS_PER_PAGE);
@@ -132,7 +132,7 @@ const CommunityBox: React.FC<{ expanded: boolean }> = ({ expanded }) => {
         <div className="flex flex-row items-center gap-2 w-full justify-center mb-4">
           <button
             aria-label="Anterior"
-            className="bg-white/70 rounded-full shadow p-1 border border-primary text-primary hover:bg-primary hover:text-white transition pointer-events-auto"
+            className="bg-white/70 rounded-full shadow p-1 border border-primary text-primary hover:bg-primary hover:text-white transition pointer-events-auto cursor-pointer"
             onClick={() => setPage((prev) => (prev === 0 ? totalPages - 1 : prev - 1))}
             disabled={totalPages <= 1}
           >
@@ -147,13 +147,13 @@ const CommunityBox: React.FC<{ expanded: boolean }> = ({ expanded }) => {
               return (
                 <button
                   key={user.id}
-                  className={`rounded-full border-2 ${selectedId === user.id ? "border-[#C62328] scale-110 shadow-lg" : "border-[#f8f4f1]"} transition-all bg-white flex flex-col items-center`}
+                  className={`rounded-full border-2 ${selectedId === user.id ? "border-[#C62328] scale-110 shadow-lg" : "border-[#f8f4f1]"} transition-all bg-white flex flex-col items-center cursor-pointer`}
                   onClick={() => setSelectedId(user.id)}
                 >
                   {hasValidAvatarConfig ? (
-                    <AvatarPreview config={avatarConfig} className="w-14 h-14 rounded-full" />
+                    <AvatarPreview config={avatarConfig} className="w-20 h-20 rounded-full shadow-lg border-2 border-[#C62328]" />
                   ) : (
-                    <img src="/img/avatar-default.png" alt="Avatar por defecto" className="w-14 h-14 rounded-full object-cover" />
+                    <img src="/img/avatar-default.png" alt="Avatar por defecto" className="w-20 h-20 rounded-full object-cover shadow-lg border-2 border-[#C62328]" />
                   )}
                   <span className="block text-xs text-[#7a2323] mt-1 max-w-[70px] truncate">{userName || userUsername}</span>
                 </button>
@@ -162,7 +162,7 @@ const CommunityBox: React.FC<{ expanded: boolean }> = ({ expanded }) => {
           </div>
           <button
             aria-label="Siguiente"
-            className="bg-white/70 rounded-full shadow p-1 border border-primary text-primary hover:bg-primary hover:text-white transition pointer-events-auto"
+            className="bg-white/70 rounded-full shadow p-1 border border-primary text-primary hover:bg-primary hover:text-white transition pointer-events-auto cursor-pointer"
             onClick={() => setPage((prev) => (prev + 1) % totalPages)}
             disabled={totalPages <= 1}
           >
@@ -176,7 +176,7 @@ const CommunityBox: React.FC<{ expanded: boolean }> = ({ expanded }) => {
         <div className="flex flex-col items-center gap-2">
           <button
             aria-label="Arriba"
-            className="bg-white/70 rounded-full shadow p-1 border border-primary text-primary hover:bg-primary hover:text-white transition pointer-events-auto mb-2"
+            className="bg-white/70 rounded-full shadow p-1 border border-primary text-primary hover:bg-primary hover:text-white transition pointer-events-auto mb-2 cursor-pointer"
             onClick={() => setPage((prev) => (prev === 0 ? totalPages - 1 : prev - 1))}
             disabled={totalPages <= 1}
           >
@@ -191,13 +191,13 @@ const CommunityBox: React.FC<{ expanded: boolean }> = ({ expanded }) => {
               return (
                 <button
                   key={user.id}
-                  className={`rounded-full border-2 ${selectedId === user.id ? "border-[#C62328] scale-110 shadow-lg" : "border-[#f8f4f1]"} transition-all bg-white flex flex-col items-center`}
+                  className={`rounded-full border-2 ${selectedId === user.id ? "border-[#C62328] scale-110 shadow-lg" : "border-[#f8f4f1]"} transition-all bg-white flex flex-col items-center cursor-pointer`}
                   onClick={() => setSelectedId(user.id)}
                 >
                   {hasValidAvatarConfig ? (
-                    <AvatarPreview config={avatarConfig} className="w-14 h-14 rounded-full" />
+                    <AvatarPreview config={avatarConfig} className="w-20 h-20 rounded-full shadow-lg border-2 border-[#C62328]" />
                   ) : (
-                    <img src="/img/avatar-default.png" alt="Avatar por defecto" className="w-14 h-14 rounded-full object-cover" />
+                    <img src="/img/avatar-default.png" alt="Avatar por defecto" className="w-20 h-20 rounded-full object-cover shadow-lg border-2 border-[#C62328]" />
                   )}
                   <span className="block text-xs text-[#7a2323] mt-1 max-w-[70px] truncate">{userName || userUsername}</span>
                 </button>
@@ -206,7 +206,7 @@ const CommunityBox: React.FC<{ expanded: boolean }> = ({ expanded }) => {
           </div>
           <button
             aria-label="Abajo"
-            className="bg-white/70 rounded-full shadow p-1 border border-primary text-primary hover:bg-primary hover:text-white transition pointer-events-auto mt-2"
+            className="bg-white/70 rounded-full shadow p-1 border border-primary text-primary hover:bg-primary hover:text-white transition pointer-events-auto mt-2 cursor-pointer"
             onClick={() => setPage((prev) => (prev + 1) % totalPages)}
             disabled={totalPages <= 1}
           >

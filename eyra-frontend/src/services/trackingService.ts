@@ -126,6 +126,8 @@ export const trackingService = {
     emails: { inviterNotified: boolean; invitedNotified: boolean };
   }> {
     try {
+      console.log("trackingService: Enviando petición createInvitationAndSend con datos:", data);
+      
       const response = await apiFetch(API_ROUTES.TRACKING.CREATE_INVITATION_AND_SEND, {
         method: "POST",
         body: data,
@@ -134,6 +136,8 @@ export const trackingService = {
         invitation: any;
         emails: { inviterNotified: boolean; invitedNotified: boolean };
       };
+      
+      console.log("trackingService: Respuesta del servidor:", response);
       
       // Mapear la respuesta al formato esperado
       const invitation: Invitation = {
@@ -150,8 +154,13 @@ export const trackingService = {
         invitation,
         emails: response.emails
       };
-    } catch (error) {
-      console.error("Error creando invitación con emails:", error);
+    } catch (error: any) {
+      console.error("trackingService: Error detallado creando invitación con emails:", {
+        error: error,
+        message: error?.message,
+        url: API_ROUTES.TRACKING.CREATE_INVITATION_AND_SEND,
+        data: data
+      });
       throw error;
     }
   },

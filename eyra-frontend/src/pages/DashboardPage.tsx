@@ -1,10 +1,10 @@
-// C:\Users\Ana\Desktop\Curso\Proyecto\EYRA\eyra-frontend\src\pages\DashboardPage.tsx
+// ! 08/06/2025 - Actualizado para usar el nuevo CycleStatusCard que muestra datos correctos
 import React, { useMemo, useState } from "react";
 import { useAuth } from "../context/AuthContext";
 import { useDashboardData } from "../hooks/useDashboardData";
 import { useViewport } from "../hooks/useViewport";
 import DraggableGrid from "../components/DraggableGrid";
-import { CycleVisual } from "../components/cycle";
+import { CycleStatusCard } from "../components/cycle";
 import SymptomsView from "../components/cycle/SymptomsView";
 import RitualsView from "../components/cycle/RitualsView";
 import RemindersView from "../components/cycle/RemindersView";
@@ -50,30 +50,19 @@ const DashboardPage: React.FC = () => {
         id: "cycle",
         title: "Tu Ciclo",
         isExpanded: expandedId === "cycle",
-        component: (
-          <div
-            className="h-full flex flex-col items-center justify-center"
-            style={{ background: cycleMoodColor, borderRadius: 24, transition: 'background 0.4s' }}
-          >
-            <CycleVisual expanded={expandedId === "cycle"} onMoodColorChange={handleCycleMoodChange} />
-          </div>
-        ),
+        component: <CycleStatusCard className="h-full w-full" />,
       },
       {
         id: "symptoms",
         title: "Síntomas",
         isExpanded: expandedId === "symptoms",
-        component: (
-          <SymptomsView expanded={expandedId === "symptoms"} />
-        ),
+        component: <SymptomsView expanded={expandedId === "symptoms"} />,
       },
       {
         id: "rituals",
         title: "Rituales",
         isExpanded: expandedId === "rituals",
-        component: (
-          <RitualsView expanded={expandedId === "rituals"} />
-        ),
+        component: <RitualsView expanded={expandedId === "rituals"} />,
       },
       {
         id: "reminders",
@@ -105,7 +94,14 @@ const DashboardPage: React.FC = () => {
         ),
       },
     ],
-    [expandedId, cycleMoodColor, isMobile, notifications, insights, notificationService]
+    [
+      expandedId,
+      cycleMoodColor,
+      isMobile,
+      notifications,
+      insights,
+      notificationService,
+    ]
   );
 
   return (

@@ -181,7 +181,8 @@ const InvitationWithEmailModal: React.FC<InvitationWithEmailModalProps> = ({
           <div className="bg-[#E7E0D5]/10 rounded-lg p-3 text-xs text-[#E7E0D5]">
             <p className="mb-1">📧 Se enviará un email a ambos participantes</p>
             <p className="mb-1">⏰ La invitación expirará en 48 horas</p>
-            <p>🔒 Podrás gestionar los permisos posteriormente</p>
+            <p className="mb-1">🔒 Podrás gestionar los permisos posteriormente</p>
+            <p className="mb-0">💡 Si no recibes el email, revisa tu carpeta de spam</p>
           </div>
 
           {/* Botones */}

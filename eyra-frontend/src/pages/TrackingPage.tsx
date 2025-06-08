@@ -242,18 +242,51 @@ const TrackingPage: React.FC = () => {
 
   // Handlers para eventos reales
   const handleCreateInvitation = async () => {
-    // Ahora siempre abrimos el modal que pide email
-    setShowInviteWithEmailDialog(true);
+    // Crear solo el código sin pedir email
+    setCreatingInvitation(true);
+    try {
+      const result = await createInvitation({
+        guestType: "friend", // Tipo por defecto para códigos simples
+        accessPermissions: ["cycle_info"], // Permisos básicos por defecto
+        expirationHours: 72, // 3 días de duración por defecto
+      });
+      console.log("Código creado exitosamente:", result);
+      // El código aparecerá automáticamente en la lista gracias a loadTrackingData()
+    } catch (error) {
+      console.error("Error creando código:", error);
+      alert("Error al generar código. Inténtalo de nuevo.");
+    } finally {
+      setCreatingInvitation(false);
+    }
   };
 
   const handleCreateInvitationWithEmail = async (data: InvitationModalData) => {
     setCreatingInvitationWithEmail(true);
     try {
+      console.log("Enviando datos de invitación:", data);
       const result = await createInvitationAndSend(data);
       console.log("Invitación enviada exitosamente:", result);
-      alert(`¡Invitación enviada! Código: ${result.invitation.code}`);
-    } catch (error) {
-      console.error("Error enviando invitación:", error);
+      
+      // Mostrar información detallada del resultado
+      const emailStatus = result.emails;
+      const successMessage = [
+        `¡Invitación creada! Código: ${result.invitation.code}`,
+        `Email al invitador: ${emailStatus.inviterNotified ? '✅ Enviado' : '❌ Falló'}`,
+        `Email al invitado: ${emailStatus.invitedNotified ? '✅ Enviado' : '❌ Falló'}`
+      ].join('\n');
+      
+      alert(successMessage);
+    } catch (error: any) {
+      console.error("Error detallado enviando invitación:", {
+        error: error,
+        message: error?.message,
+        response: error?.response,
+        stack: error?.stack
+      });
+      
+      // Mostrar error detallado al usuario
+      const errorMessage = error?.message || 'Error desconocido al enviar invitación';
+      alert(`Error: ${errorMessage}\n\nRevisa la consola para más detalles.`);
       throw error; // Re-lanzar para que el modal pueda manejarlo
     } finally {
       setCreatingInvitationWithEmail(false);
