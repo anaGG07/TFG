@@ -58,6 +58,42 @@ const fetchUserCalendar = async (userId: string) => {
   }
 };
 
+// Función para generar un calendario de muestra
+function renderSampleCalendar() {
+  const today = new Date();
+  const start = new Date(today.getFullYear(), today.getMonth(), 1);
+  const days = [];
+  for (let i = 0; i < 28; i++) {
+    const date = new Date(start);
+    date.setDate(start.getDate() + i);
+    days.push({
+      date: date.toISOString().slice(0, 10),
+      phase: i < 4 ? 'menstrual' : i < 14 ? 'folicular' : i < 18 ? 'ovulacion' : 'lutea',
+      dayNumber: i + 1,
+      isSample: true,
+    });
+  }
+  return (
+    <div className="flex flex-wrap justify-center gap-1 mt-2">
+      {days.map((day, idx) => (
+        <div
+          key={day.date}
+          className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold cursor-pointer transition-all
+            ${day.phase === 'menstrual' ? 'bg-[#F15B5B] text-white' :
+              day.phase === 'folicular' ? 'bg-[#F1C232] text-[#7a2323]' :
+              day.phase === 'ovulacion' ? 'bg-[#6FA8DC] text-white' :
+              'bg-[#A2C4C9] text-[#7a2323]'}
+            hover:scale-110 hover:ring-2 hover:ring-[#C62328]/40`}
+          title={`Día ${day.dayNumber} (${day.phase})`}
+          onClick={() => alert(`Día ${day.dayNumber} (${day.phase})`)}
+        >
+          {day.dayNumber}
+        </div>
+      ))}
+    </div>
+  );
+}
+
 const CommunityBox: React.FC<{ expanded: boolean }> = ({ expanded }) => {
   const { following } = useTracking();
   const { isMobile, isTablet, isDesktop } = useViewport();
@@ -329,6 +365,27 @@ const CommunityBox: React.FC<{ expanded: boolean }> = ({ expanded }) => {
             </motion.div>
           ) : null}
         </AnimatePresence>
+        {!calendarData || !calendarData.cycles || calendarData.cycles.length === 0 ? (
+          <div className="text-center text-[#7a2323] text-sm opacity-70">
+            <div className="mb-2">No hay datos de ciclo disponibles para esta persona.</div>
+            {renderSampleCalendar()}
+          </div>
+        ) : (
+          <div className="text-center text-[#7a2323] text-sm opacity-70">
+            {calendarData ? (
+              <>
+                {calendarData.currentPhase ? `Fase: ${calendarData.currentPhase}` : 'Datos disponibles'}
+                {calendarData.note && (
+                  <div className="text-xs mt-1 italic text-orange-600">
+                    (Datos propios)
+                  </div>
+                )}
+              </>
+            ) : (
+              "No hay datos de ciclo para esta persona."
+            )}
+          </div>
+        )}
       </div>
     </div>
   );

@@ -1,10 +1,10 @@
-// ! 08/06/2025 - Actualizado para usar el nuevo CycleStatusCard que muestra datos correctos
+// C:\Users\Ana\Desktop\Curso\Proyecto\EYRA\eyra-frontend\src\pages\DashboardPage.tsx
 import React, { useMemo, useState } from "react";
 import { useAuth } from "../context/AuthContext";
 import { useDashboardData } from "../hooks/useDashboardData";
 import { useViewport } from "../hooks/useViewport";
 import DraggableGrid from "../components/DraggableGrid";
-import { CycleVisualCorrected } from "../components/cycle/CycleVisualCorrected";
+import { CycleVisual, CycleStatusCard } from "../components/cycle";
 import SymptomsView from "../components/cycle/SymptomsView";
 import RitualsView from "../components/cycle/RitualsView";
 import RemindersView from "../components/cycle/RemindersView";
@@ -59,10 +59,13 @@ const DashboardPage: React.FC = () => {
               transition: "background 0.4s",
             }}
           >
-            <CycleVisualCorrected
+            {/* ! 08/06/2025 - CycleVisual actualizado con datos correctos */}
+            {/* Alternativa: usar CycleStatusCard para una experiencia más simple */}
+            <CycleVisual
               expanded={expandedId === "cycle"}
               onMoodColorChange={handleCycleMoodChange}
             />
+            {/* <CycleStatusCard expanded={expandedId === "cycle"} onMoodColorChange={handleCycleMoodChange} /> */}
           </div>
         ),
       },

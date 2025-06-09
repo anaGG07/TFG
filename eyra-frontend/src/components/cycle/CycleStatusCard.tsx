@@ -1,15 +1,20 @@
-// ! 08/06/2025 - Componente CycleStatusCard que reemplaza la lógica incorrecta del dashboard
-// Muestra correctamente "Día 3" en lugar de "Día 1" basado en datos reales
+// ! 08/06/2025 - Componente CycleStatusCard que mantiene tu estética
+// Muestra correctamente los datos del ciclo con el diseño visual que ya tienes
 
 import React from "react";
 import { useCurrentCycle } from "../../hooks/useCurrentCycle";
+import { useViewport } from "../../hooks/useViewport";
 
 interface CycleStatusCardProps {
   className?: string;
+  expanded?: boolean;
+  onMoodColorChange?: (color: string) => void;
 }
 
 export const CycleStatusCard: React.FC<CycleStatusCardProps> = ({
   className = "",
+  expanded = false,
+  onMoodColorChange,
 }) => {
   const {
     currentDay,
@@ -24,27 +29,7 @@ export const CycleStatusCard: React.FC<CycleStatusCardProps> = ({
     refreshCycleInfo,
   } = useCurrentCycle();
 
-  // Colores según la fase del ciclo
-  const getPhaseColor = (phase: string): string => {
-    const colors = {
-      menstrual: "from-red-400 to-red-600",
-      folicular: "from-yellow-400 to-orange-500",
-      ovulacion: "from-blue-400 to-blue-600",
-      lutea: "from-green-400 to-green-600",
-    };
-    return colors[phase as keyof typeof colors] || colors.menstrual;
-  };
-
-  // Emoji según la fase
-  const getPhaseEmoji = (phase: string): string => {
-    const emojis = {
-      menstrual: "🔴",
-      folicular: "🌱",
-      ovulacion: "🥚",
-      lutea: "🌙",
-    };
-    return emojis[phase as keyof typeof emojis] || "🔴";
-  };
+  const { isMobile, isTablet } = useViewport();
 
   // Formatear fecha
   const formatDate = (dateString: string | null): string => {
@@ -57,214 +42,471 @@ export const CycleStatusCard: React.FC<CycleStatusCardProps> = ({
     });
   };
 
-  // Estado de carga
+  // Estado de carga - mantener tu estética
   if (isLoading) {
     return (
-      <div className={`bg-white rounded-2xl shadow-lg p-8 ${className}`}>
-        <div className="flex items-center justify-center space-x-3">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-red-500"></div>
-          <span className="text-gray-600">Cargando tu ciclo...</span>
-        </div>
+      <div
+        style={{
+          width: "100%",
+          height: "100%",
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "center",
+          background: "transparent",
+          padding: isMobile ? 16 : 24,
+          minHeight: "auto",
+        }}
+      >
+        <img
+          src="/img/UteroRojo.svg"
+          alt="Cargando ciclo"
+          style={{
+            width: isMobile ? 240 : isTablet ? 280 : 320,
+            height: isMobile ? 165 : isTablet ? 192 : 220,
+            opacity: 0.5,
+            objectFit: "contain",
+          }}
+        />
+        <p
+          style={{ fontSize: isMobile ? 12 : 14, color: "#666", marginTop: 8 }}
+        >
+          Cargando...
+        </p>
       </div>
     );
   }
 
-  // Estado de error
+  // Error - mantener tu estética
   if (error) {
     return (
-      <div className={`bg-white rounded-2xl shadow-lg p-8 ${className}`}>
-        <div className="text-center">
-          <div className="text-red-500 text-3xl mb-3">⚠️</div>
-          <h3 className="text-lg font-semibold text-gray-800 mb-2">
-            Error al cargar
-          </h3>
-          <p className="text-gray-600 mb-4 text-sm">{error}</p>
-          <button
-            onClick={refreshCycleInfo}
-            className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition-colors text-sm"
-          >
-            Reintentar
-          </button>
-        </div>
+      <div
+        style={{
+          width: "100%",
+          height: "100%",
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "center",
+          background: "transparent",
+          padding: isMobile ? 16 : 24,
+          minHeight: "auto",
+        }}
+      >
+        <img
+          src="/img/UteroRojo.svg"
+          alt="Error"
+          style={{
+            width: isMobile ? 240 : isTablet ? 280 : 320,
+            height: isMobile ? 165 : isTablet ? 192 : 220,
+            opacity: 0.3,
+            objectFit: "contain",
+          }}
+        />
+        <p
+          style={{
+            fontSize: isMobile ? 12 : 14,
+            color: "#C62328",
+            marginTop: 8,
+          }}
+        >
+          Error al cargar
+        </p>
+        <button
+          onClick={refreshCycleInfo}
+          style={{
+            marginTop: 8,
+            padding: "6px 12px",
+            background: "#C62328",
+            color: "white",
+            border: "none",
+            borderRadius: 6,
+            fontSize: isMobile ? 11 : 12,
+            cursor: "pointer",
+          }}
+        >
+          Reintentar
+        </button>
       </div>
     );
   }
 
-  return (
-    <div
-      className={`bg-white rounded-2xl shadow-lg overflow-hidden ${className}`}
-    >
-      {/* Header con gradiente según la fase */}
+  // Vista NO expandida - tu estética actual
+  if (!expanded) {
+    return (
       <div
-        className={`bg-gradient-to-r ${getPhaseColor(
-          currentPhase
-        )} p-6 text-white relative overflow-hidden`}
+        style={{
+          width: "100%",
+          height: "100%",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          background: "transparent",
+          padding: isMobile ? 16 : 24,
+          minHeight: "auto",
+          position: "relative",
+        }}
       >
-        <div className="relative z-10">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-4xl font-bold mb-1">Día {currentDay}</h1>
-              <p className="text-white/90 text-lg">{phaseName}</p>
-            </div>
-            <div className="text-5xl opacity-80">
-              {getPhaseEmoji(currentPhase)}
-            </div>
-          </div>
-        </div>
+        <img
+          src="/img/UteroRojo.svg"
+          alt="Útero central del ciclo"
+          style={{
+            width: isMobile ? 240 : isTablet ? 280 : 320,
+            height: isMobile ? 165 : isTablet ? 192 : 220,
+            opacity: 0.97,
+            objectFit: "contain",
+          }}
+        />
 
-        {/* Patrón decorativo de fondo */}
-        <div className="absolute inset-0 opacity-10">
-          <svg
-            className="w-full h-full"
-            viewBox="0 0 100 100"
-            preserveAspectRatio="none"
+        {/* Información superpuesta - DATOS CORRECTOS */}
+        <div
+          style={{
+            position: "absolute",
+            inset: 0,
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            justifyContent: "center",
+            textAlign: "center",
+            top: "20%",
+          }}
+        >
+          <h1
+            style={{
+              fontSize: isMobile ? 32 : 40,
+              fontWeight: "bold",
+              color: "white",
+              marginBottom: 4,
+            }}
           >
-            <circle cx="20" cy="20" r="15" fill="currentColor" />
-            <circle cx="80" cy="80" r="20" fill="currentColor" />
-            <circle cx="90" cy="30" r="10" fill="currentColor" />
-          </svg>
-        </div>
-      </div>
-
-      {/* Contenido principal */}
-      <div className="p-6 space-y-6">
-        {/* Descripción de la fase */}
-        <div className="bg-gray-50 p-4 rounded-xl">
-          <h3 className="font-semibold text-gray-800 mb-2 flex items-center">
-            <span className="mr-2">✨</span>
-            ¿Qué pasa en tu cuerpo hoy?
-          </h3>
-          <p className="text-gray-700 text-sm leading-relaxed">
-            {phaseDescription}
+            Día {currentDay}
+          </h1>
+          <p
+            style={{
+              color: "white",
+              fontSize: isMobile ? 16 : 20,
+              opacity: 0.9,
+            }}
+          >
+            {phaseName}
           </p>
-        </div>
 
-        {/* Información del ciclo */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {/* Próximo período */}
-          {nextPeriodDate && daysUntilNext !== null && (
-            <div className="bg-purple-50 p-4 rounded-xl border border-purple-200">
-              <div className="flex items-center mb-2">
-                <span className="text-xl mr-2">📅</span>
-                <h4 className="font-semibold text-purple-800 text-sm">
-                  Próximo período
-                </h4>
-              </div>
-              <p className="text-purple-900 font-bold">
-                {formatDate(nextPeriodDate)}
-              </p>
-              <p className="text-purple-700 text-xs">
-                {daysUntilNext > 0 ? `En ${daysUntilNext} días` : "Hoy"}
-              </p>
-            </div>
-          )}
-
-          {/* Duración del ciclo */}
-          <div className="bg-blue-50 p-4 rounded-xl border border-blue-200">
-            <div className="flex items-center mb-2">
-              <span className="text-xl mr-2">⏱️</span>
-              <h4 className="font-semibold text-blue-800 text-sm">
-                Duración del ciclo
-              </h4>
-            </div>
-            <p className="text-blue-900 font-bold">{cycleLength} días</p>
-            <p className="text-blue-700 text-xs">Promedio personal</p>
+          {/* Probabilidad de embarazo */}
+          <div style={{ marginTop: 16 }}>
+            <p
+              style={{
+                color: "white",
+                fontSize: isMobile ? 12 : 14,
+                opacity: 0.8,
+              }}
+            >
+              Probabilidad de embarazo:{" "}
+              <span style={{ fontWeight: "bold" }}>
+                {currentPhase === "ovulacion"
+                  ? "Alta"
+                  : currentPhase === "folicular" && currentDay > 10
+                  ? "Media"
+                  : "Muy baja"}
+              </span>
+            </p>
           </div>
         </div>
 
-        {/* Probabilidad de embarazo */}
-        <div className="bg-gradient-to-r from-pink-50 to-purple-50 p-4 rounded-xl">
-          <h4 className="font-semibold text-gray-800 mb-2 flex items-center text-sm">
-            <span className="mr-2">🤰</span>
-            Probabilidad de embarazo:
-            <span
-              className={`ml-2 px-2 py-1 rounded-full text-xs font-bold ${
-                currentPhase === "ovulacion"
-                  ? "bg-red-100 text-red-800"
-                  : currentPhase === "folicular" && currentDay > 10
-                  ? "bg-yellow-100 text-yellow-800"
-                  : "bg-green-100 text-green-800"
-              }`}
-            >
-              {currentPhase === "ovulacion"
-                ? "Alta"
-                : currentPhase === "folicular" && currentDay > 10
-                ? "Media"
-                : "Muy baja"}
-            </span>
-          </h4>
-        </div>
+        {/* Sección ¿Cómo te sientes hoy? - igual que tu estilo */}
+        <div
+          style={{
+            position: "absolute",
+            bottom: 32,
+            left: 0,
+            right: 0,
+            paddingLeft: 24,
+            paddingRight: 24,
+          }}
+        >
+          <p
+            style={{
+              textAlign: "center",
+              fontSize: isMobile ? 12 : 14,
+              color: "#666",
+              marginBottom: 12,
+            }}
+          >
+            ¿Cómo te sientes hoy?
+          </p>
 
-        {/* Sección ¿Cómo te sientes hoy? */}
-        <div className="bg-gradient-to-r from-pink-50 to-rose-50 p-4 rounded-xl">
-          <h3 className="font-semibold text-gray-800 mb-3 text-sm">
-            💭 ¿Cómo te sientes hoy?
-          </h3>
-
-          <div className="flex justify-center space-x-3 mb-4">
-            {[
-              { emoji: "😊", label: "Bien" },
-              { emoji: "😐", label: "Normal" },
-              { emoji: "😟", label: "Mal" },
-              { emoji: "😔", label: "Triste" },
-              { emoji: "😡", label: "Irritable" },
-            ].map((mood, index) => (
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "center",
+              gap: 12,
+            }}
+          >
+            {["😊", "😐", "😟", "😔", "😡"].map((emoji, index) => (
               <button
                 key={index}
-                className="text-2xl hover:scale-125 transition-transform cursor-pointer p-1 rounded-full hover:bg-white/50"
-                title={mood.label}
-                onClick={() => console.log(`Mood selected: ${mood.label}`)}
+                style={{
+                  background: "none",
+                  border: "none",
+                  fontSize: isMobile ? 20 : 24,
+                  cursor: "pointer",
+                  transition: "transform 0.2s",
+                  padding: 4,
+                }}
+                onClick={() => {
+                  // Cambiar color de fondo según emoción
+                  const colors = [
+                    "#E8F5E9",
+                    "#FFF3E0",
+                    "#FFEBEE",
+                    "#F3E5F5",
+                    "#FFEBEE",
+                  ];
+                  onMoodColorChange?.(colors[index]);
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.transform = "scale(1.1)";
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.transform = "scale(1)";
+                }}
               >
-                {mood.emoji}
+                {emoji}
               </button>
             ))}
           </div>
-
-          {/* Recomendaciones */}
-          <div className="space-y-2">
-            <div className="bg-white/70 p-3 rounded-lg">
-              <h5 className="font-medium text-gray-700 text-xs mb-1 flex items-center">
-                <span className="mr-1">🍽️</span>
-                Receta recomendada
-              </h5>
-              <p className="text-xs text-gray-600">
-                {currentPhase === "menstrual"
-                  ? "No hay receta para hoy."
-                  : currentPhase === "folicular"
-                  ? "Ensalada energética con aguacate"
-                  : currentPhase === "ovulacion"
-                  ? "Salmón con quinoa y verduras"
-                  : "Té de manzanilla con miel"}
-              </p>
-            </div>
-
-            <div className="bg-white/70 p-3 rounded-lg">
-              <h5 className="font-medium text-gray-700 text-xs mb-1 flex items-center">
-                <span className="mr-1">🏃‍♀️</span>
-                Rutina de ejercicio para fase menstrual
-              </h5>
-              <p className="text-xs text-gray-600">
-                {currentPhase === "menstrual"
-                  ? "Yoga suave y estiramientos"
-                  : currentPhase === "folicular"
-                  ? "Cardio moderado y caminatas"
-                  : currentPhase === "ovulacion"
-                  ? "Entrenamientos de alta intensidad"
-                  : "Pilates y ejercicios de fuerza"}
-              </p>
-            </div>
-          </div>
         </div>
+      </div>
+    );
+  }
 
-        {/* Botón de actualizar */}
-        <div className="text-center pt-2">
-          <button
-            onClick={refreshCycleInfo}
-            className="text-gray-500 hover:text-gray-700 text-xs underline transition-colors"
+  // Vista expandida - mantener tu estilo pero con datos correctos
+  return (
+    <div
+      style={{
+        width: "100%",
+        height: "100%",
+        display: "flex",
+        flexDirection: "column",
+        padding: isMobile ? 16 : 24,
+        background: "transparent",
+        gap: isMobile ? 16 : 20,
+        overflow: "auto",
+      }}
+    >
+      {/* Header con día y fase - DATOS CORRECTOS */}
+      <div
+        style={{
+          background: "linear-gradient(to right, #C62328, #E73B3E)",
+          borderRadius: isMobile ? 16 : 20,
+          padding: isMobile ? 20 : 24,
+          color: "white",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+        }}
+      >
+        <div>
+          <h1
+            style={{
+              fontSize: isMobile ? 32 : 40,
+              fontWeight: "bold",
+              margin: 0,
+              marginBottom: 4,
+            }}
           >
-            🔄 Actualizar información
-          </button>
+            Día {currentDay}
+          </h1>
+          <p
+            style={{
+              fontSize: isMobile ? 16 : 18,
+              margin: 0,
+              opacity: 0.9,
+            }}
+          >
+            {phaseName}
+          </p>
         </div>
+        <div
+          style={{
+            fontSize: isMobile ? 40 : 48,
+            opacity: 0.8,
+          }}
+        >
+          {currentPhase === "menstrual"
+            ? "🔴"
+            : currentPhase === "folicular"
+            ? "🌱"
+            : currentPhase === "ovulacion"
+            ? "🥚"
+            : "🌙"}
+        </div>
+      </div>
+
+      {/* Descripción de la fase */}
+      <div
+        style={{
+          background: "#F5F5F5",
+          padding: isMobile ? 16 : 20,
+          borderRadius: isMobile ? 12 : 16,
+        }}
+      >
+        <h3
+          style={{
+            fontSize: isMobile ? 14 : 16,
+            fontWeight: "bold",
+            color: "#333",
+            margin: 0,
+            marginBottom: 8,
+            display: "flex",
+            alignItems: "center",
+          }}
+        >
+          <span style={{ marginRight: 8 }}>✨</span>
+          ¿Qué pasa en tu cuerpo hoy?
+        </h3>
+        <p
+          style={{
+            fontSize: isMobile ? 12 : 14,
+            color: "#666",
+            margin: 0,
+            lineHeight: 1.5,
+          }}
+        >
+          {phaseDescription}
+        </p>
+      </div>
+
+      {/* Información del ciclo en grid */}
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr",
+          gap: isMobile ? 12 : 16,
+        }}
+      >
+        {/* Duración del ciclo */}
+        <div
+          style={{
+            background: "#E6F0FF",
+            padding: isMobile ? 16 : 20,
+            borderRadius: isMobile ? 12 : 16,
+            border: "1px solid #B3D9FF",
+          }}
+        >
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              marginBottom: 8,
+            }}
+          >
+            <span style={{ fontSize: isMobile ? 16 : 18, marginRight: 8 }}>
+              ⏱️
+            </span>
+            <h4
+              style={{
+                fontSize: isMobile ? 12 : 14,
+                fontWeight: "bold",
+                color: "#1E40AF",
+                margin: 0,
+              }}
+            >
+              Duración del ciclo
+            </h4>
+          </div>
+          <p
+            style={{
+              fontSize: isMobile ? 18 : 20,
+              fontWeight: "bold",
+              color: "#1E3A8A",
+              margin: 0,
+              marginBottom: 4,
+            }}
+          >
+            {cycleLength} días
+          </p>
+          <p
+            style={{
+              fontSize: isMobile ? 10 : 12,
+              color: "#3B82F6",
+              margin: 0,
+            }}
+          >
+            Promedio personal
+          </p>
+        </div>
+
+        {/* Próximo período */}
+        {nextPeriodDate && daysUntilNext !== null && (
+          <div
+            style={{
+              background: "#F3E8FF",
+              padding: isMobile ? 16 : 20,
+              borderRadius: isMobile ? 12 : 16,
+              border: "1px solid #D8B4FE",
+            }}
+          >
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                marginBottom: 8,
+              }}
+            >
+              <span style={{ fontSize: isMobile ? 16 : 18, marginRight: 8 }}>
+                📅
+              </span>
+              <h4
+                style={{
+                  fontSize: isMobile ? 12 : 14,
+                  fontWeight: "bold",
+                  color: "#7C3AED",
+                  margin: 0,
+                }}
+              >
+                Próximo período
+              </h4>
+            </div>
+            <p
+              style={{
+                fontSize: isMobile ? 16 : 18,
+                fontWeight: "bold",
+                color: "#6B21A8",
+                margin: 0,
+                marginBottom: 4,
+              }}
+            >
+              {formatDate(nextPeriodDate)}
+            </p>
+            <p
+              style={{
+                fontSize: isMobile ? 10 : 12,
+                color: "#8B5CF6",
+                margin: 0,
+              }}
+            >
+              {daysUntilNext > 0 ? `En ${daysUntilNext} días` : "Hoy"}
+            </p>
+          </div>
+        )}
+      </div>
+
+      {/* Botón de actualizar */}
+      <div style={{ textAlign: "center", marginTop: "auto" }}>
+        <button
+          onClick={refreshCycleInfo}
+          style={{
+            background: "none",
+            border: "none",
+            color: "#666",
+            fontSize: isMobile ? 11 : 12,
+            textDecoration: "underline",
+            cursor: "pointer",
+            padding: 8,
+          }}
+        >
+          🔄 Actualizar información
+        </button>
       </div>
     </div>
   );

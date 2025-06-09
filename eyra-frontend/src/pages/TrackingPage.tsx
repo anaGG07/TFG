@@ -1,5 +1,6 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useSearchParams } from "react-router-dom";
 import LoadingSpinner from "../components/LoadingSpinner";
 import { PermissionsModal } from "../components/PermissionsManager";
 import InvitationWithEmailModal, {
@@ -186,6 +187,9 @@ const neomorphicInsetStyle = {
 };
 
 const TrackingPage: React.FC = () => {
+  // Hook para obtener parámetros de la URL
+  const [searchParams, setSearchParams] = useSearchParams();
+  
   // Hooks reales del proyecto
   const {
     companions,
@@ -224,6 +228,23 @@ const TrackingPage: React.FC = () => {
   const [showInviteWithEmailDialog, setShowInviteWithEmailDialog] =
     useState(false);
   const [showUserSearchDialog, setShowUserSearchDialog] = useState(false);
+
+  // Efecto para detectar código de invitación en la URL
+  useEffect(() => {
+    const codeFromUrl = searchParams.get('code');
+    if (codeFromUrl) {
+      setInputCode(codeFromUrl.toUpperCase());
+      // Limpiar el parámetro de la URL después de procesarlo
+      const newSearchParams = new URLSearchParams(searchParams);
+      newSearchParams.delete('code');
+      setSearchParams(newSearchParams);
+      
+      // Mostrar mensaje de bienvenida
+      setTimeout(() => {
+        alert(`¡Código de invitación detectado!\n\nCódigo: ${codeFromUrl.toUpperCase()}\n\nHaz clic en "Conectar" para aceptar la invitación.`);
+      }, 500);
+    }
+  }, [searchParams, setSearchParams]);
 
   // Estado para el modal de permisos
   const [permissionsModal, setPermissionsModal] = useState<{

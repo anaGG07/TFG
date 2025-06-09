@@ -295,7 +295,9 @@ class EmailService
     private function generateInvitationUrl(string $code): string
     {
         $baseUrl = $_ENV['FRONTEND_BASE_URL'] ?? 'https://eyraclub.es';
-        $invitationPath = $_ENV['FRONTEND_INVITATION_PATH'] ?? '/invitation';
+        $invitationPath = $_ENV['FRONTEND_INVITATION_PATH'] ?? '/tracking';
+        
+        // Generar URL que pre-rellene el código en la página de tracking
         return $baseUrl . $invitationPath . '?code=' . $code;
     }
 }
