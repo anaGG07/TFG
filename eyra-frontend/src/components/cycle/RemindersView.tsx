@@ -27,6 +27,11 @@ const RemindersView: React.FC<RemindersViewProps> = ({
 
   // --- VISTA NO EXPANDIDA ---
   if (!expanded) {
+    // Calcular el número de recordatorios pendientes
+    const pendingCount = notifications?.all?.filter(n => 
+      !n.read && ["reminder", "cycle_prediction"].includes(n.type)
+    ).length || 0;
+
     // Calcular el tamaño del SVG siguiendo el mismo patrón que SymptomsView
     const svgSize = isMobile
       ? { width: 240, height: 165 }
@@ -64,6 +69,20 @@ const RemindersView: React.FC<RemindersViewProps> = ({
             objectFit: "contain",
           }}
         />
+        
+        {/* Mostrar estado de recordatorios */}
+        <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 text-center">
+          {pendingCount > 0 ? (
+            <div className="bg-[#C62328] text-white px-3 py-1 rounded-full text-xs font-semibold shadow-lg">
+              {pendingCount} recordatorio{pendingCount !== 1 ? 's' : ''}
+            </div>
+          ) : (
+            <div className="text-[#7a2323] text-xs font-medium">
+              <div className="text-base mb-1">✨</div>
+              <div>Todo al día</div>
+            </div>
+          )}
+        </div>
       </motion.div>
     );
   }

@@ -85,7 +85,7 @@ function renderSampleCalendar() {
               'bg-[#A2C4C9] text-[#7a2323]'}
             hover:scale-110 hover:ring-2 hover:ring-[#C62328]/40`}
           title={`Día ${day.dayNumber} (${day.phase})`}
-          onClick={() => alert(`Día ${day.dayNumber} (${day.phase})`)}
+          onClick={e => { e.stopPropagation(); alert(`Día ${day.dayNumber} (${day.phase})`); }}
         >
           {day.dayNumber}
         </div>
@@ -169,7 +169,7 @@ const CommunityBox: React.FC<{ expanded: boolean }> = ({ expanded }) => {
           <button
             aria-label="Anterior"
             className="bg-white/70 rounded-full shadow p-1 border border-primary text-primary hover:bg-primary hover:text-white transition pointer-events-auto cursor-pointer"
-            onClick={() => setPage((prev) => (prev === 0 ? totalPages - 1 : prev - 1))}
+            onClick={e => { e.stopPropagation(); setPage((prev) => (prev === 0 ? totalPages - 1 : prev - 1)); }}
             disabled={totalPages <= 1}
           >
             <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6" /></svg>
@@ -184,7 +184,7 @@ const CommunityBox: React.FC<{ expanded: boolean }> = ({ expanded }) => {
                 <button
                   key={user.id}
                   className={`rounded-full border-2 ${selectedId === user.id ? "border-[#C62328] scale-110 shadow-lg" : "border-[#f8f4f1]"} transition-all bg-white flex flex-col items-center cursor-pointer`}
-                  onClick={() => setSelectedId(user.id)}
+                  onClick={e => { e.stopPropagation(); setSelectedId(user.id); }}
                 >
                   {hasValidAvatarConfig ? (
                     <AvatarPreview config={avatarConfig} className="w-20 h-20 rounded-full shadow-lg border-2 border-[#C62328]" />
@@ -199,7 +199,7 @@ const CommunityBox: React.FC<{ expanded: boolean }> = ({ expanded }) => {
           <button
             aria-label="Siguiente"
             className="bg-white/70 rounded-full shadow p-1 border border-primary text-primary hover:bg-primary hover:text-white transition pointer-events-auto cursor-pointer"
-            onClick={() => setPage((prev) => (prev + 1) % totalPages)}
+            onClick={e => { e.stopPropagation(); setPage((prev) => (prev + 1) % totalPages); }}
             disabled={totalPages <= 1}
           >
             <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><polyline points="9 6 15 12 9 18" /></svg>
@@ -213,7 +213,7 @@ const CommunityBox: React.FC<{ expanded: boolean }> = ({ expanded }) => {
           <button
             aria-label="Arriba"
             className="bg-white/70 rounded-full shadow p-1 border border-primary text-primary hover:bg-primary hover:text-white transition pointer-events-auto mb-2 cursor-pointer"
-            onClick={() => setPage((prev) => (prev === 0 ? totalPages - 1 : prev - 1))}
+            onClick={e => { e.stopPropagation(); setPage((prev) => (prev === 0 ? totalPages - 1 : prev - 1)); }}
             disabled={totalPages <= 1}
           >
             <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><polyline points="18 15 12 9 6 15" /></svg>
@@ -228,7 +228,7 @@ const CommunityBox: React.FC<{ expanded: boolean }> = ({ expanded }) => {
                 <button
                   key={user.id}
                   className={`rounded-full border-2 ${selectedId === user.id ? "border-[#C62328] scale-110 shadow-lg" : "border-[#f8f4f1]"} transition-all bg-white flex flex-col items-center cursor-pointer`}
-                  onClick={() => setSelectedId(user.id)}
+                  onClick={e => { e.stopPropagation(); setSelectedId(user.id); }}
                 >
                   {hasValidAvatarConfig ? (
                     <AvatarPreview config={avatarConfig} className="w-20 h-20 rounded-full shadow-lg border-2 border-[#C62328]" />
@@ -243,7 +243,7 @@ const CommunityBox: React.FC<{ expanded: boolean }> = ({ expanded }) => {
           <button
             aria-label="Abajo"
             className="bg-white/70 rounded-full shadow p-1 border border-primary text-primary hover:bg-primary hover:text-white transition pointer-events-auto mt-2 cursor-pointer"
-            onClick={() => setPage((prev) => (prev + 1) % totalPages)}
+            onClick={e => { e.stopPropagation(); setPage((prev) => (prev + 1) % totalPages); }}
             disabled={totalPages <= 1}
           >
             <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 12 15 18 9" /></svg>
@@ -290,68 +290,7 @@ const CommunityBox: React.FC<{ expanded: boolean }> = ({ expanded }) => {
               transition={{ duration: 0.5 }}
               className="w-full max-w-xs bg-[#f8f4f1] rounded-2xl shadow-inner p-4"
             >
-              <h4 className="text-center text-[#C62328] font-bold mb-2">
-                {(() => {
-                  const selectedUser = community.find(
-                    (u) => u.id === selectedId
-                  );
-                  return selectedUser
-                    ? (selectedUser as any).name ||
-                        (selectedUser as any).ownerName
-                    : "Usuario";
-                })()}
-              </h4>
-              {isDesktop ? (
-                calendarData ? (
-                  <div className="text-center">
-                    {/* Mostrar nota de depuración si existe */}
-                    {calendarData.note && (
-                      <div className="text-xs text-orange-600 mb-2 italic">
-                        {calendarData.note}
-                      </div>
-                    )}
-                    
-                    <div className="text-sm text-[#7a2323] mb-2">
-                      {calendarData.currentPhase 
-                        ? `Fase actual: ${calendarData.currentPhase}`
-                        : "Datos de calendario disponibles"
-                      }
-                    </div>
-                    
-                    {/* Información adicional */}
-                    {calendarData.cycles && calendarData.cycles.length > 0 && (
-                      <div className="text-xs text-[#7a2323] opacity-70">
-                        {calendarData.cycles.length} registro(s) de ciclo
-                        {calendarData.hostName && (
-                          <div className="mt-1">De: {calendarData.hostName}</div>
-                        )}
-                      </div>
-                    )}
-                  </div>
-                ) : (
-                  <div className="text-center text-[#7a2323] text-sm opacity-70">
-                    No hay datos de ciclo disponibles para esta persona.
-                    <div className="text-xs mt-1 opacity-50">
-                      Verifica permisos de acceso o conexión.
-                    </div>
-                  </div>
-                )
-              ) : (
-                <div className="text-center text-[#7a2323] text-sm opacity-70">
-                  {calendarData ? (
-                    <>
-                      {calendarData.currentPhase ? `Fase: ${calendarData.currentPhase}` : 'Datos disponibles'}
-                      {calendarData.note && (
-                        <div className="text-xs mt-1 italic text-orange-600">
-                          (Datos propios)
-                        </div>
-                      )}
-                    </>
-                  ) : (
-                    "No hay datos de ciclo para esta persona."
-                  )}
-                </div>
-              )}
+              {/* BLOQUE ELIMINADO: Resumen textual de ciclo, fase, registros, nota, etc. */}
             </motion.div>
           ) : calendarLoading ? (
             <motion.div
@@ -365,27 +304,13 @@ const CommunityBox: React.FC<{ expanded: boolean }> = ({ expanded }) => {
             </motion.div>
           ) : null}
         </AnimatePresence>
+        {/* Solo mostrar el mini calendario (real o de muestra) */}
         {!calendarData || !calendarData.cycles || calendarData.cycles.length === 0 ? (
           <div className="text-center text-[#7a2323] text-sm opacity-70">
             <div className="mb-2">No hay datos de ciclo disponibles para esta persona.</div>
             {renderSampleCalendar()}
           </div>
-        ) : (
-          <div className="text-center text-[#7a2323] text-sm opacity-70">
-            {calendarData ? (
-              <>
-                {calendarData.currentPhase ? `Fase: ${calendarData.currentPhase}` : 'Datos disponibles'}
-                {calendarData.note && (
-                  <div className="text-xs mt-1 italic text-orange-600">
-                    (Datos propios)
-                  </div>
-                )}
-              </>
-            ) : (
-              "No hay datos de ciclo para esta persona."
-            )}
-          </div>
-        )}
+        ) : null}
       </div>
     </div>
   );

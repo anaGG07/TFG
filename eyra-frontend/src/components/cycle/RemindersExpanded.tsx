@@ -100,19 +100,72 @@ const RemindersExpanded: React.FC<RemindersExpandedProps> = ({
             ))}
           </ul>
         ) : (
-          <div className="flex flex-col items-center justify-center py-8">
-            <div className="text-center text-[#7a2323] text-sm mb-4">
-              ¡No tienes recordatorios pendientes!
+          // Contenido por defecto cuando no hay recordatorios
+          <div className="flex flex-col justify-center py-4 h-full">
+            <div className="text-center mb-6">
+              <div className="text-2xl mb-2">🌸</div>
+              <h4 className="text-sm font-semibold text-[#C62328] mb-2">¡Todo al día!</h4>
+              <p className="text-xs text-[#7a2323] mb-4">No tienes recordatorios pendientes</p>
             </div>
-            <button
-              onClick={(e) => { 
-                e.stopPropagation(); 
-                handleMarkAllAsRead(); 
-              }}
-              className="bg-[#C62328] text-white rounded-xl px-4 py-2 text-xs font-semibold shadow hover:bg-[#a81d22] transition mt-2"
-            >
-              Marcar todos como leídos
-            </button>
+
+            {/* Consejos útiles por defecto */}
+            <div className="space-y-3">
+              <div className="bg-[#fff7f7] rounded-lg px-3 py-2 shadow-sm">
+                <div className="flex items-center gap-2">
+                  <span className="text-[#C62328]">💧</span>
+                  <div className="flex-1">
+                    <p className="text-xs font-medium text-[#7a2323]">Mantente hidratada</p>
+                    <p className="text-xs text-[#a62c2c]">Bebe al menos 8 vasos de agua al día</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-[#fff7f7] rounded-lg px-3 py-2 shadow-sm">
+                <div className="flex items-center gap-2">
+                  <span className="text-[#C62328]">🥗</span>
+                  <div className="flex-1">
+                    <p className="text-xs font-medium text-[#7a2323]">Alimentación balanceada</p>
+                    <p className="text-xs text-[#a62c2c]">Incluye hierro y vitaminas en tu dieta</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-[#fff7f7] rounded-lg px-3 py-2 shadow-sm">
+                <div className="flex items-center gap-2">
+                  <span className="text-[#C62328]">🧘‍♀️</span>
+                  <div className="flex-1">
+                    <p className="text-xs font-medium text-[#7a2323]">Ejercicio suave</p>
+                    <p className="text-xs text-[#a62c2c]">Yoga y estiramientos ayudan con calambres</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-[#fff7f7] rounded-lg px-3 py-2 shadow-sm">
+                <div className="flex items-center gap-2">
+                  <span className="text-[#C62328]">😴</span>
+                  <div className="flex-1">
+                    <p className="text-xs font-medium text-[#7a2323]">Descanso reparador</p>
+                    <p className="text-xs text-[#a62c2c]">7-8 horas de sueño mejoran tu bienestar</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-[#fff7f7] rounded-lg px-3 py-2 shadow-sm">
+                <div className="flex items-center gap-2">
+                  <span className="text-[#C62328]">📝</span>
+                  <div className="flex-1">
+                    <p className="text-xs font-medium text-[#7a2323]">Registra tu ciclo</p>
+                    <p className="text-xs text-[#a62c2c]">Anota síntomas para mejor seguimiento</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="mt-4 text-center">
+              <p className="text-xs text-[#a62c2c] italic">
+                Los recordatorios aparecerán aquí cuando tengas notificaciones pendientes
+              </p>
+            </div>
           </div>
         )}
 
