@@ -61,6 +61,14 @@ const CycleVisual: React.FC<CycleVisualProps> = ({
   );
   const [saving, setSaving] = useState(false);
 
+  // ! 08/06/2025 - Actualizar selectedMood cuando cambien los datos del calendario
+  useEffect(() => {
+    const todayMood = todayData?.mood?.[0];
+    if (todayMood && todayMood !== selectedMood) {
+      setSelectedMood(todayMood);
+    }
+  }, [todayData, selectedMood]);
+
   // Obtener recomendaciones al cargar
   useEffect(() => {
     if (!expanded) return;
@@ -88,20 +96,49 @@ const CycleVisual: React.FC<CycleVisualProps> = ({
     fetchRecs();
   }, [getRecommendations, phase, expanded]);
 
-  // Guardar estado de ánimo
+  // Guardar estado de ánimo - FUNCIONALIDAD ORIGINAL RESTAURADA
   const handleMoodSelect = async (mood: string, e: React.MouseEvent) => {
     e.stopPropagation();
     setSelectedMood(mood);
-    if (!todayData) return;
-    setSaving(true);
-    await addCycleDay({
-      ...todayData,
-      mood: [mood],
-      notes: Array.isArray(todayData.notes)
-        ? todayData.notes.join(" | ")
-        : todayData.notes || "",
+
+    // ! 08/06/2025 - Crear o actualizar todayData si no existe
+    const today = new Date().toISOString().split("T")[0];
+    const dayToUpdate = todayData || {
+      id: String(Date.now()),
+      date: today,
+      dayNumber: correctDay,
+      phase: correctPhase as CyclePhase,
+      flowIntensity: undefined,
+      mood: [],
+      symptoms: [],
+      notes: [],
+      hormoneLevels: [],
+    };
+
+    console.log("💾 Guardando mood:", {
+      mood,
+      day: today,
+      phase: correctPhase,
     });
-    setSaving(false);
+    setSaving(true);
+
+    try {
+      await addCycleDay({
+        ...dayToUpdate,
+        mood: [mood],
+        notes: Array.isArray(dayToUpdate.notes)
+          ? dayToUpdate.notes.join(" | ")
+          : dayToUpdate.notes?.[0] || "",
+        phase: correctPhase as CyclePhase,
+        date: today,
+        symptoms: dayToUpdate.symptoms || [],
+      });
+      console.log("✅ Mood guardado exitosamente");
+    } catch (error) {
+      console.error("❌ Error al guardar mood:", error);
+    } finally {
+      setSaving(false);
+    }
   };
 
   // Calcular ángulo del marcador

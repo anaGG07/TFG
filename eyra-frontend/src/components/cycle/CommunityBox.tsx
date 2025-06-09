@@ -79,11 +79,11 @@ function renderSampleCalendar() {
         <div
           key={day.date}
           className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold cursor-pointer transition-all
-            ${day.phase === 'menstrual' ? 'bg-[#F15B5B] text-white' :
-              day.phase === 'folicular' ? 'bg-[#F1C232] text-[#7a2323]' :
-              day.phase === 'ovulacion' ? 'bg-[#6FA8DC] text-white' :
-              'bg-[#A2C4C9] text-[#7a2323]'}
-            hover:scale-110 hover:ring-2 hover:ring-[#C62328]/40`}
+            ${day.phase === 'menstrual' ? 'bg-[#F8B4B4] text-[#7a2323]' :
+              day.phase === 'folicular' ? 'bg-[#FDF6B2] text-[#7a2323]' :
+              day.phase === 'ovulacion' ? 'bg-[#B4E1FA] text-[#7a2323]' :
+              'bg-[#C3DDFD] text-[#7a2323]'}
+            hover:scale-110 hover:shadow-md`}
           title={`Día ${day.dayNumber} (${day.phase})`}
           onClick={e => { e.stopPropagation(); alert(`Día ${day.dayNumber} (${day.phase})`); }}
         >
@@ -183,15 +183,15 @@ const CommunityBox: React.FC<{ expanded: boolean }> = ({ expanded }) => {
               return (
                 <button
                   key={user.id}
-                  className={`rounded-full border-2 ${selectedId === user.id ? "border-[#C62328] scale-110 shadow-lg" : "border-[#f8f4f1]"} transition-all bg-white flex flex-col items-center cursor-pointer`}
+                  className={`rounded-full shadow-md flex flex-col items-center cursor-pointer transition-all`}
                   onClick={e => { e.stopPropagation(); setSelectedId(user.id); }}
                 >
                   {hasValidAvatarConfig ? (
-                    <AvatarPreview config={avatarConfig} className="w-20 h-20 rounded-full shadow-lg border-2 border-[#C62328]" />
+                    <AvatarPreview config={avatarConfig} className="w-28 h-28 rounded-full shadow-lg border-2 border-[#C62328]" />
                   ) : (
-                    <img src="/img/avatar-default.png" alt="Avatar por defecto" className="w-20 h-20 rounded-full object-cover shadow-lg border-2 border-[#C62328]" />
+                    <img src="/img/avatar-default.png" alt="Avatar por defecto" className="w-28 h-28 rounded-full object-cover shadow-lg border-2 border-[#C62328]" />
                   )}
-                  <span className="block text-xs text-[#7a2323] mt-1 max-w-[70px] truncate">{userName || userUsername}</span>
+                  <span className="block text-xs text-[#7a2323] mt-2 max-w-[90px] truncate">{userName || userUsername}</span>
                 </button>
               );
             })}
@@ -227,15 +227,15 @@ const CommunityBox: React.FC<{ expanded: boolean }> = ({ expanded }) => {
               return (
                 <button
                   key={user.id}
-                  className={`rounded-full border-2 ${selectedId === user.id ? "border-[#C62328] scale-110 shadow-lg" : "border-[#f8f4f1]"} transition-all bg-white flex flex-col items-center cursor-pointer`}
+                  className={`rounded-full shadow-md flex flex-col items-center cursor-pointer transition-all`}
                   onClick={e => { e.stopPropagation(); setSelectedId(user.id); }}
                 >
                   {hasValidAvatarConfig ? (
-                    <AvatarPreview config={avatarConfig} className="w-20 h-20 rounded-full shadow-lg border-2 border-[#C62328]" />
+                    <AvatarPreview config={avatarConfig} className="w-28 h-28 rounded-full shadow-lg border-2 border-[#C62328]" />
                   ) : (
-                    <img src="/img/avatar-default.png" alt="Avatar por defecto" className="w-20 h-20 rounded-full object-cover shadow-lg border-2 border-[#C62328]" />
+                    <img src="/img/avatar-default.png" alt="Avatar por defecto" className="w-28 h-28 rounded-full object-cover shadow-lg border-2 border-[#C62328]" />
                   )}
-                  <span className="block text-xs text-[#7a2323] mt-1 max-w-[70px] truncate">{userName || userUsername}</span>
+                  <span className="block text-xs text-[#7a2323] mt-2 max-w-[90px] truncate">{userName || userUsername}</span>
                 </button>
               );
             })}
@@ -281,18 +281,8 @@ const CommunityBox: React.FC<{ expanded: boolean }> = ({ expanded }) => {
         }`}
       >
         <AnimatePresence>
-          {selectedId && !calendarLoading ? (
-            <motion.div
-              key={selectedId}
-              initial={{ opacity: 0, x: 40 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: 40 }}
-              transition={{ duration: 0.5 }}
-              className="w-full max-w-xs bg-[#f8f4f1] rounded-2xl shadow-inner p-4"
-            >
-              {/* BLOQUE ELIMINADO: Resumen textual de ciclo, fase, registros, nota, etc. */}
-            </motion.div>
-          ) : calendarLoading ? (
+          {/* Eliminar el motion.div vacío, solo mostrar loading si calendarLoading */}
+          {calendarLoading ? (
             <motion.div
               key="loading"
               initial={{ opacity: 0 }}

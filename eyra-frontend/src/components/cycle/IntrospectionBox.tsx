@@ -3,11 +3,12 @@ import { motion, AnimatePresence } from "framer-motion";
 import { adminContentService } from "../../services/adminContentService";
 import type { Content } from "../../types/domain";
 
-const getRandomElement = (arr: any[]) => arr[Math.floor(Math.random() * arr.length)];
+const getRandomElement = (arr: any[]) =>
+  arr[Math.floor(Math.random() * arr.length)];
 
 const typeLabels: Record<string, string> = {
   nutrition: "Nutrición",
-  exercise: "Ejercicio", 
+  exercise: "Ejercicio",
   article: "Artículo",
   selfcare: "Autocuidado",
   recommendation: "Recomendación",
@@ -22,18 +23,21 @@ const fallbackArticles = [
   {
     id: "intro1",
     title: "Las Campañas Rojas: Reclamando el Poder Menstrual",
-    summary: "Historia del movimiento que transformó la percepción social de la menstruación",
-    content: "Este artículo explora cómo los movimientos activistas han trabajado para desmitificar la menstruación y empoderar a las mujeres a través de la educación y la normalización de los ciclos naturales.",
+    summary:
+      "Historia del movimiento que transformó la percepción social de la menstruación",
+    content:
+      "Este artículo explora cómo los movimientos activistas han trabajado para desmitificar la menstruación y empoderar a las mujeres a través de la educación y la normalización de los ciclos naturales.",
     type: "historical" as const,
     readTime: "8 min",
     tags: ["historia", "activismo", "sociedad"],
     isNew: true,
   },
   {
-    id: "intro2", 
+    id: "intro2",
     title: "Rituales Ancestrales: La Menstruación en Culturas Antiguas",
     summary: "Explorando cómo las civilizaciones honraban los ciclos femeninos",
-    content: "Un viaje fascinante por las diferentes culturas que veían la menstruación como un proceso sagrado, lleno de rituales de poder y conexión espiritual.",
+    content:
+      "Un viaje fascinante por las diferentes culturas que veían la menstruación como un proceso sagrado, lleno de rituales de poder y conexión espiritual.",
     type: "historical" as const,
     readTime: "12 min",
     tags: ["cultura", "rituales", "ancestral"],
@@ -41,9 +45,10 @@ const fallbackArticles = [
   },
   {
     id: "intro3",
-    title: "Nuevos Hallazgos en Investigación Hormonal", 
+    title: "Nuevos Hallazgos en Investigación Hormonal",
     summary: "Últimos estudios sobre fluctuaciones hormonales y su impacto",
-    content: "Descubrimientos científicos recientes revelan patrones fascinantes sobre cómo las hormonas influyen no solo en el ciclo menstrual, sino en múltiples aspectos de la salud femenina.",
+    content:
+      "Descubrimientos científicos recientes revelan patrones fascinantes sobre cómo las hormonas influyen no solo en el ciclo menstrual, sino en múltiples aspectos de la salud femenina.",
     type: "research" as const,
     readTime: "15 min",
     tags: ["hormonas", "investigación", "ciencia"],
@@ -57,7 +62,13 @@ interface LibraryContent {
   title: string;
   summary: string;
   content?: string;
-  type: "historical" | "research" | "phases" | "inclusivity" | "maternity" | "wisdom";
+  type:
+    | "historical"
+    | "research"
+    | "phases"
+    | "inclusivity"
+    | "maternity"
+    | "wisdom";
   readTime: string;
   tags: string[];
   isNew?: boolean;
@@ -66,7 +77,7 @@ interface LibraryContent {
 const getTypeColor = (type: LibraryContent["type"]): string => {
   const colors = {
     historical: "linear-gradient(135deg, #C62328, #9d0d0b)",
-    research: "linear-gradient(135deg, #2563eb, #1d4ed8)", 
+    research: "linear-gradient(135deg, #2563eb, #1d4ed8)",
     phases: "linear-gradient(135deg, #7c3aed, #5b21b6)",
     inclusivity: "linear-gradient(135deg, #059669, #047857)",
     maternity: "linear-gradient(135deg, #dc2626, #b91c1c)",
@@ -251,15 +262,15 @@ const ArticleModal: React.FC<{
                 {!article.content && (
                   <>
                     <p>
-                      Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed
-                      do eiusmod tempor incididunt ut labore et dolore magna aliqua.
-                      Ut enim ad minim veniam, quis nostrud exercitation ullamco
-                      laboris.
+                      Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+                      Sed do eiusmod tempor incididunt ut labore et dolore magna
+                      aliqua. Ut enim ad minim veniam, quis nostrud exercitation
+                      ullamco laboris.
                     </p>
                     <p>
-                      Duis aute irure dolor in reprehenderit in voluptate velit esse
-                      cillum dolore eu fugiat nulla pariatur. Excepteur sint
-                      occaecat cupidatat non proident.
+                      Duis aute irure dolor in reprehenderit in voluptate velit
+                      esse cillum dolore eu fugiat nulla pariatur. Excepteur
+                      sint occaecat cupidatat non proident.
                     </p>
                   </>
                 )}
@@ -286,19 +297,21 @@ const IntrospectionBox: React.FC = () => {
         if (allContent && allContent.length > 0) {
           // Filtrar solo los que tienen description o content
           const candidates = allContent.filter(
-            c => (c as any)?.description || (c as any)?.content
+            (c) => (c as any)?.description || (c as any)?.content
           );
-          
+
           if (candidates.length > 0) {
             // Convertir Content a LibraryContent para el modal
             const randomContent = getRandomElement(candidates);
-            
+
             // Mapear el tipo del contenido a los tipos válidos de LibraryContent
-            const mapContentType = (contentType: string): LibraryContent["type"] => {
+            const mapContentType = (
+              contentType: string
+            ): LibraryContent["type"] => {
               const typeMap: Record<string, LibraryContent["type"]> = {
                 article: "historical",
                 nutrition: "wisdom",
-                exercise: "phases", 
+                exercise: "phases",
                 selfcare: "wisdom",
                 recommendation: "inclusivity",
                 educational: "research",
@@ -308,11 +321,13 @@ const IntrospectionBox: React.FC = () => {
               };
               return typeMap[contentType?.toLowerCase()] || "historical";
             };
-            
+
             const libraryContent: LibraryContent = {
               id: randomContent.id || String(Date.now()),
               title: randomContent.title || "Contenido sin título",
-              summary: (randomContent as any)?.description || "Sin descripción disponible",
+              summary:
+                (randomContent as any)?.description ||
+                "Sin descripción disponible",
               content: (randomContent as any)?.content,
               type: mapContentType(randomContent.type || "article"),
               readTime: "5 min", // Valor por defecto
@@ -329,7 +344,10 @@ const IntrospectionBox: React.FC = () => {
           setHighlight(getRandomElement(fallbackArticles));
         }
       } catch (e) {
-        console.log("IntrospectionBox: Usando contenido de fallback debido a error:", e);
+        console.log(
+          "IntrospectionBox: Usando contenido de fallback debido a error:",
+          e
+        );
         // En caso de error, usar artículos predefinidos
         setHighlight(getRandomElement(fallbackArticles));
       } finally {
@@ -343,7 +361,8 @@ const IntrospectionBox: React.FC = () => {
     if (!c) return "";
     // Usar summary primero, luego content truncado
     if (c.summary) return c.summary;
-    if (c.content) return c.content.slice(0, 180) + (c.content.length > 180 ? "..." : "");
+    if (c.content)
+      return c.content.slice(0, 180) + (c.content.length > 180 ? "..." : "");
     return "";
   };
 
@@ -352,7 +371,8 @@ const IntrospectionBox: React.FC = () => {
     return typeLabels[c.type?.toLowerCase?.()] || c.type || "";
   };
 
-  const handleClick = () => {
+  const handleClick = (e: React.MouseEvent) => {
+    e.stopPropagation(); // ! 08/06/2025 - Prevenir que el evento se propague al DraggableGrid
     if (highlight) {
       setIsModalOpen(true);
     }
@@ -364,21 +384,27 @@ const IntrospectionBox: React.FC = () => {
 
   return (
     <>
-      <div 
-        className="h-full flex flex-col justify-center items-center px-6 py-8 cursor-pointer"
-        onClick={handleClick}
-      >
+      <div className="h-full flex flex-col justify-center items-center px-6 py-8">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7, ease: "easeOut" }}
-          className="rounded-2xl shadow-inner p-6 max-w-xl w-full hover:shadow-lg transition-shadow duration-300"
-          style={{ boxShadow: "0 4px 24px 0 #e7e0d5, 0 -4px 24px 0 #fff", background: 'transparent' }}
+          className="rounded-2xl shadow-inner p-6 max-w-xl w-full hover:shadow-lg transition-shadow duration-300 cursor-pointer"
+          style={{
+            boxShadow: "0 4px 24px 0 #e7e0d5, 0 -4px 24px 0 #fff",
+            background: "transparent",
+          }}
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.98 }}
+          onClick={(e) => {
+            e.stopPropagation(); // ! 08/06/2025 - Doble protección contra propagación
+            handleClick(e);
+          }}
         >
           {loading ? (
-            <div className="text-center text-[#C62328] text-lg font-serif italic animate-pulse">Cargando...</div>
+            <div className="text-center text-[#C62328] text-lg font-serif italic animate-pulse">
+              Cargando...
+            </div>
           ) : highlight ? (
             <>
               <div className="text-center text-lg md:text-xl font-serif italic text-[#C62328] mb-4">

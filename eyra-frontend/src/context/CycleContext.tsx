@@ -7,6 +7,7 @@ import React, {
   useEffect,
 } from "react";
 import { apiFetch } from "../utils/httpClient";
+import { ContentType } from "../types/domain";
 import {
   CycleDay,
   CyclePhase,
@@ -14,7 +15,7 @@ import {
   HormoneLevel,
 } from "../types/domain";
 import { API_ROUTES } from "../config/apiRoutes";
-import { startOfMonth, endOfMonth } from 'date-fns';
+import { startOfMonth, endOfMonth } from "date-fns";
 import { useAuth } from "../context/AuthContext";
 
 export interface CycleDayInput {
@@ -75,7 +76,9 @@ export const CycleProvider: React.FC<{ children: ReactNode }> = ({
     null
   );
   const [isLoading, setIsLoading] = useState(false);
-  const [currentPhase, setCurrentPhase] = useState<CyclePhase>(CyclePhase.MENSTRUAL);
+  const [currentPhase, setCurrentPhase] = useState<CyclePhase>(
+    CyclePhase.MENSTRUAL
+  );
   const { isAuthenticated } = useAuth();
 
   // Cargar días del calendario - API REAL ACTIVADA
@@ -168,10 +171,26 @@ export const CycleProvider: React.FC<{ children: ReactNode }> = ({
         let response;
         let saveSuccessful = false;
         const endpoints = [
-          { method: "POST", url: `${API_ROUTES.CYCLES.ALL}/day`, name: "POST /cycles/day" },
-          { method: "PUT", url: `${API_ROUTES.CYCLES.ALL}/${data.date}`, name: "PUT /cycles/{date}" },
-          { method: "PATCH", url: `${API_ROUTES.CYCLES.ALL}/${data.date}`, name: "PATCH /cycles/{date}" },
-          { method: "POST", url: API_ROUTES.CYCLES.CREATE, name: "POST /cycles (create)" }
+          {
+            method: "POST",
+            url: `${API_ROUTES.CYCLES.ALL}/day`,
+            name: "POST /cycles/day",
+          },
+          {
+            method: "PUT",
+            url: `${API_ROUTES.CYCLES.ALL}/${data.date}`,
+            name: "PUT /cycles/{date}",
+          },
+          {
+            method: "PATCH",
+            url: `${API_ROUTES.CYCLES.ALL}/${data.date}`,
+            name: "PATCH /cycles/{date}",
+          },
+          {
+            method: "POST",
+            url: API_ROUTES.CYCLES.CREATE,
+            name: "POST /cycles (create)",
+          },
         ];
 
         for (const endpoint of endpoints) {
@@ -382,29 +401,80 @@ export const CycleProvider: React.FC<{ children: ReactNode }> = ({
         error
       );
 
-      // Fallback: simulación para desarrollo
+      // Fallback: simulación para desarrollo con recomendaciones por fase
       const simulatedRecommendations = [
+        // Fase Menstrual
         {
           id: 1,
           title: "Smoothie de frutos rojos",
-          description:
-            "Ideal para fase menstrual, rico en hierro y antioxidantes",
-          type: "nutrition",
+          summary:
+            "Rico en hierro y antioxidantes para combatir la fatiga menstrual",
+          type: ContentType.NUTRITION,
+          targetPhase: CyclePhase.MENSTRUAL,
           imageUrl: API_ROUTES.MEDIA.PLACEHOLDER(300, 200),
         },
         {
           id: 2,
           title: "Yoga suave para calambres",
-          description: "Rutina de 15 minutos para aliviar el dolor menstrual",
-          type: "exercise",
+          summary:
+            "Rutina de 15 minutos con posturas para aliviar el dolor menstrual",
+          type: ContentType.EXERCISE,
+          targetPhase: CyclePhase.MENSTRUAL,
+          imageUrl: API_ROUTES.MEDIA.PLACEHOLDER(300, 200),
+        },
+        // Fase Folicular
+        {
+          id: 3,
+          title: "Ensalada energética con aguacate",
+          summary:
+            "Alimentos frescos y nutritivos para aprovechar tu energía creciente",
+          type: ContentType.NUTRITION,
+          targetPhase: CyclePhase.FOLICULAR,
           imageUrl: API_ROUTES.MEDIA.PLACEHOLDER(300, 200),
         },
         {
-          id: 3,
-          title: "Suplementos de hierro",
-          description:
-            "Recomendaciones para prevenir la anemia durante la menstruación",
-          type: "article",
+          id: 4,
+          title: "Cardio moderado y caminatas",
+          summary:
+            "Ejercicios cardiovasculares para potenciar tu energía natural",
+          type: ContentType.EXERCISE,
+          targetPhase: CyclePhase.FOLICULAR,
+          imageUrl: API_ROUTES.MEDIA.PLACEHOLDER(300, 200),
+        },
+        // Fase Ovulación
+        {
+          id: 5,
+          title: "Salmón con quinoa y verduras",
+          summary: "Proteínas de calidad y omega-3 para tu momento más fértil",
+          type: ContentType.NUTRITION,
+          targetPhase: CyclePhase.OVULACION,
+          imageUrl: API_ROUTES.MEDIA.PLACEHOLDER(300, 200),
+        },
+        {
+          id: 6,
+          title: "Entrenamientos de alta intensidad",
+          summary: "Aprovecha tu pico de energía con ejercicios intensos",
+          type: ContentType.EXERCISE,
+          targetPhase: CyclePhase.OVULACION,
+          imageUrl: API_ROUTES.MEDIA.PLACEHOLDER(300, 200),
+        },
+        // Fase Lútea
+        {
+          id: 7,
+          title: "Té de manzanilla con miel",
+          summary:
+            "Bebida relajante para reducir la ansiedad y mejorar el sueño",
+          type: ContentType.NUTRITION,
+          targetPhase: CyclePhase.LUTEA,
+          imageUrl: API_ROUTES.MEDIA.PLACEHOLDER(300, 200),
+        },
+        {
+          id: 8,
+          title: "Pilates y ejercicios de fuerza",
+          summary:
+            "Fortalecimiento suave para preparar tu cuerpo para el próximo ciclo",
+          type: ContentType.EXERCISE,
+          targetPhase: CyclePhase.LUTEA,
           imageUrl: API_ROUTES.MEDIA.PLACEHOLDER(300, 200),
         },
       ];
