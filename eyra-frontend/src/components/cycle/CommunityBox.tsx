@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useTracking } from "../../hooks/useTracking";
 import { useViewport } from "../../hooks/useViewport";
-import { NeomorphicCalendar } from "../../features/calendar/components/NeomorphicCalendar";
 import { apiFetch } from "../../utils/httpClient";
 import { API_ROUTES } from "../../config/apiRoutes";
 import AvatarPreview from "../avatarBuilder/AvatarPreview";
@@ -209,16 +208,24 @@ const CommunityBox: React.FC<{ expanded: boolean }> = ({ expanded }) => {
   }, [community, selectedId]);
 
   useEffect(() => {
-    if (selectedId) {
+    if (selectedId && !calendarLoading) {
       setCalendarLoading(true);
-      fetchUserCalendar(selectedId)
-        .then((data) => {
-          setCalendarData(data);
-          setCalendarLoading(false);
-        })
-        .catch(() => {
-          setCalendarLoading(false);
-        });
+      
+      // Añadir un pequeño delay para evitar múltiples llamadas
+      const timeoutId = setTimeout(() => {
+        fetchUserCalendar(selectedId)
+          .then((data) => {
+            setCalendarData(data);
+          })
+          .catch((error) => {
+            console.error("Error fetching calendar:", error);
+          })
+          .finally(() => {
+            setCalendarLoading(false);
+          });
+      }, 100);
+
+      return () => clearTimeout(timeoutId);
     }
   }, [selectedId]);
 
@@ -534,27 +541,19 @@ const CommunityBox: React.FC<{ expanded: boolean }> = ({ expanded }) => {
                 transition={{ duration: 0.3 }}
                 className="w-full max-w-sm"
               >
-                {(!calendarData || !calendarData.cycles || calendarData.cycles.length === 0) ? (
-                  <div className="text-center mb-4">
-                    <div className="text-[#7a2323] text-sm opacity-70 mb-4">
-                      Calendario de muestra - Sin datos reales disponibles
-                    </div>
-                    <NeomorphicMiniCalendar 
-                      days={generateSampleCalendar()} 
-                      onShowToast={handleShowToast}
-                    />
+                <div className="text-center mb-4">
+                  <div className="text-[#7a2323] text-sm opacity-70 mb-4">
+                    {calendarData && calendarData.cycles && calendarData.cycles.length > 0 
+                      ? `Calendario de ${calendarData.hostName}` 
+                      : "Calendario de muestra - Sin datos reales disponibles"}
                   </div>
-                ) : (
-                  <div className="text-center">
-                    <div className="text-[#7a2323] text-sm mb-4">
-                      Calendario real de {calendarData.hostName}
-                    </div>
-                    <NeomorphicMiniCalendar 
-                      days={calendarData.cycles} 
-                      onShowToast={handleShowToast}
-                    />
-                  </div>
-                )}
+                  <NeomorphicMiniCalendar 
+                    days={calendarData && calendarData.cycles && calendarData.cycles.length > 0 
+                      ? calendarData.cycles 
+                      : generateSampleCalendar()} 
+                    onShowToast={handleShowToast}
+                  />
+                </div>
               </motion.div>
             )}
           </AnimatePresence>

@@ -359,7 +359,7 @@ const DraggableGrid: React.FC<DraggableGridProps> = ({
             }
           >
             {/* ! 09/06/2025 - Área de cierre solo en el header */}
-            <div
+            <div 
               className="absolute top-0 left-0 right-0 h-12 z-10 cursor-pointer"
               onClick={() => handleItemClick(expandedItem.id)}
               title="Clic para cerrar"
@@ -780,7 +780,7 @@ const DraggableGrid: React.FC<DraggableGridProps> = ({
             : isTablet
             ? "grid grid-cols-2 auto-rows-fr"
             : "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 auto-rows-fr"
-        } ${isLibrary ? 'p-8' : ''}`}
+        } ${isLibrary ? "p-8" : ""}`}
         style={{
           ...(isDesktop ? { gridTemplateRows: "repeat(2, 1fr)" } : {}),
           // Altura calculada para el efecto apilado en móvil
