@@ -48,6 +48,157 @@ interface RitualsViewProps {
   expanded?: boolean;
 }
 
+// ! 09/06/2025 - Componente para mostrar cada ritual individual
+interface RitualCardProps {
+  ritual: Content;
+  index: number;
+  isMobile: boolean;
+  isGeneral?: boolean;
+  isMoon?: boolean;
+}
+
+const RitualCard: React.FC<RitualCardProps> = ({
+  ritual,
+  index,
+  isMobile,
+  isGeneral = false,
+  isMoon = false,
+}) => {
+  const [isExpanded, setIsExpanded] = useState(false);
+
+  const handleCardClick = (e: React.MouseEvent) => {
+    e.stopPropagation(); // ! 09/06/2025 - Prevenir propagación para evitar cerrar el modal
+    setIsExpanded(!isExpanded);
+  };
+
+  const cardBgColor = isGeneral
+    ? "#F0F8FF"
+    : isMoon
+    ? "#F5F0FF"
+    : "transparent";
+  const borderColor = isGeneral
+    ? "#B3D9F7"
+    : isMoon
+    ? "#D4C5F9"
+    : "transparent";
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: index * 0.1 }}
+      style={{
+        background: cardBgColor,
+        padding: isMobile ? 16 : 20,
+        borderRadius: 12,
+        border:
+          borderColor !== "transparent" ? `1px solid ${borderColor}` : "none",
+        boxShadow: isGeneral || isMoon ? "0 2px 8px rgba(0,0,0,0.05)" : "none",
+        cursor: "pointer",
+        transition: "all 0.2s ease",
+      }}
+      onClick={handleCardClick}
+      whileHover={{ scale: 1.02 }}
+      whileTap={{ scale: 0.98 }}
+    >
+      <div
+        style={{
+          display: "flex",
+          alignItems: "flex-start",
+          justifyContent: "space-between",
+        }}
+      >
+        <div style={{ flex: 1 }}>
+          <h4
+            style={{
+              fontSize: isMobile ? 16 : 18,
+              color: "#4A9D7B",
+              marginBottom: 8,
+              display: "flex",
+              alignItems: "center",
+              gap: 8,
+            }}
+          >
+            {isMoon && "🌙"} {isGeneral && "✨"} {ritual.title}
+          </h4>
+          <p
+            style={{
+              color: "#666",
+              marginBottom: 12,
+              fontSize: isMobile ? 13 : 15,
+            }}
+          >
+            {ritual.summary}
+          </p>
+        </div>
+        <div style={{ marginLeft: 12 }}>
+          <span style={{ color: "#4A9D7B", fontSize: 12 }}>
+            {isExpanded ? "▲" : "▼"}
+          </span>
+        </div>
+      </div>
+
+      {/* Contenido expandido */}
+      <motion.div
+        initial={false}
+        animate={{
+          height: isExpanded ? "auto" : 0,
+          opacity: isExpanded ? 1 : 0,
+        }}
+        transition={{ duration: 0.3 }}
+        style={{ overflow: "hidden" }}
+      >
+        <div
+          style={{
+            paddingTop: 12,
+            borderTop: "1px solid #E5E7EB",
+            marginTop: 12,
+          }}
+        >
+          <div
+            style={{
+              color: "#666",
+              fontSize: 13,
+              marginBottom: 8,
+              lineHeight: 1.6,
+            }}
+          >
+            {ritual.body}
+          </div>
+
+          {/* Tags */}
+          {ritual.tags && ritual.tags.length > 0 && (
+            <div
+              style={{
+                display: "flex",
+                flexWrap: "wrap",
+                gap: 6,
+                marginTop: 12,
+              }}
+            >
+              {ritual.tags.map((tag, tagIndex) => (
+                <span
+                  key={tagIndex}
+                  style={{
+                    background: "#4A9D7B",
+                    color: "white",
+                    padding: "4px 8px",
+                    borderRadius: 16,
+                    fontSize: 11,
+                    fontWeight: 500,
+                  }}
+                >
+                  {tag}
+                </span>
+              ))}
+            </div>
+          )}
+        </div>
+      </motion.div>
+    </motion.div>
+  );
+};
+
 const RitualsView: React.FC<RitualsViewProps> = ({ expanded = true }) => {
   const { currentPhase } = useCycle();
   const { currentPhase: correctPhase } = useCurrentCycle(); // ! 08/06/2025 - Usar fase correcta
@@ -87,9 +238,13 @@ const RitualsView: React.FC<RitualsViewProps> = ({ expanded = true }) => {
         // Procesar respuesta
         let ritualsData: Content[] = [];
         if (Array.isArray(response)) {
-          ritualsData = response.filter((item: any): item is Content => item.type === "ritual");
+          ritualsData = response.filter(
+            (item: any): item is Content => item.type === "ritual"
+          );
         } else if (response && Array.isArray(response.data)) {
-          ritualsData = response.data.filter((item: any): item is Content => item.type === "ritual");
+          ritualsData = response.data.filter(
+            (item: any): item is Content => item.type === "ritual"
+          );
         }
 
         // Si no se obtuvieron rituales de la API, usar fallback inmediatamente
@@ -181,6 +336,22 @@ const RitualsView: React.FC<RitualsViewProps> = ({ expanded = true }) => {
             type: ContentType.RITUAL,
             tags: ["journaling", "luna_nueva", "reflexión"],
           },
+          {
+            id: 26,
+            title: "Meditación de conexión con la naturaleza",
+            summary: "Ritual general para conectar con los ciclos naturales.",
+            body: "Siéntate al aire libre durante 15 minutos. Respira profundamente y visualiza cómo tu ciclo se sincroniza con los ritmos de la naturaleza.",
+            type: ContentType.RITUAL,
+            tags: ["meditación", "naturaleza", "respiración"],
+          },
+          {
+            id: 27,
+            title: "Ritual de autocompasión",
+            summary: "Practica la bondad contigo misma durante cualquier fase.",
+            body: "Coloca una mano en tu corazón y otra en tu vientre. Repite: 'Me acepto tal como soy. Mi cuerpo es sabio. Merezco amor y cuidado.'",
+            type: ContentType.RITUAL,
+            tags: ["autocompasión", "amor_propio", "afirmaciones"],
+          },
         ];
 
         setRituals(fallbackRituals);
@@ -252,21 +423,26 @@ const RitualsView: React.FC<RitualsViewProps> = ({ expanded = true }) => {
     );
   }
 
-  // ! 08/06/2025 - Filtrar rituales usando la fase correcta
+  // ! 09/06/2025 - Filtrar rituales usando la fase correcta y mejorar clasificación
   const phaseRituals = rituals.filter((r) => r.targetPhase === correctPhase);
   const moonRituals = rituals.filter(
     (r) =>
       r.tags &&
       (r.tags.includes("luna_llena") ||
         r.tags.includes("luna_nueva") ||
-        r.tags.includes("journaling"))
+        r.tags.includes("journaling") ||
+        r.tags.includes("ritual_lunar"))
   );
+
+  // Rituales generales (sin fase específica) como fallback
+  const generalRituals = rituals.filter((r) => !r.targetPhase);
 
   console.log("🎭 Estado actual:", {
     correctPhase,
     totalRituals: rituals.length,
     phaseRituals: phaseRituals.length,
     moonRituals: moonRituals.length,
+    generalRituals: generalRituals.length,
   });
 
   return (
@@ -386,43 +562,50 @@ const RitualsView: React.FC<RitualsViewProps> = ({ expanded = true }) => {
             >
               {phaseRituals.length > 0 ? (
                 phaseRituals.map((ritual, index) => (
-                  <motion.div
+                  <RitualCard
                     key={ritual.id}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: index * 0.1 }}
+                    ritual={ritual}
+                    index={index}
+                    isMobile={isMobile}
+                  />
+                ))
+              ) : generalRituals.length > 0 ? (
+                // ! 09/06/2025 - Mostrar rituales generales como fallback
+                <>
+                  <div
                     style={{
-                      background: "transparent",
+                      background: "#E8F4FD",
                       padding: isMobile ? 16 : 20,
                       borderRadius: 12,
-                      boxShadow: "none",
+                      border: "1px solid #B3D9F7",
+                      marginBottom: 16,
                     }}
                   >
-                    <h4
+                    <div
                       style={{
-                        fontSize: isMobile ? 16 : 18,
-                        color: "#4A9D7B",
+                        color: "#1976D2",
+                        fontWeight: 600,
+                        fontSize: 15,
                         marginBottom: 8,
                       }}
                     >
-                      {ritual.title}
-                    </h4>
-                    <p
-                      style={{
-                        color: "#666",
-                        marginBottom: 12,
-                        fontSize: isMobile ? 13 : 15,
-                      }}
-                    >
-                      {ritual.summary}
-                    </p>
-                    <div
-                      style={{ color: "#666", fontSize: 13, marginBottom: 8 }}
-                    >
-                      {ritual.body}
+                      💡 Rituales generales adaptables
                     </div>
-                  </motion.div>
-                ))
+                    <div style={{ color: "#666", fontSize: 13 }}>
+                      No hay rituales específicos para la fase {correctPhase},
+                      pero estos rituales generales pueden adaptarse:
+                    </div>
+                  </div>
+                  {generalRituals.slice(0, 3).map((ritual, index) => (
+                    <RitualCard
+                      key={ritual.id}
+                      ritual={ritual}
+                      index={index}
+                      isMobile={isMobile}
+                      isGeneral={true}
+                    />
+                  ))}
+                </>
               ) : (
                 <div
                   style={{
@@ -479,44 +662,19 @@ const RitualsView: React.FC<RitualsViewProps> = ({ expanded = true }) => {
             >
               {moonRituals.length > 0 ? (
                 moonRituals.map((ritual, index) => (
-                  <motion.div
+                  <RitualCard
                     key={ritual.id}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: index * 0.1 }}
-                    style={{
-                      background: "transparent",
-                      padding: 20,
-                      borderRadius: 12,
-                      boxShadow: "none",
-                    }}
-                  >
-                    <h4
-                      style={{
-                        fontSize: 18,
-                        color: "#4A9D7B",
-                        marginBottom: 8,
-                      }}
-                    >
-                      {ritual.title}
-                    </h4>
-                    <p
-                      style={{ color: "#666", marginBottom: 12, fontSize: 15 }}
-                    >
-                      {ritual.summary}
-                    </p>
-                    <div
-                      style={{ color: "#666", fontSize: 13, marginBottom: 8 }}
-                    >
-                      {ritual.body}
-                    </div>
-                  </motion.div>
+                    ritual={ritual}
+                    index={index}
+                    isMobile={isMobile}
+                    isMoon={true}
+                  />
                 ))
               ) : (
                 <div
                   style={{
                     background: "#FFF5F5",
-                    padding: 20,
+                    padding: isMobile ? 16 : 20,
                     borderRadius: 12,
                     border: "1px solid #FFE6E6",
                   }}
