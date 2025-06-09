@@ -327,8 +327,7 @@ const DraggableGrid: React.FC<DraggableGridProps> = ({
               duration: 0.5,
               ease: [0.25, 0.46, 0.45, 0.94],
             }}
-            className="flex-1 relative cursor-pointer overflow-hidden"
-            onClick={() => handleItemClick(expandedItem.id)}
+            className="flex-1 relative overflow-hidden"
             style={{
               minHeight: isMobile ? "250px" : isTablet ? "360px" : "400px", // Reducida altura en móvil
               maxHeight: isMobile ? "calc(100vh - 200px)" : undefined, // Altura máxima en móvil
@@ -359,6 +358,13 @@ const DraggableGrid: React.FC<DraggableGridProps> = ({
                 : {}
             }
           >
+            {/* ! 09/06/2025 - Área de cierre solo en el header */}
+            <div
+              className="absolute top-0 left-0 right-0 h-12 z-10 cursor-pointer"
+              onClick={() => handleItemClick(expandedItem.id)}
+              title="Clic para cerrar"
+            />
+
             {/* Icono de drag expandido - mejorado */}
             <div
               className={`absolute z-20 ${
@@ -774,7 +780,7 @@ const DraggableGrid: React.FC<DraggableGridProps> = ({
             : isTablet
             ? "grid grid-cols-2 auto-rows-fr"
             : "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 auto-rows-fr"
-        }`}
+        } ${isLibrary ? 'p-8' : ''}`}
         style={{
           ...(isDesktop ? { gridTemplateRows: "repeat(2, 1fr)" } : {}),
           // Altura calculada para el efecto apilado en móvil

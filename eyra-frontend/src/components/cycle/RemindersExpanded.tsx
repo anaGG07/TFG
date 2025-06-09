@@ -1,5 +1,7 @@
 import React from "react";
+import { motion } from "framer-motion";
 import type { Notification } from "../../services/notificationService";
+import { useViewport } from "../../hooks/useViewport";
 
 interface NotificationsData {
   all: Notification[];
@@ -19,26 +21,25 @@ const RemindersExpanded: React.FC<RemindersExpandedProps> = ({
   markAllAsRead,
   markAsRead,
 }) => {
+  const { isMobile, isTablet } = useViewport(); // ! 08/06/2025 - Añadir responsive
   // Validar que notifications existe y tiene la estructura esperada
   const notificationsList = notifications?.all || [];
-  
+
   // Filtrar recordatorios pendientes (no leídos y tipo reminder/cycle_prediction)
-  const pendingReminders = notificationsList
-    .filter((n: Notification) =>
+  const pendingReminders = notificationsList.filter(
+    (n: Notification) =>
       !n.read && ["reminder", "cycle_prediction"].includes(n.type)
-    );
+  );
 
   // Buscar notificación de ciclo próximo
-  const cyclePrediction = notificationsList
-    .find((n: Notification) =>
-      !n.read && n.type === "cycle_prediction"
-    );
+  const cyclePrediction = notificationsList.find(
+    (n: Notification) => !n.read && n.type === "cycle_prediction"
+  );
 
   // Buscar notificación de acompañante
-  const partnerJoined = notificationsList
-    .find((n: Notification) =>
-      !n.read && n.type === "partner"
-    );
+  const partnerJoined = notificationsList.find(
+    (n: Notification) => !n.read && n.type === "partner"
+  );
 
   // Formatear fecha amigable
   const formatDate = (dateStr?: string) => {
@@ -46,19 +47,23 @@ const RemindersExpanded: React.FC<RemindersExpandedProps> = ({
     try {
       const date = new Date(dateStr);
       if (isNaN(date.getTime())) return "";
-      
+
       const now = new Date();
       const diff = (date.getTime() - now.getTime()) / (1000 * 60 * 60 * 24);
       if (diff < 0.5 && diff > -0.5) return "Hoy";
       if (diff < 1.5 && diff > 0.5) return "Mañana";
-      return date.toLocaleDateString("es-ES", { day: "2-digit", month: "short" });
+      return date.toLocaleDateString("es-ES", {
+        day: "2-digit",
+        month: "short",
+      });
     } catch {
       return "";
     }
   };
 
-  // Manejar errores en las acciones
-  const handleMarkAsRead = async (id: number) => {
+  // ! 08/06/2025 - Manejar errores en las acciones con stopPropagation
+  const handleMarkAsRead = async (e: React.MouseEvent, id: number) => {
+    e.stopPropagation(); // Prevenir cierre de la caja
     try {
       await markAsRead(id.toString());
     } catch (error) {
@@ -66,7 +71,8 @@ const RemindersExpanded: React.FC<RemindersExpandedProps> = ({
     }
   };
 
-  const handleMarkAllAsRead = async () => {
+  const handleMarkAllAsRead = async (e: React.MouseEvent) => {
+    e.stopPropagation(); // Prevenir cierre de la caja
     try {
       await markAllAsRead();
     } catch (error) {
@@ -75,134 +81,423 @@ const RemindersExpanded: React.FC<RemindersExpandedProps> = ({
   };
 
   return (
-    <div className="h-full flex flex-col px-6 py-8">
-      <h3 className="text-center text-lg font-bold text-[#C62328] mb-4">Tus recordatorios</h3>
+    <motion.div
+      initial={{ opacity: 0, scale: 0.98 }}
+      animate={{ opacity: 1, scale: 1 }}
+      exit={{ opacity: 0, scale: 0.98 }}
+      transition={{ duration: 0.5 }}
+      className="h-full flex flex-col"
+      style={{
+        background: "transparent",
+        borderRadius: isMobile ? 18 : 24,
+        padding: isMobile ? 20 : isTablet ? 28 : 32,
+        minHeight: isMobile ? 360 : isTablet ? 420 : 480,
+        width: "100%",
+      }}
+    >
+      {/* ! 08/06/2025 - Header neomórfico */}
+      <div
+        style={{
+          background: "linear-gradient(145deg, #fafaf9, #e7e5e4)",
+          boxShadow: `
+            8px 8px 16px rgba(91, 1, 8, 0.1),
+            -8px -8px 16px rgba(255, 255, 255, 0.8),
+            inset 0 1px 0 rgba(255, 255, 255, 0.2)
+          `,
+          borderRadius: isMobile ? 16 : 20,
+          padding: isMobile ? 16 : 20,
+          marginBottom: isMobile ? 20 : 24,
+          textAlign: "center" as const,
+        }}
+      >
+        <h3
+          style={{
+            fontSize: isMobile ? 18 : 20,
+            fontWeight: 700,
+            color: "#C62328",
+            marginBottom: 8,
+            textShadow: "0 1px 2px rgba(255,255,255,0.8)",
+          }}
+        >
+          Tus recordatorios
+        </h3>
+
+        {pendingReminders.length > 0 ? (
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: 8,
+              fontSize: isMobile ? 12 : 14,
+              color: "#7a2323",
+            }}
+          >
+            <span>💌</span>
+            <span>¡Todo al día!</span>
+          </div>
+        ) : (
+          <div
+            style={{
+              fontSize: isMobile ? 12 : 14,
+              color: "#7a2323",
+            }}
+          >
+            No tienes recordatorios pendientes
+          </div>
+        )}
+      </div>
+
+      {/* Contenido principal */}
       <div className="flex-1 space-y-4">
         {/* Lista de recordatorios pendientes */}
         {pendingReminders.length > 0 ? (
-          <ul>
-            {pendingReminders.map((r: Notification) => (
-              <li key={r.id} className="flex items-center gap-2 bg-[#fff7f7] rounded-lg px-3 py-2 shadow-sm mb-1">
-                <span className="text-[#C62328]">🔔</span>
-                <span className="text-sm text-[#7a2323] flex-1">{r.title}</span>
-                <span className="text-xs text-[#C62328] font-semibold">{formatDate(r.scheduledFor || r.createdAt)}</span>
-                <button 
-                  onClick={(e) => { 
-                    e.stopPropagation(); 
-                    handleMarkAsRead(r.id); 
-                  }} 
-                  className="ml-2 text-xs text-green-600 font-bold hover:text-green-800 transition-colors"
-                  title="Marcar como leído"
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+          >
+            {pendingReminders.map((r: Notification, index: number) => (
+              <motion.div
+                key={r.id}
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: index * 0.1 }}
+                style={{
+                  background: "linear-gradient(145deg, #fff, #f5f4f3)",
+                  boxShadow: `
+                    4px 4px 8px rgba(91, 1, 8, 0.08),
+                    -4px -4px 8px rgba(255, 255, 255, 0.9),
+                    inset 0 1px 0 rgba(255, 255, 255, 0.3)
+                  `,
+                  borderRadius: isMobile ? 12 : 16,
+                  padding: isMobile ? 12 : 16,
+                  marginBottom: 12,
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 12,
+                  cursor: "default",
+                }}
+              >
+                {/* Icono */}
+                <div
+                  style={{
+                    width: isMobile ? 32 : 36,
+                    height: isMobile ? 32 : 36,
+                    borderRadius: "50%",
+                    background: "linear-gradient(145deg, #FFE6E6, #FFCCCC)",
+                    boxShadow: `
+                      2px 2px 4px rgba(91, 1, 8, 0.1),
+                      -2px -2px 4px rgba(255, 255, 255, 0.8)
+                    `,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    fontSize: isMobile ? 16 : 18,
+                  }}
                 >
-                  ✓
-                </button>
-              </li>
+                  {r.type === "cycle_prediction"
+                    ? "🔴"
+                    : r.type === "reminder"
+                    ? "�"
+                    : "📩"}
+                </div>
+
+                {/* Contenido */}
+                <div className="flex-1">
+                  <div
+                    style={{
+                      fontSize: isMobile ? 14 : 15,
+                      fontWeight: 600,
+                      color: "#5b0108",
+                      marginBottom: 4,
+                      lineHeight: 1.3,
+                    }}
+                  >
+                    {r.title}
+                  </div>
+                  {r.message && (
+                    <div
+                      style={{
+                        fontSize: isMobile ? 12 : 13,
+                        color: "#7a2323",
+                        lineHeight: 1.4,
+                      }}
+                    >
+                      {r.message}
+                    </div>
+                  )}
+                </div>
+
+                {/* Fecha y botón */}
+                <div
+                  style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "flex-end",
+                    gap: 8,
+                  }}
+                >
+                  <span
+                    style={{
+                      fontSize: isMobile ? 11 : 12,
+                      color: "#C62328",
+                      fontWeight: 600,
+                    }}
+                  >
+                    {formatDate(r.scheduledFor || r.createdAt)}
+                  </span>
+
+                  <motion.button
+                    onClick={(e) => handleMarkAsRead(e, r.id)}
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    style={{
+                      width: isMobile ? 24 : 28,
+                      height: isMobile ? 24 : 28,
+                      borderRadius: "50%",
+                      background: "linear-gradient(145deg, #E8F5E8, #D4EDD4)",
+                      border: "none",
+                      boxShadow: `
+                        2px 2px 4px rgba(76, 175, 80, 0.2),
+                        -2px -2px 4px rgba(255, 255, 255, 0.8)
+                      `,
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      color: "#4CAF50",
+                      fontSize: isMobile ? 12 : 14,
+                      cursor: "pointer",
+                      transition: "all 0.2s ease",
+                    }}
+                    title="Marcar como leído"
+                  >
+                    ✓
+                  </motion.button>
+                </div>
+              </motion.div>
             ))}
-          </ul>
+          </motion.div>
         ) : (
-          // Contenido por defecto cuando no hay recordatorios
-          <div className="flex flex-col justify-center py-4 h-full">
-            <div className="text-center mb-6">
-              <div className="text-2xl mb-2">🌸</div>
-              <h4 className="text-sm font-semibold text-[#C62328] mb-2">¡Todo al día!</h4>
-              <p className="text-xs text-[#7a2323] mb-4">No tienes recordatorios pendientes</p>
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              justifyContent: "center",
+              padding: isMobile ? 32 : 40,
+              textAlign: "center" as const,
+            }}
+          >
+            <div
+              style={{
+                width: isMobile ? 60 : 80,
+                height: isMobile ? 60 : 80,
+                borderRadius: "50%",
+                background: "linear-gradient(145deg, #FFE6E6, #FFCCCC)",
+                boxShadow: `
+                  8px 8px 16px rgba(91, 1, 8, 0.1),
+                  -8px -8px 16px rgba(255, 255, 255, 0.8)
+                `,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                fontSize: isMobile ? 24 : 32,
+                marginBottom: 16,
+              }}
+            >
+              😌
             </div>
 
-            {/* Consejos útiles por defecto */}
-            <div className="space-y-3">
-              <div className="bg-[#fff7f7] rounded-lg px-3 py-2 shadow-sm">
-                <div className="flex items-center gap-2">
-                  <span className="text-[#C62328]">💧</span>
-                  <div className="flex-1">
-                    <p className="text-xs font-medium text-[#7a2323]">Mantente hidratada</p>
-                    <p className="text-xs text-[#a62c2c]">Bebe al menos 8 vasos de agua al día</p>
-                  </div>
-                </div>
-              </div>
-
-              <div className="bg-[#fff7f7] rounded-lg px-3 py-2 shadow-sm">
-                <div className="flex items-center gap-2">
-                  <span className="text-[#C62328]">🥗</span>
-                  <div className="flex-1">
-                    <p className="text-xs font-medium text-[#7a2323]">Alimentación balanceada</p>
-                    <p className="text-xs text-[#a62c2c]">Incluye hierro y vitaminas en tu dieta</p>
-                  </div>
-                </div>
-              </div>
-
-              <div className="bg-[#fff7f7] rounded-lg px-3 py-2 shadow-sm">
-                <div className="flex items-center gap-2">
-                  <span className="text-[#C62328]">🧘‍♀️</span>
-                  <div className="flex-1">
-                    <p className="text-xs font-medium text-[#7a2323]">Ejercicio suave</p>
-                    <p className="text-xs text-[#a62c2c]">Yoga y estiramientos ayudan con calambres</p>
-                  </div>
-                </div>
-              </div>
-
-              <div className="bg-[#fff7f7] rounded-lg px-3 py-2 shadow-sm">
-                <div className="flex items-center gap-2">
-                  <span className="text-[#C62328]">😴</span>
-                  <div className="flex-1">
-                    <p className="text-xs font-medium text-[#7a2323]">Descanso reparador</p>
-                    <p className="text-xs text-[#a62c2c]">7-8 horas de sueño mejoran tu bienestar</p>
-                  </div>
-                </div>
-              </div>
-
-              <div className="bg-[#fff7f7] rounded-lg px-3 py-2 shadow-sm">
-                <div className="flex items-center gap-2">
-                  <span className="text-[#C62328]">📝</span>
-                  <div className="flex-1">
-                    <p className="text-xs font-medium text-[#7a2323]">Registra tu ciclo</p>
-                    <p className="text-xs text-[#a62c2c]">Anota síntomas para mejor seguimiento</p>
-                  </div>
-                </div>
-              </div>
+            <div
+              style={{
+                fontSize: isMobile ? 16 : 18,
+                fontWeight: 600,
+                color: "#C62328",
+                marginBottom: 8,
+              }}
+            >
+              ¡Todo al día!
             </div>
 
-            <div className="mt-4 text-center">
-              <p className="text-xs text-[#a62c2c] italic">
-                Los recordatorios aparecerán aquí cuando tengas notificaciones pendientes
-              </p>
+            <div
+              style={{
+                fontSize: isMobile ? 14 : 15,
+                color: "#7a2323",
+                marginBottom: 20,
+                lineHeight: 1.4,
+              }}
+            >
+              No tienes recordatorios pendientes
             </div>
-          </div>
+          </motion.div>
         )}
 
-        {/* Aviso de ciclo próximo */}
+        {/* Avisos especiales */}
         {cyclePrediction && (
-          <div className="mt-3 bg-[#f8f4f1] rounded-xl p-3 text-xs text-[#7a2323] shadow-inner">
-            <span className="font-semibold text-[#C62328]">Próximo ciclo:</span> {cyclePrediction.message}
-            <ul className="list-disc ml-5 mt-1 text-xs">
-              <li>Asegúrate de tener productos menstruales</li>
-              <li>Prepara analgésicos si los usas</li>
-              <li>Planifica actividades relajantes</li>
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.4 }}
+            style={{
+              background: "linear-gradient(145deg, #FFF8F5, #F5F0EB)",
+              boxShadow: `
+                inset 2px 2px 4px rgba(91, 1, 8, 0.05),
+                inset -2px -2px 4px rgba(255, 255, 255, 0.8)
+              `,
+              borderRadius: isMobile ? 12 : 16,
+              padding: isMobile ? 16 : 20,
+              marginTop: 16,
+            }}
+          >
+            <div
+              style={{
+                fontSize: isMobile ? 14 : 15,
+                fontWeight: 600,
+                color: "#C62328",
+                marginBottom: 8,
+              }}
+            >
+              🔴 Próximo ciclo:
+            </div>
+            <div
+              style={{
+                fontSize: isMobile ? 13 : 14,
+                color: "#7a2323",
+                marginBottom: 12,
+                lineHeight: 1.4,
+              }}
+            >
+              {cyclePrediction.message}
+            </div>
+            <ul
+              style={{
+                listStyle: "none",
+                padding: 0,
+                margin: 0,
+                fontSize: isMobile ? 12 : 13,
+                color: "#7a2323",
+              }}
+            >
+              <li
+                style={{
+                  marginBottom: 4,
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 8,
+                }}
+              >
+                <span>•</span> Asegúrate de tener productos menstruales
+              </li>
+              <li
+                style={{
+                  marginBottom: 4,
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 8,
+                }}
+              >
+                <span>•</span> Prepara analgésicos si los usas
+              </li>
+              <li style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                <span>•</span> Planifica actividades relajantes
+              </li>
             </ul>
-          </div>
+          </motion.div>
         )}
 
         {/* Aviso de acompañante */}
         {partnerJoined && (
-          <div className="mt-3 bg-[#f8f4f1] rounded-xl p-3 text-xs text-[#7a2323] shadow-inner">
-            <span className="font-semibold text-[#C62328]">¡Nuevo acompañante!</span> {partnerJoined.message}
-          </div>
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.5 }}
+            style={{
+              background: "linear-gradient(145deg, #F0F8F0, #E8F5E8)",
+              boxShadow: `
+                inset 2px 2px 4px rgba(76, 175, 80, 0.1),
+                inset -2px -2px 4px rgba(255, 255, 255, 0.8)
+              `,
+              borderRadius: isMobile ? 12 : 16,
+              padding: isMobile ? 16 : 20,
+              marginTop: 16,
+            }}
+          >
+            <div
+              style={{
+                fontSize: isMobile ? 14 : 15,
+                fontWeight: 600,
+                color: "#4CAF50",
+                marginBottom: 8,
+              }}
+            >
+              🎉 ¡Nuevo acompañante!
+            </div>
+            <div
+              style={{
+                fontSize: isMobile ? 13 : 14,
+                color: "#2E7D32",
+                lineHeight: 1.4,
+              }}
+            >
+              {partnerJoined.message}
+            </div>
+          </motion.div>
         )}
 
         {/* Botón marcar todos como leídos */}
         {pendingReminders.length > 0 && (
-          <button
-            onClick={(e) => { 
-              e.stopPropagation(); 
-              handleMarkAllAsRead(); 
-            }}
-            className="mt-4 bg-[#C62328] text-white rounded-xl px-4 py-2 text-xs font-semibold shadow hover:bg-[#a81d22] transition"
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.6 }}
+            style={{ textAlign: "center" as const, marginTop: 20 }}
           >
-            Marcar todos como leídos
-          </button>
+            <motion.button
+              onClick={handleMarkAllAsRead}
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              style={{
+                background: "linear-gradient(145deg, #C62328, #A81D22)",
+                color: "white",
+                border: "none",
+                borderRadius: isMobile ? 12 : 16,
+                padding: `${isMobile ? 12 : 14}px ${isMobile ? 24 : 32}px`,
+                fontSize: isMobile ? 14 : 15,
+                fontWeight: 600,
+                cursor: "pointer",
+                boxShadow: `
+                  4px 4px 8px rgba(91, 1, 8, 0.2),
+                  -2px -2px 4px rgba(255, 255, 255, 0.1)
+                `,
+                transition: "all 0.2s ease",
+              }}
+            >
+              Marcar todos como leídos
+            </motion.button>
+          </motion.div>
         )}
       </div>
-    </div>
+
+      {/* Footer info */}
+      <div
+        style={{
+          textAlign: "center" as const,
+          fontSize: isMobile ? 11 : 12,
+          color: "#a62c2c",
+          fontStyle: "italic",
+          marginTop: 16,
+          opacity: 0.8,
+        }}
+      >
+        Los recordatorios aparecerán aquí cuando tengas notificaciones
+        pendientes
+      </div>
+    </motion.div>
   );
 };
 
-export default RemindersExpanded; 
+export default RemindersExpanded;
